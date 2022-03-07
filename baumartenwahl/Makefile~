@@ -1,4 +1,4 @@
-PAPER := mischOderReinbestand
+PAPER := baumartenwahl
 PICDIR := pic
 XFIGDIR := xfig
 RPLOTDIR := r
@@ -55,5 +55,4 @@ clean: purge
 	$(RM) $(PAPER).tar.xz
 
 tar:
-	touch $(PAPER).tar.xz
 	tar --exclude="$(PAPER).tar.xz" -cJf $(PAPER).tar.xz .

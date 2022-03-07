@@ -1,4 +1,4 @@
-PAPER := mischOderReinbestand
+PAPER := baumartenwahl
 PICDIR := pic
 XFIGDIR := xfig
 RPLOTDIR := r
