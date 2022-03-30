@@ -19,10 +19,10 @@ $(PAPER).pdf: $(PICTURES) $(wildcard *.tex) $(PAPER).bbl
 	pdflatex $(PAPER)
 	if grep "Citation.*undefined" $(PAPER).log; then bibtex $(PAPER); pdflatex $(PAPER); fi
 	if grep "Writing index file" $(PAPER).log; then makeindex $(PAPER); pdflatex $(PAPER) ; fi
-	LATEX_COUNT=0
-	while grep "Rerun (to get|LaTeX)|undefined references|Linenumber reference failed" $(PAPER).log  \
-	   && [ $LATEX_COUNT -lt 5 ] ; do      \
-	  LATEX_COUNT=`expr $LATEX_COUNT + 1` ; \
+	LATEX_COUNT=0; \
+	while grep "Rerun \(to get\|LaTeX\)\|undefined references\|Linenumber reference failed" $(PAPER).log  \
+	   && [ $$LATEX_COUNT -lt 5 ] ; do      \
+	  LATEX_COUNT=`expr $$LATEX_COUNT + 1` ; \
 	  pdflatex $(PAPER) ;                    \
 	done
 
