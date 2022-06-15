@@ -24,6 +24,11 @@
 \usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
 \usepackage{afterpage}
 
+\usepackage{pgfplotstable}
+\usepackage{tikz}
+\usepackage{array}
+\usepackage{arydshln}
+
 \usepackage[pdftitle={Kriterien und Hilfen bei der Baumartenwahl}
 , pdfauthor={Georg Kindermann}
 , pdfsubject={Waldbau, Waldwachstum}
@@ -42,6 +47,32 @@
 \title{Kriterien und Hilfen bei der Baumartenwahl}
 \author{Georg Kindermann}
 
+\newlength{\eX}
+\settoheight{\eX}{X}
+\newcommand*{\torte}[1]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt]%
+    \ifnum0=#1 \else
+    \ifnum1=#1 \draw (0,0) circle (.5\eX); \else
+    \draw (0,0) circle (.5\eX);
+    \fill (0,0) -- (90:.5\eX) arc (90:90-(#1-1)*72:.5\eX) -- cycle;
+    \fi\fi
+  \end{tikzpicture}}
+
+\newcommand*{\hst}[1]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt]
+    %\path (0,0) (1em,1.0em);
+    \ifnum4=#1\draw (.5\eX,1\eX) -- (0\eX,0\eX) -- (1\eX,0\eX) -- cycle;\else
+    \ifnum3=#1\draw[fill] (.3\eX,1\eX) -- (.15\eX,.5\eX) -- (.85\eX,.5\eX) -- (.7\eX,1\eX) -- cycle;
+    \draw (.15\eX,.5\eX) -- (0\eX,0\eX) -- (1\eX,0\eX) -- (.85\eX,.5\eX) -- cycle;
+    \else
+    \ifnum2=#1\draw (.3\eX,1\eX) -- (.15\eX,.5\eX) -- (.85\eX,.5\eX) -- (.7\eX,1\eX) -- cycle;
+    \draw[fill] (.15\eX,.5\eX) -- (0\eX,0\eX) -- (1\eX,0\eX) -- (.85\eX,.5\eX) -- cycle;
+    \else
+    \ifnum1=#1\draw (0\eX,.2\eX) -- (1\eX,.2\eX) {[rounded corners=2pt] -- (1\eX,1\eX) -- (.5\eX,.5\eX)} -- (0\eX,.5\eX) -- cycle;
+    \else
+    \ifnum0=#1\draw[fill] (0,0) -- (1\eX,0) -- (1\eX,.5\eX) {[rounded corners=2pt] -- (.5\eX,.2\eX)} -- (0,.5\eX) -- cycle;
+    \fi\fi\fi\fi\fi
+  \end{tikzpicture}
+}
+
 \listfiles
 \begin{document}
 
@@ -58,8 +89,82 @@
 
 \section{Einleitung}
 
+Die Baumartenwahl ist eine der weitreichendsten waldbaulichen
+Entscheidungen und kann selbst in Mischwäldern nach der
+Verjüngungsphase nur bedingt verändert werden. Durch die Vielzahl an
+Kriterien, welche zum Großteil, zum Zeitpunkt der Entscheidung,
+quantitativ kaum fassbar sind, können die Baumarten nur untereinander
+verglichen und nach subjektiven Schwerpunkten abgewogen werden. Auf
+Standorten, die nur wenigen Baumarten zusagen, ist die Entscheidung
+einfach, solange das vorliegen eines Zwangsstandortes erkannt wird und
+die Baumartenwahl auf heimische Baumarten beschränkt ist. Ähnlich ist
+es bei einer Beschränkung auf Baumarten die sich natürlich einstellen
+oder jene der potentiell natürlichen Vegetation, insbesondere in
+Regionen in denen die Artenvielfalt in der letzten Eiszeit drastisch
+reduziert wurde. Wobei auch hier die potentiell natürliche Vegetation
+eines Standortes erst einmal richtig erkannt werden muss. Hingegen
+zunächst alle Baumarten, die eventuell standortstauglich sein könnten,
+in Betracht zu ziehen, wird oft schon daran scheitern, dass man einige
+davon nicht oder nur mit erheblichem Aufwand erhalten wird können und
+von vielen deren waldbauliches Verhalten, auf dem vorliegenden
+Standort, wenig bis gar nicht bekannt ist.
+
+Um Wissen in diese Richtung zu erweitern und sich oder seinen
+Nachfolgern dadurch in der Zukunft weitere Möglichkeiten zu
+erschließen, können auf keinen Flächen durchaus auch neue Baumarten
+erprobt werden. Dabei muss das Risiko des Versagens der Baumart
+bewusst in Kauf genommen und deren Ausmaß auf Kleinflächen beschränkt
+bleiben. Flächen auf denen verschiedene Baumarten unmittelbar
+verglichen werden können finden sich in botanischen Gärten, Arboreten
+und vereinzelt auch auf eigens dafür angelegten Versuchsflächen, wobei
+bei ersteren in der Regel die Bäume in keiner Bestandessituation,
+sondern als Solitäre, anzutreffen sind und den Bäumen oft besondere
+Pflege (z.\,B.\ Bewässerung) zukommt. Eine erste Auswertung der
+Höhenwuchsleistung, verschiedener Baumarten, am selben Standort, wurde
+von \cite{mayer1970anbauversuch} gemacht. Von Seiten des
+Bundesforschungszentrums für Wald wurde 2012 ein Forschugsantrag zur
+ersten Anlage einiger solcher Versuchsflächen beim Ministerium
+eingereicht. Dieses Vorhaben konnte 2017 auf einer Fläche am Wechsel
+($47,4999^{\circ}$\,Nord, $15,9741^{\circ}$\,Ost) auf 1340\,m mit
+31~Baumarten begonnen werden. 2019 wurde in Matzen (Niederösterreich)
+ein weiterer Versuch mit 15~Baumarten angelegt. 2022 wurde in
+Kronsdorf (Oberösterreich) von der Landwirschaftskammer unter der
+Leitung von Christoph Jasser eine Fläche mit 44~Baumarten
+angelegt. Diese Versuchswälder werden als
+\emph{Site--Index--Benchmark--} bzw.\
+\emph{Wuchsleistungsvergleichsbestände}, \emph{Klimaforschungswald}
+oder \emph{Waldlabor} bezeichnet. Es bleibt zu Hoffen, dass dieser
+Trend nicht nur fortgesetzt sondern auch verstärkt wird, um das
+Möglichkeisspekturm, bei der Baumartenwahl, aufzuzeigen und vermehrt
+von der subjektiven in Richtung objektive Entscheidung leiten zu
+können. Das dieser Vergleich nicht nur auf Baumarten baumarten
+beschränkt, sondern auch auf verschiedene Herkünfte auszudehnen ist,
+zeigt Abbildung~\ref{fig:fichtenHerkuenfte} aus
+\citet[S.~86]{hegi1906IllustrierteFloraBd1} auf der drei verschiedenen
+Fichtenherkünfte mit verschiedenen Wuchsformen und Wuchsleistungen zu
+sehen sind. Da die Publikation vom Jahr
+\citeyear{hegi1906IllustrierteFloraBd1} ist, wurden die drei Bäume
+bereits um 1800 gepflanzt und zeigen sehr anschaulich deren
+Unterschiede auf. Ähnlich anschauliches ist auch von Versuchsflächen
+mit möglichst vielen verschiedenen Baumarten und Herkünften zu
+erwarten.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/fichtenHerkuenfte.jpg}
+  \caption{Drei verschiedene Wuchsformen von Fichte an dem gleichen
+    Standort (les Monts nördlich von le Locle, Kanton Neuenburg,
+    Schweiz). Phot. Kreisförster
+    Pillichody. \citep[S.~86]{hegi1906IllustrierteFloraBd1}}
+  \label{fig:fichtenHerkuenfte}
+\end{figure}
+
 \section{Kriterien}
 \label{sec:kriterien}
+
+Die folgenden Kriterien, die bei der Bauartenwahl eine Rolle spielen
+können, stellen eine subjektive Zusammenstellung dar und müssen bei
+Bedarf erweitert werden.
 
 \subsection{Standort}
 \label{ssec:standort}
@@ -67,46 +172,198 @@
 Die standörtliche Tauglichkeit ist wohl der erste Punkt, der, bei der
 Baumartenwahl, erfüllt sein muss. Eine Beschränkung auf Baumarten, die
 in der potentiell natürlichen Waldgesellschaft vorkommen würden, ist
-allerdings nicht nötig.
+allerdings nicht immer nötig. Baumarten des Vorbestandes und der
+näheren Umgebung mit vergleichbarem Standort sind
+Standortstauglich. Da der Standort z.B. durch den Klimawandel,
+Stickstoff-- und Schadstoffeinträge laufend verändert wird, können
+standortstaugliche Baumarten des Vorbesatndes, im Folgebestand
+plötzlich nicht mehr standortstauglich sein. Dies kann so weit gehen,
+dass der Standort für eine andere Landutzungsform (Grasland, Acker)
+geeignetere wird. In vielen Fällen zeigt sich die Tauglichkeit oder
+Untauglichkeit einer Baumart für einen Standort bereits in der
+Verjüngungsphase. Wobei alleine der Ausfall einer Baumart in der
+Verjüngung, insbesondere wenn nur ein Jahr betrachtet wurde, noch kein
+ausreichender Hinweis für die \emph{standörtliche} Untauglichkeit der
+Baumart darstellt. Dabei kann z.\,B.\ schlecht oder zur falschen Zeit
+gepflanzt worden sein, die Witterung in diesem einen Jahr ungünstig
+gewesen sein, Tiere, Pilze oder andere Pflanzen die jungen Bäume zum
+absterben gebracht haben.
 
-Der Standort beeinflusst auch welche Plegemaßnahmen durchführbar sind.
+Der Begriff Standort darf sich allerdings nicht darf beschränken, ob
+eine Baumart auf einen Standort wachsen kann oder nicht. Der Standort
+bestimmt auch die Wuchsleistung und die Gefährdung (Nassschneelage --
+Schneebruch, Durchwurzelungstiefe, Windgeschwindigkeit -- Windwurf,
+Windbruch) und damit wie häufig welche Pflegemaßnahmen durchgeführt
+werden sollten.
 
 \subsection{Ertrag}
 \label{ssec:ertrag}
 
+Standortstaugliche Baumarten können sich in der Ertragsleistung
+beträchtlich unterscheiden. Durch dieses Kriterium wird die Anzahl zur
+Auswahl stehenden Baumarten oft entscheidend reduziert und führte
+aufgrund der Reinertragslehre oft zum dominieren einer Baumart in
+ganzen Regionen. So wichtig die Ertragsleistung auch ist, mag es
+durchaus gerechtfertigt sein die zweit--, dritt-- oder
+viertleistungsfähigste Baumart zu wählen bzw.\ die Bedeutung dieses
+Kriteriums gering zu gewichten, zumal die erwartete Ertragsleistung,
+selbst wenn sich dies nur auf die Zuwachsleistung bezieht, nur recht
+unsicher geschätzt werden kann. Nicht nur die Zuwachsleistung, sondern
+auch das gewünschte \emph{Zielsortiment} beeinflussen die
+Baumartenwahl. Ein Waldbesitzer, der seinen Brennholzbedarf decken
+will, wird am selben Standort meist andere Baumarten wählen als einer
+mit dem Ziel Wertholzproduktion.
+
 \subsection{Pflegeaufwand}
 \label{ssec:pflegeaufwand}
+
+Baumarten unterscheiden sich hinsichtlich ihres nötigen
+Pflegeaufwandes. Selbst wenn jemand den Ertrags-- und
+Qualitätskriterien wenig Bedeutung beimisst, ist sind Pflegeeingriffe
+(Durchforstungen) dringend zu empfehlen um die Bestandesstabilität
+(Windwurf, Schneebruch, Insekten, Pilze) nicht zu gefährden. Neben der
+Baumart entscheiden auch die Ziele (z.\,B.\ Produktion von
+Qualitätsholz), der Standort (Wuchsleistung der Baumart auf diesem
+Standort) und eine eventuelle Mischung (entfernen von einigen
+konkurrenzstärkeren Nachbar einer anderen Baumart um die
+konkurrenzschwächere Baumart zu erhalten) den Pflegeaufwand. Allgemein
+erhöht sich der Pflegeaufwand hinsichtlich Frequenz und Umfang mit
+Zunahme der Wuchsleistung.
 
 \subsection{Risiko}
 \label{ssec:risiko}
 
+Baumarten ohne Ausfallsrisiko gibt es nicht. Aber es gibt Baumarten
+die, auf bestimmten \emph{Standorten}, ein wesentlich höheres
+Ausfallsrisiko haben als andere. Auch die Nachbarbestände können das
+Risiko mitbestimmen indem sie Deckungsschutz bieten oder auch
+nicht. Dieser Umstand wurde von
+\cite{wagner1923DerBlendersaumschlagUndSeinSystem} ausführlich
+dargestellt und als Lösung der Blendersaumschlag (Streifenweise
+Schlage die sich, z.\,B.\ entgegen die Hauptwindrichtung, im laufe der
+Zeit aneinander reihen) vorgeschlagen. Aber nicht nur der unmittelbare
+Nachbarbestand, sonder die Baumartenvereilung einer ganzen Region,
+kann das Ausfallsrisiko einer Baumart mitbestimmen indem sich z.\,B.\
+Insektenkalamitäten von diesen auf deren Nachbarn übertragen
+können. Ob eine Baumart im Bestand die gleiche oder eine andere
+Baumart als Nachbarn hat, beeinflusst ebenfalls das
+Ausfallsrisiko. Steht diese neben einer Baumart mit hohem
+Wasserverbrach, kann diese Mischbaumart das Ausfallsrisiko der
+Nachbarsbaumart in Trockenzeiten erhöhen.
+
 \subsection{Bestandestyp}
 \label{ssec:bestandestyp}
 
-Hochwald, Mittelwald, Niederwald.
-Reinbestand, Mischbestand.
-Einschichtig, Mehrschichtig, Gleichalt Ungleichaltrig.
-Naturverjüngung / Kunstverjüngung
+Ob man einen \emph{Hochwald}, \emph{Mittelwald} oder \emph{Niederwald}
+anstrebt, beeinflusst das Spektrum der zur Auswahl stehenden
+Baumarten. So können im Niederwald ausschließlich Baumarten mit
+Stockausschlag oder Wurzelbrut Verwendung finden. Der Bestandestyp
+kann in vielen Fällen frei gewählt werden. Auf bestimmten Standorten
+zeigt kann einer dieser Typen Vorteile gegenüber den anderen
+Zeigen. Beispielsweise ist die Verjüngung auf trockenen Standorten im
+Niederwald meist einfacher als in Hochwald.
 
-\subsection{Umgebende Bestände}
-\label{ssec:nachbarschaft}
+Die Baumartenwahl kann in \emph{Reinbeständen} anders als in
+\emph{Mischbeständen} ausfallen wobei hier die \emph{Mischungsform}
+(Einzel, Trupp, Gruppe, Horst, Fläche, Reihe, Streifen) und die
+Baumartenanteile die Auswahl mitbestimmen. Im Mischbestand müssen die
+Baumarten zusammenpassen und sollten eine Funktion in der Mischung
+übernehmen.
 
+Die \emph{Struktur} (Einschitig, Mehrschichtig, Stufig; Regelmäßig,
+Zufällig, Geklumpt) und ob ein Bestand gleich-- oder ungleichaltirg
+sein soll, beeinflussen die Baumartenwahl. In mehrschichtigen
+Beständen müssen die Baumarten der unteren Schichten mit dem dort
+geringeren Lichtangebot auskommen.
+
+Auch die Entscheidung zwischen Natur-- oder Kunstverjüngung bzw.\ eine
+Kombination von beiden beeinflusst die zur Auswahl stehenden
+Baumarten.
 
 \subsection{Schutzwirkung}
 \label{ssec:schutz}
 
-Lawine
-Biotop, Habitat, Naturschutz, Biodiversität.
-
+Baumarten unterscheiden sich hinsichtlich dem Rückhaltevermögen von
+Schnee und beeinflussen damit deren Schutzwirkung gegen
+Lawinen. Ähnliches, gilt auch für den Wasserrückhalt, welcher
+Auswirklungen auf den Hochwasserschutz aber auch auf die
+Gleichmäßigkeit der Wasserspende in Quelschutzwäldern
+hat. Verschiedenen Baumarten unterscheiden sich hinsichtlich ihrer
+Wirkungen auf das Biotop bzw.\ Habitat und leisten unterschiedliches
+für den Naturschutz und die Biodiversität. Dies ist insbesondere in
+Wechselwirkung zu den restlichen Baumarten der umliegenden Bestände zu
+betrachten.
 
 \subsection{Erholungswirkung}
 \label{ssec:erholung}
 
-Landschaftspflege
-
+Insbesondere in stadtnahen Wäldern haben Landschaftspflege und
+Erholungswirkung hohe Bedeutung. Diese werden in der Regeln kaum von
+einer Baumart eines Bestand, sondern im Zusammenwirken aller Bestände
+mit deren Baumarten bestimmt.
 
 \section{Hilfen}
 \label{sec:hilfen}
+
+Für die Baumartenwahl sind die waldbaulichen Eingenschaften und
+Ansprüche der Baumarten entscheidend. Diese sind beispielsweise in den
+Waldbaulehrbüchern von
+\citet{mayer1992Waldbau,burschel2003Waldbau,Dengler2020Waldbau,tschermak1950Waldbau,rittershofer2006Waldbau,rubner1960Waldbau,koestler1950Waldbau,bauer1962WaldbauAlsWissenschaft}
+oder in den Baumartenbeschreibungen von
+\citet{eth2002MitteleuropaeischeWaldbaumarten,leibundgut1984Waldbaeume,ec2016baumartenatlas}
+oder auch in Floren von
+\citet{fischer2008Exkursionsflora,hegi1906IllustrierteFloraBd1,oberdorfer2001Exkursionsflora,rothmaler2021Exkursionsflora,schmeil2019Exkursionsflora,fitschen2017Gehoelzflora,hieke1989Dendrologie,mayr1906FremdlaendischeWaldUndParkbaeumeFuerEuropa,stimm2014EnyklopedieDerHolzgewaechse,schuett1993LexikonDerForstbotanik}
+enthalten.
+
+Ökogramme
+Verbreitungskarten
+Wuchsleistungsschätzung
+Karten: Geologie, Boden, Niederschlag, Temperatur, Vegetation
+
+\begin{table*}[htbp!]
+  \setlength{\tabcolsep}{1pt}
+  \centering
+  \pgfplotstabletypeset[col sep=comma
+  , text indicator="
+  , string type
+  , after row=\cdashline{3-38}
+  %, every head row/.style={before row=\hline}
+  %, every last row/.style={after row={}}
+  %, every last column/.style={column type=c}
+  , every column/.style={column type=c:,preproc cell content/.style={@cell content = \torte{##1}}}
+  , display columns/0/.style={column type=l,column name=\rotatebox{-90}{Waldgesellschaft}, preproc cell content/.style={@cell content = ##1}}
+  , display columns/1/.style={column type=c|,preproc cell content/.style={@cell content = \hst{##1}}}
+  , assign column name/.style={/pgfplots/table/column name={\multicolumn{1}{c}{\rotatebox{90}{#1}}}}
+  , columns/Weisskiefer/.style={column name=Weißkiefer}
+  , every row no 4/.style={before row=\hline}
+  , every row no 12/.style={before row=\hline}
+  , every row no 22/.style={before row=\hline}
+  ]{./tabs/gesselschaftsanschluss.csv}
+  \caption{Natürlicher Gesellschaftsanschluß mit Vergesellschaftung der Baumarten in Wäldern des Ostalpenraumes \citep{mayer1992Waldbau}}
+  \footnotesize{\hst{0}\dots Auwald
+    , \hst{1}\dots Planar--Kolin --400\,m
+    , \hst{2}\dots Submontan 200--900\,m
+    , \hst{3}\dots Montan 500--1800\,m
+    , \hst{4}\dots Subalpin 1200--2300\,m\\
+    \tikz \draw (0,0) rectangle (1em,1em);\dots fehlend
+    , \torte{1}\dots sporadisch
+    , \torte{2}\dots spärlich
+    , \torte{3}\dots gering
+    , \torte{4}\dots mittel
+    , \torte{5}\dots reichlich
+    , \torte{6}\dots vorherschend
+  }
+  \label{tab:b}
+\end{table*}
+
+\begin{landscape}
+  \begin{figure}[hp]
+    \centering
+    \includegraphics[height=.9\textheight]{./pic/waelderDesOstalpenraumes.pdf}
+    \caption{Wälder des Ostalpenraumes \citep{mayer1977KarteWaldtypen}}
+    \label{fig:waelder}
+  \end{figure}
+\end{landscape}
 
 
 %\addcontentsline{toc}{section}{Stichwortverzeichnis}

@@ -2,6 +2,9 @@ PAPER := baumartenwahl
 PICDIR := pic
 XFIGDIR := xfig
 RPLOTDIR := r
+TABSDIR := tabs
+MAPSDIR := maps
+WEBPICDIR := webPic
 
 FIG := $(wildcard $(XFIGDIR)/*.fig)
 FIG_AS_PDF := $(subst $(XFIGDIR)/, $(PICDIR)/, $(FIG:.fig=.pdf))
@@ -9,13 +12,21 @@ FIG_AS_PDF := $(subst $(XFIGDIR)/, $(PICDIR)/, $(FIG:.fig=.pdf))
 RPLOTS := $(wildcard $(RPLOTDIR)/*.plot.r)
 RPLOTS_AS_PDF := $(subst $(RPLOTDIR)/, $(PICDIR)/, $(RPLOTS:.plot.r=.pdf))
 
-PICTURES := $(FIG_AS_PDF) $(RPLOTS_AS_PDF)
+MAPS := $(wildcard $(MAPSDIR)/*Get.sh)
+MAPS_AS_PDF := $(subst $(MAPSDIR)/, $(PICDIR)/, $(MAPS:Get.sh=.pdf))
 
-.PHONY: all purge clean
+WEBPIC := $(wildcard $(WEBPICDIR)/*Get.sh)
+WEBPIC_AS_JPG := $(subst $(WEBPICDIR)/, $(PICDIR)/, $(WEBPIC:Get.sh=.jpg))
+
+PICTURES := $(FIG_AS_PDF) $(RPLOTS_AS_PDF) $(MAPS_AS_PDF) $(WEBPIC_AS_JPG)
+
+TABLES := $(wildcard $(TABSDIR)/*.csv)
+
+.PHONY: all purge clean rmDownloads
 
 all: $(PAPER).pdf
 
-$(PAPER).pdf: $(PICTURES) $(wildcard *.tex) $(PAPER).bbl
+$(PAPER).pdf: $(PICTURES) $(TABLES) $(wildcard *.tex) $(PAPER).bbl
 	pdflatex $(PAPER)
 	if grep "Citation.*undefined" $(PAPER).log; then bibtex $(PAPER); pdflatex $(PAPER); fi
 	if grep "Writing index file" $(PAPER).log; then makeindex $(PAPER); pdflatex $(PAPER) ; fi
@@ -44,6 +55,12 @@ $(PICDIR)/%.pdf : $(XFIGDIR)/%.fig
 $(PICDIR)/%.pdf : $(RPLOTDIR)/%.plot.r
 	Rscript --vanilla $< PDFNAME=$@
 
+$(PICDIR)/%.pdf : $(MAPSDIR)/%Get.sh
+	( cd $(MAPSDIR) ; bash $(<:$(MAPSDIR)/%=%) ../$@ )
+
+$(PICDIR)/%.jpg : $(WEBPICDIR)/%Get.sh
+	( cd $(WEBPICDIR) ; bash $(<:$(WEBPICDIR)/%=%) ../$@ )
+
 purge:
 	$(RM) $(PAPER).aux $(PAPER).bbl $(PAPER).blg $(PAPER).log $(PAPER).out $(PAPER).toc $(PAPER).idx $(PAPER).ilg $(PAPER).ind
 	$(RM) $(PICTURES)
@@ -54,6 +71,13 @@ clean: purge
 	$(RM) $(PAPER).pdf
 	$(RM) $(PAPER).tar.xz
 
-tar:
+rmDownloads:
+	$(RM) $(MAPSDIR)/waelderDesOstalpenraumesORIG.jpg
+	$(RM) $(MAPSDIR)/gadm40_AUT_1.kmz
+	$(RM) $(WEBPICDIR)/fichtenHerkuenfteORIG.jpg
+
+tar: $(PAPER).tar.xz
+
+$(PAPER).tar.xz: $(shell find * -type f ! -name $(PAPER).tar.xz)
 	touch $(PAPER).tar.xz
 	tar --exclude="$(PAPER).tar.xz" -cJf $(PAPER).tar.xz .
