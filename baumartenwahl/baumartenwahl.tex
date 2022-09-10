@@ -73,6 +73,31 @@
   \end{tikzpicture}
 }
 
+\newcommand*{\rating}[1]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt]
+    \ifnum0=#1\tikz \draw[rounded corners=2pt] (0,0) rectangle (1em,1em);\else
+    \ifnum1=#1\begin{tikzpicture}
+      \draw[rounded corners=2pt] (0,0) rectangle (1em,1em);
+      \fill[black, radius=.1em] (.5em,.5em) circle;
+    \end{tikzpicture} \else
+    \ifnum2=#1\begin{tikzpicture}
+      \draw[rounded corners=2pt] (0,0) rectangle (1em,1em);
+      \fill[black, rounded corners=2pt] (.2em,.2em) rectangle (.8em,.8em);
+    \end{tikzpicture} \else
+    \ifnum3=#1\tikz \fill[black,rounded corners=2pt] (0,0) rectangle (1em,1em);
+    \fi\fi\fi\fi
+  \end{tikzpicture}
+}
+
+\newcommand{\ratingB}[2]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt,x=1em,y=1em]
+    \begin{scope}
+      \clip[rounded corners=2pt] (0,0) rectangle (1,1);
+      \fill[black] (0,0) rectangle (1,#1/#2);
+    \end{scope}
+    \draw[rounded corners=2pt] (0,0) rectangle (1,1);
+  \end{tikzpicture}%
+}
+
+
 \listfiles
 \begin{document}
 
@@ -102,7 +127,7 @@ es bei einer Beschränkung auf Baumarten die sich natürlich einstellen
 oder jene der potentiell natürlichen Vegetation, insbesondere in
 Regionen in denen die Artenvielfalt in der letzten Eiszeit drastisch
 reduziert wurde. Wobei auch hier die potentiell natürliche Vegetation
-eines Standortes erst einmal richtig erkannt werden muss. Hingegen
+eines Standortes erst einmal richtig erkannt werden muss. Hingegen,
 zunächst alle Baumarten, die eventuell standortstauglich sein könnten,
 in Betracht zu ziehen, wird oft schon daran scheitern, dass man einige
 davon nicht oder nur mit erheblichem Aufwand erhalten wird können und
@@ -110,40 +135,51 @@ von vielen deren waldbauliches Verhalten, auf dem vorliegenden
 Standort, wenig bis gar nicht bekannt ist.
 
 Um Wissen in diese Richtung zu erweitern und sich oder seinen
-Nachfolgern dadurch in der Zukunft weitere Möglichkeiten zu
+Nachfolgern dadurch, in der Zukunft, weitere Möglichkeiten zu
 erschließen, können auf keinen Flächen durchaus auch neue Baumarten
 erprobt werden. Dabei muss das Risiko des Versagens der Baumart
 bewusst in Kauf genommen und deren Ausmaß auf Kleinflächen beschränkt
 bleiben. Flächen auf denen verschiedene Baumarten unmittelbar
-verglichen werden können finden sich in botanischen Gärten, Arboreten
+verglichen werden können, finden sich in botanischen Gärten, Arboreten
 und vereinzelt auch auf eigens dafür angelegten Versuchsflächen, wobei
 bei ersteren in der Regel die Bäume in keiner Bestandessituation,
 sondern als Solitäre, anzutreffen sind und den Bäumen oft besondere
 Pflege (z.\,B.\ Bewässerung) zukommt. Eine erste Auswertung der
 Höhenwuchsleistung, verschiedener Baumarten, am selben Standort, wurde
-von \cite{mayer1970anbauversuch} gemacht. Von Seiten des
-Bundesforschungszentrums für Wald wurde 2012 ein Forschugsantrag zur
-ersten Anlage einiger solcher Versuchsflächen beim Ministerium
-eingereicht. Dieses Vorhaben konnte 2017 auf einer Fläche am Wechsel
-($47,4999^{\circ}$\,Nord, $15,9741^{\circ}$\,Ost) auf 1340\,m mit
-31~Baumarten begonnen werden. 2019 wurde in Matzen (Niederösterreich)
-ein weiterer Versuch mit 15~Baumarten angelegt. 2022 wurde in
-Kronsdorf (Oberösterreich) von der Landwirschaftskammer unter der
-Leitung von Christoph Jasser eine Fläche mit 44~Baumarten
-angelegt. Diese Versuchswälder werden als
-\emph{Site--Index--Benchmark--} bzw.\
+von \cite{mayer1970anbauversuch} gemacht. Von der Bayerische
+Landesanstalt für Wald und Forstwirtschaft (LWF) wurde 2012 der
+internationale Baumarten Versuch KliP18 initiiert an dem die
+Universität für Bodenkultur in Bruckneudorf eine Fläche
+einrichtete. Weitere Flächen dieses Versuchs liegen in Großostheim,
+Schmellenhof und Oldisleben (Deutschland) und Mutrux (Schweiz) und
+haben ihren Schwerpunkt in der Erprobung von nichtheimischen
+Baumarten. Von Seiten des Bundesforschungszentrums für Wald wurde 2012
+ein Forschungsantrag zur ersten Anlage einiger solcher Versuchsflächen
+beim Ministerium eingereicht. Dieses Vorhaben konnte 2017 auf einer
+Fläche am Wechsel ($47,4999^{\circ}$\,Nord, $15,9741^{\circ}$\,Ost)
+auf 1340\,m mit 31~Baumarten begonnen werden. 2019 wurde in Matzen
+(Niederösterreich) ein weiterer Versuch mit 15~Baumarten
+angelegt. 2022 wurde in Kronsdorf (Oberösterreich) von der
+Landwirtschaftskammer unter der Leitung von Christoph Jasser eine
+Fläche mit 44~Baumarten angelegt. Diese Versuchswälder werden als
+\emph{Site--Index--Benchmark--Bestand} bzw.\
 \emph{Wuchsleistungsvergleichsbestände}, \emph{Klimaforschungswald}
 oder \emph{Waldlabor} bezeichnet. Es bleibt zu Hoffen, dass dieser
 Trend nicht nur fortgesetzt sondern auch verstärkt wird, um das
 Möglichkeisspekturm, bei der Baumartenwahl, aufzuzeigen und vermehrt
 von der subjektiven in Richtung objektive Entscheidung leiten zu
-können. Das dieser Vergleich nicht nur auf Baumarten baumarten
-beschränkt, sondern auch auf verschiedene Herkünfte auszudehnen ist,
-zeigt Abbildung~\ref{fig:fichtenHerkuenfte} aus
-\citet[S.~86]{hegi1906IllustrierteFloraBd1} auf der drei verschiedenen
-Fichtenherkünfte mit verschiedenen Wuchsformen und Wuchsleistungen zu
-sehen sind. Da die Publikation vom Jahr
-\citeyear{hegi1906IllustrierteFloraBd1} ist, wurden die drei Bäume
+können. Bei solchen Versuchsflächen ist strikt darauf zu achten, dass
+diese \emph{praxisüblich} behandelt werden. Wenn beispielsweise dies
+Bestände mit wirtschaftlich unvertretbaren Aufwand bewässert werden
+würden und somit das Aufkommen von Baumarten ermöglicht wird, die in
+der Praxis versagen werden, wäre damit der Praxis damit nicht
+geholfen. Das dieser Vergleich nicht nur auf Baumarten beschränkt,
+sondern auch auf verschiedene Herkünfte auszudehnen ist, zeigt
+Abbildung~\ref{fig:fichtenHerkuenfte}
+\citep[S.~86]{hegi1906IllustrierteFloraBd1} auf, die drei
+verschiedenen Fichtenherkünfte, mit verschiedenen Wuchsformen und
+Wuchsleistungen, zeigt. Da die Publikation vom Jahr
+\citeyear{hegi1906IllustrierteFloraBd1} stammt, wurden die drei Bäume
 bereits um 1800 gepflanzt und zeigen sehr anschaulich deren
 Unterschiede auf. Ähnlich anschauliches ist auch von Versuchsflächen
 mit möglichst vielen verschiedenen Baumarten und Herkünften zu
@@ -162,9 +198,57 @@ erwarten.
 \section{Kriterien}
 \label{sec:kriterien}
 
-Die folgenden Kriterien, die bei der Bauartenwahl eine Rolle spielen
+Die folgenden Kriterien, die bei der Baumartenwahl eine Rolle spielen
 können, stellen eine subjektive Zusammenstellung dar und müssen bei
-Bedarf erweitert werden.
+Bedarf erweitert werden. Eine Übersicht der Beurteilungskriterien kann
+nach \citet[Bd.1, S.108]{bauer1962WaldbauAlsWissenschaft}
+folgendermaßen aussehen:
+\begin{enumerate}
+\item Biologisch--ökologischer Komplex
+  \begin{enumerate}
+  \item Biologische Komponente
+    \begin{enumerate}
+    \item Standortsansprüche
+    \item Schattenfestigkeit
+    \item Fortpflanzung
+    \item Jugendwachstum
+    \item Gefährdungen
+    \end{enumerate}
+  \item Ökologische Komponente
+    \begin{enumerate}
+    \item Rückwirkung auf den Boden
+    \item Soziologisches Verhalten
+    \item Vorwuchseigenschaften
+    \item Eignung zum Überhalt
+    \item Häufigkeit der Samenjahre
+    \end{enumerate}
+  \end{enumerate}
+\item Ökonomischer Komplex
+  \begin{enumerate}
+  \item Vegetative Leistung
+    \begin{enumerate}
+    \item Zuwachs dgz
+    \item Nutzholztüchtigkeit
+    \item Wertholztüchtigkeit
+    \item Produktionszeitraum
+    \end{enumerate}
+  \item Wirtschaftliche Leistung
+    \begin{enumerate}
+    \item Gemeinwirtschaftliche Komponente
+      \begin{enumerate}
+      \item Technischer Wert der Rohholzsorten
+      \item Marktwirtschaftlicher Wert
+      \end{enumerate}
+    \item Privatwirtschaftliche Komponente
+      \begin{enumerate}
+      \item Massenproduktion
+      \item Wertholzzucht
+      \item Geldertrag
+      \end{enumerate}
+    \end{enumerate}
+  \end{enumerate}
+\end{enumerate}
+
 
 \subsection{Standort}
 \label{ssec:standort}
@@ -173,12 +257,12 @@ Die standörtliche Tauglichkeit ist wohl der erste Punkt, der, bei der
 Baumartenwahl, erfüllt sein muss. Eine Beschränkung auf Baumarten, die
 in der potentiell natürlichen Waldgesellschaft vorkommen würden, ist
 allerdings nicht immer nötig. Baumarten des Vorbestandes und der
-näheren Umgebung mit vergleichbarem Standort sind
-Standortstauglich. Da der Standort z.B. durch den Klimawandel,
-Stickstoff-- und Schadstoffeinträge laufend verändert wird, können
-standortstaugliche Baumarten des Vorbesatndes, im Folgebestand
+näheren Umgebung, mit vergleichbarem Standort, sind
+standortstauglich. Da der Standort z.B. durch den Klimawandel,
+Stickstoff-- und Schadstoffeintrag laufend verändert wird, können
+standortstaugliche Baumarten des Vorbestandes, im Folgebestand
 plötzlich nicht mehr standortstauglich sein. Dies kann so weit gehen,
-dass der Standort für eine andere Landutzungsform (Grasland, Acker)
+dass der Standort für eine andere Landnutzungsform (Grasland, Acker)
 geeignetere wird. In vielen Fällen zeigt sich die Tauglichkeit oder
 Untauglichkeit einer Baumart für einen Standort bereits in der
 Verjüngungsphase. Wobei alleine der Ausfall einer Baumart in der
@@ -189,12 +273,12 @@ gepflanzt worden sein, die Witterung in diesem einen Jahr ungünstig
 gewesen sein, Tiere, Pilze oder andere Pflanzen die jungen Bäume zum
 absterben gebracht haben.
 
-Der Begriff Standort darf sich allerdings nicht darf beschränken, ob
-eine Baumart auf einen Standort wachsen kann oder nicht. Der Standort
-bestimmt auch die Wuchsleistung und die Gefährdung (Nassschneelage --
-Schneebruch, Durchwurzelungstiefe, Windgeschwindigkeit -- Windwurf,
-Windbruch) und damit wie häufig welche Pflegemaßnahmen durchgeführt
-werden sollten.
+Wenn eine Baumart gefunden wurde, die auf dem Standort des Bestandes
+wachsen kann, ist damit die Baumartenwahl keinesfalls abgeschlossen!
+Der Standort bestimmt auch die Wuchsleistung und die Gefährdung
+(Nassschneelage -- Schneebruch, Durchwurzelungstiefe,
+Windgeschwindigkeit -- Windwurf, Windbruch) und damit wie häufig
+welche Pflegemaßnahmen durchgeführt werden sollten.
 
 \subsection{Ertrag}
 \label{ssec:ertrag}
@@ -212,44 +296,60 @@ unsicher geschätzt werden kann. Nicht nur die Zuwachsleistung, sondern
 auch das gewünschte \emph{Zielsortiment} beeinflussen die
 Baumartenwahl. Ein Waldbesitzer, der seinen Brennholzbedarf decken
 will, wird am selben Standort meist andere Baumarten wählen als einer
-mit dem Ziel Wertholzproduktion.
+dessen Ziel die Wertholzproduktion ist.
 
 \subsection{Pflegeaufwand}
 \label{ssec:pflegeaufwand}
 
 Baumarten unterscheiden sich hinsichtlich ihres nötigen
 Pflegeaufwandes. Selbst wenn jemand den Ertrags-- und
-Qualitätskriterien wenig Bedeutung beimisst, ist sind Pflegeeingriffe
+Qualitätskriterien wenig Bedeutung beimisst, sind Pflegeeingriffe
 (Durchforstungen) dringend zu empfehlen um die Bestandesstabilität
 (Windwurf, Schneebruch, Insekten, Pilze) nicht zu gefährden. Neben der
 Baumart entscheiden auch die Ziele (z.\,B.\ Produktion von
 Qualitätsholz), der Standort (Wuchsleistung der Baumart auf diesem
-Standort) und eine eventuelle Mischung (entfernen von einigen
+Standort) und eine eventuelle Mischung (entfernen von
 konkurrenzstärkeren Nachbar einer anderen Baumart um die
 konkurrenzschwächere Baumart zu erhalten) den Pflegeaufwand. Allgemein
 erhöht sich der Pflegeaufwand hinsichtlich Frequenz und Umfang mit
-Zunahme der Wuchsleistung.
+Zunahme der Wuchsleistung und hinsichtlich Komplexität mit Zunahme des
+Qualitätsanspruches an das zu erntende Holz, der Ungleichaltrigkeit
+und der Baumartenmischung.
 
 \subsection{Risiko}
 \label{ssec:risiko}
 
-Baumarten ohne Ausfallsrisiko gibt es nicht. Aber es gibt Baumarten
+Baumarten ohne Ausfallrisiko gibt es nicht. Aber es gibt Baumarten
 die, auf bestimmten \emph{Standorten}, ein wesentlich höheres
-Ausfallsrisiko haben als andere. Auch die Nachbarbestände können das
-Risiko mitbestimmen indem sie Deckungsschutz bieten oder auch
-nicht. Dieser Umstand wurde von
+Ausfallrisiko haben als andere. Auch die Nachbarbestände können das
+Risiko mitbestimmen indem sie Deckungsschutz bieten oder auch nicht.
+Der Deckungsschutz wurde von
 \cite{wagner1923DerBlendersaumschlagUndSeinSystem} ausführlich
 dargestellt und als Lösung der Blendersaumschlag (Streifenweise
-Schlage die sich, z.\,B.\ entgegen die Hauptwindrichtung, im laufe der
+Schläge die sich, z.\,B.\ entgegen die Hauptwindrichtung, im Laufe der
 Zeit aneinander reihen) vorgeschlagen. Aber nicht nur der unmittelbare
-Nachbarbestand, sonder die Baumartenvereilung einer ganzen Region,
-kann das Ausfallsrisiko einer Baumart mitbestimmen indem sich z.\,B.\
-Insektenkalamitäten von diesen auf deren Nachbarn übertragen
-können. Ob eine Baumart im Bestand die gleiche oder eine andere
-Baumart als Nachbarn hat, beeinflusst ebenfalls das
-Ausfallsrisiko. Steht diese neben einer Baumart mit hohem
-Wasserverbrach, kann diese Mischbaumart das Ausfallsrisiko der
-Nachbarsbaumart in Trockenzeiten erhöhen.
+Nachbarbestand, sonder die Baumartenverteilung einer ganzen Region,
+kann das Ausfallrisiko einer Baumart mitbestimmen indem sich z.\,B.\
+Krankheiten oder Insektenkalamitäten von diesen auf deren Nachbarn
+übertragen können. Ob eine Baumart im Bestand die gleiche oder eine
+andere Baumart als Nachbarn hat, beeinflusst ebenfalls das
+Ausfallrisiko. Steht diese neben einer Baumart mit hohem
+Wasserverbrauch, kann diese Mischbaumart das Ausfallrisiko der
+Nachbarbaumart in Trockenzeiten erhöhen. Das Risiko ist somit keine
+Konstante, selbst bei einer bestimmten Baumart auf einem konkreten
+Standort. Bestandesdichte und geplante Umtriebszeit, stellen weiter
+wesentliche Einflussgrößen für das Bestandesrisiko dar. Dabei gibt es
+Baumarten, die durch ihren Wachstumsverlauf kurze Umtriebszeiten eher
+ermöglichen (Pionierbaumarten) als andere (Klimaxbaumarten). Bei
+ungewissen, massiven Standortsveränderungen, hilft die Wahl einer
+kürzere Umtriebszeit, die Ungewissheit ein wenig einzuschränken, da
+sich in kürzeren Zeiträumen der Standort weniger stark verändern kann
+als in längeren. Längere Umtriebszeiten verringern dafür den Aufwand,
+da die Frequenz der Endnutzung mit anschließender Verjüngungsphase
+länger ist. Gleichzeitig beeinflusst die Umtriebszeit auch die
+Wuchsleistung der Bestände. Abweichungen von der zuwachsoptimalen
+Umtriebszeit führen sowohl bei Verkürzung als auch bei Verlängerung zu
+Zuwachseinbußen.
 
 \subsection{Bestandestyp}
 \label{ssec:bestandestyp}
@@ -259,25 +359,25 @@ anstrebt, beeinflusst das Spektrum der zur Auswahl stehenden
 Baumarten. So können im Niederwald ausschließlich Baumarten mit
 Stockausschlag oder Wurzelbrut Verwendung finden. Der Bestandestyp
 kann in vielen Fällen frei gewählt werden. Auf bestimmten Standorten
-zeigt kann einer dieser Typen Vorteile gegenüber den anderen
+kann einer dieser Typen Vorteile gegenüber den anderen
 Zeigen. Beispielsweise ist die Verjüngung auf trockenen Standorten im
-Niederwald meist einfacher als in Hochwald.
+Niederwald meist einfacher als im Hochwald.
 
 Die Baumartenwahl kann in \emph{Reinbeständen} anders als in
-\emph{Mischbeständen} ausfallen wobei hier die \emph{Mischungsform}
+\emph{Mischbeständen} ausfallen, wobei hier die \emph{Mischungsform}
 (Einzel, Trupp, Gruppe, Horst, Fläche, Reihe, Streifen) und die
-Baumartenanteile die Auswahl mitbestimmen. Im Mischbestand müssen die
+Baumartenanteile, die Auswahl mitbestimmen. Im Mischbestand müssen die
 Baumarten zusammenpassen und sollten eine Funktion in der Mischung
 übernehmen.
 
-Die \emph{Struktur} (Einschitig, Mehrschichtig, Stufig; Regelmäßig,
+Die \emph{Struktur} (Einschichtig, Mehrschichtig, Stufig; Regelmäßig,
 Zufällig, Geklumpt) und ob ein Bestand gleich-- oder ungleichaltirg
 sein soll, beeinflussen die Baumartenwahl. In mehrschichtigen
 Beständen müssen die Baumarten der unteren Schichten mit dem dort
 geringeren Lichtangebot auskommen.
 
-Auch die Entscheidung zwischen Natur-- oder Kunstverjüngung bzw.\ eine
-Kombination von beiden beeinflusst die zur Auswahl stehenden
+Auch die Entscheidung zwischen Natur-- oder Kunstverjüngung, bzw.\
+eine Kombination von beiden, beeinflusst die zur Auswahl stehenden
 Baumarten.
 
 \subsection{Schutzwirkung}
@@ -286,13 +386,13 @@ Baumarten.
 Baumarten unterscheiden sich hinsichtlich dem Rückhaltevermögen von
 Schnee und beeinflussen damit deren Schutzwirkung gegen
 Lawinen. Ähnliches, gilt auch für den Wasserrückhalt, welcher
-Auswirklungen auf den Hochwasserschutz aber auch auf die
+Auswirkungen auf den Hochwasserschutz aber auch auf die
 Gleichmäßigkeit der Wasserspende in Quelschutzwäldern
 hat. Verschiedenen Baumarten unterscheiden sich hinsichtlich ihrer
 Wirkungen auf das Biotop bzw.\ Habitat und leisten unterschiedliches
 für den Naturschutz und die Biodiversität. Dies ist insbesondere in
-Wechselwirkung zu den restlichen Baumarten der umliegenden Bestände zu
-betrachten.
+Wechselwirkung zu den restlichen Baumarten, der umliegenden Bestände,
+zu betrachten.
 
 \subsection{Erholungswirkung}
 \label{ssec:erholung}
@@ -305,20 +405,284 @@ mit deren Baumarten bestimmt.
 \section{Hilfen}
 \label{sec:hilfen}
 
+\subsection{Baumartenbeschreibung}
+\label{sec:baBeschreibung}
+
 Für die Baumartenwahl sind die waldbaulichen Eingenschaften und
 Ansprüche der Baumarten entscheidend. Diese sind beispielsweise in den
 Waldbaulehrbüchern von
 \citet{mayer1992Waldbau,burschel2003Waldbau,Dengler2020Waldbau,tschermak1950Waldbau,rittershofer2006Waldbau,rubner1960Waldbau,koestler1950Waldbau,bauer1962WaldbauAlsWissenschaft}
 oder in den Baumartenbeschreibungen von
-\citet{eth2002MitteleuropaeischeWaldbaumarten,leibundgut1984Waldbaeume,ec2016baumartenatlas}
+\citet{eth2002MitteleuropaeischeWaldbaumarten,leibundgut1984Waldbaeume,ec2016baumartenatlas,hieke1989Dendrologie,mayr1906FremdlaendischeWaldUndParkbaeumeFuerEuropa,stimm2014EnyklopedieDerHolzgewaechse,schuett1993LexikonDerForstbotanik,fva2021Artensteckbrief}
 oder auch in Floren von
-\citet{fischer2008Exkursionsflora,hegi1906IllustrierteFloraBd1,oberdorfer2001Exkursionsflora,rothmaler2021Exkursionsflora,schmeil2019Exkursionsflora,fitschen2017Gehoelzflora,hieke1989Dendrologie,mayr1906FremdlaendischeWaldUndParkbaeumeFuerEuropa,stimm2014EnyklopedieDerHolzgewaechse,schuett1993LexikonDerForstbotanik}
-enthalten.
+\citet{fischer2008Exkursionsflora,hegi1906IllustrierteFloraBd1,oberdorfer2001Exkursionsflora,rothmaler2021Exkursionsflora,schmeil2019Exkursionsflora,fitschen2017Gehoelzflora}
+enthalten. Ein Beispiel einer kurzen Baumartenbeschreibung zeigt
+Tab.~\ref{tab:baCharakter}.
 
-Ökogramme
-Verbreitungskarten
-Wuchsleistungsschätzung
-Karten: Geologie, Boden, Niederschlag, Temperatur, Vegetation
+\subsection{Verbreitungskarten}
+\label{sec:verbreitungskarten}
+
+Das Verbreitungsgebiet einer Baumart zeigt, wo diese derzeit
+angetroffen werden kann. Das die Standortsverhälnisse, außerhalb
+dieses Gebiets, eine weitere Ausbreitung verhindern, kann \emph{nicht}
+automatisch angenommen werden. In
+Abbildung~\ref{fig:tannerVerbreitungskarte} ist beispielsweise das
+derzeitige Verbreitungsgebiet der Tanne dargestellt.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/tannerVerbreitungskarte.jpg}
+  \caption{Verbreitungskarte der Tanne (Quelle: Wikipedia/Euforgen)}
+  \label{fig:tannerVerbreitungskarte}
+\end{figure}
+
+Genauso wie die derzeitigen Verbreitungsbebiete wurden auch Karten für
+zukünftige Baumartenverbreitungen, bei angenommen Klimaszenarien,
+gezeichnet. Eine Differenzierung hinsichtlich standortstauglich und
+anbauwürdig wird in der Regel leider nicht gemacht, welche jedoch für
+die Praxis eminent wichtig ist. So mag auf einen Standort
+beispielsweise die Flaumeiche anbaufähig sein und in 100~Jahren eine
+Höhe von 15\,m erreichen. Wenn am gleichen Standort die Traubeneiche
+in 100~Jahren eine Höhe von 25\,m erreichen kann, wird die Flaumeiche
+dort nur in Ausnahmefällen anbauwürdig sein.
+
+Deutlich mehr Information für die Baumartenwahl geben Karten der
+natürlichen Waldgesellschaft (Abb.~\ref{fig:waelderDesOstalpenraumes})
+mit dazugehöriger Tabelle (Tab.~\ref{tab:waldgesellschaften}) die
+angibt, in welcher Höhenstufe diese Gesellschaft zu finden ist und mit
+welchen Anteilen bestimmte Baumarten vertreten sind. Darin ist zu
+erkennen, dass in der Subalpinen Höhenstufe von Natur aus entweder
+Zirbe oder Lärche oder Fichte vorherrschend und weitere Baumarten nur
+in geringem Ausmaß beigemischt sind. Dies setzt sich in der Montanen
+Stufe mit dem Montanen Fichtenwald fort und geht dann in eine Mischung
+aus Fichte, Tanne und Buche, in die von Buche dominierten Wälder,
+über. In der Planar Kollinen Zone sind Mischungen häufiger vertreten,
+doch auch hier dominiert, auf etlichen Standorten, entweder
+Traubeneiche, Weißkiefer oder Schwarzkiefer.
+
+Es gibt auch Karten, welche die geschätzte Wuchsleistung zeigen
+(Abb.~\ref{fig:Eichenbonitaet}). Dabei muss angemerkt werden, dass
+diese nur einen groben Anhaltspunkt geben können und die, von
+kleinstandörtlichen Gegebenheiten geprägte, Bestandesbonität von
+dieser beträchtlich abweichen kann. Dies Karten sind derzeit relative
+grob und differenzieren beispielsweise selten zwischen verschiedenen
+Eichenarten. Auch hier sind Karten, welche die Wuchsleistung bei
+einem veränderten Klima darstellen, vorhanden.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/quSp_t0_p1.png}
+  \caption{Höhe [m] der höchsten 100 Bäume je Hektar eines Bestandes im
+    Alter 100 (Oberhöhenbonität von Eiche)
+    \citep[S.~17]{kindermann2021Eiche}}
+  \label{fig:Eichenbonitaet}
+\end{figure}
+
+Neben diesen waldspezifischen Karten geben auch Karten zur Geologie,
+Boden, Niederschlag oder Temperatur wichtige Hinweise und können oft
+in Schulatlanten oder im Internet gefunden werden.
+
+
+\subsection{Ökogramme}
+\label{sec:oekogramme}
+
+Ökogramme stellen auf den Achsen Bodenfeuchte (dürr--nass) und
+Bodenreaktion (sauer--basisch) das Vorkommen einer Baumart dar. Dabei
+wird zwischen der physiologischen Amplitude, physiologisches Optimum
+und Herrschaftsbereich der Baumart, in der Regel für eine bestimmte
+\emph{Höhenstufe} (Planar--subalpin), unterschieden
+(Abb.\ref{fig:oekogramm}). De facto werden also 3~Dimensionen,
+Feuchte, Bodenreaktion und Temperatur, dargestellt.
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}
+  \draw [line width=2pt] (0,0) -- (8,0) -- (8,8) -- (0,8) -- cycle;
+  \draw (0,7.5) node[anchor=east] {dürr};
+  \draw (0,4) node[anchor=east] {frisch};
+  \draw (0,0.5) node[anchor=east] {nass};
+  \draw (0.5,0) node[anchor=north,align=center] {sehr\\sauer};
+  \draw (4,0) node[anchor=north,align=center] {mässig\\sauer};
+  \draw (7.5,0) node[anchor=north] {basisch};
+  \draw[line width=2pt,dashed] (0,7.5) -- (8,7.5);
+  \draw[line width=2pt,dashed] (0,1.5) {[rounded corners=1cm] -- (1,.5)} -- (8,.5);
+  %\draw[pattern=north west lines]
+  \fill[gray!70] (8,2.5) {[rounded corners=1cm] -- (1.5,2.5) -- (1.5,5.5)} -- (8,5.5);
+  \fill[gray!170] (8,7.3) {[rounded corners=.3cm] -- (0.3,7.3) -- (0,7)} {[rounded corners=.8cm] -- (0,4.5) -- (1.5,4.5) -- (1.5,6) -- (8,6.8)};
+  \draw[line width=3pt,fill=gray,fill opacity=0.2] (8,2) -- (1,2) {[rounded corners=1cm] -- (0,2)} {[rounded corners=.3cm] -- (0,7) -- (0.3,7.3)} -- (8,7.3) -- cycle;
+  \draw [line width=2pt] (4,4) circle (.1);
+\end{tikzpicture}
+  \caption{Beispiel eines Ökogramms}
+  \footnotesize{
+    \tikz \draw[line width=2pt,dashed,rounded corners=2] (0,0) rectangle (1em,1em);~Grenze waldfähiger Standorte,
+    \tikz \draw[line width=3pt,fill=gray,fill opacity=0.2,rounded corners=2] (0,0) rectangle (1em,1em);~Physiologische Amplitude,
+    \tikz \fill[gray!80,rounded corners=2] (0,0) rectangle (1em,1em);~Physiologisches Optimum,
+    \tikz \fill[gray!160,rounded corners=2] (0,0) rectangle (1em,1em);~Herrschaftsbereich der Baumart (ökologisches Optimum / Niesche)
+  }
+  \label{fig:oekogramm}
+\end{figure}
+
+Ähnlich den Ökogrammen sind \emph{Klimadiagramme}, mit den Achsen
+Temperatur und Niederschlag, in welche, meist als Punktwolke,
+Beobachtungen einer Baumart dargestellt werden. Zwischen
+pysiologischem Optimum und ökologischer Niesche wird dort meist nicht
+unterschieden, da dies eben alleine über Niederschlag und Temperatur
+kaum differenzierbar sein wird.
+
+Eine Erweiterung auf zusätzliche, wesentliche Standortsdimensionen
+stellen die \emph{Zeigerwerte nach Ellenberg} dar. Mit diesen kann ein
+Standort, aufgrund der auf ihm wachsenden Pflanzen, charakterisiert
+werden. D.h.\ es wird in der Regel das ökologische Optimum, nicht
+jedoch das physiologische Optimum oder Spektrum
+dargestellt. Beschrieben werden Licht, Temperatur, Kontinentalität,
+Feuchtigkeit, Bodnreaktion, Stickstoff, Salz und
+Schwermetallresistenz. Weiters wird die Lebensform und die
+Blattausdauer (immergrün, sommergrün, \dots) angegeben.
+
+Basierend auf diesen Zeigerwerten wurde von
+\cite{ninemetsValladares2006TolleranceToShadeDroughtAndWaterlogging}
+nicht das häufigste Vorkommen, sonder die Grenze des Vorkommens,
+hinsichtlich Trockenheit, Überschwemmung und Schatten, von mehr als
+800~Baum-- und Straucharten, aufbereitet
+(Tabelle:~\ref{tab:trockentolleranz}). Ein Wert von 1 bedeutet
+geringe, einer von 5 hohe Toleranz.
+
+\begin{table}[htbp!]
+\centering
+\begin{tabular}{l S[
+  table-number-alignment = center,
+  separate-uncertainty = true,
+  table-figures-uncertainty = 1,
+  table-figures-decimal = 2,
+  table-figures-integer = 1
+  ] S[
+  table-number-alignment = center,
+  separate-uncertainty = true,
+  table-figures-uncertainty = 1,
+  table-figures-decimal = 2,
+  table-figures-integer = 1
+  ]}
+  & {Trockentoleranz} & {Schattentoleranz}\\
+  \hline
+  Gleditschie   & 4.98 \pm 0.02 & 1.61 \pm 0.2  \\
+  Schwarzkiefer & 4.38 \pm 0.47 & 2.1  \pm 0.43 \\
+  Weißkiefer    & 4.34 \pm 0.47 & 1.67 \pm 0.33 \\
+  Zerreiche     & 4.29 \pm 0.21 & 2.55 \pm 0.11 \\
+  Robine        & 4.11 \pm 0.65 & 1.72 \pm 0.25 \\[.3em]
+  Flaumeiche    & 4.1  \pm 0.25 & 2.31 \pm 0.22 \\
+  Edelkastanie  & 3.46 \pm 0.18 & 3.15 \pm 0.23 \\
+  Traubeneiche  & 3.02 \pm 0.15 & 2.73 \pm 0.27 \\
+  Zirbe         & 3.01 \pm 0.43 & 2.87 \pm 0.3  \\
+  Nuss          & 2.98 \pm 0.22 & 2.27 \pm 0.24 \\[.3em]
+  Stieleiche    & 2.95 \pm 0.31 & 2.45 \pm 0.28 \\
+  Roteiche      & 2.88 \pm 0.12 & 2.75 \pm 0.18 \\
+  Aspe          & 2.85 \pm 0.25 & 2.22 \pm 0.07 \\
+  Winterlinde   & 2.75 \pm 0.15 & 4.18 \pm 0.16 \\
+  Bergahorn     & 2.75 \pm 0.16 & 3.73 \pm 0.21 \\[.3em]
+  Spitzahorn    & 2.73 \pm 0.16 & 4.2  \pm 0.37 \\
+  Hainbuche     & 2.66 \pm 0.16 & 3.97 \pm 0.12 \\
+  Kirsche       & 2.66 \pm 0.22 & 3.33 \pm 0.33 \\
+  Douglasie     & 2.62 \pm 0.41 & 2.78 \pm 0.18 \\
+  Esche         & 2.5  \pm 0.25 & 2.66 \pm 0.13 \\[.3em]
+  Buche         & 2.4  \pm 0.43 & 4.56 \pm 0.11 \\
+  Küstentanne   & 2.33 \pm 0.33 & 4.01 \pm 0.19 \\
+  Lärche        & 2.31 \pm 0.55 & 1.46 \pm 0.29 \\
+  Schwarzerle   & 2.22 \pm 0.66 & 2.71 \pm 0.5  \\
+  Schwarzpappel & 2.2  \pm 0.38 & 2.46 \pm 0.09 \\[.3em]
+  Hängebirke    & 1.85 \pm 0.21 & 2.03 \pm 0.09 \\
+  Tanne         & 1.81 \pm 0.28 & 4.6  \pm 0.06 \\
+  Fichte        & 1.75 \pm 0.41 & 4.45 \pm 0.5  \\
+  Moorbirke     & 1.27 \pm 0.18 & 1.85 \pm 0.07
+\end{tabular}
+\caption{Trocken-- und Schattentoleranz nach \cite{ninemetsValladares2006TolleranceToShadeDroughtAndWaterlogging}.}
+\label{tab:trockentolleranz}
+\end{table}
+
+
+\subsection{Gefährdungen}
+\label{sec:gefaerdungen}
+
+Die Dispositionierung, für bestimmte Gefahren, hängt von vielen
+Faktoren ab, die oft als zufällig betrachtet werden. Es gibt immer
+wieder Bestandessituationen, bei denen die Wahrscheinlichkeit, dass
+ein Schaden eintritt, sehr groß ist, und dennoch wird kein Schaden
+beobachtet. Umgekehrt gibt es welche, die als recht sicher gelten und
+geschädigt werden. Angaben zur Gefährdung sind deshalb immer nur
+\emph{Wahrscheinlichkeiten} und keine Prognosen. So zeigt etwa die
+Tab.\ref{tab:gefaehrdungen}) von Wellenstein in
+\citet[S.~228]{speidel1972PlanungImForstbetrieb}, Produktionsgefahren
+und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
+
+\begin{table}[htbp!]
+  \setlength{\tabcolsep}{1pt}
+  \centering
+  \pgfplotstabletypeset[col sep=comma
+  , text indicator="
+  , string type
+  , every column/.style={column type=c,preproc cell content/.style={@cell content = \rating{##1}}}
+    , display columns/0/.style={column type=l,column name=\rotatebox{-90}{}, preproc cell content/.style={@cell content = ##1}}
+  , assign column name/.style={/pgfplots/table/column name={\multicolumn{1}{c}{\rotatebox{90}{#1}}}}
+  ]{./tabs/gefaehrdung.csv}
+  \caption{Produktionsgefahren und Risikowahrscheinlichkeiten bei verschiedenen
+    Baumarten nach Wellenstein in \cite{speidel1972PlanungImForstbetrieb}}
+  \footnotesize{\rating{0}\dots keine Gefährdung,
+    \rating{1}\dots wirtschaftl.\ unbedeutende Gefährdung,
+    \rating{2}\dots w.\ bedeutende Gefährdung,
+    \rating{3}\dots w.\ sehr bedeutende Gefährdung}
+  \label{tab:gefaehrdungen}
+\end{table}
+
+
+
+%https://klimadatenportal.lgl-bw.de/viewer/client/index.html
+
+
+%\addcontentsline{toc}{section}{Stichwortverzeichnis}
+%\printindex
+
+\addcontentsline{toc}{section}{Literatur}
+\bibliography{literature}
+
+\begin{table*}[htbp!]
+  \setlength{\tabcolsep}{1pt}
+  %\centering
+  \pgfplotstabletypeset[col sep=comma
+  , text indicator="
+  , string type
+  , every column/.style={column type=c,preproc cell content/.style={@cell content = \ratingB{##1}{2}}}
+  , my colIterator/.style={every col no #1/.style={column type=c,preproc cell content/.style={@cell content = \ratingB{####1}{3}}}}
+  , my colIterator/.list={1,2,11,16}
+  , my colIteratorB/.style={every col no #1/.style={column type=c,preproc cell content/.style={@cell content = \ratingB{####1}{4}}}}
+  , my colIteratorB/.list={10,15}
+  , display columns/5/.style={column type=c|,preproc cell content/.style={@cell content = \ratingB{##1}{4}}}
+  , display columns/9/.style={column type=c||,preproc cell content/.style={@cell content = \ratingB{##1}{3}}}
+  , display columns/19/.style={column type=c,preproc cell content/.style={@cell content = \ratingB{\the\numexpr ##1 - 410 \relax}{340}}}
+  , display columns/0/.style={column type=l,column name=\rotatebox{-90}{}, preproc cell content/.style={@cell content = ##1}}
+  , assign column name/.style={/pgfplots/table/column name={ \multicolumn{1}{c}{\rotatebox{90}{#1}}}}
+  , every row no 0/.append style={before row={
+      & \multicolumn{5}{c|}{Anspruch} & \multicolumn{4}{c||}{Empfindl.}
+      & \multicolumn{9}{c}{Eigenschaft} \\
+     }}
+  ]{./tabs/baCharakter.csv}
+  \caption{Ansprüche und Eigenschaften heimischer Wirtschaftsbaumarten nach \citet[Bd.1, S.183f]{bauer1962WaldbauAlsWissenschaft}}
+  \footnotesize{\emph{Anspruch, Empfindlichkeit, Eigenschaft:} \ratingB{0}{3}\dots gering, \ratingB{1}{3}\dots mäßig, \ratingB{2}{3}\dots hoch, \ratingB{3}{3}\dots sehr hoch\\
+    \emph{Verhalten zu Nachbarn:} \ratingB{0}{2}\dots unverträglich, \ratingB{1}{2}\dots störend, \ratingB{2}{2}\dots verträglich
+  }  
+  \label{tab:baCharakter}
+\end{table*}
+
+
+\afterpage{%
+%  \clearpage% To flush out all floats
+\begin{landscape}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[height=.9\textheight]{./pic/waelderDesOstalpenraumes.pdf}
+    \caption{Wälder des Ostalpenraumes \citep{mayer1977KarteWaldtypen}}
+    \label{fig:waelderDesOstalpenraumes}
+  \end{figure}
+\end{landscape}
+}
 
 \begin{table*}[htbp!]
   \setlength{\tabcolsep}{1pt}
@@ -340,37 +704,22 @@ Karten: Geologie, Boden, Niederschlag, Temperatur, Vegetation
   , every row no 22/.style={before row=\hline}
   ]{./tabs/gesselschaftsanschluss.csv}
   \caption{Natürlicher Gesellschaftsanschluß mit Vergesellschaftung der Baumarten in Wäldern des Ostalpenraumes \citep{mayer1992Waldbau}}
-  \footnotesize{\hst{0}\dots Auwald
-    , \hst{1}\dots Planar--Kolin --400\,m
-    , \hst{2}\dots Submontan 200--900\,m
-    , \hst{3}\dots Montan 500--1800\,m
-    , \hst{4}\dots Subalpin 1200--2300\,m\\
-    \tikz \draw (0,0) rectangle (1em,1em);\dots fehlend
-    , \torte{1}\dots sporadisch
-    , \torte{2}\dots spärlich
-    , \torte{3}\dots gering
-    , \torte{4}\dots mittel
-    , \torte{5}\dots reichlich
-    , \torte{6}\dots vorherschend
+  \footnotesize{\hst{0}\dots Auwald,
+    \hst{1}\dots Planar--Kolin --400\,m,
+    \hst{2}\dots Submontan 200--900\,m,
+    \hst{3}\dots Montan 500--1800\,m,
+    \hst{4}\dots Subalpin 1200--2300\,m\\
+    \tikz \draw (0,0) rectangle (1em,1em);\dots fehlend,
+    \torte{1}\dots sporadisch,
+    \torte{2}\dots spärlich,
+    \torte{3}\dots gering,
+    \torte{4}\dots mittel,
+    \torte{5}\dots reichlich,
+    \torte{6}\dots vorherschend
   }
-  \label{tab:b}
+  \label{tab:waldgesellschaften}
 \end{table*}
 
-\begin{landscape}
-  \begin{figure}[hp]
-    \centering
-    \includegraphics[height=.9\textheight]{./pic/waelderDesOstalpenraumes.pdf}
-    \caption{Wälder des Ostalpenraumes \citep{mayer1977KarteWaldtypen}}
-    \label{fig:waelder}
-  \end{figure}
-\end{landscape}
-
-
-%\addcontentsline{toc}{section}{Stichwortverzeichnis}
-%\printindex
-
-\addcontentsline{toc}{section}{Literatur}
-\bibliography{literature}
 
 %Autor: Georg Kindermann
 

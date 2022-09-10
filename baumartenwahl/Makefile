@@ -28,7 +28,13 @@ all: $(PAPER).pdf
 
 $(PAPER).pdf: $(PICTURES) $(TABLES) $(wildcard *.tex) $(PAPER).bbl
 	pdflatex $(PAPER)
-	if grep "Citation.*undefined" $(PAPER).log; then bibtex $(PAPER); pdflatex $(PAPER); fi
+	LATEX_COUNT=0; \
+	while grep "Warning: Citation" $(PAPER).log \
+	  && [ $$LATEX_COUNT -lt 5 ] ; do      \
+	  LATEX_COUNT=`expr $$LATEX_COUNT + 1` ; \
+	  bibtex $(PAPER); pdflatex $(PAPER) ;                    \
+	done
+#	if grep "Citation.*undefined" $(PAPER).log; then bibtex $(PAPER); pdflatex $(PAPER); bibtex $(PAPER); fi
 	if grep "Writing index file" $(PAPER).log; then makeindex $(PAPER); pdflatex $(PAPER) ; fi
 	LATEX_COUNT=0; \
 	while grep "Rerun \(to get\|LaTeX\)\|undefined references\|Linenumber reference failed" $(PAPER).log  \
@@ -75,6 +81,7 @@ rmDownloads:
 	$(RM) $(MAPSDIR)/waelderDesOstalpenraumesORIG.jpg
 	$(RM) $(MAPSDIR)/gadm40_AUT_1.kmz
 	$(RM) $(WEBPICDIR)/fichtenHerkuenfteORIG.jpg
+	$(RM) $(WEBPICDIR)/tannerVerbreitungskarteORIG.png
 
 tar: $(PAPER).tar.xz
 
