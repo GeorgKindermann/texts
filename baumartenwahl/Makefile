@@ -2,6 +2,8 @@ PAPER := baumartenwahl
 PICDIR := pic
 XFIGDIR := xfig
 RPLOTDIR := r
+DYNTABDIR := rtab
+RTABDIR := r
 TABSDIR := tabs
 MAPSDIR := maps
 WEBPICDIR := webPic
@@ -12,6 +14,9 @@ FIG_AS_PDF := $(subst $(XFIGDIR)/, $(PICDIR)/, $(FIG:.fig=.pdf))
 RPLOTS := $(wildcard $(RPLOTDIR)/*.plot.r)
 RPLOTS_AS_PDF := $(subst $(RPLOTDIR)/, $(PICDIR)/, $(RPLOTS:.plot.r=.pdf))
 
+RTABS := $(wildcard $(RTABDIR)/*.tab.r)
+RTABS_AS_TEX := $(subst $(RTABDIR)/, $(DYNTABDIR)/, $(RTABS:.tab.r=.tex))
+
 MAPS := $(wildcard $(MAPSDIR)/*Get.sh)
 MAPS_AS_PDF := $(subst $(MAPSDIR)/, $(PICDIR)/, $(MAPS:Get.sh=.pdf))
 
@@ -20,7 +25,7 @@ WEBPIC_AS_JPG := $(subst $(WEBPICDIR)/, $(PICDIR)/, $(WEBPIC:Get.sh=.jpg))
 
 PICTURES := $(FIG_AS_PDF) $(RPLOTS_AS_PDF) $(MAPS_AS_PDF) $(WEBPIC_AS_JPG)
 
-TABLES := $(wildcard $(TABSDIR)/*.csv)
+TABLES := $(wildcard $(TABSDIR)/*.csv) $(RTABS_AS_TEX)
 
 .PHONY: all purge clean rmDownloads
 
@@ -67,11 +72,21 @@ $(PICDIR)/%.pdf : $(MAPSDIR)/%Get.sh
 $(PICDIR)/%.jpg : $(WEBPICDIR)/%Get.sh
 	( cd $(WEBPICDIR) ; bash $(<:$(WEBPICDIR)/%=%) ../$@ )
 
+$(TABLES): | $(DYNTABDIR)
+
+$(DYNTABDIR):
+	mkdir -p $(DYNTABDIR)
+
+$(DYNTABDIR)/%.tex : $(RTABDIR)/%.tab.r $(TABSDIR)/%.csv
+	Rscript --vanilla $< TEXTABNAME=$@
+
 purge:
 	$(RM) $(PAPER).aux $(PAPER).bbl $(PAPER).blg $(PAPER).log $(PAPER).out $(PAPER).toc $(PAPER).idx $(PAPER).ilg $(PAPER).ind
 	$(RM) $(PICTURES)
+	$(RM) $(RTABS_AS_TEX)
 #	if [ -d "$(PICDIR)" ] && [ `ls -A "$(PICDIR)" | wc -l` -eq 0 ]; then rmdir $(PICDIR); fi
 	if [ -d "$(PICDIR)" ] && [ ! -f "$(PICDIR)/"* ]; then rmdir $(PICDIR); fi
+	if [ -d "$(DYNTABDIR)" ] && [ ! -f "$(DYNTABDIR)/"* ]; then rmdir $(DYNTABDIR); fi
 
 clean: purge
 	$(RM) $(PAPER).pdf

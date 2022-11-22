@@ -1,4 +1,4 @@
-x,Sturm,Schnee,Frost,Hitze,Dürre,Hagel,Rauch,Feuer,Pilze,Mäuse,Wild
+Wellenstein/Speidel,Sturm,Schnee,Frost,Hitze,Dürre,Hagel,Rauch,Feuer,Pilze,Mäuse,Wild
 Kiefer,0,3,2,0,0,2,0,3,3,0,2
 Strobe,1,1,1,2,3,2,2,1,3,1,2
 Fichte,3,3,2,2,3,2,2,2,3,2,3
@@ -16,3 +16,5 @@ Erle/Birke,0,2,0,1,0,2,0,0,2,0,0
 Pappel,1,1,1,1,1,1,0,1,3,1,1
 Robinie,0,0,3,1,1,2,1,0,1,2,0
 Nuß,1,0,3,3,0,0,1,0,1,2,0
+#0..keine Gefährdung, 1..wirtschaftl. unbedeutende Gefährdung,
+#2..w. bedeutende Gefährdung, 3..w. sehr bedeutende Gefährdung

@@ -44,6 +44,8 @@
 %\usepackage{rotating}
 \usepackage{pdflscape}
 
+\usepackage{pdfpages}
+
 \title{Kriterien und Hilfen bei der Baumartenwahl}
 \author{Georg Kindermann}
 
@@ -97,6 +99,24 @@
   \end{tikzpicture}%
 }
 
+%\usepackage{tabularray} %Maybe in future
+\usepackage{xtab}
+\newcommand{\ratingC}[2]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt,x=1em,y=1em]
+    \begin{scope}
+      \clip[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+      \draw[fill] (0,0) -- (90-#1/100*360:1) arc (90-#1/100*360:90-#2/100*360:1) -- cycle;
+    \end{scope}
+    \draw[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+  \end{tikzpicture}%
+}
+
+\newcommand*{\jaNein}[1]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt,x=1em,y=1em]%
+    \ifnum0=#1 \draw[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5); \else
+    \ifnum1=#1 \draw[fill,rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+    \fi\fi
+  \end{tikzpicture}}
+
+\setlength{\tabcolsep}{1pt}
 
 \listfiles
 \begin{document}
@@ -316,6 +336,34 @@ Zunahme der Wuchsleistung und hinsichtlich Komplexität mit Zunahme des
 Qualitätsanspruches an das zu erntende Holz, der Ungleichaltrigkeit
 und der Baumartenmischung.
 
+\subsection{Fruchtfolge}
+\label{ssec:Fruchtfolge}
+
+\cite{jentsch1911fruchtwechsel} warf die Frage auf, ob ein
+Fruchtwechsel auch in der Forstwirtschaft Sinn mache. Was von
+\cite{sieber1919Holzartenwechsel} und
+\cite{fabricius1924Holzartenwechsel} nochmals aufgegriffen, aber nie
+eindeutig beantwortet, wurde. Allerdings beobachtete
+\cite{simak1951Baumartenwechsel} dass es in natürlichen Plenterwäldern
+durchaus zu einem gegenseitigen Wechsel des Standortes, zwischen den
+Baumarten, kommt. Wenn der Aufwand des Baumartenwechsels, jenem des
+bisherige Baumart beibehalten, gleich ist oder gar unterschreitet und
+andere Kriterien ebenfalls nicht dagegen sprechen, stellt er eine
+einladende Möglichkeit dar.
+
+Baumarten die in der Lage sind den Wurzelraum zu vergrößern, wie dies
+bei Tanne, Lärche, Traubeneiche oder Schwarzerle \cite[S.~114, 130,
+150, 180]{koestler1969WurzelnDerWaldbaeume} beobachtet wurde, sollten
+in der Lage sein, bisher unerreichbare Nährstoffe oder im Boden
+gespeichertes Wasser zu erschließen und damit die Wuchsleistung zu
+steigern. Auch scheint es möglich auf Standorten mit wenig Stickstoff
+durch die Beimischung von stickstofffixierenden Baum-- und
+Straucharten, wie etwas Robinie, Erle, Geweihbaum, Gleditschie,
+Gelbholz, Schnurbaum, Goldregen, Sanddorn, Ölweide, Blasenstrauch,
+Ginster oder andern, zum Teil nicht verholzenden, Leguminosen, die
+Zuwachsleistung zu erhöhen. Diese Effekte sind, zumindest teilweise,
+auch zu erwarten, wenn diese Arten den Vorbestand bilden.
+
 \subsection{Risiko}
 \label{ssec:risiko}
 
@@ -387,8 +435,10 @@ Baumarten unterscheiden sich hinsichtlich dem Rückhaltevermögen von
 Schnee und beeinflussen damit deren Schutzwirkung gegen
 Lawinen. Ähnliches, gilt auch für den Wasserrückhalt, welcher
 Auswirkungen auf den Hochwasserschutz aber auch auf die
-Gleichmäßigkeit der Wasserspende in Quelschutzwäldern
-hat. Verschiedenen Baumarten unterscheiden sich hinsichtlich ihrer
+Gleichmäßigkeit der Wasserspende in Quelschutzwäldern hat. In
+Quelschutzwäldern spielen auch die nichtfreisetzung von Stickstoff und
+ein möglichst geringe Deposition von Luftschadtoffen eine Rolle.
+Verschiedenen Baumarten unterscheiden sich hinsichtlich ihrer
 Wirkungen auf das Biotop bzw.\ Habitat und leisten unterschiedliches
 für den Naturschutz und die Biodiversität. Dies ist insbesondere in
 Wechselwirkung zu den restlichen Baumarten, der umliegenden Bestände,
@@ -418,6 +468,32 @@ oder auch in Floren von
 \citet{fischer2008Exkursionsflora,hegi1906IllustrierteFloraBd1,oberdorfer2001Exkursionsflora,rothmaler2021Exkursionsflora,schmeil2019Exkursionsflora,fitschen2017Gehoelzflora}
 enthalten. Ein Beispiel einer kurzen Baumartenbeschreibung zeigt
 Tab.~\ref{tab:baCharakter}.
+
+Eine erster Entwurf einer längeren Baumartenliste samt ein paar
+Charakteristika ist in Tabelle~\ref{tab:BaumartenCharakteristik}. Dazu
+werden gerne Hinweise zu Ergänzungen und Korrekturen in diese Liste
+eingearbeitet. Es ist zu beachten, dass derzeit nicht alle dort
+aufgelisteten Baumarten nach dem Forstgesetz als Baumart betrachtet
+werden und somit rechtlich keinen Wald bilden können. Verboten sind
+diese Baumarten jedoch nicht. Ihr Anteil darf, solange keine
+Sondergenehmigung vorliegt, jedoch nicht so hoch sein, dass der
+verbleibende Bestand nicht mehr in der Lage ist nach dem Forstgesetz
+einen Wald zu bilden. Umgekehrt werden solche Baumarten,
+beispielsweise bei einer Ackeraufforstung, die Ladnnutzungsform von
+Landwirtschaft auf Wald rechtlich nicht vollziehen. Verbotene Baum--
+und Straucharten gibt es laut österreichischem Forstgesetz zur Zeit
+nicht. Von den restlichen Pflanzen ist mit derzeit nur das
+burgenländische Ragweed--Bekämpfungsgesetz bekannt in dem
+Grundeigentümer verpflichtet werden Ragweed zu entfernen. Dennoch gibt
+es auch bei Baumarten hinweise auf invasive Arten die sich selbständig
+relativ leicht verbreiten und teilweise in der Lage sind den Standort
+zu verändern und damit die derzeit dort vorhandene Vegetation zu
+verdrängen. Umgekehrt ist aber gerade in Regionen, in denen die
+Verjüngung schwierig ist und aufgrund einer geringen Wuchsleistung die
+Bereitschaft in Verjüngungsmaßnahmen zu investiert eingeschränkt ist,
+die Eigenschaft einer natürlichen Verjüngung sowie die Fähigkeit zur
+Steigerung der Wuchsleistung durch Stickstofffixierung oft willkommen.
+
 
 \subsection{Verbreitungskarten}
 \label{sec:verbreitungskarten}
@@ -530,14 +606,19 @@ unterschieden, da dies eben alleine über Niederschlag und Temperatur
 kaum differenzierbar sein wird.
 
 Eine Erweiterung auf zusätzliche, wesentliche Standortsdimensionen
-stellen die \emph{Zeigerwerte nach Ellenberg} dar. Mit diesen kann ein
-Standort, aufgrund der auf ihm wachsenden Pflanzen, charakterisiert
+stellen die \emph{Zeigerwerte nach Ellenberg} dar
+\citep{ellenberg2010vegetation}. Mit diesen kann ein Standort,
+aufgrund der auf ihm wachsenden Pflanzen, charakterisiert
 werden. D.h.\ es wird in der Regel das ökologische Optimum, nicht
 jedoch das physiologische Optimum oder Spektrum
 dargestellt. Beschrieben werden Licht, Temperatur, Kontinentalität,
 Feuchtigkeit, Bodnreaktion, Stickstoff, Salz und
 Schwermetallresistenz. Weiters wird die Lebensform und die
-Blattausdauer (immergrün, sommergrün, \dots) angegeben.
+Blattausdauer (immergrün, sommergrün, \dots) angegeben. Für Österreich
+wurden diese Zeigerwerte von \cite{karrer1992Zeigerwerte} angepasst.
+Ähnlich sind auch die Zeigerwerte nach
+\cite{landolt2010floarIndicative} für die Schweiz oder
+\cite{ehrendorfer1971NaturgechichteWiens} für Wien.
 
 Basierend auf diesen Zeigerwerten wurde von
 \cite{ninemetsValladares2006TolleranceToShadeDroughtAndWaterlogging}
@@ -617,6 +698,7 @@ und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
   \setlength{\tabcolsep}{1pt}
   \centering
   \pgfplotstabletypeset[col sep=comma
+  , comment chars=\#
   , text indicator="
   , string type
   , every column/.style={column type=c,preproc cell content/.style={@cell content = \rating{##1}}}
@@ -642,6 +724,8 @@ und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
 
 \addcontentsline{toc}{section}{Literatur}
 \bibliography{literature}
+
+\clearpage % To flush out all floats
 
 \begin{table*}[htbp!]
   \setlength{\tabcolsep}{1pt}
@@ -670,7 +754,6 @@ und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
   }  
   \label{tab:baCharakter}
 \end{table*}
-
 
 \afterpage{%
 %  \clearpage% To flush out all floats
@@ -720,7 +803,89 @@ und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
   \label{tab:waldgesellschaften}
 \end{table*}
 
+%\begin{table*}[htbp!]
+%  \setlength{\tabcolsep}{1pt}
+%  %\centering
+%  \pgfplotstabletypeset[col sep=comma
+%  , text indicator="
+%  , string type
+%  ]{./tabs/baEigenschaften.csv}
+%  \caption{Eigenschaften}
+%  \footnotesize{\emph{Eigenschaft:} \ratingB{0}{3}\dots gering, \ratingB{1}{3}\dots mäßig, \ratingB{2}{3}\dots hoch, \ratingB{3}{3}\dots sehr hoch\\
+%  }  
+%  \label{tab:baEigenschaften}
+%\end{table*}
 
+%\begin{table*}[htbp!]
+%  \setlength{\tabcolsep}{1pt}
+%  %\centering
+%  \pgfplotstabletypeset[col sep=comma
+%  , text indicator="
+%  , string type
+%  ]{./tabs/baAnspruch.csv}
+%  \caption{Ansprüche}
+%  \footnotesize{\emph{Anspruch:} \ratingB{0}{3}\dots gering, \ratingB{1}{3}\dots mäßig, \ratingB{2}{3}\dots hoch, \ratingB{3}{3}\dots sehr hoch\\
+%  }  
+%  \label{tab:baAnsprueche}
+%\end{table*}
+
+%\begin{table*}[htbp!]
+%  \setlength{\tabcolsep}{1pt}
+%  %\centering
+%  \pgfplotstabletypeset[col sep=comma
+%  , text indicator="
+%  , string type
+%  ]{./tabs/baEmpfindlichkeiten.csv}
+%  \caption{Empfindlichkeiten}
+%  \footnotesize{\emph{Empfindlichkeit:} \ratingB{0}{3}\dots gering, \ratingB{1}{3}\dots mäßig, \ratingB{2}{3}\dots hoch, \ratingB{3}{3}\dots sehr hoch\\
+%  }  
+%  \label{tab:baEmpfindlichkeiten}
+%\end{table*}
+
+\newpage
+
+% \includepdf[pages=-,pagecommand={},width=\textwidth]{test.pdf}
+
+\tablecaption{Charakteristika einiger Baumarten}
+\label{tab:BaumartenCharakteristik}
+\tablehead{Code & Art Sci & Kurz & Art & H & A & X & D & T & K & W & L & R & N & F & S & M & B & Ü & G\\ \hline \noalign{\vskip .1em}}
+\tabletail{\hline Code & Art Sci & Kurz & Art & H & A & X & D & T & K & W & L & R & N & F & S & M & B & Ü & G\\}
+\tablelasttail{Code & Art Sci & Kurz & Art & H & A & X & D & T & K & W & L & R & N & F & S & M & B & Ü & G\\}
+
+\afterpage{%
+  \onecolumn
+  \begin{landscape}
+    \begin{xtabular}{llllcccc@{\enspace}cccc@{\enspace}ccccc@{\enspace}ccc}
+      \input{./rtab/SpTab.tex}\\
+      \hline
+    \end{xtabular}\\
+    \footnotesize{
+      Code\dots Baumartencode in Anlehnung an EN~13556\\
+      Art Sci\dots Wissenschaftlicher Name\\
+      Kurz\dots Baumartencode in Anlehnung an DIN~4076\\
+      Art\dots Deutscher Name\\
+    H\dots Höhe die auf guten Standorten erreicht werden kann: \ratingC{0}{25}\dots 15\,m, \ratingC{0}{50}\dots 30\,m, \ratingC{0}{75}\dots 45\,m, \ratingC{0}{100}\dots 60\,m oder mehr\\
+    A\dots Alter das erreicht werden kann: \ratingC{0}{25}\dots 100~Jahre, \ratingC{0}{50}\dots 200~Jahre, \ratingC{0}{75}\dots 300~Jahre, \ratingC{0}{100}\dots 400~Jahre oder mehr\\
+    X\dots Niesche: \ratingC{0}{0}\dots Pionier, \ratingC{0}{50}\dots Extramstandort, \ratingC{0}{100}\dots Konkurrenzstark\\
+    D\dots Durchwurzelungstiefe: \ratingC{0}{33}\dots 1\,m, \ratingC{0}{67}\dots 2\,m, \ratingC{0}{100}\dots 3\,m oder mehr\\
+    T\dots Temperatur: \ratingC{0}{0}\dots Sehr Kälteempfindlich, \ratingC{0}{100}\dots Geringe Kälteempfindlichkeit\\
+    K\dots Kontinentalität: \ratingC{0}{0}\dots Verträgt nur geringe Temperaturschwankung (ozeanisch), \ratingC{0}{100}\dots Verträgt größe Temperaturschwankungen (kontinental)\\
+    W\dots Wasser: \ratingC{0}{20}\dots Verträgt Stauwasser, \ratingC{40}{60}\dots frisch (nicht trocken und nicht nass), \ratingC{80}{100}\dots Verträgt Trockenheit\\
+    L\dots Licht:  \ratingC{0}{0}\dots Benötigt viel Licht, \ratingC{0}{100}\dots Erträgt starke Beschattung\\
+    R\dots Bodenreaktion: \ratingC{0}{10}\dots Stark saure Böden (silikat), \ratingC{40}{60}\dots neutrale Böden, \ratingC{80}{100}\dots Sehr basische Böden (kalk)\\
+    N\dots Nährstoffbedarf: \ratingC{0}{0}\dots Sehr hoch, \ratingC{0}{100}\dots Sehr Gering\\
+    F\dots Stickstofffixierung: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
+    S\dots Salzresist: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
+    M\dots Schwermetallresist: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
+    B\dots Windbestäubt: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
+    Ü\dots Überdauerungszeitraum von Samen: \ratingC{0}{25}\dots 25~Jahre, \ratingC{0}{50}\dots 50~Jahre, \ratingC{0}{75}\dots 75~Jahre, \ratingC{0}{100}\dots 100~Jahre oder mehr\\
+    G\dots Giftig: \jaNein{1}\dots Ja\\
+    }
+  \end{landscape}
+  \twocolumn
+}
+
+  
 %Autor: Georg Kindermann
 
 \end{document}

@@ -1,4 +1,4 @@
-x,Luftfeuchte,Bodenfeuchte,Luftwärme,Nährstoff,Licht,Dürre,Überflutung,Frost,Sturm,Bodenpflege,Jugendwachstum,"Verhalten zu Nachbarn","Eignung zum Vorwuchs","Eignung zum Vorwald",Ausschlagfähigkeit,Regenerationasfähigkeit,Ausheilungsvermögen,"Nutzholz aus Vornutzung",Holzdichte
+Bauer,Luftfeuchte,Bodenfeuchte,Luftwärme,Nährstoff,Licht,Dürre,Staunässe,Frost,Sturm,Bodenpflege,Jugendwachstum,"Verhalten zu Nachbarn","Eignung zum Vorwuchs","Eignung zum Vorwald",Ausschlagfähigkeit,Regenerationasfähigkeit,Ausheilungsvermögen,"Nutzholz aus Vornutzung",Holzdichte
 Kiefer,0,1,0,0,3,0,2,0,0,1,2,0,0,1,0,0,2,2,510
 Schwarzkiefer,0,0,0,0,3,0,2,0,1,2,1,1,1,1,0,0,2,2,560
 Fichte,2,3,0,0,2,2,1,1,3,0,1,1,0,0,0,0,0,2,430
