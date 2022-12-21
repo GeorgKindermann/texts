@@ -116,6 +116,67 @@
     \fi\fi
   \end{tikzpicture}}
 
+\newcommand{\jaNeinP}[2]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt,x=1em,y=1em]
+    \begin{scope}
+      \clip[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+      \ifnum1=#1\fill (0,-.5) rectangle (.5,.5);\fi
+      \ifnum1=#2\fill (0,-.5) rectangle (-.5,.5);\fi
+      \draw[white,line width=.2pt] (0,-.5) -- (0,.5);
+      \draw[densely dotted,line width=.2pt] (0,-.5) -- (0,.5);
+    \end{scope}
+    \draw[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+    \ifnum-1=#1\fill[white] (0,-.5em-1pt) rectangle (.5em+1pt,.5em+1pt);\fi
+    \ifnum-1=#2\fill[white] (0,-.5em-1pt) rectangle (-.5em-1pt,.5em+1pt);\fi
+  \end{tikzpicture}%
+}
+
+\newcommand{\jaNeinQ}[4]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt,x=1em,y=1em]
+    \begin{scope}
+      \clip[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+      \ifnum1=#1\fill (0,0) rectangle (.5,.5);\fi
+      \ifnum1=#2\fill (0,0) rectangle (.5,-.5);\fi
+      \ifnum1=#3\fill (0,0) rectangle (-.5,-.5);\fi
+      \ifnum1=#4\fill (0,0) rectangle (-.5,.5);\fi
+      \draw[white,line width=.2pt] (0,-.5) -- (0,.5);
+      \draw[white,line width=.2pt] (-.5,0) -- (.5,0);
+      \draw[densely dotted,line width=.2pt] (0,-.5) -- (0,.5);
+      \draw[densely dotted,line width=.2pt] (-.5,0) -- (.5,0);
+    \end{scope}
+    \draw[rounded corners=2pt] (-.5,-.5) rectangle (.5,.5);
+    \ifnum-1=#1\fill[white] (0,0) rectangle (.5em+1pt,.5em+1pt);\fi
+    \ifnum-1=#2\fill[white] (0,0) rectangle (.5em+1pt,-.5em-1pt);\fi
+    \ifnum-1=#3\fill[white] (0,0) rectangle (-.5em-1pt,-.5em-1pt);\fi
+    \ifnum-1=#4\fill[white] (0,0) rectangle (-.5em-1pt,.5em+1pt);\fi
+  \end{tikzpicture}%
+}
+
+\newcommand{\typ}[2]{\begin{tikzpicture}[baseline={([yshift=2pt]current bounding box.south)},line width=1pt,x=1em,y=1em]
+    \ifnum1=#1 %Nadel
+    \ifnum0=#2\draw (0,-.5) -- (0,-.3) -- (-.3,-.3) -- (0,.5) -- (.3,-.3) -- (0,-.3);
+    \else \draw[fill] (0,-.5) -- (0,-.3) -- (-.3,-.3) -- (0,.5) -- (.3,-.3) -- (0,-.3);
+    \fi\fi
+    \ifnum2=#1 %Laub
+    \ifnum0=#2 \draw (0,-.5) -- (0,-.3); \draw[radius=0.4] (0,.1) circle;
+    \else \draw (0,-.5) -- (0,-.3); \draw[fill,radius=0.4] (0,.1) circle;
+    \fi\fi
+    \ifnum3=#1 %Gingko
+    \draw (0,-.5) -- (0,-.3);
+    \draw (0,-.3) -- (180:.5) arc (180:0:.5) -- cycle;
+    \fi
+    \ifnum4=#1 %Kletter
+    \ifnum0=#2 \draw[rounded corners=2pt,line width=.5pt] (0,-.5) -- (-.2,-.25) -- (0,0)  -- (.2,.25) -- (0,.5);
+    \else \draw[rounded corners=2pt,line width=2pt] (0,-.5) -- (-.2,-.25) -- (0,0)  -- (.2,.25) -- (0,.5);
+    \fi\fi
+    \ifnum5=#1 %Palme
+    \draw (0,-.5) -- (0,.5) {[rounded corners=2pt] -- (-.2,.5) -- (-.5,.3) (-.5,.3) -- (0,.4) (0,.5) -- (.2,.5) -- (.5,.3) (.5,.3) --(0,.4)};
+    \fi
+    \ifnum6=#1 %Kaktus
+    \draw[rounded corners=2pt] (-.2,-.5) -- (-.1,.5) -- (.1,.5) -- (.2,-.5) -- cycle;
+    \fi
+  \end{tikzpicture}%
+}
+
+
 \setlength{\tabcolsep}{1pt}
 
 \listfiles
@@ -125,7 +186,9 @@
   \begin{@twocolumnfalse}
     \maketitle
     \begin{abstract}
-
+      Die Baumartenwahl ist eine der weitreichendsten waldbaulichen
+      Entscheidungen. Dieser Artikel listet Kriterien auf und will bei
+      der Auswahl helfen.
     \end{abstract}
   \end{@twocolumnfalse}
 ]
@@ -138,27 +201,28 @@ Die Baumartenwahl ist eine der weitreichendsten waldbaulichen
 Entscheidungen und kann selbst in Mischwäldern nach der
 Verjüngungsphase nur bedingt verändert werden. Durch die Vielzahl an
 Kriterien, welche zum Großteil, zum Zeitpunkt der Entscheidung,
-quantitativ kaum fassbar sind, können die Baumarten nur untereinander
-verglichen und nach subjektiven Schwerpunkten abgewogen werden. Auf
+quantitativ kaum fassbar sind, können die Baumarten meist nur nach
+subjektiven Schwerpunkten gegeneinander abgewogen werden. Auf
 Standorten, die nur wenigen Baumarten zusagen, ist die Entscheidung
-einfach, solange das vorliegen eines Zwangsstandortes erkannt wird und
-die Baumartenwahl auf heimische Baumarten beschränkt ist. Ähnlich ist
-es bei einer Beschränkung auf Baumarten die sich natürlich einstellen
-oder jene der potentiell natürlichen Vegetation, insbesondere in
-Regionen in denen die Artenvielfalt in der letzten Eiszeit drastisch
-reduziert wurde. Wobei auch hier die potentiell natürliche Vegetation
-eines Standortes erst einmal richtig erkannt werden muss. Hingegen,
-zunächst alle Baumarten, die eventuell standortstauglich sein könnten,
-in Betracht zu ziehen, wird oft schon daran scheitern, dass man einige
-davon nicht oder nur mit erheblichem Aufwand erhalten wird können und
-von vielen deren waldbauliches Verhalten, auf dem vorliegenden
-Standort, wenig bis gar nicht bekannt ist.
+einfacher, solange das vorliegen eines Zwangsstandortes erkannt wird
+und die Baumartenwahl auf heimische Baumarten beschränkt ist. Ähnlich
+ist es bei einer Beschränkung auf Baumarten die sich natürlich
+einstellen oder jene der potentiell natürlichen Vegetation,
+insbesondere in Regionen in denen die Artenvielfalt durch die letzten
+Eiszeiten drastisch reduziert wurde. Wobei auch hier die potentiell
+natürliche Vegetation eines Standortes erst einmal richtig erkannt
+werden muss. Hingegen, zunächst alle Baumarten, die eventuell
+standortstauglich sein könnten, in Betracht zu ziehen, wird oft schon
+daran scheitern, dass man einige davon nicht oder nur mit erheblichem
+Aufwand erhalten wird können und von vielen deren waldbauliches
+Verhalten, auf dem vorliegenden Standort, wenig bis gar nicht bekannt
+ist.
 
 Um Wissen in diese Richtung zu erweitern und sich oder seinen
-Nachfolgern dadurch, in der Zukunft, weitere Möglichkeiten zu
-erschließen, können auf keinen Flächen durchaus auch neue Baumarten
-erprobt werden. Dabei muss das Risiko des Versagens der Baumart
-bewusst in Kauf genommen und deren Ausmaß auf Kleinflächen beschränkt
+Nachfolgern, in der Zukunft, weitere Möglichkeiten zu erschließen,
+können auf keinen Flächen durchaus auch neue Baumarten erprobt
+werden. Dabei muss das Risiko, des Versagens der Baumart, bewusst in
+Kauf genommen und deren Ausmaß auf Kleinflächen beschränkt
 bleiben. Flächen auf denen verschiedene Baumarten unmittelbar
 verglichen werden können, finden sich in botanischen Gärten, Arboreten
 und vereinzelt auch auf eigens dafür angelegten Versuchsflächen, wobei
@@ -168,7 +232,7 @@ Pflege (z.\,B.\ Bewässerung) zukommt. Eine erste Auswertung der
 Höhenwuchsleistung, verschiedener Baumarten, am selben Standort, wurde
 von \cite{mayer1970anbauversuch} gemacht. Von der Bayerische
 Landesanstalt für Wald und Forstwirtschaft (LWF) wurde 2012 der
-internationale Baumarten Versuch KliP18 initiiert an dem die
+internationale Baumartenversuch KliP18 initiiert an dem die
 Universität für Bodenkultur in Bruckneudorf eine Fläche
 einrichtete. Weitere Flächen dieses Versuchs liegen in Großostheim,
 Schmellenhof und Oldisleben (Deutschland) und Mutrux (Schweiz) und
@@ -187,14 +251,14 @@ Fläche mit 44~Baumarten angelegt. Diese Versuchswälder werden als
 oder \emph{Waldlabor} bezeichnet. Es bleibt zu Hoffen, dass dieser
 Trend nicht nur fortgesetzt sondern auch verstärkt wird, um das
 Möglichkeisspekturm, bei der Baumartenwahl, aufzuzeigen und vermehrt
-von der subjektiven in Richtung objektive Entscheidung leiten zu
+von der subjektiven, in Richtung objektive Entscheidung, leiten zu
 können. Bei solchen Versuchsflächen ist strikt darauf zu achten, dass
 diese \emph{praxisüblich} behandelt werden. Wenn beispielsweise dies
 Bestände mit wirtschaftlich unvertretbaren Aufwand bewässert werden
 würden und somit das Aufkommen von Baumarten ermöglicht wird, die in
-der Praxis versagen werden, wäre damit der Praxis damit nicht
-geholfen. Das dieser Vergleich nicht nur auf Baumarten beschränkt,
-sondern auch auf verschiedene Herkünfte auszudehnen ist, zeigt
+der Praxis versagen werden, wäre damit der Praxis nicht geholfen. Das
+dieser Vergleich nicht nur auf Baumarten beschränkt, sondern auch auf
+verschiedene Herkünfte auszudehnen ist, zeigt
 Abbildung~\ref{fig:fichtenHerkuenfte}
 \citep[S.~86]{hegi1906IllustrierteFloraBd1} auf, die drei
 verschiedenen Fichtenherkünfte, mit verschiedenen Wuchsformen und
@@ -208,7 +272,7 @@ erwarten.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.95\columnwidth]{./pic/fichtenHerkuenfte.jpg}
-  \caption{Drei verschiedene Wuchsformen von Fichte an dem gleichen
+  \caption{Drei verschiedene Wuchsformen von Fichte am gleichen
     Standort (les Monts nördlich von le Locle, Kanton Neuenburg,
     Schweiz). Phot. Kreisförster
     Pillichody. \citep[S.~86]{hegi1906IllustrierteFloraBd1}}
@@ -283,8 +347,8 @@ Stickstoff-- und Schadstoffeintrag laufend verändert wird, können
 standortstaugliche Baumarten des Vorbestandes, im Folgebestand
 plötzlich nicht mehr standortstauglich sein. Dies kann so weit gehen,
 dass der Standort für eine andere Landnutzungsform (Grasland, Acker)
-geeignetere wird. In vielen Fällen zeigt sich die Tauglichkeit oder
-Untauglichkeit einer Baumart für einen Standort bereits in der
+geeigneterer werden kann. In vielen Fällen zeigt sich die Tauglichkeit
+oder Untauglichkeit einer Baumart für einen Standort bereits in der
 Verjüngungsphase. Wobei alleine der Ausfall einer Baumart in der
 Verjüngung, insbesondere wenn nur ein Jahr betrachtet wurde, noch kein
 ausreichender Hinweis für die \emph{standörtliche} Untauglichkeit der
@@ -300,13 +364,29 @@ Der Standort bestimmt auch die Wuchsleistung und die Gefährdung
 Windgeschwindigkeit -- Windwurf, Windbruch) und damit wie häufig
 welche Pflegemaßnahmen durchgeführt werden sollten.
 
+Durch den Klimawandel verändert sich der Standort relativ
+rasch. Leider reagieren bereits etablierte Bäume bei einer
+Standortsveränderung anders als Bäume die immer bei derartigen
+Standortsverhältnissen stocken. D.h. die dortigen Beobachtungen können
+nur bedingt übertragen werden \cite{yue2022SiteIndex}. Sobald die
+Geschwindigkeit der Standortsveränderung abnimmt, oder zum Erliegen
+kommt, werden die Bedingungen von Standorten, die den Endzustand
+derzeit nahe kommen, besser übertragbar sein. Die Phase der
+Veränderung ist damit besonders schwierig einzuschätzen, da eben die
+Beobachtungen von anderen Standorten nur eingeschränkt übertragbar
+sind und zusätzlich die Baumarten den Standortsbedingungen am Anfang
+und während der \emph{gesamten} Veränderung und falls es zu einem
+Endzusatnd kommt auch diesem, nicht nur gewachsen sein müssen sondern
+die Forderungen, die an den Wald gestellt werden, möglichst gut
+erfüllen sollen.
+
 \subsection{Ertrag}
 \label{ssec:ertrag}
 
 Standortstaugliche Baumarten können sich in der Ertragsleistung
 beträchtlich unterscheiden. Durch dieses Kriterium wird die Anzahl zur
 Auswahl stehenden Baumarten oft entscheidend reduziert und führte
-aufgrund der Reinertragslehre oft zum dominieren einer Baumart in
+aufgrund der Reinertragslehre oft zum Dominieren einer Baumart in
 ganzen Regionen. So wichtig die Ertragsleistung auch ist, mag es
 durchaus gerechtfertigt sein die zweit--, dritt-- oder
 viertleistungsfähigste Baumart zu wählen bzw.\ die Bedeutung dieses
@@ -324,17 +404,17 @@ dessen Ziel die Wertholzproduktion ist.
 Baumarten unterscheiden sich hinsichtlich ihres nötigen
 Pflegeaufwandes. Selbst wenn jemand den Ertrags-- und
 Qualitätskriterien wenig Bedeutung beimisst, sind Pflegeeingriffe
-(Durchforstungen) dringend zu empfehlen um die Bestandesstabilität
+(Durchforstungen) dringend zu empfehlen, um die Bestandesstabilität
 (Windwurf, Schneebruch, Insekten, Pilze) nicht zu gefährden. Neben der
 Baumart entscheiden auch die Ziele (z.\,B.\ Produktion von
 Qualitätsholz), der Standort (Wuchsleistung der Baumart auf diesem
 Standort) und eine eventuelle Mischung (entfernen von
 konkurrenzstärkeren Nachbar einer anderen Baumart um die
 konkurrenzschwächere Baumart zu erhalten) den Pflegeaufwand. Allgemein
-erhöht sich der Pflegeaufwand hinsichtlich Frequenz und Umfang mit
-Zunahme der Wuchsleistung und hinsichtlich Komplexität mit Zunahme des
-Qualitätsanspruches an das zu erntende Holz, der Ungleichaltrigkeit
-und der Baumartenmischung.
+erhöht sich der Pflegeaufwand, hinsichtlich Frequenz und Umfang, mit
+Zunahme der Wuchsleistung und hinsichtlich Komplexität, mit Zunahme
+des Qualitätsanspruches an das zu erntende Holz, der
+Ungleichaltrigkeit und der Baumartenmischung.
 
 \subsection{Fruchtfolge}
 \label{ssec:Fruchtfolge}
@@ -346,17 +426,17 @@ Fruchtwechsel auch in der Forstwirtschaft Sinn mache. Was von
 eindeutig beantwortet, wurde. Allerdings beobachtete
 \cite{simak1951Baumartenwechsel} dass es in natürlichen Plenterwäldern
 durchaus zu einem gegenseitigen Wechsel des Standortes, zwischen den
-Baumarten, kommt. Wenn der Aufwand des Baumartenwechsels, jenem des
-bisherige Baumart beibehalten, gleich ist oder gar unterschreitet und
-andere Kriterien ebenfalls nicht dagegen sprechen, stellt er eine
+Baumarten, kommt. Wenn der Aufwand des Baumartenwechsels, gleich oder
+gar geringer ist gegenüber dem Beibehalten der bisherigen Baumart(en)
+und andere Kriterien ebenfalls nicht dagegen sprechen, stellt er eine
 einladende Möglichkeit dar.
 
-Baumarten die in der Lage sind den Wurzelraum zu vergrößern, wie dies
+Baumarten, die in der Lage sind, den Wurzelraum zu vergrößern, wie dies
 bei Tanne, Lärche, Traubeneiche oder Schwarzerle \cite[S.~114, 130,
 150, 180]{koestler1969WurzelnDerWaldbaeume} beobachtet wurde, sollten
 in der Lage sein, bisher unerreichbare Nährstoffe oder im Boden
 gespeichertes Wasser zu erschließen und damit die Wuchsleistung zu
-steigern. Auch scheint es möglich auf Standorten mit wenig Stickstoff
+steigern. Auch scheint es möglich auf Standorten mit wenig Stickstoff,
 durch die Beimischung von stickstofffixierenden Baum-- und
 Straucharten, wie etwas Robinie, Erle, Geweihbaum, Gleditschie,
 Gelbholz, Schnurbaum, Goldregen, Sanddorn, Ölweide, Blasenstrauch,
@@ -379,13 +459,13 @@ Zeit aneinander reihen) vorgeschlagen. Aber nicht nur der unmittelbare
 Nachbarbestand, sonder die Baumartenverteilung einer ganzen Region,
 kann das Ausfallrisiko einer Baumart mitbestimmen indem sich z.\,B.\
 Krankheiten oder Insektenkalamitäten von diesen auf deren Nachbarn
-übertragen können. Ob eine Baumart im Bestand die gleiche oder eine
+übertragen. Ob eine Baumart im Bestand die gleiche oder eine
 andere Baumart als Nachbarn hat, beeinflusst ebenfalls das
 Ausfallrisiko. Steht diese neben einer Baumart mit hohem
 Wasserverbrauch, kann diese Mischbaumart das Ausfallrisiko der
 Nachbarbaumart in Trockenzeiten erhöhen. Das Risiko ist somit keine
 Konstante, selbst bei einer bestimmten Baumart auf einem konkreten
-Standort. Bestandesdichte und geplante Umtriebszeit, stellen weiter
+Standort. Bestandesdichte und geplante Umtriebszeit, stellen weitere
 wesentliche Einflussgrößen für das Bestandesrisiko dar. Dabei gibt es
 Baumarten, die durch ihren Wachstumsverlauf kurze Umtriebszeiten eher
 ermöglichen (Pionierbaumarten) als andere (Klimaxbaumarten). Bei
@@ -420,7 +500,7 @@ Baumarten zusammenpassen und sollten eine Funktion in der Mischung
 
 Die \emph{Struktur} (Einschichtig, Mehrschichtig, Stufig; Regelmäßig,
 Zufällig, Geklumpt) und ob ein Bestand gleich-- oder ungleichaltirg
-sein soll, beeinflussen die Baumartenwahl. In mehrschichtigen
+sein soll, beeinflusst ebenfalls die Baumartenwahl. In mehrschichtigen
 Beständen müssen die Baumarten der unteren Schichten mit dem dort
 geringeren Lichtangebot auskommen.
 
@@ -450,7 +530,7 @@ zu betrachten.
 Insbesondere in stadtnahen Wäldern haben Landschaftspflege und
 Erholungswirkung hohe Bedeutung. Diese werden in der Regeln kaum von
 einer Baumart eines Bestand, sondern im Zusammenwirken aller Bestände
-mit deren Baumarten bestimmt.
+mit deren Baumarten und deren Bestandesstruktur bestimmt.
 
 \section{Hilfen}
 \label{sec:hilfen}
@@ -469,30 +549,32 @@ oder auch in Floren von
 enthalten. Ein Beispiel einer kurzen Baumartenbeschreibung zeigt
 Tab.~\ref{tab:baCharakter}.
 
-Eine erster Entwurf einer längeren Baumartenliste samt ein paar
-Charakteristika ist in Tabelle~\ref{tab:BaumartenCharakteristik}. Dazu
-werden gerne Hinweise zu Ergänzungen und Korrekturen in diese Liste
-eingearbeitet. Es ist zu beachten, dass derzeit nicht alle dort
-aufgelisteten Baumarten nach dem Forstgesetz als Baumart betrachtet
-werden und somit rechtlich keinen Wald bilden können. Verboten sind
-diese Baumarten jedoch nicht. Ihr Anteil darf, solange keine
-Sondergenehmigung vorliegt, jedoch nicht so hoch sein, dass der
-verbleibende Bestand nicht mehr in der Lage ist nach dem Forstgesetz
-einen Wald zu bilden. Umgekehrt werden solche Baumarten,
-beispielsweise bei einer Ackeraufforstung, die Ladnnutzungsform von
-Landwirtschaft auf Wald rechtlich nicht vollziehen. Verbotene Baum--
-und Straucharten gibt es laut österreichischem Forstgesetz zur Zeit
-nicht. Von den restlichen Pflanzen ist mit derzeit nur das
-burgenländische Ragweed--Bekämpfungsgesetz bekannt in dem
-Grundeigentümer verpflichtet werden Ragweed zu entfernen. Dennoch gibt
-es auch bei Baumarten hinweise auf invasive Arten die sich selbständig
-relativ leicht verbreiten und teilweise in der Lage sind den Standort
-zu verändern und damit die derzeit dort vorhandene Vegetation zu
+Ein erster Entwurf einer längeren Baumartenliste, samt ein paar
+Charakteristika zeigt
+Tabelle~\ref{tab:BaumartenCharakteristik}. \emph{Dazu werden gerne
+  Hinweise zu Ergänzungen und Korrekturen entgegengenommen.}  Es ist
+zu beachten, dass derzeit nicht alle dort aufgelisteten Baumarten nach
+dem Forstgesetz als Baumart betrachtet werden und somit rechtlich
+keinen Wald bilden können. Verboten sind diese Baumarten jedoch
+nicht. Ihr Anteil darf, solange keine Sondergenehmigung vorliegt,
+jedoch nicht so hoch sein, dass der verbleibende Bestand nicht mehr in
+der Lage ist, nach dem Forstgesetz, einen Wald zu bilden. Umgekehrt
+sollten solche Baumarten, beispielsweise bei einer Ackeraufforstung,
+die Ladnnutzungsform von Landwirtschaft auf Wald rechtlich nicht
+verändern können. Verbotene Baum-- und Straucharten gibt es laut
+österreichischem Forstgesetz zur Zeit nicht. Von den restlichen
+Pflanzen ist mir derzeit nur das burgenländische
+Ragweed--Bekämpfungsgesetz bekannt in dem Grundeigentümer verpflichtet
+werden Ragweed zu entfernen. Dennoch gibt es auch bei Baumarten
+hinweise auf invasive Arten, die sich selbständig relativ leicht
+verbreiten und teilweise in der Lage sind, den Standort zu verändern
+und damit die derzeit dort vorhandene Vegetation zu
 verdrängen. Umgekehrt ist aber gerade in Regionen, in denen die
-Verjüngung schwierig ist und aufgrund einer geringen Wuchsleistung die
-Bereitschaft in Verjüngungsmaßnahmen zu investiert eingeschränkt ist,
-die Eigenschaft einer natürlichen Verjüngung sowie die Fähigkeit zur
-Steigerung der Wuchsleistung durch Stickstofffixierung oft willkommen.
+Verjüngung schwierig ist und aufgrund einer geringen Wuchsleistung,
+die Bereitschaft in Verjüngungsmaßnahmen zu investiert eingeschränkt
+ist, die Eigenschaft einer natürlichen Verjüngung sowie die Fähigkeit
+zur Steigerung der Wuchsleistung durch Stickstofffixierung oft
+willkommen.
 
 
 \subsection{Verbreitungskarten}
@@ -512,15 +594,22 @@ derzeitige Verbreitungsgebiet der Tanne dargestellt.
   \label{fig:tannerVerbreitungskarte}
 \end{figure}
 
-Genauso wie die derzeitigen Verbreitungsbebiete wurden auch Karten für
-zukünftige Baumartenverbreitungen, bei angenommen Klimaszenarien,
-gezeichnet. Eine Differenzierung hinsichtlich standortstauglich und
-anbauwürdig wird in der Regel leider nicht gemacht, welche jedoch für
-die Praxis eminent wichtig ist. So mag auf einen Standort
-beispielsweise die Flaumeiche anbaufähig sein und in 100~Jahren eine
-Höhe von 15\,m erreichen. Wenn am gleichen Standort die Traubeneiche
-in 100~Jahren eine Höhe von 25\,m erreichen kann, wird die Flaumeiche
-dort nur in Ausnahmefällen anbauwürdig sein.
+Genauso wie für die derzeitigen Verbreitungsbebiete, wurden auch
+Karten für zukünftige Baumartenverbreitungen, bei angenommen
+Klimaszenarien, gezeichnet. Eine Differenzierung hinsichtlich
+standortstauglich und anbauwürdig wird in der Regel leider nicht
+gemacht. Diese Unterscheidung wäre jedoch für die Praxis eminent
+wichtig. So mag auf einen Standort beispielsweise die Flaumeiche
+anbaufähig sein und in 100~Jahren eine Höhe von 15\,m erreichen. Wenn
+am gleichen Standort die Traubeneiche in 100~Jahren eine Höhe von
+25\,m erreichen kann, wird die Flaumeiche dort nur in Ausnahmefällen
+anbauwürdig sein. Meist wird auch nicht berücksichtigt, dass einige
+Baumarten nicht auf jenen Standorten angetroffen werden, die ihnen am
+besten zusagen würden sondern auf jene, wo sie aufgrund der
+Konkurrenzsituation verdrängt wurden
+\citep{lian2022BaVerbreitungOpt}. Damit zeigen solche Karten
+gelegentlich Regionen, die der Baumart gut zusagen würden, fälschlich
+als vom Standort nicht geeignet.
 
 Deutlich mehr Information für die Baumartenwahl geben Karten der
 natürlichen Waldgesellschaft (Abb.~\ref{fig:waelderDesOstalpenraumes})
@@ -539,11 +628,11 @@ Traubeneiche, Weißkiefer oder Schwarzkiefer.
 Es gibt auch Karten, welche die geschätzte Wuchsleistung zeigen
 (Abb.~\ref{fig:Eichenbonitaet}). Dabei muss angemerkt werden, dass
 diese nur einen groben Anhaltspunkt geben können und die, von
-kleinstandörtlichen Gegebenheiten geprägte, Bestandesbonität von
-dieser beträchtlich abweichen kann. Dies Karten sind derzeit relative
+kleinstandörtlichen Gegebenheiten geprägte Bestandesbonität, von
+dieser beträchtlich abweichen kann. Diese Karten sind derzeit relativ
 grob und differenzieren beispielsweise selten zwischen verschiedenen
-Eichenarten. Auch hier sind Karten, welche die Wuchsleistung bei
-einem veränderten Klima darstellen, vorhanden.
+Eichenarten. Auch hier sind Karten, welche die Wuchsleistung bei einem
+veränderten Klima darstellen, vorhanden.
 
 \begin{figure}[htbp]
   \centering
@@ -848,14 +937,14 @@ und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
 
 \tablecaption{Charakteristika einiger Baumarten}
 \label{tab:BaumartenCharakteristik}
-\tablehead{Code & Art Sci & Kurz & Art & H & A & X & D & T & K & W & L & R & N & F & S & M & B & Ü & G\\ \hline \noalign{\vskip .1em}}
-\tabletail{\hline Code & Art Sci & Kurz & Art & H & A & X & D & T & K & W & L & R & N & F & S & M & B & Ü & G\\}
-\tablelasttail{Code & Art Sci & Kurz & Art & H & A & X & D & T & K & W & L & R & N & F & S & M & B & Ü & G\\}
+\tablehead{Code & Art Sci & Kurz & Art & t & H & h & A & X & D & T & K & W & L & R & N & F & Ü & G & Z & U & a & w & d & x & M & V & F & S & I & B & P\\ \hline \noalign{\vskip .1em}}
+\tabletail{\hline Code & Art Sci & Kurz & Art & t & H & h & A & X & D & T & K & W & L & R & N & F & Ü & G & Z & U & a & w & d & x & M & V & F & S & I & B & P\\}
+\tablelasttail{Code & Art Sci & Kurz & Art & t & H & h & A & X & D & T & K & W & L & R & N & F & Ü & G & Z & U & a & w & d & x & M & V & F & S & I & B & P\\}
 
 \afterpage{%
   \onecolumn
   \begin{landscape}
-    \begin{xtabular}{llllcccc@{\enspace}cccc@{\enspace}ccccc@{\enspace}ccc}
+    \begin{xtabular}{llllcccccc@{$\cdot$}cccccc@{$\cdot$}ccc@{$\cdot$}cccccc@{$\cdot$}cccc@{$\cdot$}ccc}
       \input{./rtab/SpTab.tex}\\
       \hline
     \end{xtabular}\\
@@ -864,22 +953,47 @@ und Risikowahrscheinlichkeiten bei verschiedenen Baumarten.
       Art Sci\dots Wissenschaftlicher Name\\
       Kurz\dots Baumartencode in Anlehnung an DIN~4076\\
       Art\dots Deutscher Name\\
-    H\dots Höhe die auf guten Standorten erreicht werden kann: \ratingC{0}{25}\dots 15\,m, \ratingC{0}{50}\dots 30\,m, \ratingC{0}{75}\dots 45\,m, \ratingC{0}{100}\dots 60\,m oder mehr\\
-    A\dots Alter das erreicht werden kann: \ratingC{0}{25}\dots 100~Jahre, \ratingC{0}{50}\dots 200~Jahre, \ratingC{0}{75}\dots 300~Jahre, \ratingC{0}{100}\dots 400~Jahre oder mehr\\
-    X\dots Niesche: \ratingC{0}{0}\dots Pionier, \ratingC{0}{50}\dots Extramstandort, \ratingC{0}{100}\dots Konkurrenzstark\\
-    D\dots Durchwurzelungstiefe: \ratingC{0}{33}\dots 1\,m, \ratingC{0}{67}\dots 2\,m, \ratingC{0}{100}\dots 3\,m oder mehr\\
-    T\dots Temperatur: \ratingC{0}{0}\dots Sehr Kälteempfindlich, \ratingC{0}{100}\dots Geringe Kälteempfindlichkeit\\
-    K\dots Kontinentalität: \ratingC{0}{0}\dots Verträgt nur geringe Temperaturschwankung (ozeanisch), \ratingC{0}{100}\dots Verträgt größe Temperaturschwankungen (kontinental)\\
-    W\dots Wasser: \ratingC{0}{20}\dots Verträgt Stauwasser, \ratingC{40}{60}\dots frisch (nicht trocken und nicht nass), \ratingC{80}{100}\dots Verträgt Trockenheit\\
-    L\dots Licht:  \ratingC{0}{0}\dots Benötigt viel Licht, \ratingC{0}{100}\dots Erträgt starke Beschattung\\
-    R\dots Bodenreaktion: \ratingC{0}{10}\dots Stark saure Böden (silikat), \ratingC{40}{60}\dots neutrale Böden, \ratingC{80}{100}\dots Sehr basische Böden (kalk)\\
-    N\dots Nährstoffbedarf: \ratingC{0}{0}\dots Sehr hoch, \ratingC{0}{100}\dots Sehr Gering\\
-    F\dots Stickstofffixierung: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
-    S\dots Salzresist: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
-    M\dots Schwermetallresist: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
-    B\dots Windbestäubt: \jaNein{0}\dots Nein, \jaNein{1}\dots Ja\\
-    Ü\dots Überdauerungszeitraum von Samen: \ratingC{0}{25}\dots 25~Jahre, \ratingC{0}{50}\dots 50~Jahre, \ratingC{0}{75}\dots 75~Jahre, \ratingC{0}{100}\dots 100~Jahre oder mehr\\
-    G\dots Giftig: \jaNein{1}\dots Ja\\
+      t\dots Typ: \typ{1}{0}\dots Nadel sommergrün,
+      \typ{1}{1}\dots Nadel immergrün,
+      \typ{2}{0}\dots Laub sommergrün,
+      \typ{2}{1}\dots Laub immergrün,
+      \typ{3}{0}\dots Gingko
+      \typ{4}{0}\dots Kletterpflanze sommergrün,
+      \typ{4}{1}\dots Kletterpflanze immergrün,
+      \typ{5}{0}\dots Palme,
+      \typ{6}{0}\dots Kaktus\\
+      H\dots Höhe die auf guten Standorten erreicht werden kann: \ratingC{0}{25}\dots 15\,m, \ratingC{0}{50}\dots 30\,m, \ratingC{0}{75}\dots 45\,m, \ratingC{0}{100}\dots 60\,m oder mehr\\
+      h\dots Höhe die im Alter~15 auf guten Standorten erreicht werden kann: \ratingC{0}{25}\dots 4\,m, \ratingC{0}{50}\dots 8\,m, \ratingC{0}{75}\dots 12\,m, \ratingC{0}{100}\dots 16\,m oder mehr\\
+      A\dots Erreichbares Alter: \ratingC{0}{25}\dots 100~Jahre, \ratingC{0}{50}\dots 200~Jahre, \ratingC{0}{75}\dots 300~Jahre, \ratingC{0}{100}\dots 400~Jahre oder mehr\\
+      X\dots Niesche: \ratingC{0}{0}\dots Pionier, \ratingC{0}{50}\dots Extramstandort, \ratingC{0}{100}\dots Konkurrenzstark\\
+      D\dots Durchwurzelungstiefe: \ratingC{0}{33}\dots 1\,m, \ratingC{0}{67}\dots 2\,m, \ratingC{0}{100}\dots 3\,m oder mehr\\
+      T\dots Temperatur: \ratingC{0}{0}\dots Sehr Kälteempfindlich, \ratingC{0}{100}\dots Geringe Kälteempfindlichkeit\\
+      K\dots Kontinentalität: \ratingC{0}{0}\dots Verträgt nur geringe Temperaturschwankung (ozeanisch), \ratingC{0}{100}\dots Verträgt größe Temperaturschwankungen (kontinental)\\
+      W\dots Wasser: \ratingC{0}{20}\dots Verträgt Stauwasser, \ratingC{40}{60}\dots frisch (nicht trocken und nicht nass), \ratingC{80}{100}\dots Verträgt Trockenheit\\
+      L\dots Licht:  \ratingC{0}{0}\dots Benötigt viel Licht, \ratingC{0}{100}\dots Erträgt starke Beschattung\\
+      R\dots Bodenreaktion: \ratingC{0}{10}\dots Stark saure Böden (silikat), \ratingC{40}{60}\dots neutrale Böden, \ratingC{80}{100}\dots Sehr basische Böden (kalk)\\
+      N\dots Nährstoffbedarf: \ratingC{0}{0}\dots Sehr hoch, \ratingC{0}{100}\dots Sehr Gering\\
+      F\dots \jaNeinQ{0}{0}{0}{1}\dots Stickstofffixierung,
+      \jaNeinQ{0}{0}{1}{0}\dots Windbestäubt,
+      \jaNeinQ{1}{0}{0}{0}\dots Salzresistent,
+      \jaNeinQ{0}{1}{0}{0}\dots Schwermetallresistent\\
+      Ü\dots Überdauerungszeitraum von Samen: \ratingC{0}{25}\dots 25~Jahre, \ratingC{0}{50}\dots 50~Jahre, \ratingC{0}{75}\dots 75~Jahre, \ratingC{0}{100}\dots 100~Jahre oder mehr\\
+      G\dots Als Nahrung verwendet / Giftig : \jaNeinP{0}{1}\dots Als Nahrung verwendet. Dies bedeuted \textbf{nicht}, das diese Pflanze ohne Gefahr essbar ist.
+      \jaNeinP{1}{0}\dots Giftig. Ungiftig wurde hier nicht vergeben! D.h.\ keine Angabe bedeuted \textbf{nicht}, das diese Pflanze ohne Gefahr essbar ist.\\
+      Z\dots Planbarkeit: \ratingC{0}{10}\dots Gering --
+      Wahrscheinlichkeit für frühzeitigen Ausfall, \ratingC{0}{90}\dots Hoch\\
+      U\dots Streuumsatz: \ratingC{0}{0}\dots 5~Jahre oder mehr, \ratingC{0}{100}\dots 1~Jahr oder weniger\\
+      a\dots Stockausschlag: \ratingC{0}{0}\dots Nein, \ratingC{0}{100}\dots Ja\\
+      w\dots Wurzelbrut: \ratingC{0}{0}\dots Nein, \ratingC{0}{100}\dots Ja\\
+      d\dots Holzichte: \ratingC{0}{0}\dots Darrgewicht 350 kg/m$^3$ oder weniger, \ratingC{0}{100}\dots Darrgewicht 800 kg/m$^3$ oder mehr\\
+      x\dots Dauerhaftigkeit des unbehandelten Kern--Holzes in Anlehnung an EN 350-2: \ratingC{0}{0}\dots geringe Dauerhaftigkeit, \ratingC{0}{100}\dots Sehr Dauerhaft\\
+      M\dots Mäuse: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
+      V\dots Verbiss: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
+      F\dots Fegen/Schlagen: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
+      S\dots Schälen: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
+      I\dots Windwurf: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
+      B\dots Schneebruch: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
+      P\dots Pilze: \ratingC{0}{0}\dots geringe Gefährdung, \ratingC{0}{100}\dots hohe Gefährdung\\
     }
   \end{landscape}
   \twocolumn
