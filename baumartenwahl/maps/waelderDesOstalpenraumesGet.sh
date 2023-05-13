@@ -5,7 +5,7 @@ fi
 if [ ! -f waelderDesOstalpenraumesORIG.jpg ]; then
     curl -o waelderDesOstalpenraumesORIG.jpg "https://anno.onb.ac.at/cgi-content/annoshow-plus?call=cbf|1977|0004|00000152|00000001|jpg||O|"
 fi
-    
+
 tmp=$(mktemp -d)
 
 convert waelderDesOstalpenraumesORIG.jpg -crop 5000x3500+170+240 $tmp/crop.jpg
@@ -25,4 +25,3 @@ pdfcrop $tmp/border.pdf
 pdftk $tmp/border-crop.pdf background $tmp/waelderDesOstalpenraumesBW.pdf output $OUT
 
 rm -r $tmp
-
