@@ -14,6 +14,7 @@
 \usepackage{realboxes}
 \definecolor{mygray}{rgb}{0.9,0.9,0.9}
 \usepackage{listings}
+\usepackage{pmboxdraw}
 \lstdefinelanguage{commentonly}{ morecomment=[l]{\#} }
 \lstset{literate=%
 {Ö}{{\"O}}1
@@ -25,6 +26,10 @@
 {ö}{{\"o}}1
 {α}{{$\alpha$}}1
 {λ}{{$\lambda$}}1
+{├}{{\textSFviii}}1
+{─}{{\textSFx}}1
+{└}{{\textSFii}}1
+{×}{{\texttimes}}1
 ,basicstyle=\ttfamily
 ,backgroundcolor=\color{mygray}
 ,commentstyle=\emph
@@ -215,9 +220,9 @@ Reihenfolgen und Rang Korrelationen.
 \begin{lstlisting}
 using StatsBase
 x = [2,3,1,2,-1]
-ordinalrank(x)     # 3 5 2 4 1; one Gleiche
-competerank(x)     # 3 5 2 3 1; Gleiche mit Luecke
-denserank(x)       # 3 4 2 3 1; Gleiche ohne Luecke
+ordinalrank(x)     # 3 5 2 4 1; ohne Gleiche
+competerank(x)     # 3 5 2 3 1; Gleiche mit Lücke
+denserank(x)       # 3 4 2 3 1; Gleiche ohne Lücke
 tiedrank(x)        # 3.5 5 2 3.5 1; Gleiche Mittel
 y = [3,4,1,3,2]
 corspearman(x, y)  # 0.89; Rangkorrelation
@@ -529,7 +534,7 @@ plot!(p[1], legendfontsize=8, legend=:bottom)
 savefig("lda.pdf")
 \end{lstlisting}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=.95\columnwidth]{lda.pdf}
 \end{figure}
@@ -591,7 +596,7 @@ plot!(p[2], legend=:bottom, legend_columns=2)
 plot!(p[2], title="PCA Standardised")
 \end{lstlisting}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=.95\columnwidth]{pca.pdf}
 \end{figure}
@@ -640,7 +645,7 @@ P(p[8], getindex.(argmax(rFuzzy.weights, dims = 2), 2),
 savefig("cluster.pdf")
 \end{lstlisting}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=.95\columnwidth]{cluster.pdf}
 \end{figure}
@@ -732,7 +737,7 @@ scatter!(p[2], fitted(ols),residuals(ols2),label="ols2")
 savefig("glm.pdf")
 \end{lstlisting}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=.95\columnwidth]{glm.pdf}
 \end{figure}
@@ -848,7 +853,7 @@ glm(@formula(y ~ X), D1, Poisson(), LogLink())  # OK
 glm(@formula(y ~ X), D2, Normal(), LogLink())   # OK
 \end{lstlisting}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=.95\columnwidth]{glmLogLink.pdf}
 \end{figure}
@@ -1193,9 +1198,219 @@ gm = fit(MixedModel, @formula(r2 ~ 1 + anger + (1|subj)),
 gm2 = fit(MixedModel, @formula(r2 ~ 1 + anger + (1|subj)),
           verbagg, Bernoulli(), LogitLink(), fast=true)
 
+
 \end{lstlisting}
 
+\subsection{Quantille}
 
+Qantillen Regression \lstinline|v0.1.10|.
+
+\begin{lstlisting}
+using QuantileRegressions, DataFrames, RDatasets
+iris = dataset("datasets", "iris")
+
+#Modell für 0.5 Quantille
+m = qreg(@formula(SepalLength ~ PetalLength), iris, .5)
+m
+#             Quantile  Estimate  Std.Error  t value
+#(Intercept)       0.5  4.35556   0.110287   39.4931
+#PetalLength       0.5  0.388889  0.0265785  14.6317
+\end{lstlisting}
+
+\subsection{Nichtlinear}
+
+Nichtlineare Regressionen können z.\,B.\ mit \lstinline|LsqFit|
+\lstinline|v0.13.0| geschätzt werden.
+
+\begin{lstlisting}
+using LsqFit
+#Modell bei dem Koeffizienten geschätz werden
+@. model(X, p) = p[1]*exp(-X*p[2])
+X = 0:5  # Unabhängige
+y = [10,6,4,2,1,.5]      # Abhängige
+p0 = [1., 1.]            # Startwerte
+fit = curve_fit(model, X, y, p0)  # Koeffizienten suchen
+#Maximale Interationen, Schritte ausgeben (trace)
+fit = curve_fit(model, X, y, p0; maxIter=99,
+ show_trace=true)
+coef(fit)                # 10.1 0.519; Schätzwerte
+dof(fit)                 # 4; Freiheitsgrade
+stderror(fit)            # 0.275 0.0264; Standardfehler
+margin_error(fit, 0.05)  # 0.763 0.0733; Schwankugsbreite
+confidence_interval(fit, 0.05)  # Konfidenzinterval
+ #(9.31, 10.8)
+ #(0.446, 0.592)
+fit.resid  # Residuen
+model(X, coef(fit))      # Modelschätzwerte
+
+lb = [1.0, 0.0]          # Unter Grenze
+ub = [5.0, Inf]          # Obere Grenze
+p0 = [2.5, 1.]           # Startwerte
+fitB = curve_fit(model, X, y, p0, lower=lb, upper=ub)
+coef(fitB)               # 5.0 0.256; Schätzwerte
+
+#Multivariat
+X = [0:7 [1,3,6,9,15,24,42,63]]
+y = [1,2,3,6,9,14,20,26]
+function model(X, p)
+  a, b, c, d, e = p      # Paramternamen
+  x = X[:,1]             # Unabhängige x
+  y = X[:,2]             # Unabhängige y
+  @. a + b*x^c + d*y^e
+end
+p0 = [1,.5,2,.1,.5]      # Startwerte
+fit = curve_fit(model, X, y, p0)  # Koeffizienten suchen
+\end{lstlisting}
+
+\section{Entscheidungsbaum}
+
+Mit \lstinline|DecisionTree| \lstinline|v0.12.3| können Entscheidungsbäume zur
+Klassifikation oder Regression erstellt werden.
+
+\subsection{Klassifikation}
+
+\begin{lstlisting}
+using DecisionTree
+X, y = load_data("iris")
+#Für bessere Performance als konkrete Typen
+X = float.(X)
+y   = string.(y)
+s = ["sepal length","sepal width", "petal length",
+ "petal width"]
+
+#Entscheidungsbaum
+model = build_tree(y, X,  # labels, features
+ 0,   # n rand gewählte Features (Def.: 0, alle behalten)
+ -1,  # maximale Baumtiefe (Def.: -1, kein Maximum)
+ 4,   # Mindestanzahl auf Blatt (Def.: 1)
+ 8,   # Mindestanzahl für Aufteilung (Def.: 2)
+ .0;  # Mindestreinheit, nach Aufteilung (Def.: 0.0)
+ rng = 0)  # Seed Zufallszahl
+#Vereine Blätter
+# die danach zu >=90% einer Klasse angehören
+model = prune_tree(model, 0.9)
+print_tree(model; feature_names=s)  # Anzeigen
+ #Feature 4: "petal width" < 0.8 ?
+ #├─ Iris-setosa : 50/50
+ #└─ Feature 4: "petal width" < 1.75 ?
+ #    ├─ Iris-versicolor : 49/54
+ #    └─ Iris-virginica : 45/46
+apply_tree(model, [5.9,3.0,5.1,1.9])
+ #"Iris-virginica"; Anwenden
+#Wahrscheinlichkeiten für Klassen
+apply_tree_proba(model, [5.9,3.0,5.1,1.9], unique(y))
+ #0.0 0.02 0.98
+preds = apply_tree(model, X)  # Klassifizierung
+#Confusion Matrix
+DecisionTree.confusion_matrix(y, preds)
+ #Accuracy: 0.96
+ #Kappa:    0.94
+ #3×3 Matrix{Int64}:
+ # 50   0   0
+ #  0  49   1
+ #  0   5  45
+DecisionTree.accuracy(y, preds)  # 0.96; Treffer
+#Einflussstärke der Daten
+impurity_importance(model)  # 0 0 0 0.96
+model.featim  # Das Gleiche
+split_importance(model)  # 0 0 0 2
+p = permutation_importance(model, y, X, (model, y, X) ->
+ DecisionTree.accuracy(y, apply_tree(model, X)),
+ 3; rng=42)
+p.mean  # 0 0 0 0.67
+p.scores  # Für jeden der 3 Zufallsläufe
+ # 0.0   0.0       0.0
+ # 0.0   0.0       0.0
+ # 0.0   0.0       0.0
+ # 0.72  0.606667  0.693333
+#Kreuzvalidierung (folds=3) eines neuen Baums
+nfoldCV_tree(y, X, 3)
+
+#Random Forest
+model = build_forest(y, X,  # labels, features
+ 0,   # n rand gewählte Features (Def.: 0, alle behalten)
+ 10,  # Anzahl zu trainierende Bäume (Def.: 10)
+ .8,  # Datenanteil mit denen Baum trainiert (Def.: 0.7)
+ -1,  # maximale Baumtiefe (Def.: -1, kein Maximum)
+ 4,   # Mindestanzahl auf Blatt (Def.: 1)
+ 8,   # Mindestanzahl für Aufteilung (Def.: 2)
+ .0;  # Mindestreinheit, nach Aufteilung (Def.: 0.0)
+ rng = 0)  # Seed Zufallszahl
+apply_forest(model, [5.9,3.0,5.1,1.9])
+ #"Iris-virginica"; Anwenden
+#Wahrscheinlichkeiten für Klassen
+apply_forest_proba(model, [5.9,3.0,5.1,1.9], unique(y))
+ #0.0 0.0 1.0
+DecisionTree.confusion_matrix(y, apply_forest(model, X))
+ #Accuracy: 0.9666666666666667
+ #Kappa:    0.9499999999999998
+ #3×3 Matrix{Int64}:
+ # 50   0   0
+ #  0  47   3
+ #  0   2  48
+impurity_importance(model)  # 0.00 0.01 0.51 0.48
+split_importance(model)  # 0.02 0.10 0.48 0.40
+# Weitere 5 Bäume hinzufügen
+model = build_forest(model, y, X, 0, 5)
+#Kreuzvalidierung (folds=3)
+nfoldCV_forest(y, X, 3)
+
+#Adaptive-boosted stumps mit 7 Iterationen
+model, coeffs = build_adaboost_stumps(y, X, 7);
+apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
+ #"Iris-virginica"; Anwenden
+apply_adaboost_stumps_proba(model, coeffs,
+ [5.9,3.0,5.1,1.9], unique(y))  # 0.0 0.33 0.67
+DecisionTree.confusion_matrix(y,
+ apply_adaboost_stumps(model, coeffs, X))
+ #Accuracy: 0.9533333333333334
+ #Kappa:    0.93
+ #3×3 Matrix{Int64}:
+ # 50   0   0
+ #  0  44   6
+ #  0   1  49
+split_importance(model)  # 0.02 0.10 0.48 0.40
+#Kreuzvalidierung, folds=3, iteration=7
+nfoldCV_stumps(y, X, 3, 7)
+\end{lstlisting}
+
+\subsection{Regression}
+
+Wird gleich formuliert wie bei Klassifikation. Gruppen werden aufgrund von ähnlichen Werten gebildet. Gruppenmittel ist Erwartungswert.
+
+\begin{lstlisting}
+using DecisionTree
+X, y = load_data("iris")
+X = float.(X[:,2:4])  # Unabhängige features
+y = float.(X[:,1])  # Abhängige; sepal length
+s = ["sepal width", "petal length", "petal width"]
+
+#Entscheidungsbaum
+model = build_tree(y, X; rng=0)  # Baum erzeugen
+print_tree(model; feature_names=s)  # Änzeigen
+#Feature 1: "sepal width" < 3.15 ?
+#├─ Feature 1: "sepal width" < 2.65 ?
+#    ├─ Feature 1: "sepal width" < 2.35 ?
+#        ├─ 2.225 : 0/8
+# :  :  :
+apply_tree(model, [3.0,5.1,1.9])  #3.0; Anwenden
+p = apply_tree(model, X)  # Modelschätzwerte
+DecisionTree.mean_squared_error(y, p)  # 0.0021; Streuung
+DecisionTree.R2(y, p)  # 0.99; Bestimmtheitsmaß
+model.featim  # 0.18 0.00 0.00; Einflussstärke der Daten
+#Kreuzvalidierung (folds=3)
+nfoldCV_tree(y, X, 3)
+
+#Random Forest
+model = build_forest(y, X; rng=0)
+apply_forest(model, [3.0,5.1,1.9])  #2.96; Anwenden
+p = apply_forest(model, X)  # Modelschätzwerte
+DecisionTree.mean_squared_error(y, p)  # 0.0096; Streuung
+DecisionTree.R2(y, p)  # 0.95; Bestimmtheitsmaß
+model.featim  # 0.72 0.14 0.14; Einflussstärke der Daten
+#Kreuzvalidierung (folds=3)
+nfoldCV_forest(y, X, 3)
+\end{lstlisting}
 
 %Autor: Georg Kindermann
 
