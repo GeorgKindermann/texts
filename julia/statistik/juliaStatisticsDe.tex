@@ -80,7 +80,7 @@ Es werden ein paar subjektiv ausgewählte Themen, zu Statistik und wie diese mit
 \href{https://juliastats.org/}{JuliaStats} bzw.\
 \href{https://github.com/JuliaStats/}{GitHub} sind einige Pakete, für
 statistische Methoden, gesammelt. Die gezeigten Codeabschnitte wurden mit Julia
-Version 1.9.2 (2023-07-05) ausgeführt.
+Version 1.9.3 (2023-08-24) ausgeführt.
 
 \section{Standard Library}
 \label{sec:standardLibrary}
@@ -90,34 +90,38 @@ Im Standard Library finden sich grundlegende statistische Methoden.
 \subsection{Statistics -- Statistik}
 \label{ssec:standardLibrary_Statistics}
 
-Folgende Funktionen sind im \lstinline|Statistics| (v1.9.0) Paket vertreten.
-Überschneidet sich teilweise mit
+Folgende Funktionen sind im
+\href{https://docs.julialang.org/en/v1/stdlib/Statistics/}{\lstinline|Statistics|}
+(v1.9.0) Paket vertreten. Teilweise bestehen Überschneidungen mit
 \hyperref[ssec:StatsBase_ScalarStatistics]{StatsBase -- Scalar Statistics}.
 
 \begin{lstlisting}
 using Statistics
-x = [1, 2, 3, 4, 5]    # Vektor
-M = [1;2;3;;4;6;6]     # 3x2 Matrix
-std(x)                 # 1.58; Standardabweichung
-var(x)                 # 2.5; Varianz
-cor(x, -x)             # -1.0; Korrelation
-cor(M)                 # Korrelation der Spalten
-cov(x, -x)             # -2.5; Kovarianz
-mean(x)                # 3.0; Mittelwert
+y = [1, 2, 3, 4, 5]    # Vektor
+X = [1;2;3;;4;6;6]     # 3x2 Matrix
+std(y)                 # 1.58; Standardabweichung
+var(y)                 # 2.5; Varianz
+cor(y, -y)             # -1.0; Korrelation
+cor(X)                 # Korrelation der Spalten
+ # 1.0       0.866025
+ # 0.866025  1.0
+cov(y, -y)             # -2.5; Kovarianz
+mean(y)                # 3.0; Mittelwert
 mean([1, missing, 3])  # missing; Fehlwerte
 mean(skipmissing([1, missing, 3]))  # 2.0
-mean(M, dims=1)        # 2.0, 5.3; Ja Spalte
-median(x)              # 3.0; Median
+mean(X, dims=1)        # 2.0, 5.3; Je Spalte
+median(y)              # 3.0; Median
 middle([0,1,2,10])     # 5.0; Mittel der Extremwerte
-quantile(x, 0.2)       # 1.8; Quantille
+quantile(y, 0.2)       # 1.8; 20% Quantille
 \end{lstlisting}
 
 \subsection{Random Numbers -- Zufallszahlen}
 \label{ssec:standardLibrary_Random}
 
 Einige Funktionen sind bereits in \lstinline|base| enthalten. Zusätzlich gibt es
-noch das Modul \lstinline|Random|. Siehe auch
-\hyperref[ssec:StatsBase_Sampling]{Sampling} in StatsBase.
+noch das Modul
+\href{https://docs.julialang.org/en/v1/stdlib/Random/}{\lstinline|Random|}.
+Siehe auch \hyperref[ssec:StatsBase_Sampling]{Sampling} in StatsBase.
 
 \begin{lstlisting}
 using Random
@@ -125,10 +129,10 @@ Random.seed!(1)   # Setze Zufallszahlengenerator
 rand()            # Gleichverteile Zufallszahl U[0,1)
 rand(3, 4)        # 3x4 Matrix
 rand(2:5, 10)     # 10 Integer von 2 bis 5
-randn(3)          # Standard normalverteile
-bitrand(3)        # Binäre Zufallszahl
-randexp(3)        # Exponential verteilt
-randstring(3)     # Buchstaben
+randn(3)          # 3 Standard normalverteile
+bitrand(3)        # 3 Binäre Zufallszahlen1
+randexp(3)        # 3 Exponential verteilt
+randstring(3)     # 3 Buchstaben
 randstring('d':'k', 3)  #von d bis k
 randstring("ACGT", 3)   # Aus A,C,G oder T
 randperm(3)       # Zufällige Anordnung von 1,2,3
@@ -138,71 +142,98 @@ shuffle([2,5,9])  # Zufällig anordnen
 \section{StatsBase}
 \label{sec:StatsBase}
 
-Vereint grundlegende statistische Funktionen (v0.34.0).
+Vereint grundlegende statistische Funktionen (v0.34.0 --
+\href{https://github.com/JuliaStats/StatsBase.jl}{Git} /
+\href{https://juliastats.org/StatsBase.jl/stable/}{doc}).
 
 \subsection{Weight Vectors -- Gewichtete Vektoren}
 
-Werden für die Gewichtung von Stichproben verwendet, wobei wenn bekannt der
-entsprechende Typ ausgewählt werden soll.
+Werden für die Gewichtung von Stichproben verwendet, wobei, wenn bekannt, der
+entsprechende Typ ausgewählt werden soll
+(\href{https://juliastats.org/StatsBase.jl/stable/weights/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
-v = [1, 2, 3]
+y = [1, 2, 3]
 w = AnalyticWeights([0.2, 0.1, 0.3])     # oder aweights
-sum(v, w)                                # 1.3
+sum(y, w)                                # 1.3
 w = FrequencyWeights([2, 1, 3])          # oder fweights
-sum(v, w)                                # 13
+sum(y, w)                                # 13
 w = ProbabilityWeights([0.2, 0.1, 0.3])  # oder pweights
-sum(v, w)                                # 1.3
+sum(y, w)                                # 1.3
 w = uweights(3)                     # Gleiche Gewichtung
-sum(v, w)                                # 6
+sum(y, w)                                # 6
+sum(y)                                   # 6
 w = Weights([2., 1., 3.])                # oder weights
-sum(v, w)                                # 13
+sum(y, w)                                # 13
 \end{lstlisting}
 
 \subsection{Scalar Statistics}
 \label{ssec:StatsBase_ScalarStatistics}
 
 Funktionen für Mittelwerte und Streuungen. Überschneidet sich teilweise mit
-\hyperref[ssec:standardLibrary_Statistics]{Statistics} des Standard Libraries.
+\hyperref[ssec:standardLibrary_Statistics]{Statistics} des Standard Libraries
+(\href{https://juliastats.org/StatsBase.jl/stable/scalarstats/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
-x = [1, 2, 3]
-sum(x)                  # 6
-mean(x)                 # 2
-geomean(x)              # 1.82
-prod(x)^(1//length(x))  # 1.82
-harmmean(x)             # 1.64
-length(x)/sum(1 ./ x)   # 1.64
-var(x)                  # 1.0; Varianz
-std(x)                  # 1.0; Stnadardabweichung
-span(x)                 # 1:3; min:max
-sem(x)                  # 0.58; Standardfehler
-quantile(x, 0.5)        # 2.0
-median(x)               # 2.0
-mode(x)                 # 1; Modus erster häufigster Wert
-modes(x)                # 2,3,1; Alle Häufigsten Werte
-summarystats(x)         # Übersicht
-describe(x)             # Übersicht
+y = [1, 2, 3]
+sum(y)                  # 6; Summe
+mean(y)                 # 2; Arithmetisches Mittel
+geomean(y)              # 1.82; Geometrisches Mittel
+ prod(y)^(1//length(y)) # 1.82
+harmmean(y)             # 1.64; Harmonisches Mittel
+ length(y)/sum(1 ./ y)  # 1.64
+genmean(y, 3)         # 2.29; -1..Harm, 0..Geom, 1..Arith
+ mean(y.^3)^(1//3)      # 2.29
+median(y)               # 2.0; Median
+quantile(y, 0.5)        # 2.0; 0.5 Quantile
+percentile(y, 50)       # 2.0; 50% Perzentile
+quantilerank(y, 2)      # 0.5; Quantenposition
+percentilerank(y, 2)    # 50.0; Perzentilposition
+nquantile(y, 2)         # Gibt 0 0.5 1 Quantilen
+ quantile(y, [0,.5,1])  # Gibt 0 0.5 1 Quantilen
+mode(y)                 # 1; Modus erster häufigster Wert
+modes(y)                # 2,3,1; Alle Häufigsten Werte
+var(y)                  # 1.0; Varianz
+std(y)                  # 1.0; Standardabweichung
+sem(y)                  # 0.58; Standardfehler
+variation(y)            # 0.5; Variationskoeffizient
+ std(y) / mean(y)       # 0.5
+span(y)                 # 1:3; min:max
+iqr(y)                  # 1.0; Interquartile Range
+ diff(quantile(y, [.25,.75]))  # 1.0
+mad(y)                  # 1,48; Median absolute deviation
+skewness(y)             # 0; Schiefe
+kurtosis(y)             # -1.5; Wölbung
+moment(y, 1, 3)         # -1.0; Moment: 1..Ordnung,
+ # 3..Erwartungswert für Mittel
+cumulant(y, 1, 3)       # 3; Kumulante: 1..Ordnung,
+ # 3..Erwartungswert für Mittel
+zscore(y)          # Standardisieren, Mittel=0, Varianz=1
+entropy(y)              # -4.68; Entropie
+summarystats(y)         # Übersicht
+describe(y)             # Übersicht
 \end{lstlisting}
 
 \subsection{Robust Statistics -- Ausreißer}
 
-Einfache Methoden um Ausreißer zu entfernen.
+Methoden um Ausreißer zu entfernen
+(\href{https://juliastats.org/StatsBase.jl/stable/robust/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
 x = [1,2,3,4,5]
- # 20% der kleinsten und größten weglassen
+# 20% der kleinsten und größten weglassen
 collect(trim(x, prop=0.2))  # 2,3,4
- # Kleinste / größte ersetzen
+# Kleinste / größte ersetzen
 collect(winsor(x, prop=0.2))  # 2,2,3,4,4
 \end{lstlisting}
 
 \subsection{Counting -- Anzahlen}
 
-Anzahl von Werten.
+Anzahl von Werten
+(\href{https://juliastats.org/StatsBase.jl/stable/counts/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
@@ -215,7 +246,8 @@ proportionmap(x)  # -1=>.2 3=>.4 1 =>.4
 
 \subsection{Rankings -- Reihenfolge}
 
-Reihenfolgen und Rang Korrelationen.
+Reihenfolgen und Rang Korrelationen
+(\href{https://juliastats.org/StatsBase.jl/stable/ranking/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
@@ -233,7 +265,7 @@ corkendall(x, y)   # 0.77; Rangkorrelation
 \label{ssec:StatsBase_Sampling}
 
 Siehe auch \hyperref[ssec:standardLibrary_Random]{Zufallszahlen} im Standard
-Library.
+Library (\href{https://juliastats.org/StatsBase.jl/stable/sampling/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
@@ -245,45 +277,94 @@ sample(x, 3, replace=false)  # Ohne Zurücklegen
 
 \subsection{Histograms -- Klassifizieren}
 
-Kontinuierliche Daten werden in Klassen eingeteilt.
+Kontinuierliche Daten werden in Klassen eingeteilt
+(\href{https://juliastats.org/StatsBase.jl/stable/empirical/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
 x = [1,2,1,3,3]
- # Klassen [1,2) [2,3) [3,4)
+# Klassen [1,2) [2,3) [3,4)
 h = fit(Histogram, x, 1:4)                 # 2 1 2
- # Klassen (1,2] (2,3] (3,4]
+# Klassen (1,2] (2,3] (3,4]
 h = fit(Histogram, x, 1:4, closed=:right)  # 1 2 0
- # Klassen [-Inf,2) [2,Inf)
+# Klassen [-Inf,2) [2,Inf)
 h = fit(Histogram, x, [-Inf,2,Inf])        # 2 3
 y = [2,2,3,3,1]
-hx = fit(Histogram, x, 1:4)
-hy = fit(Histogram, y, 1:4)
-h = merge(hx, hy)            # Vereint zwei Histogramme
+hx = fit(Histogram, x, 1:4)                # 2 1 2
+hy = fit(Histogram, y, 1:4)                # 1 2 2
+# Vereint zwei Histogramme
+h = merge(hx, hy)                          # 3 3 4
 using LinearAlgebra
-norm(h)                      # Normalisieren Sum=1
+# Normalisieren Sum=1
+normalize(h)                               # 0.3 0.3 0.4
+f = ecdf(x)             # kumulative Verteilungsfunktion
+f([0.9,1,1.1,2,3])                 # 0.0 0.4 0.4 0.6 1.0
+\end{lstlisting}
+
+\subsection{Autokorrelation}
+
+Korrelation einer Zahlenfolge zu sich selbst, wenn diese verschoben (lag) wird
+(\href{https://juliastats.org/StatsBase.jl/stable/signalcorr/}{doc}).
+
+\begin{lstlisting}
+using StatsBase, Statistics
+y = [0,0,1,1]
+# Autkorrelation mit Verschiebung um 2 Positionen
+autocor(y, [2])  # -0.5
+ z = y .- mean(y)
+ sum(z[1:2] .* z[3:4]) / sum(z .^ 2)  # -0.5
+autocor(y, [2]; demean=false) # 0.0; ohne Mittelwertabzug
+ sum(y[1:2] .* y[3:4]) / sum(y .^ 2) # 0.0
+# Verschiebung um 0, 1, 2 und 3
+autocor(y)  # 1.0 0.25 -0.5 -0.25
+autocov(y)  # 0.25 0.0625 -0.125 -0.0626; Kovarianz
+z = [0,1,1,0]
+crosscov(y, z)  # Cov für verschiebungen von -3:3
+ # -0.0625  0.0  0.1875  0.0  -0.1875  0.0  0.0625
+crosscor(y, z)  # Korrelation
+ # -0.25  0.0  0.75  0.0  -0.75  0.0  0.25
+y = [0,0,1,1,1]
+# Partielle Autokorrelationsfunktion für lag 0 1 2
+pacf(y, 0:2)  # 1 0.5 0
+pacf(y, 0:2; method=:yulewalker)  # 1.0 -0.27 -0.46
 \end{lstlisting}
 
 \subsection{Miscellaneous -- sonstige Funktionen}
 
-Weitere Funktionen.
+Weitere Funktionen
+(\href{https://juliastats.org/StatsBase.jl/stable/misc/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
 x = [1,1,4,3,3,3,1]
 ## run-length encoding
-rle(x)                    # ([1, 4, 3, 1], [2, 1, 3, 1])
+rle(x)                     # ([1, 4, 3, 1], [2, 1, 3, 1])
+inverse_rle([5,6], [2,3])  # 5 5 6 6 6
 ## Dictionary von unique levels
-levelsmap(x)                # 4=>2 3=>3 1=>1;
+levelsmap(x)               # 4=>2 3=>3 1=>1
 ## Erster index von unique Element
-indexmap(x)                 # 4=>3 3=>4 1=>1
-indicatormat([1 2 3 2], 3)  # Dummy Matrix
- # 1  0  0  0
- # 0  1  0  1
- # 0  0  1  0
-midpoints([0,4,3,9])        # 2 3.5 6; Gleitendes Mittel
-y = [1 3 missing;2 5 6;3 missing 2;4 6 2]
+indexmap(x)                # 4=>3 3=>4 1=>1
+## Dummy Matrix
+indicatormat([3 1 1])      #; Für sort(unique(x))
+ # 0  1  1
+ # 1  0  0
+indicatormat([3 1 1], 3)   #; Für 1:3
+ # 0  1  1
+ # 0  0  0
+ # 1  0  0
+indicatormat([3 1 1], [3 1])  #; Für 3 1
+ # 1  0  0
+ # 0  1  1
+## Gleitendes Mittel
+midpoints([0,4,3,9])       # 2 3.5 6
 ## Alle möglichen Kombinationen
+pairwise(+, [0 1])
+ # 0  1
+ # 1  2
+pairwise(+, [0 1], [2 3 4])
+ # 2  3  4
+ # 3  4  5
+y = [1 3 missing;2 5 6;3 missing 2;4 6 2]
 pairwise(cor, eachcol(y), skipmissing=:pairwise)
  #  1.0        0.928571  -0.866025
  #  0.928571   1.0       -1.0
@@ -292,24 +373,39 @@ pairwise(cor, eachcol(y), skipmissing=:pairwise)
 
 \subsection{Transformation}
 
-Werte transformieren, normalisieren.
+Werte transformieren, normalisieren
+(\href{https://juliastats.org/StatsBase.jl/stable/transformations/}{doc}).
 
 \begin{lstlisting}
 using StatsBase
-x = [0.0 -0.5 0.5; 0.0 1.0 2.0]
- # Mittelwert=0, sd=1
-standardize(ZScoreTransform, x, dims=2)
-# 0.0  -1.0  1.0
-#-1.0   0.0  1.0
- # Bringt Werte zwischen 0 und 1
-standardize(UnitRangeTransform, x, dims=2)
-#0.5  0.0  1.0
-#0.0  0.5  1.0
+X = [0.0 -0.5 0.5; 0.0 1.0 2.0]
+## Mittelwert=0, sd=1
+dt = fit(ZScoreTransform, X; dims=2)
+Y = StatsBase.transform(dt, X)
+ #  0.0  -1.0  1.0
+ # -1.0   0.0  1.0
+standardize(ZScoreTransform, X; dims=2)  # Das gleiche
+ #  0.0  -1.0  1.0
+ # -1.0   0.0  1.0
+# Das gleiche nur Expliziter
+standardize(ZScoreTransform, X; dims=2, center=true,
+ scale=true)
+stack([zscore(x) for x in eachrow(X)]; dims=1)
+# Transformation rückgängig machen
+StatsBase.reconstruct(dt, Y)
+ # 0.0  -0.5  0.5
+ # 0.0   1.0  2.0
+## Bringt Werte zwischen 0 und 1
+standardize(UnitRangeTransform, X, dims=2)
+ # 0.5  0.0  1.0
+ # 0.0  0.5  1.0
 \end{lstlisting}
 
 \section{HypothesisTests -- Hypothesentest}
 
-Testen von Hypothesen (v0.11.0).
+Testen von Hypothesen (v0.11.0 --
+\href{https://github.com/JuliaStats/HypothesisTests.jl}{Git} /
+\href{https://juliastats.org/HypothesisTests.jl/stable/}{doc}).
 
 \subsection{Parametric -- Parametrische Test}
 
@@ -317,22 +413,52 @@ Verteilungsannahme (z.\,B.\ Normalverteilung) liegt vor.
 
 \begin{lstlisting}
 using HypothesisTests
-x = [1,2,3]
-y = [2,4,7]
-z = [2,4,7,3]
 ## Unterscheiden sich Mittelwerte?
+# xbar = 2.3  stddev = 3.0  n = 10  mü = 0.
+tt = OneSampleTTest(2.3, 3.0, 10, 0.)  # 0.0383
+pvalue(tt; tail=:both)                 # 0.0382
+pvalue(tt; tail=:left)                 # 0.981
+pvalue(tt; tail=:right)                # 0.0192
+confint(tt)                            # 0.154 4.45
+confint(tt; tail = :right)             # 0.561 Inf
+confint(tt; level = 0.99)              # -0.783 5.383
+# xbar = 2.3  sigma = 3.0  n = 10  mü = 0.
+OneSampleZTest(2.3, 3.0, 10, 0.)       # 0.0153
+# Mittels Messwerten
+x = [1,2,3]
+OneSampleTTest(x)  # 0.074
+ #; h0 (xbar=0) mit 95% Konfizenz nicht verworfen
+# mü = 2.0
+OneSampleTTest(x, 2.)       # 1.00; h0 nicht verworfen
+y = [2,4,7]
 OneSampleTTest(x .- y)      # 0.12; Paarweiser t-Test
-OneSampleTTest(x, y)        # Das Gleiche
-EqualVarianceTTest(x, y)    # 0.21; 2 Sample gleiche
+OneSampleTTest(x, y)        #; Das Gleiche
+EqualVarianceTTest(x, y)    # 0.21; 2 Sample gleiche ...
 UnequalVarianceTTest(x, y)  # 0.25; und ungleiche Varianz
-## Kommen Stichproben von gleicher Grundgesamtheit?
-ChisqTest(x, y)             # 0.98; 
 ## Unterscheiden sich Varianzen
-VarianceFTest(x, z)         # 0.36
-LeveneTest(x, z)            # 0.35
-BrownForsytheTest(x, z)     # 0.38
+VarianceFTest(x, y)         # 0.27
+LeveneTest(x, y)            # 0.24
+BrownForsytheTest(x, y)     # 0.35
 ## Varianztest ob Guppenmittel gleich
-OneWayANOVATest(x, z)       # 0.20
+OneWayANOVATest(x, y)       # 0.21
+## Kommen Stichproben von gleicher Grundgesamtheit?
+x = [20,30,40,35,25]  # Beobachtungen je Gruppe
+ChisqTest(x)    # 0.08; Erwarung alle Gruppen gleich groß
+y = [30,30,20,35,25]  # Erwartung je Gruppe
+ChisqTest(x, y)                  # 0.0003
+ PowerDivergenceTest(x; lambda = 1.0, theta0 = y./sum(y))
+ # 0.0003; Das Gleiche
+MultinomialLRTest(x, y./sum(y))  # 0.0010
+ PowerDivergenceTest(x; lambda = 0., theta0 = y./sum(y))
+ # 0.0010; Das Gleiche
+PowerDivergenceTest(x; lambda = -1., theta0 = y./sum(y))
+ # 0.0019; minimum discrimination information
+PowerDivergenceTest(x; lambda = -2., theta0 = y./sum(y))
+ # 0.0025; Neyman modified chi-squared
+PowerDivergenceTest(x; lambda = -1/2, theta0 = y./sum(y))
+ # 0.0014; Freeman-Tukey
+PowerDivergenceTest(x; lambda = 2/3, theta0 = y./sum(y))
+ # 0.0005; 2/3 Power Divergence test
 \end{lstlisting}
 
 \subsection{Nonparametric -- Nichtparametrische Test}
@@ -346,7 +472,9 @@ BinomialTest([0,0,1,0,0,0,1].==1)           # 0.45
 using Distributions
 ## Kommt Sample von bestimmter Verteilung
 x = [-2,0,3]
+# Anderson-Darling test
 OneSampleADTest(x, Normal())                # 0.11
+# Kolmogorov-Smirnov test
 ExactOneSampleKSTest(x, Normal())           # 0.78
 ApproximateOneSampleKSTest(x, Normal())     # 0.90
 ## Sind Häuffigkeiten-Kontingenzen unabhängig
@@ -354,17 +482,22 @@ FisherExactTest(10,14,7,15)                 # 0.70
 ## Kommen Stichproben von gleicher Grundgesamtheit?
 x = [1,2,3]
 y = [2,4,7,3]
+# Kolmogorov-Smirnov test
 ApproximateTwoSampleKSTest(x, y)            # 0.78
 ## Haben Stichproben gleiche Verteilung?
 KruskalWallisTest(x, y)                     # 0.15
+# Anderson-Darling test
+KSampleADTest(x, y)                         # 0.15
 ## Sind Werte gleich (t-Test Alternative)
 MannWhitneyUTest(x, y)                      # 0.30
 ExactMannWhitneyUTest(x, y)                 # 0.30
 ApproximateMannWhitneyUTest(x,y)            # 0.27
 ## Ist Stichprobe von einer Verteilung mit Median=x
 SignTest(x, 0.)                        # 0.25; Median=0?
+# Wilcoxon signed rank test
 SignedRankTest(x)                      # 0.25; Median=0?
 ExactSignedRankTest(x)                      # 0.25
+ApproximateSignedRankTest(x)                # 1.0
 ## Sind die Daten zufällig gezogen
 WaldWolfowitzTest([0,0,1,0,0,0,1].==1)      # 0.88
 WaldWolfowitzTest(x)                        # 0.48
@@ -390,12 +523,13 @@ BreuschGodfreyTest(X, e, 1)      # 0.93; lag=1
 ## Test auf Heteroskedasticität
 WhiteTest(X, e)                  # 0.40
 BreuschPaganTest(X, e)           # 0.28
-## Ist Zeiotreihe Unabhängig?
+## Ist Zeitreihe Unabhängig?
 BoxPierceTest(y, 1)              # 0.67; lag=1
 LjungBoxTest(y, 1)               # 0.54; lag=1
 ## Ist der Vektor normalverteilt?
 JarqueBeraTest(y)                # 0.79
 ## Liegt ein integrierter Prozess vor?
+# Augmented Dickey-Fuller test
 ADFTest([1.,5,3,1,7], :none, 1)  # 0.66; lag=1
 ## Gleiche Leistung zweier Vorhersagemodelle?
 e1 = [9.78432,12.73500,8.67224,2.62740,5.60947]
@@ -410,25 +544,241 @@ DieboldMarianoTest(e1, e2)       # 0.085
 using HypothesisTests
 X = [1. 2;2 3;1 2;1 4]
 z = [1.,2]
-##Spaltenmittel von X ist gleich z?
+## Spaltenmittel von X ist gleich z?
 OneSampleHotellingT2Test(X,z)    # 0.50
+## Vektormittel von X und Y sind gleich?
 Y = [1. 2;3 2;4 1;1 4]
-## Veltormittel von X und Y sind gleich?
 EqualCovHotellingT2Test(X, Y)    # 0.55; gleiche Var
 UnequalCovHotellingT2Test(X, Y)  # 0.58; ungleiche Var
 ## Sind Kovarianzen gleich?
 BartlettTest(X, Y)               # 0.58
+## Keine Korrelation zwischen x und y
 x = [1,2,3]
 y = [2,4,7]
-## Keine Korrelatin zwischen x und y
 CorrelationTest(x, y)            # 0.073
 \end{lstlisting}
 
-\section{MultivariateStats Multivariate Statistik}
+\section{Transforamtion multivariater Daten}
 
-Version: 0.10.2
+\lstinline|MultivariateStats|
+ Version: 0.10.2
+(\href{https://github.com/JuliaStats/MultivariateStats.jl}{Git} /
+\href{https://juliastats.org/MultivariateStats.jl}{doc}).
 
-\subsection{Diskriminanzanalyse}
+\subsection{Whitening}
+
+Whitening, Lineartransformation dass zwischen den Spalten keine Korrelation besteht, Mittel=0 und Varainz=1.
+
+\begin{lstlisting}
+using MultivariateStats, RDatasets, Statistics
+iris = dataset("datasets", "iris")
+y = iris[:,1]
+X = Matrix(iris[:,2:4])
+f = fit(Whitening, X; dims=1)
+Y = MultivariateStats.transform(f, X)
+round.(cov(Y))           #; Linear Unkorreliert
+ #  1.0  -0.0  -0.0
+ # -0.0   1.0   0.0
+ # -0.0   0.0   1.0
+round.(mean(Y, dims=1))  # 0 0 0; Mittel 0
+a = llsq(X, y)    #; Lineare Regression mit Ausgangsdaten
+b = llsq(Y, y)    #; und mit transformierten Daten
+# Sind Schätzungen der Regressionen gleich?
+isapprox(X * a[1:3] .+ a[4], Y * b[1:3] .+ b[4])  # true
+\end{lstlisting}
+
+\subsection{(Haupt)Komponentenanalyse, multidimensionale Skalierung}
+
+Transformiert in linear unkorrelierte Variablen, wobei die ersten Achsen die
+meiste Information enthalten, womit eine Reduktion der Datenspalten mit geringem Informationsverlust möglich ist.
+
+\begin{lstlisting}
+using MultivariateStats, RDatasets
+iris = dataset("datasets", "iris")  #; Daten
+# Kelchblatt-Sepal, Kronblatt-Petal, Länge/Breite
+X = Matrix(iris[1:2:end,1:4])'      #; Trainingsdaten
+y = iris[1:2:end,5]    #; Art setosa virginica versicolor
+Xt = Matrix(iris[2:2:end,1:4])'     #; Testdaten
+yt = iris[2:2:end,5]
+
+## Hauptkomponentenanalyse
+# max. Dimensionen=2, min. erhaltene Varianz=0.98
+pca = fit(PCA, X; maxoutdim=2, pratio=0.98)
+size(pca)             # (4, 2); 4 Input, 2 Output
+Xp = predict(pca, X)  #; Trainingsdaten Umprojizieren
+ pca.proj' * (X .- pca.mean)  #; Das Gleiche
+# Variation der Hauptkomponenten
+pca.prinvars          # 4.31 0.22
+ var(Xp, dims=2)      #; Das Gleiche
+pca.tprinvar # 4.52; Gesamtvariation der Hauptkomponenten
+ sum(pca.prinvars)    #; Das Gleiche
+pca.tvar     # 4.64; Gesamtvariation Originaldaten
+ sum(var(X, dims=2))  #; Das Gleiche
+principalratio(pca)   # 0.974; Informationsgehalt
+ pca.tprinvar / pca.tvar      #; Das Gleiche
+Xr = reconstruct(pca, Xp)     #; Zurückprojizieren
+ pca.proj * Xp .+ pca.mean    #; Das Gleiche
+# Variation Trainingsdaten
+var(X, dims=2)        # 0.65 0.19 3.18 0.63
+# Variation Rückprojektion
+var(Xr, dims=2)       # 0.62 0.14 3.17 0.59
+sum(var(Xr, dims=2))  # 4.52; Gleich wie Hauptkomponenten
+Xtp = predict(pca, Xt)        #; Testdaten umprojizieren
+
+# Daten Standardisieren
+using StatsBase
+ZST = fit(ZScoreTransform, X, dims=2)
+pcaS = fit(PCA, StatsBase.transform(ZST, X); maxoutdim=2)
+XtSp = predict(pcaS, StatsBase.transform(ZST, Xt))
+
+# Kernel Hauptkomponenten
+kpca = fit(KernelPCA, X; maxoutdim=2,
+           kernel=(x,y)->(x'y+1)^2)
+XtKp = predict(kpca, Xt)
+
+# Probabilistische Hauptkomponentenanalyse
+ppca = fit(PPCA, X; maxoutdim=2)
+XtPp = predict(ppca, Xt)
+cov(predict(fa, X), dims=2)
+
+## Multidimensionale Skalierung
+# Verwendung der Beobachtungen
+mdsX = fit(MDS, X; maxoutdim=2, distances=false)
+# Trainingsdaten Umprojizieren
+predict(mdsX)          #; Gleich wie pca zuvor
+ stack([vec(predict(mdsX, x)) for
+    x in eachcol(X)])  #; Das Gleiche
+# Testdaten Umprojizieren
+stack([vec(predict(mdsX, x)) for x in eachcol(Xt)])
+
+# Verwendung von Abständen
+using Distances
+D = pairwise(Euclidean(), X, dims=2)  # Abstände
+mdsD = fit(MDS, D; maxoutdim=2, distances=true)
+# Trainingsdaten Umprojizieren
+predict(mdsD)   #; Gleich wie pca zuvor
+ stack([vec(predict(mdsD, x; distances=true)) for x in
+  eachcol(D)])  #; Das Gleiche
+
+# Verwendung von Cityblock Abständen
+D = pairwise(Cityblock(), X, dims=2)  # Abstände
+mdsD = fit(MDS, D; maxoutdim=2, distances=true)
+predict(mdsD)  #; Trainingsdaten Umprojizieren
+# Testdaten Umprojizieren
+XtMp = stack([vec(predict(mdsD,
+ vec(pairwise(Cityblock(), X, reshape(y, :, 1), dims=2));
+ distances=true)) for y in eachcol(Xt)])
+
+# (Nicht) metrisch
+using Random
+Random.seed!(1)
+mdsXt = fit(MetricMDS, Xt; maxoutdim=2,
+            distances=false, metric=nothing)
+# Kann nur Trainingsdaten umprojizieren
+XtNp = predict(mdsXt)
+
+## Unabhängige Komponentenanalyse
+ica = fit(ICA, X, 2)
+XtIp = predict(ica, Xt)
+
+## Faktoranalyse
+fa = fit(FactorAnalysis, X; maxoutdim=2)
+cov(predict(fa, X), dims=2)
+XtFp = predict(fa, Xt)
+
+using Plots
+shp = [:circle,:rect,:utriangle]
+species = unique(y)
+p = plot(layout=(4,2), size=(800,1200))
+getProj(f) = stack([vec(predict(f, setindex!(copy(m),
+    m[i] + 1, i))) for i in eachindex(m)])'
+m = mean(X, dims=2)
+proj =[pca.proj, pcaS.proj, getProj(kpca), getProj(ppca),
+       stack([vec(predict(mdsD, vec(pairwise(Cityblock(),
+       X, setindex!(copy(m), m[i] + 1, i), dims=2));
+       distances=true)) for i in 1:length(m)])',
+       nothing, getProj(ica), getProj(fa)]
+for j=findall(.!isnothing.(proj)), i=1:4
+  plot!(p[j], [0,proj[j][i,1]], [0,proj[j][i,2]],
+   arrow=true, label=names(iris)[i], linewidth=3)
+end
+T = [Xtp, XtSp, XtKp, XtPp, XtMp, XtNp, XtIp, XtFp]
+for k=eachindex(T), i=1:3
+  j = yt .== species[i]
+  scatter!(p[k], T[k][1,j], T[k][2,j], label=species[i],
+   markershape=shp[i], markercolor = i)
+end
+for i=eachindex(T)
+  plot!(p[i], legend=false)
+end
+plot!(p[2], legend=:bottom, legend_columns=2)
+for (i, x) in enumerate(["PCA", "PCA Standardised",
+ "PCA Kernel", "PCA Probabilistic", "MDS Cityblock",
+ "non-Metric MDS", "Independent CA", "Factor Analysis"])
+  plot!(p[i], title=x)
+end
+display(p)
+savefig("pca.pdf")
+\end{lstlisting}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.95\columnwidth]{pca.pdf}
+\end{figure}
+
+\subsection{Canonical Correlation Analysis -- Kanonische Korrelationsanalyse}
+
+Findet für zwei Datensätze zwei Projektionen, um sie in einen gemeinsamen Raum
+mit maximalen Korrelationen umzuwandeln.
+
+\begin{lstlisting}
+using MultivariateStats, RDatasets, Statistics
+iris = dataset("datasets", "iris")
+X = Matrix(iris[:,1:2])'  # Sepal length, width
+Y = Matrix(iris[:,3:4])'  # Petal length, width
+z = iris[:,5]  # Art
+
+round.(cor([X;Y], dims=2); digits=2)
+ # 1.0   -0.12   0.87   0.82
+ #-0.12   1.0   -0.43  -0.37
+ # 0.87  -0.43   1.0    0.96
+ # 0.82  -0.37   0.96   1.0
+
+cca = fit(CCA, X, Y)
+projection(cca, :y)
+cor(cca)
+Xc = predict(cca, X, :x)
+Yc = predict(cca, Y, :y)
+round.(cor([Xc;Yc], dims=2); digits=2)
+ # 1.0   0.0   0.94  0.0
+ # 0.0   1.0   0.0   0.12
+ # 0.94  0.0   1.0   0.0
+ # 0.0   0.12  0.0   1.0
+
+using Plots
+shp = [:circle,:rect,:utriangle]
+species = unique(z)
+p = plot(layout=(1,2), size=(800,300))
+for k=1:2, i=1:3
+  j = z .== species[i]
+  scatter!(p[k], Xc[k,j], Yc[k,j], label=species[i],
+   markershape=shp[i], markercolor = i)
+end
+plot!(p[2], legend=false)
+plot!(p[1], title="CCA - Dim=1")
+plot!(p[2], title="CCA - Dim=2")
+savefig("cca.pdf")
+\end{lstlisting}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.95\columnwidth]{cca.pdf}
+\end{figure}
+
+\section{Diskriminanzanalyse}
+
+Mit \lstinline|MultivariateStats| Version: 0.10.2
+(\href{https://juliastats.org/MultivariateStats.jl/stable/lda/}{doc}).
 
 Unterscheiden von Gruppen die mit Merkmalen (Variablen) beschrieben werden.
 
@@ -537,68 +887,6 @@ savefig("lda.pdf")
 \begin{figure}[ht]
   \centering
   \includegraphics[width=.95\columnwidth]{lda.pdf}
-\end{figure}
-
-\subsection{Hauptkomponentenanalyse}
-
-Transformiert in linear unkorrelierte Variablen, wobei die ersten Achsen die
-meiste Information enthalten.
-
-\begin{lstlisting}
-using MultivariateStats, RDatasets
-iris = dataset("datasets", "iris")  # Daten
-# Kelchblatt-Sepal, Kronblatt-Petal, Länge/Breite
-M = Matrix(iris[1:2:end,1:4])'      # Trainingsdaten
-s = iris[1:2:end,5]  # Art setosa virginica versicolor
-Mt = Matrix(iris[2:2:end,1:4])'     # Testdaten
-st = iris[2:2:end,5]
-
-pca = fit(PCA, M; maxoutdim=2)
-pca.prinvars                      # 4.31 0.22; Loadings
-pca.tprinvar / pca.tvar      # 0.974; Informationsgehalt
-Mtp = predict(pca, Mt)            # Umprojizieren
-Mtr = reconstruct(pca, Mtp)       # Zurückprojizieren
-sum((Mt .- Mtr).^2) / sum(Mt.^2)  # 0.00143
-
-using StatsBase
-#Daten Standardisieren
-ZST = fit(ZScoreTransform, M, dims=2)
-pcaS = fit(PCA, StatsBase.transform(ZST, M); maxoutdim=2)
-MtSp = predict(pcaS, StatsBase.transform(ZST, Mt))
-
-using Plots
-shp = [:circle,:rect,:utriangle]
-species = unique(s)
-p = plot(layout=(1,2), size=(800,300))
-proj = pca.proj
-for i=1:4
-  plot!(p[1], [0,proj[i,1]], [0,proj[i,2]], arrow=true,
-    label=names(iris)[i], linewidth=3)
-end
-for i in 1:3
-  j = st .== species[i]
-  scatter!(p[1], Mtp[1,j], Mtp[2,j], label=species[i],
-   markershape=shp[i])
-end
-plot!(p[1], legend=:top, legend_columns=2)
-plot!(p[1], title="PCA")
-proj = pcaS.proj
-for i=1:4
-  plot!(p[2], [0,proj[i,1]], [0,proj[i,2]], arrow=true,
-    label=names(iris)[i], linewidth=3)
-end
-for i in 1:3
-  j = st .== species[i]
-  scatter!(p[2], MtSp[1,j], MtSp[2,j], label=species[i],
-   markershape=shp[i])
-end
-plot!(p[2], legend=:bottom, legend_columns=2)
-plot!(p[2], title="PCA Standardised")
-\end{lstlisting}
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=.95\columnwidth]{pca.pdf}
 \end{figure}
 
 \section{Clustgering Clusteranalyse}
@@ -1411,6 +1699,40 @@ model.featim  # 0.72 0.14 0.14; Einflussstärke der Daten
 #Kreuzvalidierung (folds=3)
 nfoldCV_forest(y, X, 3)
 \end{lstlisting}
+
+\section{NearestNeighbors}
+
+Suche nach nächsten Nachbarn.
+
+\begin{lstlisting}
+using NearestNeighbors, RDatasets
+iris = dataset("datasets", "iris")
+M = Matrix(iris[1:2:end,1:4])' # Trainingsdaten
+s = iris[1:2:end,5]
+Mt = Matrix(iris[2:2:end,1:4])' # Testdaten
+st = iris[2:2:end,5]
+
+kdtree = KDTree(M, Euclidean())
+balltree = BallTree(M, Cityblock())
+brutetree = BruteTree(M, Minkowski(3.5); leafsize = 10,
+ reorder = false)
+
+using StatsBase
+k = 3
+# Nach Abstand sortiert
+idxs, dists = knn(kdtree, Mt, k, true)
+countmap([findmax(countmap(st[i]))[2] for i in idxs]
+ .== st)
+idxs, dists = knn(balltree, Mt, k, true)
+idxs, dists = knn(brutetree, Mt, k, true)
+
+r = 0.3
+idxs = inrange(kdtree, Mt, r)
+x = [if(length(i) == 0) nothing else
+ String(findmax(countmap(st[i]))[2]) end for i in idxs]
+countmap(x .== st)
+\end{lstlisting}
+
 
 %Autor: Georg Kindermann
 
