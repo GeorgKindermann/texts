@@ -34,26 +34,35 @@
 
 \begin{document}
 
-\maketitle
-
-%\begin{abstract}
-%  Statistik mit Julia.
-%\end{abstract}
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{abstract}
+      When dealing with single trees beside their species also their diameter at
+      breast height and tree height is typically known. With this information it
+      is common practice to estimate stem volume. Also stem taper functions use
+      diameter and height to estimate diameters at arbitrary tree heights what
+      is used to calculate assortments. Here is a method shown which gives stem
+      diameter at arbitrary tree heights and is consistent with a given stem
+      volume.
+    \end{abstract}
+  \end{@twocolumnfalse}
+]
 
 %\tableofcontents
 
 %\section{Einleitung}
 %\label{sec:einleitung}
 
-When measuring trees, typical their diameter (DBH - diameter at breast height in
-1.3\,m height above ground) is measured. Nowadays more and more also the height
-of each single tree is measured. Alternatively the height is calculated by using
-a relation between DBH and height. The volume is calculated by using DBH and
-height and a form factor. The form factor could also be estimated by using BHD
-and height. Sometimes additional diameters, at different heights on the tree,
-are measured to estimate the stem volume and the shape of the tapper. The tapper
-shape can be used to split up the stem and its volume into different diameter
-classes called assortments.
+When measuring trees, typical their diameter (DBH or $d_{1.3}$ - diameter at
+breast height in 1.3\,m height above ground) is measured. Nowadays more and more
+also the height of each single tree is measured. Alternatively the height is
+calculated by using a relation between DBH and height. The volume is calculated
+by using DBH and height and a form factor. The form factor could also be
+estimated by using DBH and height. Sometimes additional diameters, at different
+heights on the tree, are measured to estimate the stem volume and the shape of
+the tapper. The tapper shape can be used to split up the stem and its volume
+into different diameter classes called assortments.
 
 Calculating the stem volume by using species, DBH and height is a standard task
 which was done in the past by using precalculated tables and is done now
@@ -62,16 +71,18 @@ using functions but is still done by using precalculated tables, as the
 functions, for getting the shape and the algorithm of cutting the tree into logs
 is somehow complex.
 
-Here I will show a method which is using $d_x = c_0 \cdot (h - x)^{c_1}$, one of
-the simplest equation to describe the tapper shape. $d_x$ is the stem diameter
-at height $x$, $h$ is the total height of the tree, $x$ is the height
-from the ground where the diameter $d_x$ should be estimated and $c_0$ and
-$c_1$ are tree specific coefficients.
+Here I will show a method which is using:
+$$d_x = c_0 \cdot (h - x)^{c_1}$$
+one of the simplest equation to describe
+tapper shape. $d_x$ is the stem diameter at height $x$, $h$ is the total height
+of the tree, $x$ is the height from the ground where the diameter $d_x$ should
+be estimated and $c_0$ and $c_1$ are tree specific coefficients.
 
 Instead of the diameter $d_x$ also the crosscutting area $g_x$ could be
-estimated with the same equation $g_x = c_2 \cdot (h - x)^{c_3}$ but with
-different coefficients. While $g_x = d^2_x \cdot \pi / 4$ follows that $c_3 = 2
-\cdot c_1$ and $c_2 = c^2_0 * \pi / 4$.
+estimated with the same equationbut with different coefficients:
+$$g_x = c_2 \cdot (h - x)^{c_3}$$
+While $g_x = d^2_x \cdot \pi / 4$ follows that
+$c_3 = 2 \cdot c_1$ and $c_2 = c^2_0 * \pi / 4$.
 
 The integral of the crosscutting area along the stem is the stem volume $V$:
 $$V =
@@ -81,7 +92,7 @@ $$V =
 With those relations it's possible to get $c_0$ and $c_1$ for a tree where DBH,
 height and volume is known.
 \begin{eqnarray*}
-g_{1.3} & = & (\text{BHD}/2)^2\pi\\
+g_{1.3} & = & d_{1.3}^2\pi/4\\
 c_3 & = & \frac{W_0\left(\frac{g_{1.3}*(h-1.3)*log(1-1.3/h)}{V}\right)}{log(1 - 1.3/h)} - 1\\
 g_0 & = & g_{1.3} / (1-1.3/h)^{c_3}\\
 c_2 & = & g_0 / h^{c_3}\\
@@ -105,15 +116,16 @@ g_x & = & \begin{cases}
     \end{cases}
 \end{eqnarray*}
 
-It is also possible to make an assumption of the stem diameter at height 0, like
-that it is 1.3\,cm larger than the DBH for trees higher than 1.3\,m and for
-smaller trees the diameter is the height / 100. In this case there is no need that the tapper shape goes through the DBH.
+It is also possible to make an assumption of the stem diameter at the ground
+(height $x=0$), like that it is 1.3\,cm larger than the DBH. For trees smaller
+than 1.3\,m it could be set to its height divided by 100. In this case
+there is no need that the tapper shape goes through the DBH.
 \begin{eqnarray*}
 d_{0a} & = & \begin{cases}
     DBH + 0.013 & \text{if } h\geq 1.3m\\
     h / 100     & \text{otherwise}
     \end{cases}\\
-g_{0a} & = & (d_{0a}/2)^2*pi\\
+g_{0a} & = & d_{0a}^2\cdot\pi/4\\
 c_7 & = & \frac{g_{0a} \cdot h}{V} - 1\\
 c_6 & = & g_{0a} / h^{c_7}\\
 g_x & = & c_6 \cdot (h - x)^{c_7}\\
@@ -142,12 +154,12 @@ The diameter of the stem was measured at height 0.5\,m, 1.5\,m, 2.5\,m, \dots,
 \end{verbatim}
 
 According to Huber the stem volume can be calculated with:
-$$V = \sum l \cdot d^2l\pi/4 = 1(0.261^2 + 0.250^ + ... + 0.026^2)\pi/4 = 0.6902m^3$$
+$$V = \sum l \cdot d^2\pi/4 = 1(0.261^2 + 0.250^ + ... + 0.026^2)\pi/4 = 0.6902\,m^3$$
 
 \par\noindent\rule{\columnwidth}{0.5pt}
 
 The basal area at breast height is:
-$$ g_{1.3} = \text{BHD}^2pi/4 = 0.252^2\pi/4 = 0.04988m^2$$
+$$ g_{1.3} = \text{DBH}^2\pi/4 = 0.252^2\pi/4 = 0.04988\,m^2$$
 
 And the coefficient $c_3$ is calculated with:
 \begin{eqnarray*}
@@ -160,7 +172,7 @@ And the coefficient $c_2$ is calculated with:
 \begin{eqnarray*}
 g_0 & = & g_{1.3} / (1-1.3/h)^{c_3}\\
  & = & 0.04988 / (1-1.3/27.5)^{1.09545}\\
- & = & 0.05259m^2 \\
+ & = & 0.05259\,m^2 \\
 c_2 & = & g_0 / h^{c_3}\\
  & = & 0.05259 / 27.5^{1.09545}\\
  & = & 0.001394
@@ -168,20 +180,20 @@ c_2 & = & g_0 / h^{c_3}\\
 
 And the coefficient $c_0$ and $c_1$ are calculated with:
 \begin{eqnarray*}
-c_0 & = & \sqrt{c_2 4 / \pi} = \sqrt{0.001394 \cdot 4 / \pi} = 0.04213\\
+c_0 & = & \sqrt{c_2\cdot 4 / \pi} = \sqrt{0.001394 \cdot 4 / \pi} = 0.04213\\
 c_1 & = & c_3/2 = 1.09545/2 = 0.5477
 \end{eqnarray*}
 
 The Volume would be:
 \begin{eqnarray*}
 V & = & \frac{c_2 \cdot h^{(c_3 + 1)}}{c_3 + 1} =
-  \frac{0.001394 \cdot 27.5^{(1.09545 + 1)}}{1.09545 + 1} = 0.6902m^3
+  \frac{0.001394 \cdot 27.5^{(1.09545 + 1)}}{1.09545 + 1} = 0.6902\,m^3
 \end{eqnarray*}
 
 And the diameter at height $x$ is:
 \begin{eqnarray*}
 d_x & = & c_0 \cdot (h - x)^{c_1} = 0.04213 \cdot (27.5 - x)^{0.5477}\\
-d_{1.3} & = & 0.04213 \cdot (27.5 - 1.3)^{0.5477} = 0.252m\\
+d_{1.3} & = & 0.04213 \cdot (27.5 - 1.3)^{0.5477} = 0.252\,m\\
 \end{eqnarray*}
 
 The pattern is shown in fig.~\ref{fig:trunk} as "through DBH".
@@ -191,21 +203,21 @@ The pattern is shown in fig.~\ref{fig:trunk} as "through DBH".
 Assuming the stem is a cylinder below the DBH the calculation will be:
 
 \begin{eqnarray*}
-V_{>1.3} & = & V - g_{1.3} * 1.3 = 0.6902 - 0.04988 * 1.3 = 0.6254\\
+V_{>1.3} & = & V - g_{1.3} \cdot 1.3 = 0.6902 - 0.04988 \cdot 1.3 = 0.6254\,m^3\\
 c_5 & = & \frac{g_{1.3} \cdot (h - 1.3)}{V_{>1.3}} - 1\\
   & = & \frac{0.04988 \cdot (27.5 - 1.3)}{0.6254} - 1\\
   & = & 1.0895\\
 c_4 & = & g_{1.3} / (h-1.3)^{c_5} = 0.04988 / (27.5-1.3)^{1.0895} = 0.001421\\
-V & = & \frac{c_4 \cdot (h-1.3)^{(c_5 + 1)}}{c_5 + 1} + g_{1.3} * 1.3\\
- & = & \frac{0.001421 \cdot h^{(1.0895 + 1)}}{1.0895 + 1} + 0.04988 * 1.3\\
- & = & 0.6902m^3\\
+V & = & \frac{c_4 \cdot (h-1.3)^{(c_5 + 1)}}{c_5 + 1} + g_{1.3} \cdot 1.3\\
+ & = & \frac{0.001421 \cdot h^{(1.0895 + 1)}}{1.0895 + 1} + 0.04988 \cdot 1.3\\
+ & = & 0.6902\,m^3\\
 g_x & = & \begin{cases}
     c_4 \cdot (h - x)^{c_5} = 0.001421 \cdot (27.5 - x)^{1.0895} & \text{if } x\geq 1.3m\\
     g_{1.3} = 0.04988              & \text{otherwise}
     \end{cases}\\
 d_{1.3} & = & \sqrt{c_4 \cdot (h - 1.3)^{c_5} \cdot 4/\pi}\\
  & = & \sqrt{0.001421 \cdot (27.5 - 1.3)^{1.0895} \cdot 4/\pi}\\
- & = & 0.252m
+ & = & 0.252\,m
 \end{eqnarray*}
 
 The pattern is shown in fig.~\ref{fig:trunk} as "Cylinder".
@@ -215,12 +227,12 @@ The pattern is shown in fig.~\ref{fig:trunk} as "Cylinder".
 Assuming diameter on the ground is 0.013\,m larger than the DBH the calculation
 will be:
 \begin{eqnarray*}
-d_{0a} & = & DBH + 0.013 = 0.252 + 0.013 = 0.265m\\
-g_{0a} & = & (d_{0a}/2)^2\pi = (0.265/2)^2\pi = 0.05515m^2\\
+d_{0a} & = & DBH + 0.013 = 0.252 + 0.013 = 0.265\,m\\
+g_{0a} & = & d_{0a}^2\pi/4 = 0.265^2\pi/4 = 0.05515\,m^2\\
 c_7 & = & \frac{g_{0a} \cdot h}{V} - 1 = \frac{0.05515 \cdot 27.5}{0.6902} - 1 = 1.1975\\
 c_6 & = & g_{0a} / h^{c_7} = 0.05515 / 27.5^{1.1975} = 0.001042\\
-V & = & \frac{c_6 \cdot h^{(c_7 + 1)}}{c_7 + 1} = 
-\frac{0.001042 \cdot 27.5^{(1.1975 + 1)}}{1.1975 + 1} = 0.6902m^3\\
+V & = & \frac{c_6 \cdot h^{(c_7 + 1)}}{c_7 + 1} =
+\frac{0.001042 \cdot 27.5^{(1.1975 + 1)}}{1.1975 + 1} = 0.6902\,m^3\\
 g_x & = & c_6 \cdot (h - x)^{c_7} = 0.001042 \cdot (h - x)^{1.1975}\\
 d_0 & = & = \sqrt{0.001042 \cdot (h - 0)^{1.1975} \cdot 4/\pi} = 0.265m\\
 \end{eqnarray*}
