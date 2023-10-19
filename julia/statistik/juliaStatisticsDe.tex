@@ -17,6 +17,7 @@
 \usepackage{pmboxdraw}
 \lstdefinelanguage{commentonly}{ morecomment=[l]{\#} }
 \lstset{literate=%
+{μ}{{$\mu$}}1
 {Ö}{{\"O}}1
 {Ä}{{\"A}}1
 {Ü}{{\"U}}1
@@ -781,6 +782,10 @@ Mit \lstinline|MultivariateStats| Version: 0.10.2
 (\href{https://juliastats.org/MultivariateStats.jl/stable/lda/}{doc}).
 
 Unterscheiden von Gruppen die mit Merkmalen (Variablen) beschrieben werden.
+
+Siehe auch
+\hyperref[ssec:EntscheidungsbaumKlassifikation]{Entscheidungsbaum/Klassifikation}
+und \hyperref[sec:NearestNeighbors]{NearestNeighbors}.
 
 \begin{lstlisting}
 using MultivariateStats, RDatasets, StatsBase, Distances
@@ -1627,6 +1632,10 @@ p0 = [1,.5,2,.1,.5]      #; Startwerte
 fit = curve_fit(model, X, y, p0)  #; Koeffizienten suchen
 \end{lstlisting}
 
+\subsection{Entscheidungsbaum}
+
+Siehe \hyperref[ssec:EntscheidungsbaumRegression]{Entscheidungsbaum/Regression}.
+
 \section{Entscheidungsbaum}
 
 Mit \lstinline|DecisionTree| (\lstinline|v0.12.3|,
@@ -1635,6 +1644,7 @@ Mit \lstinline|DecisionTree| (\lstinline|v0.12.3|,
 Entscheidungsbäume zur Klassifikation oder Regression erstellt werden.
 
 \subsection{Klassifikation}
+\label{ssec:EntscheidungsbaumKlassifikation}
 
 \begin{lstlisting}
 using DecisionTree
@@ -1742,6 +1752,7 @@ nfoldCV_stumps(y, X, 3, 7)
 \end{lstlisting}
 
 \subsection{Regression}
+\label{ssec:EntscheidungsbaumRegression}
 
 Wird gleich formuliert wie bei Klassifikation. Gruppen werden aufgrund von ähnlichen Werten gebildet. Gruppenmittel ist Erwartungswert.
 
@@ -1780,37 +1791,61 @@ nfoldCV_forest(y, X, 3)
 \end{lstlisting}
 
 \section{NearestNeighbors}
+\label{sec:NearestNeighbors}
 
 Mit \lstinline|NearestNeighbors| (\lstinline|v0.4.13|,
-\href{https://github.com/KristofferC/NearestNeighbors.jl}{Git}) können die nächsten Nachbarn zu einem Datenpunkt gefunden werden.
+\href{https://github.com/KristofferC/NearestNeighbors.jl}{Git}) können die
+nächsten Nachbarn zu einem Datenpunkt gefunden werden.
 
 \begin{lstlisting}
 using NearestNeighbors, RDatasets
 iris = dataset("datasets", "iris")
-M = Matrix(iris[1:2:end,1:4])'   #; Trainingsdaten
+M = Matrix(iris[1:2:end,1:4])'       #; Trainingsdaten
 s = iris[1:2:end,5]
-Mt = Matrix(iris[2:2:end,1:4])'  #; Testdaten
+Mt = Matrix(iris[2:2:end,1:4])'      #; Testdaten
 st = iris[2:2:end,5]
 
-kdtree = KDTree(M, Euclidean())
-balltree = BallTree(M, Cityblock())
+# Teilt Daten mit KDTree und vergleicht nahe Punkte
+kdtree = KDTree(M, Euclidean())      #; Euclidean Dist.
+# Teilt Daten mit BallTree und vergleicht nahe Punkte
+balltree = BallTree(M, Cityblock())  #; Citybock
+# Bestimmt Abstand zu allen Punkte
 brutetree = BruteTree(M, Minkowski(3.5); leafsize = 10,
- reorder = false)
+ reorder = false)                    #; Minkowski Distanz
+# leafsize..Ab welcher Anzahl Baum nicht mehr Teilt
+# reorder..Nahe Punkte auch im RAM nebeneinander ablegen
+# Ergebnis gleich, Unterschied bei Performance.
 
 using StatsBase
-k = 3
-# Nach Abstand sortiert
+k = 3                                #; Anzahl Nachbarn
+# Index und Abstand der k nächsten Nachbarn
+# true..nach Abstand sortiert
 idxs, dists = knn(kdtree, Mt, k, true)
 countmap([findmax(countmap(st[i]))[2] for i in idxs]
  .== st)
+ # 0 => 3   #; Falsch klassifiziert
+ # 1 => 72  #; Richtig klassifiziert
+# k nähesten Nachbarn suchen
 idxs, dists = knn(balltree, Mt, k, true)
 idxs, dists = knn(brutetree, Mt, k, true)
 
-r = 0.3
+using BenchmarkTools
+kdtree = KDTree(M)
+balltree = BallTree(M)
+brutetree = BruteTree(M)
+@btime knn($kdtree, $Mt, $k)     # 13.700 μs
+@btime knn($balltree, $Mt, $k)   # 17.700 μs
+@btime knn($brutetree, $Mt, $k)  # 20.800 μs
+
+r = 0.3                #; Maximale Entfernung
+# Index der Punkte innerhalb Entfernung r
 idxs = inrange(kdtree, Mt, r)
+# Die häufigste Klasse nehmen
 x = [if(length(i) == 0) nothing else
  String(findmax(countmap(st[i]))[2]) end for i in idxs]
 countmap(x .== st)
+ # 0 => 33             #; Falsch Klassifiziert
+ # 1 => 42             #; Richtig Klassifiziert
 \end{lstlisting}
 
 
