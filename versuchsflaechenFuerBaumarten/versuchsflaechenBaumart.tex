@@ -1,0 +1,670 @@
+\documentclass[twocolumn]{scrartcl}
+%\documentclass{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+
+\usepackage{makeidx}
+\makeindex
+
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+
+\usepackage[sc]{mathpazo} % or option osf
+\usepackage{newpxmath}
+\usepackage[output-decimal-marker={,}]{siunitx}
+
+\usepackage[comma,authoryear]{natbib}
+\bibliographystyle{natdin}
+
+\usepackage{adjustbox}
+\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+\usepackage{afterpage}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows.meta}
+
+\newcommand{\hexA}[3]{%
+  \begin{scope}[blend mode=difference]
+    \node[hexa,fill=#3] (p) at (#1,#2) {};
+    \fill[white] (p) circle (1pt);
+  \end{scope}
+}
+
+\newcommand{\hexB}[3]{%
+  \foreach \i in {1,...,3}{%
+    \begin{scope}[blend mode=difference]
+      \node[hexa,fill=#3] (p) at ({#1+\i*.5*sin(60)},{#2+.75+.75*Mod(\i,2)}) {};
+      \fill[white] (p) circle (1pt);
+    \end{scope}
+  }
+}
+
+\newcommand{\hexC}[3]{%
+  \begin{scope}[blend mode=difference]
+    \node[hexa,fill=#3] (p) at (#1,#2) {};
+    \fill[white] (p) circle (1pt);
+    \foreach \i in {0,...,5}{%
+      \begin{scope}
+        \node[hexa,fill=#3] (q) at ($ (p) + ({\i*60}:.85) $) {};
+        \fill[white] (q) circle (1pt);
+      \end{scope}
+    }
+  \end{scope}
+}
+
+\newcommand{\hexD}[3]{%
+  \begin{scope}[blend mode=difference]
+    \def \j {1}
+    \foreach \i in {1,...,3}{%
+      \begin{scope}
+        \node[hexa,fill=#3] (p) at ({(#1+\i-Mod(\j/2,1))*sin(60)},{#2+\j*0.75}) {};
+        \fill[white] (p) circle (1pt);
+      \end{scope}
+    }
+    \def \j {2}
+    \foreach \i in {0,...,3}{%
+      \begin{scope}
+        \node[hexa,fill=#3] (p) at ({(#1+\i-Mod(\j/2,1))*sin(60)},{#2+\j*0.75}) {};
+        \fill[white] (p) circle (1pt);
+      \end{scope}
+    }
+    \def \j {3}
+    \foreach \i in {1,...,3}{%
+      \begin{scope}
+        \node[hexa,fill=#3] (p) at ({(#1+\i-Mod(\j/2,1))*sin(60)},{#2+\j*0.75}) {};
+        \fill[white] (p) circle (1pt);
+      \end{scope}
+    }
+    \def \j {4}
+    \foreach \i in {1,...,2}{%
+      \begin{scope}
+        \node[hexa,fill=#3] (p) at ({(#1+\i-Mod(\j/2,1))*sin(60)},{#2+\j*0.75}) {};
+        \fill[white] (p) circle (1pt);
+      \end{scope}
+    }
+  \end{scope}
+}
+
+
+\usepackage[pdftitle={Versuchsflächendesign zum Vergleich der Wuchsleistung verschiedener Baumarten}
+, pdfauthor={Georg Kindermann}
+, pdfsubject={Waldbau, Waldwachstum}
+, pdfkeywords={Waldbau, Waldwachstum, Wald, Forst}
+, pdflang={de-AT-1996}
+, hidelinks
+, pdfpagemode=None]{hyperref}
+
+\nonfrenchspacing
+\sloppy
+
+\title{Versuchsflächendesign zum Vergleich der Wuchsleistung verschiedener Baumarten}
+\author{Georg Kindermann}
+
+\begin{document}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+%    \begin{abstract}
+%      Zusammenfassung
+%    \end{abstract}
+  \end{@twocolumnfalse}
+]
+
+\tableofcontents
+
+\section{Einleitung}
+
+Die Baumartenwahl basiert zum Großteil auf Erfahrungen. Erfahrungen kann man von
+anderen z.\,B.\ mittels Literatur übernehmen. Dennoch werden wohl die selbst
+gesammelten Erfahrungen eher zum Tragen kommen als Berichte von anderen. Dies
+mag dazu beitragen, dass relativ wenige Baumarten bei der Kunstverjüngung
+verwendet werden und bei der Mischungsregulierung die Baumartenanzahl zugunsten
+jener, die man kennt, verringert wird.
+
+In Zeiten, wo mit einer massiven Standortsveränderung zu rechnen ist, kann nicht
+davon ausgegangen werden, dass die Beschränkung, auf die bisher in einer Region
+zufriedenstellenden Baumarten, nach wie vor zu zufriedenstellenden
+Waldentwicklungen führen wird. Das heißt, dass das Erfahrungsspektrum um weitere
+Baumarten unbedingt ergänzt werden sollte. Dies kann mit Anbauversuchen von, in
+einer Gegend seltenen bzw.\ noch nicht vorhandenen, Baumarten erfolgen. Die
+Erste mir bekannte Auswertung einer derartigen Versuchsfläche, mit verschiedenen
+Baumarten, am selben Standort, wurde von \cite{mayer1970anbauversuch} gemacht.
+Von der bayerischen Landesanstalt für Wald und Forstwirtschaft (LWF) wurde 2012
+der internationale Baumartenversuch KliP18 initiiert, an dem die Universität für
+Bodenkultur in Bruckneudorf eine Fläche einrichtete. Weitere Flächen dieses
+Versuchs liegen in Großostheim, Schmellenhof und Oldisleben (Deutschland) und
+Mutrux (Schweiz) und haben ihren Schwerpunkt in der Erprobung von
+nichtheimischen Baumarten. Vonseiten des Bundesforschungszentrums für Wald wurde
+2012 ein Forschungsantrag zur ersten Anlage einiger solcher Versuchsflächen beim
+Ministerium eingereicht. Dieses Vorhaben konnte 2017 auf einer Fläche am Wechsel
+($47,4999^{\circ}$\,Nord, $15,9741^{\circ}$\,Ost) auf 1340\,m mit 31~Baumarten
+begonnen werden. 2019 wurde in Matzen (Niederösterreich) ein weiterer Versuch
+mit 15~Baumarten angelegt. 2022 wurde in Kronsdorf (Oberösterreich) von der
+Landwirtschaftskammer unter der Leitung von Christoph Jasser eine Fläche mit
+44~Baumarten angelegt. Diese Versuchswälder werden als
+\emph{Site--Index--Benchmark--Bestand} bzw.\
+\emph{Wuchsleistungsvergleichsbestände}, \emph{Klimaforschungswald} oder
+\emph{Waldlabor} bezeichnet.
+
+Neben diesen Versuchsflächen können beispielsweise auch auf den, im Zuge des
+\glqq{}Wald der jungen Wienerinnen und Wiener\grqq{}, aufgeforsteten Flächen
+hilfreiche Informationen gewonnen werden. Dort wird seit dem Jahr 1985 etwa
+jedes Jahr eine, ein paar Hektar große Fläche, mit verschiedensten Baumarten
+aufgeforstet. Auch wird es einige, von interessierten Waldbesitzern angelegte,
+Versuche geben. Hier wäre es gut, Informationen (Lage, Baumarten, Pflanzjahr)
+von solchen Flächen zu sammeln, laufend zu aktualisieren und, sofern der
+Waldbesitzer zustimmt, diese Informationen zu veröffentlichen, um anderen den
+Besuch dieser Flächen zu ermöglichen und sich vor Ort ein Bild über einzelnen
+Baumarten machen zu können. Dabei ist die Information, warum manche Baumarten
+den Erwartungen nicht entsprochen haben, genauso wichtig, wie die Auflistung
+jener, die erfolgreich waren.
+
+Auch wenn bereits viele Informationen vorhanden sind, scheint es dennoch
+sinnvoll weitere Versuchsflächen, mit dem Ziel verschiedene Baumarten zu
+vergleichen, anzulegen. Hier werden ein paar Gesichtspunkte aufgelistet, die bei
+der Anlage solcher Versuchsflächen berücksichtigt werden können, mit dem Ziel
+die Errichtung solche Flächen in Eigenregie, dem Waldbesitzer schmackhaft zu
+machen. Auf den ersten Blick scheint es vorteilhafter zu sein, wenn jemand
+anderer solche Versuchsflächen anlegt. Auf der anderen Seite werden viele
+Erfahrungen gesammelt, wenn man selbst mit den neuen Baumarten arbeitet und
+deren Entwicklung laufend miterlebt.
+
+\section{Gesichtspunkte bei der Probeflächenanlage}
+
+\subsection{Auswahl der Baumarten}
+
+Hier soll möglichst wenig Vorauswahl getroffen werden. Wenn man sich mit der
+Thematik ein wenig beschäftigt, wird eher das Problem entstehen, dass man diese
+oder jene Baumart gar nicht so leicht erhält. Auch wird sich die Auswahl nicht
+nur auf Baumarten, sondern auch auf bestimmte Herkünfte und Selektionen
+innerhalb einer Baumart erweitern. Am Anfang scheint es zielführender zu sein
+sehr viele Baumarten, je Baumart aber nur relativ wenig Pflanzen auszuprobieren
+(z.\,B.\ 30~Baumarten zu je 50~Stück), als nur zwei drei Baumarten auszuwählen
+und mit denen dann größere Flächen aufzuforsten. Im ersten Schritt geht es darum
+möglichst viele neue brauchbare Baumarten herauszufinden. In der Regel werden,
+selbst wenn 50~Baumarten ausprobiert werden, vielleicht 4 als Wirtschaftlich
+brauchbar, für einen bestimmten Standort übrig bleiben. Es ist ein schrittweises
+Herantasten und ausselektieren der Baumarten, wobei sich die Anzahl der
+Baumarten je Schritt verringert und deren Anbaufläche zaghaft vergrößert. Dabei
+können dann je vorselektionierter Baumart Behandlungsvarianten, Herkünfte,
+verschiedene Pflanzzeitpunkte, Pflanzengrößen, Pflanzmethoden, Baumschulen,
+Entwicklung mit und ohne Wildschutz, unterschiedliche Schutzarten, \dots
+verglichen werden. Vor einem voreiligen großflächigen Anbau neuer Baumarten
+muss eindringlich gewarnt werden.
+
+Baumarten, die in der Region bereits häufig vertreten sind, sind unbedingt auch
+auf der Probefläche anzupflanzen um einen Vergleich zwischen neuen und bereits
+etablierten zu ermöglichen. Auch ist es informativ einen Bereich für
+Naturverjüngung vorzusehen und dort eventuell zwischen Varianten mit und ohne
+Bodenverwundung, auf Freifläche oder am Bestandesrand, am Nord-- oder Südrand,
+\dots zu unterscheiden.
+
+\subsection{Auswahl des Standortes}
+
+Der Standort sollte in einer Region auf größeren Flächen anzutreffen sein. Der
+Standort der Probefläche sollte nach Möglichkeit homogen sein, um Unterschiede
+zwischen verschiedenen Baumarten nicht durch Standortsunterschiede zu
+verursachen. Wiederholungen, d.\,h.\ eine Baumart an mehreren Stellen im Bestand
+pflanzen, helfen Standortsunterschiede aufzudecken. Allerdings wird der Aufwand
+und Platzbedarf durch Wiederholungen deutlich vergrößert. Aus meiner Sicht
+sollte eher auf Wiederholungen in einem Bestand verzichtet werden, wenn dadurch
+die Baumartenanzahl reduziert werden würde.
+
+\subsection{Pflanzverband}
+
+Der Pflanzverband (in welchen Abständen und mit welchem Muster) sollte sich, wie
+sonst auch, am Ziel, also dem Endbestand orientieren. Der geplante Endbestand
+variiert im weiten Rahmen zwischen verschiedene Baumarten und kann bzw.\ muss
+bei Vergleichen weniger Baumarten individuell gewählt werden. Beim Vergleich
+vieler Baumarten dürfte die Wahl \emph{eines} Planzverbandes vorteilhafter sein.
+Das allgemein anzustrebende Muster bei gleichaltrigen Reinbeständen ist der
+homogene Dreiecksverband (Abb.\,\ref{fig:dreiecksverband}).
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+    \foreach \j in {1,...,5}{%
+      \foreach \i in {1,...,10}{%
+        \begin{scope}
+          \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+          \fill (p) circle (1pt);
+        \end{scope}
+      }
+    }
+  \end{tikzpicture}
+  \caption{Dreiecksverband}
+  \footnotesize{Draufsicht: Der Punkt symbolisiert den Stammfuß und das umschreibende Sechseck die Kronenausdehnung.}
+  \label{fig:dreiecksverband}
+\end{figure}
+
+Die Abstände zwischen den Bäumen werden durch die gewählte Endstammzahl
+bestimmt. 400~Bäume je Hektar im Endbestand dürfte einen guten Kompromiss
+zwischen verschiedenen Baumarten darstellen. Bei 400~Bäumen/ha stehen einem Baum
+$10\,000 / 400 = 25\,\text{m}^2$ zur Verfügung. Die Abstände zwischen den Bäumen
+errechnen sich bei einem Dreiecksverband mit $\sqrt{25 \cdot 2 / \sqrt{3}} =
+5,373\,\text{m}$, und der Abstand zwischen den Reihen mit $\sqrt{3}/4\cdot 5,373
+= 4,653\,\text{m}$. Praktischerweise wird man den Abstand zwischen den Bäumen,
+in dem Fall, auf 5,5\,m und den Abstand zwischen den Reihen auf 4,5\,m runden,
+wobei sich damit die Standfläche je Baum auf $5,5 \cdot 4,5 = 24,75\,\text{m}^2$
+verringert, die Stammzahl auf ca.\ $10\,000 / 24,25 = 404$/ha erhöht und die
+Abstände zwischen den Bäumen sind 5,5\,m und ca.\ $0,5\cdot \sqrt{5,5^2 + 4\cdot
+4,5^2} = 5,27$\,m. Die Berechnung der Abstände zwischen den Bäumen und Reihen im
+Dreiecksverband ist in Abbildung~\ref{fig:dreiecksverbandEqu} zusammengefasst,
+wobei \emph{n/ha} die Stammzahl je Hektar des Endbestandes, \emph{A} die
+Standfläche eines Baumes im Endbestand, \emph{a} der Abstand zwischen den Bäumen
+und \emph{b} der Abstand zwischen den Reihen ist.
+
+\begin{figure}[htbp]
+  \centering
+\begin{minipage}{.35\columnwidth}
+\begin{tikzpicture}
+  \draw[{Latex[length=3mm]}-{Latex[length=3mm]}] (0,0) -- (4,0) node[pos=0.5,sloped,below] {a};
+  \draw[{Latex[length=3mm]}-{Latex[length=3mm]}] (0,0) -- (60:4) node[pos=0.5,sloped,above] {a};
+  \draw[{Latex[length=3mm]}-{Latex[length=3mm]}] (4,0) -- (60:4) node[pos=0.5,sloped,above] {a};
+  \draw[{Latex[length=3mm]}-{Latex[length=3mm]},color=gray] (2,0) -- (60:4) node[pos=0.5,sloped,above] {b};
+\end{tikzpicture}
+\end{minipage}%
+\begin{minipage}{.63\columnwidth}%
+  \begin{eqnarray*}%
+    A & = & \frac{10\,000}{\text{n/ha}}\\
+    a & = & \sqrt{A \cdot \frac{2}{\sqrt{3}}}\\
+    b & = & a \cdot \frac{\sqrt{3}}{4}
+  \end{eqnarray*}%
+  %\vspace{0em}
+\end{minipage}
+\caption{Berechnung der Abstände zwischen den Bäumen und Reihen im Dreiecksverband}
+\label{fig:dreiecksverbandEqu}
+\end{figure}
+
+Die einfachste Möglichkeit, diesen Endbestand zu erreichen, scheint es nur,
+einfach im Abstand von 5,5\,m Bäume zu setzen. Solange jeder Baum überlebt und
+keine Selektion, auf gewünschte Baumeigenschaften, im Zuge von Durchforstungen
+erfolgen soll und auch die Wuchsleistung und Qualitätsentwicklung durch diesen
+weiten Verband akzeptabel bleibt, kann tatsächlich so vorgegangen werden.
+
+Meiste wird es aber angebracht sein, um das Zentrum des Zielstandpunktes der
+Bäume im Endbestand weitere Bäume zu pflanzen. Wenn das Ziel besteht, die
+Bestandesfläche möglichst bald zu überschirmen, werden die zusätzlichen Bäume
+etwas weiter entfernt vom Zentrumsstamm gepflanzt. Wenn sie die Aufgabe haben
+die Zentrumsbaum bei Bedarf zu ersetzen, was in der Regel der Fall sein wird,
+werden sie möglichst in der Nähe des Zentrums (etwa 1\,m vom Zentrum entfernt)
+gepflanzt (Abb.\,\ref{fig:Ersatzpflanzen}).
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \j in {1,...,5}{%
+    \foreach \i in {1,...,5}{%
+      \begin{scope}
+        \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+        \fill (p) circle (1pt);
+        \foreach \k in {0,...,5}{%
+          \fill [gray] ($(p) + ({\k*60}:.2)$) circle (1pt);
+        }
+      \end{scope}
+    }
+  }
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \j in {1,...,5}{%
+    \foreach \i in {1,...,5}{%
+      \begin{scope}
+        \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+        \fill (p) circle (1pt);
+        \foreach \k in {0,...,4}{%
+          \fill [gray] ($(p) + ({\k*72}:.2)$) circle (1pt);
+        }
+      \end{scope}
+    }
+  }
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \j in {1,...,5}{%
+    \foreach \i in {1,...,5}{%
+      \begin{scope}
+        \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+        \fill (p) circle (1pt);
+        \foreach \k in {0,...,3}{%
+          \fill [gray] ($(p) + ({\k*90}:.2)$) circle (1pt);
+        }
+      \end{scope}
+    }
+  }
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \j in {1,...,5}{%
+    \foreach \i in {1,...,5}{%
+      \begin{scope}
+        \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+        \fill (p) circle (1pt);
+        \foreach \k in {0,...,2}{%
+          \fill [gray] ($(p) + ({\k*120+60}:.2)$) circle (1pt);
+        }
+      \end{scope}
+    }
+  }
+\end{tikzpicture}
+\caption{Platzierung von Füll-- oder Ersatzbäumen}
+\footnotesize{Um dem Zentrumsbaum (schwarz) werden weitere Bäume (grau)
+gepflanzt mit der Funktion die Bestandesfläche zu überschirmen bzw.\ um als
+Ersatz den Zentrumsbaumes dienen zu können.}
+\label{fig:Ersatzpflanzen}
+\end{figure}
+
+In weiterer Folge ist es natürlich auch möglich den Zentrumsbaum wegzulassen und
+ein paar Bäume nahe dem Zentrum zu pflanzen, von denen im Laufe der Zeit
+einzelne entnommen werden, bis nur noch einer übrig bleibt
+(Abb.\,\ref{fig:keinZentrumsbaum}).
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \j in {1,...,5}{%
+    \foreach \i in {1,...,10}{%
+      \begin{scope}
+        \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+        \foreach \k in {0,...,2}{%
+          \fill [black] ($(p) + ({\k*120+60}:.12)$) circle (1pt);
+        }
+      \end{scope}
+    }
+  }
+\end{tikzpicture}
+\caption{Aussparen des Zentrumsbaumes}
+\label{fig:keinZentrumsbaum}
+\end{figure}
+
+\subsection{Anordnung der Baumarten zueinander}
+
+Die zu pflanzenden Baumarten sollen je Baumart in kleinen Gruppen auf der
+Probefläche vertreten sein. Möglichst so, dass einige ausschließlich von der
+gleichen Baumart umgeben sind. Bei Baumarten welche nur zum Erproben ihres
+Standortsspektrums (testen ob die Baumart auf dem Standort überlebt aber als
+Wirtschaftsbaumart kaum überzeugen wird können) gepflanzt werden, oder zum
+Auffüllen von Bestandesrändern, wo sich eine Kleingruppe nicht mehr ausgeht,
+können die Baumartengruppen auch kleiner sein.
+
+In Abbildung~\ref{fig:artenVonGruppen} sind ein paar mögliche Gruppenformen
+dargestellt, wobei die ersten beiden keinen Baum beinhalten, der nur von Bäumen
+der gleichen Baumart umgeben ist. Je größer die Gruppe, umso besser wird das
+Verhältnis von Bäumen mit ausschließlich Nachbarn der gleichen Baumart zur
+Gruppengröße. Umgekehrt wird aber die Gesamtfläche stetig größer und es können
+bei gegebener Bestandesfläche, auf der alle Baumarten untergebracht werden
+müssen, weniger Baumarten verglichen werden. So scheint die Gruppe mit insgesamt
+12~Bäumen im Endbestand und 3~Bäumen im Kernbereich ohne fremde Nachbarn ein
+guter Kompromiss zu sein.
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \begin{scope}
+    \node[hexa] (p) {};
+    \fill (p) circle (1pt);
+  \end{scope}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \i in {1,...,3}{%
+    \begin{scope}
+      \node[hexa] (p) at ({\i*.5*sin(60)},{.75+.75*Mod(\i,2)}) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \node[hexa] (p) {};
+  \fill (p) circle (1pt);
+  \foreach \i in {0,...,5}{%
+    \begin{scope}
+      \node[hexa] (p) at ({\i*60}:.85) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \def \j {1}
+  \foreach \i in {1,...,3}{%
+    \begin{scope}
+      \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+  \def \j {2}
+  \foreach \i in {0,...,3}{%
+    \begin{scope}
+      \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+  \def \j {3}
+  \foreach \i in {1,...,3}{%
+    \begin{scope}
+      \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+  \def \j {4}
+  \foreach \i in {1,...,2}{%
+    \begin{scope}
+      \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+\end{tikzpicture}
+\caption{Verschiedene Kleingruppenformen}
+\label{fig:artenVonGruppen}
+\end{figure}
+
+In Abbildung~\ref{fig:anordnungVonGruppen} ist die Anordnung der Kleingruppen,
+mit jeweils einer anderen Baumart, Ausschnittsweise dargestellt.
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{red}
+  \hexA{0}{0}{white}
+  \hexA{.85}{0}{lightgray}
+  \hexA{.425}{.75}{lime}
+  \hexA{1.275}{.75}{black}
+  \hexA{0}{1.5}{blue}
+  \hexA{.85}{1.5}{orange}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexB{1.3}{.75}{lightgray}
+  \hexB{0}{1.5}{white}
+  \hexB{2.6}{1.5}{black}
+  \hexB{1.3}{2.25}{lime}
+  \hexB{0}{3}{red}
+  \hexB{2.6}{3}{orange}
+  \hexB{1.3}{3.75}{blue}
+\end{tikzpicture}\\
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexC{0}{0}{white}
+  \hexC{2.5*.85}{-0.75}{lightgray}
+  \hexC{4.5*.85}{0.75}{black}
+  \hexC{2*.85}{1.5}{lime}
+  \hexC{4*.85}{3}{orange}
+  \hexC{-.5*.85}{3*0.75}{red}
+  \hexC{1.5*.85}{5*0.75}{blue}
+\end{tikzpicture}\\
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexD{0}{0}{white}
+  \hexD{3.5*.85}{-2*.75}{lightgray}
+  \hexD{7*.85}{0}{black}
+  \hexD{3.5*.85}{2*.75}{lime}
+  \hexD{0}{4*.75}{red}
+  \hexD{7*.85}{4*.75}{orange}
+  \hexD{3.5*.85}{6*.75}{blue}
+\end{tikzpicture}
+\caption{Anordnung der Kleingruppenformen}
+\label{fig:anordnungVonGruppen}
+\end{figure}
+
+\subsection{Mischung}
+
+Beim Vergleich von Baumarten, sollte zunächst noch nicht explizit untersucht
+werden, wie verträglich bestimmte Baumarten in Mischungen sind. Durch die
+kleinen Teilflächen je Baumart stehen diese, wie in
+Abb.~\ref{fig:anordnungVonGruppen} gezeigt, ohnedies mit sechs anderen Baumarten
+in Kontakt. Dieser vorläufige Verzicht zur Untersuchung von Mischungen gilt
+jedoch nur für Hauptbaumarten. Bei Mischungen von Haupt-- und Nebenbaumart bzw.\
+ dienenden Baumart, kann diese Mischung wie exemplarisch in
+Abb.~\ref{fig:mischung} angedeutet, erfolgen.
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \foreach \j in {1,...,5}{%
+    \foreach \i in {1,...,10}{%
+      \begin{scope}
+        \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+        \foreach \k in {0,...,2}{%
+          \fill ($(p) + ({\k*120+60}:.12)$) circle (1pt);
+          \fill [gray] ($(p) + ({\k*120}:.3)$) circle (.7pt);
+        }
+      \end{scope}
+    }
+  }
+\end{tikzpicture}
+\caption{Mischung zweier Baumarten innerhalb der Standfläche eines Baumes des Endbestandes}
+\footnotesize{Die Hauptbaumart ist mit größeren schwarzen Punkten, wobei einer von den dreien in den Endbestand übernommen wird, und die dienende Baumart mit kleineren grauen Punkten, von denen alle oder auch keiner, je nach Situation, in den Endbestand übernommen werden, dargestellt.}
+\label{fig:mischung}
+\end{figure}
+
+Falls der Mischungseffekt von Hauptbaumarten untersucht werden will, sind einige
+Beispiele in Abb.~\ref{fig:einzelmischung} gezeigt. Dabei ist zu erkennen, dass
+es recht viele Möglichkeiten und Gradationen bei der Mischung gibt und diese
+eher auf ein späteres Stadium, bei dem die Untersuchung auf einige wenige
+Baumarten beschränkt werden kann, verschoben werden sollte.
+
+\begin{figure}[htbp]
+  \centering
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{white}
+  \hexA{0}{0}{white}
+  \hexA{.85}{0}{white}
+  \hexA{.425}{.75}{black}
+  \hexA{1.275}{.75}{white}
+  \hexA{0}{1.5}{white}
+  \hexA{.85}{1.5}{white}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{black}
+  \hexA{0}{0}{white}
+  \hexA{.85}{0}{black}
+  \hexA{.425}{.75}{black}
+  \hexA{1.275}{.75}{white}
+  \hexA{0}{1.5}{white}
+  \hexA{.85}{1.5}{black}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{black}
+  \hexA{0}{0}{white}
+  \hexA{.85}{0}{white}
+  \hexA{.425}{.75}{black}
+  \hexA{1.275}{.75}{black}
+  \hexA{0}{1.5}{white}
+  \hexA{.85}{1.5}{white}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{black}
+  \hexA{0}{0}{lightgray}
+  \hexA{.85}{0}{white}
+  \hexA{.425}{.75}{black}
+  \hexA{1.275}{.75}{black}
+  \hexA{0}{1.5}{white}
+  \hexA{.85}{1.5}{lightgray}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{white}
+  \hexA{0}{0}{lightgray}
+  \hexA{.85}{0}{white}
+  \hexA{.425}{.75}{black}
+  \hexA{1.275}{.75}{lightgray}
+  \hexA{0}{1.5}{lightgray}
+  \hexA{.85}{1.5}{white}
+\end{tikzpicture}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexA{-.425}{.75}{darkgray}
+  \hexA{0}{0}{lightgray}
+  \hexA{.85}{0}{white}
+  \hexA{.425}{.75}{black}
+  \hexA{1.275}{.75}{darkgray}
+  \hexA{0}{1.5}{white}
+  \hexA{.85}{1.5}{lightgray}
+\end{tikzpicture}
+\caption{Möglichkeiten von Einzelmischung}
+\label{fig:einzelmischung}
+\end{figure}
+
+\subsection{Pflanzenschutz}
+
+Pflanzenschutz (Zaun, Einzelschutz, streichen, Rüssenkäfer, \dots) und andere
+Maßnahmen (mulchen, bewässern, düngen, \dots) sollten wie bei allen anderen
+Aufforstungen gehandhabt werden. Interessant wäre, wenn eine Varainte mit und
+die andere ohne Schutz vergleichen werden können, um so Baumarten finden zu
+können, die diesen Schutz nicht benötigen. Also etwa eine Fläche im Zaun und
+eine Fläche, mit denselben Baumarten, ohne Zaun, eine Fläche freischneiden eine
+andere nicht freischneiden, \dots.
+
+\subsection{Baumnummern}
+
+Bei Dauerversuchsflächen ist es üblich die einzelnen Bäume zu nummerieren. Man
+kann einfach fortlaufende Nummern vergeben. Eine Nummernvergabe nach dem Muster
+Reihe/Spalte, wie in Abb.~\ref{fig:baumnummern}, erleichtert die Orientierung
+auf der Fläche. In der Regel befinden sich auf einer Reihe/Spalte Position des
+Endbestandes zunächst mehr als ein Baum, womit sich die Baumnummer auf
+Reihe/Spalte/Baum erweitert, also z.\,B.\ 4/11/1, 4/11/2, \dots. Üblicherweise
+werden die Bäume systematisch angeordnet was eine einheitliche Nummernvergabe
+des Baumes je Reihe/Spalte nahelegt.
+
+Auch scheint es vorteilhaft einen bestimmten Nummernbereich nur für Bäume, einen
+nur für Reihen und einen nur für Spalten zu verwenden. Z.\,B.\ wird die Zahl 1
+nur für einen Baum vergeben, 4 nur für Reihen und 11 nur für Spalten. Falls die
+endgültige Probeflächengröße nicht bekannt ist oder geplant ist die Fläche zu
+erweitern, sollten entsprechen große Zahlenbereiche zur Erweiterung reserviert
+bleiben. Andererseits wird es kein Problem darstellen, wenn die gleichen Zahlen
+sowohl für Reihen als auch für Spalten vergeben werden.
+
+Da die Pflanzen zwar regelmäßig aber mit größeren abständen gepflanzt werden,
+ist es vorteilhaft diese mit Stäben zu markieren, um sie beim Nachbessern,
+Freischneiden, phytosanitären Behandlungen, \dots leichter wiederzufinden.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+    \foreach \j in {4,...,8}{%
+      \foreach \i in {1,...,9}{%
+        \begin{scope}
+          \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+          \node[font=\footnotesize] at (p) {\pgfmathparse{9+\i*2-Mod(\j,2)}%
+          \j/\pgfmathprintnumber{\pgfmathresult}};
+        \end{scope}
+      }
+    }
+  \end{tikzpicture}
+  \caption{Vergabe von Baumnummern}
+  \label{fig:baumnummern}
+\end{figure}
+
+\subsection{Nachbessern}
+
+Da es zu erwarten ist, dass einzelnen Pflanzen ausfallen, sollten diese
+nachgepflanzt werden. Dies kann eventuell zwei bis dreimal wiederholt werden.
+Einzelnen kleine Lücken werden nicht stören. Wenn einzelnen Baumarten komplett
+ausgefallen sind, solle dort mit einer anderen Baumart ergänzt werden.
+
+
+\addcontentsline{toc}{section}{Literatur}
+\bibliography{literature}
+
+
+%Autor: Georg Kindermann
+
+\end{document}
