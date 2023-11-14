@@ -91,6 +91,22 @@
   \end{scope}
 }
 
+\newcommand{\hexE}[3]{%
+  \begin{scope}[blend mode=difference]
+    \node[hexa,fill=#3] (p) at (#1,#2) {};
+    \fill[white] (p) circle (1pt);
+    \foreach \i in {0,...,5}{%
+      \begin{scope}
+        \node[hexa,fill=#3] (q) at ($ (p) + ({\i*60}:.85) $) {};
+        \fill[white] (q) circle (1pt);
+        \node[hexa,fill=#3] (q) at ($ (p) + ({\i*60}:1.7) $) {};
+        \fill[white] (q) circle (1pt);
+        \node[hexa,fill=#3,rotate=0] (q) at ($ (p) + ({\i*60-30}:1.7-.85/4) $) {};
+        \fill[white] (q) circle (1pt);
+      \end{scope}
+    }
+  \end{scope}
+}
 
 \usepackage[pdftitle={Versuchsflächendesign zum Vergleich der Wuchsleistung verschiedener Baumarten}
 , pdfauthor={Georg Kindermann}
@@ -163,8 +179,8 @@ von solchen Flächen zu sammeln, laufend zu aktualisieren und, sofern der
 Waldbesitzer zustimmt, diese Informationen zu veröffentlichen, um anderen den
 Besuch dieser Flächen zu ermöglichen und sich vor Ort ein Bild über einzelnen
 Baumarten machen zu können. Dabei ist die Information, warum manche Baumarten
-den Erwartungen nicht entsprochen haben, genauso wichtig, wie die Auflistung
-jener, die erfolgreich waren.
+den Erwartungen nicht entsprochen haben oder gar ausgefallen sind, genauso
+wichtig, wie die Auflistung jener, die erfolgreich waren.
 
 Auch wenn bereits viele Informationen vorhanden sind, scheint es dennoch
 sinnvoll weitere Versuchsflächen, mit dem Ziel verschiedene Baumarten zu
@@ -196,11 +212,12 @@ Baumarten je Schritt verringert und deren Anbaufläche zaghaft vergrößert. Dab
 können dann je vorselektionierter Baumart Behandlungsvarianten, Herkünfte,
 verschiedene Pflanzzeitpunkte, Pflanzengrößen, Pflanzmethoden, Baumschulen,
 Entwicklung mit und ohne Wildschutz, unterschiedliche Schutzarten, \dots
-verglichen werden. Vor einem voreiligen großflächigen Anbau neuer Baumarten
-muss eindringlich gewarnt werden.
+verglichen werden. Vor einem voreiligen großflächigen Anbau neuer Baumarten muss
+eindringlich gewarnt werden.
 
-Baumarten, die in der Region bereits häufig vertreten sind, sind unbedingt auch
-auf der Probefläche anzupflanzen um einen Vergleich zwischen neuen und bereits
+Baumarten und deren regionale Herkünfte, die in der Region bereits häufig
+vertreten sind, sind unbedingt auch auf der Probefläche, z.\,B.\ in Form von
+Wildlingen, anzupflanzen um einen Vergleich zwischen neuen und bereits
 etablierten zu ermöglichen. Auch ist es informativ einen Bereich für
 Naturverjüngung vorzusehen und dort eventuell zwischen Varianten mit und ohne
 Bodenverwundung, auf Freifläche oder am Bestandesrand, am Nord-- oder Südrand,
@@ -223,25 +240,44 @@ Der Pflanzverband (in welchen Abständen und mit welchem Muster) sollte sich, wi
 sonst auch, am Ziel, also dem Endbestand orientieren. Der geplante Endbestand
 variiert im weiten Rahmen zwischen verschiedene Baumarten und kann bzw.\ muss
 bei Vergleichen weniger Baumarten individuell gewählt werden. Beim Vergleich
-vieler Baumarten dürfte die Wahl \emph{eines} Planzverbandes vorteilhafter sein.
-Das allgemein anzustrebende Muster bei gleichaltrigen Reinbeständen ist der
-homogene Dreiecksverband (Abb.\,\ref{fig:dreiecksverband}).
+vieler Baumarten dürfte die Wahl \emph{eines} Pflanzverbandes vorteilhafter
+sein. Das allgemein anzustrebende Muster bei gleichaltrigen Reinbeständen ist
+der homogene Dreiecksverband da hier am ehesten eine kreisförmige Kronenform
+erreicht werden kann und Lücken in der Überschirmung am kleinsten sind
+(Abb.\,\ref{fig:dreiecksverband} und \ref{fig:quadratverband}).
 
 \begin{figure}[htbp]
   \centering
   \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
-    \foreach \j in {1,...,5}{%
-      \foreach \i in {1,...,10}{%
+    \foreach \j in {1,...,3}{%
+      \foreach \i in {0,...,9}{%
         \begin{scope}
-          \node[hexa] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+          \node[hexa,rounded corners=\i*6/9] (p) at ({(\i-Mod(\j/2,1))*sin(60)},{\j*0.75}) {};
+          \fill (p) circle (1pt);
+        \end{scope}
+      }
+    }
+  \end{tikzpicture}\\
+  \caption{Dreiecksverband}
+  \footnotesize{Draufsicht: Der Punkt symbolisiert den Stammfuß und das umschreibende Sechseck die Kronenausdehnung. Von links nach rechts Übergang von scharfkantigen eckigen zu kreisrunden Baumkrone.}
+  \label{fig:dreiecksverband}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=4,draw,inner sep=8,rotate=0,rounded corners=8}]
+    \foreach \j in {1,...,3}{%
+      \foreach \i in {0,...,9}{%
+        \begin{scope}
+          \node[hexa,rounded corners=\i*11/9] (p) at ({\i*0.85},{\j*0.85}) {};
           \fill (p) circle (1pt);
         \end{scope}
       }
     }
   \end{tikzpicture}
-  \caption{Dreiecksverband}
-  \footnotesize{Draufsicht: Der Punkt symbolisiert den Stammfuß und das umschreibende Sechseck die Kronenausdehnung.}
-  \label{fig:dreiecksverband}
+  \caption{Quadratverband}
+  \footnotesize{Es sind deutlich größere, nicht überschirmte Lücken zu erwarten.}
+  \label{fig:quadratverband}
 \end{figure}
 
 Die Abstände zwischen den Bäumen werden durch die gewählte Endstammzahl
@@ -249,17 +285,18 @@ bestimmt. 400~Bäume je Hektar im Endbestand dürfte einen guten Kompromiss
 zwischen verschiedenen Baumarten darstellen. Bei 400~Bäumen/ha stehen einem Baum
 $10\,000 / 400 = 25\,\text{m}^2$ zur Verfügung. Die Abstände zwischen den Bäumen
 errechnen sich bei einem Dreiecksverband mit $\sqrt{25 \cdot 2 / \sqrt{3}} =
-5,373\,\text{m}$, und der Abstand zwischen den Reihen mit $\sqrt{3}/4\cdot 5,373
-= 4,653\,\text{m}$. Praktischerweise wird man den Abstand zwischen den Bäumen,
-in dem Fall, auf 5,5\,m und den Abstand zwischen den Reihen auf 4,5\,m runden,
-wobei sich damit die Standfläche je Baum auf $5,5 \cdot 4,5 = 24,75\,\text{m}^2$
-verringert, die Stammzahl auf ca.\ $10\,000 / 24,25 = 404$/ha erhöht und die
-Abstände zwischen den Bäumen sind 5,5\,m und ca.\ $0,5\cdot \sqrt{5,5^2 + 4\cdot
-4,5^2} = 5,27$\,m. Die Berechnung der Abstände zwischen den Bäumen und Reihen im
-Dreiecksverband ist in Abbildung~\ref{fig:dreiecksverbandEqu} zusammengefasst,
-wobei \emph{n/ha} die Stammzahl je Hektar des Endbestandes, \emph{A} die
-Standfläche eines Baumes im Endbestand, \emph{a} der Abstand zwischen den Bäumen
-und \emph{b} der Abstand zwischen den Reihen ist.
+5,373\,\text{m}$, und der Abstand zwischen den Reihen mit $\sqrt{25 \cdot
+\sqrt{3} / 2} = 4,653\,\text{m}$ . Praktischerweise wird man den Abstand
+zwischen den Bäumen, in dem Fall, auf 5,5\,m und den Abstand zwischen den Reihen
+auf 4,5\,m runden, wobei sich damit die Standfläche je Baum auf $5,5 \cdot 4,5 =
+24,75\,\text{m}^2$ verringert, die Stammzahl auf ca.\ $10\,000 / 24,25 = 404$/ha
+erhöht und die Abstände zwischen den Bäumen sind 5,5\,m und ca.\ $0,5\cdot
+\sqrt{5,5^2 + 4\cdot 4,5^2} = 5,27$\,m. Die Berechnung der Abstände zwischen den
+Bäumen und Reihen im Dreiecksverband ist in
+Abbildung~\ref{fig:dreiecksverbandEqu} zusammengefasst, wobei \emph{n/ha} die
+Stammzahl je Hektar des Endbestandes, \emph{A} die Standfläche eines Baumes im
+Endbestand, \emph{a} der Abstand zwischen den Bäumen und \emph{b} der Abstand
+zwischen den Reihen ist.
 
 \begin{figure}[htbp]
   \centering
@@ -268,7 +305,7 @@ und \emph{b} der Abstand zwischen den Reihen ist.
   \draw[{Latex[length=3mm]}-{Latex[length=3mm]}] (0,0) -- (4,0) node[pos=0.5,sloped,below] {a};
   \draw[{Latex[length=3mm]}-{Latex[length=3mm]}] (0,0) -- (60:4) node[pos=0.5,sloped,above] {a};
   \draw[{Latex[length=3mm]}-{Latex[length=3mm]}] (4,0) -- (60:4) node[pos=0.5,sloped,above] {a};
-  \draw[{Latex[length=3mm]}-{Latex[length=3mm]},color=gray] (2,0) -- (60:4) node[pos=0.5,sloped,above] {b};
+  \draw[{Latex[length=3mm]}-{Latex[length=3mm,color=gray]}] (2,0) -- (60:4) node[pos=0.5,sloped,above] {b};
 \end{tikzpicture}
 \end{minipage}%
 \begin{minipage}{.63\columnwidth}%
@@ -283,17 +320,17 @@ und \emph{b} der Abstand zwischen den Reihen ist.
 \label{fig:dreiecksverbandEqu}
 \end{figure}
 
-Die einfachste Möglichkeit, diesen Endbestand zu erreichen, scheint es nur,
+Die einfachste Möglichkeit, diesen Endbestand zu erreichen, scheint es nun,
 einfach im Abstand von 5,5\,m Bäume zu setzen. Solange jeder Baum überlebt und
 keine Selektion, auf gewünschte Baumeigenschaften, im Zuge von Durchforstungen
 erfolgen soll und auch die Wuchsleistung und Qualitätsentwicklung durch diesen
 weiten Verband akzeptabel bleibt, kann tatsächlich so vorgegangen werden.
 
 Meiste wird es aber angebracht sein, um das Zentrum des Zielstandpunktes der
-Bäume im Endbestand weitere Bäume zu pflanzen. Wenn das Ziel besteht, die
+Bäume des Endbestandes weitere Bäume zu pflanzen. Wenn das Ziel besteht, die
 Bestandesfläche möglichst bald zu überschirmen, werden die zusätzlichen Bäume
 etwas weiter entfernt vom Zentrumsstamm gepflanzt. Wenn sie die Aufgabe haben
-die Zentrumsbaum bei Bedarf zu ersetzen, was in der Regel der Fall sein wird,
+den Zentrumsbaum bei Bedarf zu ersetzen, was in der Regel der Fall sein wird,
 werden sie möglichst in der Nähe des Zentrums (etwa 1\,m vom Zentrum entfernt)
 gepflanzt (Abb.\,\ref{fig:Ersatzpflanzen}).
 
@@ -385,21 +422,80 @@ einzelne entnommen werden, bis nur noch einer übrig bleibt
 
 Die zu pflanzenden Baumarten sollen je Baumart in kleinen Gruppen auf der
 Probefläche vertreten sein. Möglichst so, dass einige ausschließlich von der
-gleichen Baumart umgeben sind. Bei Baumarten welche nur zum Erproben ihres
-Standortsspektrums (testen ob die Baumart auf dem Standort überlebt aber als
+gleichen Baumart umgeben sind. Bei Baumarten, welche nur zum Erproben ihres
+Standortsspektrums (testen, ob die Baumart auf dem Standort überlebt, aber als
 Wirtschaftsbaumart kaum überzeugen wird können) gepflanzt werden, oder zum
 Auffüllen von Bestandesrändern, wo sich eine Kleingruppe nicht mehr ausgeht,
 können die Baumartengruppen auch kleiner sein.
 
-In Abbildung~\ref{fig:artenVonGruppen} sind ein paar mögliche Gruppenformen
-dargestellt, wobei die ersten beiden keinen Baum beinhalten, der nur von Bäumen
-der gleichen Baumart umgeben ist. Je größer die Gruppe, umso besser wird das
-Verhältnis von Bäumen mit ausschließlich Nachbarn der gleichen Baumart zur
-Gruppengröße. Umgekehrt wird aber die Gesamtfläche stetig größer und es können
-bei gegebener Bestandesfläche, auf der alle Baumarten untergebracht werden
-müssen, weniger Baumarten verglichen werden. So scheint die Gruppe mit insgesamt
-12~Bäumen im Endbestand und 3~Bäumen im Kernbereich ohne fremde Nachbarn ein
-guter Kompromiss zu sein.
+Die Reihenweise Anordnung stellt eine der einfachsten Formen dar. Ihr größter
+Vorteil liegt bei der Pflanzung und anfänglichen Pflege. Die Nachteile liegen
+darin, dass es keinen Baum ohne Interaktion mit einem fremden Nachbarn gibt und
+dass die Zielbestockung, eines gleichmäßigen Dreiecksverbandes, schwer
+erreichbar ist (Abb.\,\ref{fig:reihen}).
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+    \foreach \i in {0,...,9}{%
+      \hexA{\i*0.85}{0}{white}
+      \hexA{\i*0.85+0.425}{.75}{black}
+      \hexA{\i*0.85}{2*.75}{lightgray}
+    }
+  \end{tikzpicture}\\
+  \caption{Reihenweise Anordnung}
+  \label{fig:reihen}
+\end{figure}
+
+Um Bäume, die ausschließlich von der gleichen Baumart umgeben sind zu bekommen,
+können einfach mehrere Reihen (mindestens drei) mit der gleichen Baumart
+gepflanzt werden, was dann zu Streifen--, Rechteck-- bzw.\ Quadratischen
+Teilflächen führt (Abb.\,\ref{fig:quadrat}). Diese Formen verleiten dazu im
+Quadratverband zu pflanzen und diesen in den Endbestand zu übernehmen.
+Nachteilig ist auch, dass für einen Baum im Zentrum 8~Ummantelungsbäume nötig
+sind. Bei einem Hexagonalverband (Abb.\,\ref{fig:artenVonGruppen}) sind dazu
+lediglich 6~Bäume nötig. Mit 12~Ummantelungsbäumen erhält man bei Quadrat
+4~Bäume im Zentrum, beim Hexagonalverband bereits 7. Der Platzverbrauch ist
+damit bei quadratischer Anordnung unnötig größer.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=4,draw,inner sep=8,rotate=0,rounded corners=10}]
+    \foreach \j in {1,...,3}{%
+      \foreach \i in {1,...,3}{%
+        \begin{scope}
+          \node[hexa] (p) at ({\i*0.85},{\j*0.85}) {};
+          \fill (p) circle (1pt);
+        \end{scope}
+      }
+      \foreach \i in {4,...,6}{%
+      \begin{scope}
+        \node[hexa,fill=black] (p) at ({\i*0.85},{\j*0.85}) {};
+        \fill[white] (p) circle (1pt);
+      \end{scope}
+      }
+      \foreach \i in {7,...,9}{%
+      \begin{scope}
+        \node[hexa,fill=lightgray] (p) at ({\i*0.85},{\j*0.85}) {};
+        \fill (p) circle (1pt);
+      \end{scope}
+      }
+    }
+  \end{tikzpicture}
+\caption{Quadratanordnung}
+\label{fig:quadrat}
+\end{figure}
+
+In Abbildung~\ref{fig:artenVonGruppen} sind ein paar mögliche
+Hexagonal--Gruppenformen dargestellt, wobei die ersten beiden keinen Baum
+beinhalten, der nur von Bäumen der gleichen Baumart umgeben ist. Je größer die
+Gruppe, umso besser wird das Verhältnis von Bäumen, mit ausschließlich Nachbarn
+der gleichen Baumart, zur Gruppengröße. Umgekehrt wird aber die Gesamtfläche
+stetig größer und es können, bei gegebener Bestandesfläche, auf der alle
+Baumarten untergebracht werden müssen, weniger Baumarten verglichen werden. So
+scheint die Gruppe mit insgesamt 12~Bäumen im Endbestand und 3~Bäumen im
+Kernbereich ohne fremde Nachbarn, oder die mit 19~Bäumen im Endbestand und
+7~Bäumen im Kernbereich ein guter Kompromiss zu sein.
 
 \begin{figure}[htbp]
   \centering
@@ -426,7 +522,7 @@ guter Kompromiss zu sein.
       \fill (p) circle (1pt);
     \end{scope}
   }
-\end{tikzpicture}
+\end{tikzpicture}\\
 \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
   \def \j {1}
   \foreach \i in {1,...,3}{%
@@ -457,7 +553,21 @@ guter Kompromiss zu sein.
     \end{scope}
   }
 \end{tikzpicture}
-\caption{Verschiedene Kleingruppenformen}
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \node[hexa] (p) {};
+  \fill (p) circle (1pt);
+  \foreach \i in {0,...,5}{%
+    \begin{scope}
+      \node[hexa] (p) at ({\i*60}:.85) {};
+      \fill (p) circle (1pt);
+      \node[hexa] (p) at ({\i*60}:1.7) {};
+      \fill (p) circle (1pt);
+      \node[hexa,rotate=0] (p) at ({\i*60-30}:1.7-.85/4) {};
+      \fill (p) circle (1pt);
+    \end{scope}
+  }
+\end{tikzpicture}
+\caption{Verschiedene Hexagonal--Kleingruppen}
 \label{fig:artenVonGruppen}
 \end{figure}
 
@@ -466,6 +576,7 @@ mit jeweils einer anderen Baumart, Ausschnittsweise dargestellt.
 
 \begin{figure}[htbp]
   \centering
+\noindent\scalebox{.5}{%
 \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
   \hexA{-.425}{.75}{red}
   \hexA{0}{0}{white}
@@ -474,7 +585,8 @@ mit jeweils einer anderen Baumart, Ausschnittsweise dargestellt.
   \hexA{1.275}{.75}{black}
   \hexA{0}{1.5}{blue}
   \hexA{.85}{1.5}{orange}
-\end{tikzpicture}
+\end{tikzpicture}}
+\noindent\scalebox{.5}{%
 \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
   \hexB{1.3}{.75}{lightgray}
   \hexB{0}{1.5}{white}
@@ -483,7 +595,8 @@ mit jeweils einer anderen Baumart, Ausschnittsweise dargestellt.
   \hexB{0}{3}{red}
   \hexB{2.6}{3}{orange}
   \hexB{1.3}{3.75}{blue}
-\end{tikzpicture}\\
+\end{tikzpicture}}
+\noindent\scalebox{.5}{%
 \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
   \hexC{0}{0}{white}
   \hexC{2.5*.85}{-0.75}{lightgray}
@@ -492,7 +605,8 @@ mit jeweils einer anderen Baumart, Ausschnittsweise dargestellt.
   \hexC{4*.85}{3}{orange}
   \hexC{-.5*.85}{3*0.75}{red}
   \hexC{1.5*.85}{5*0.75}{blue}
-\end{tikzpicture}\\
+\end{tikzpicture}}
+\noindent\scalebox{.5}{%
 \begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
   \hexD{0}{0}{white}
   \hexD{3.5*.85}{-2*.75}{lightgray}
@@ -501,7 +615,17 @@ mit jeweils einer anderen Baumart, Ausschnittsweise dargestellt.
   \hexD{0}{4*.75}{red}
   \hexD{7*.85}{4*.75}{orange}
   \hexD{3.5*.85}{6*.75}{blue}
-\end{tikzpicture}
+\end{tikzpicture}}
+\noindent\scalebox{.5}{%
+\begin{tikzpicture}[hexa/.style= {shape=regular polygon,regular polygon sides=6,draw,inner sep=8,rotate=30,rounded corners=4}]
+  \hexE{0}{0}{lime}
+  \hexE{-4 * .86}{2*.75}{red}
+  \hexE{-3.5 * .86}{-3*.75}{white}
+  \hexE{.5 * .86}{-5*.75}{lightgray}
+  \hexE{4 * .86}{-2*.75}{black}
+  \hexE{3.5 * .86}{3*.75}{orange}
+  \hexE{-.5 * .86}{5*.75}{blue}
+\end{tikzpicture}}
 \caption{Anordnung der Kleingruppenformen}
 \label{fig:anordnungVonGruppen}
 \end{figure}
@@ -611,7 +735,7 @@ Aufforstungen gehandhabt werden. Interessant wäre, wenn eine Varainte mit und
 die andere ohne Schutz vergleichen werden können, um so Baumarten finden zu
 können, die diesen Schutz nicht benötigen. Also etwa eine Fläche im Zaun und
 eine Fläche, mit denselben Baumarten, ohne Zaun, eine Fläche freischneiden eine
-andere nicht freischneiden, \dots.
+andere nicht freischneiden, \dots
 
 \subsection{Baumnummern}
 
@@ -619,7 +743,7 @@ Bei Dauerversuchsflächen ist es üblich die einzelnen Bäume zu nummerieren. Ma
 kann einfach fortlaufende Nummern vergeben. Eine Nummernvergabe nach dem Muster
 Reihe/Spalte, wie in Abb.~\ref{fig:baumnummern}, erleichtert die Orientierung
 auf der Fläche. In der Regel befinden sich auf einer Reihe/Spalte Position des
-Endbestandes zunächst mehr als ein Baum, womit sich die Baumnummer auf
+Endbestandes zunächst mehrere Bäume, womit sich die Baumnummer auf
 Reihe/Spalte/Baum erweitert, also z.\,B.\ 4/11/1, 4/11/2, \dots. Üblicherweise
 werden die Bäume systematisch angeordnet was eine einheitliche Nummernvergabe
 des Baumes je Reihe/Spalte nahelegt.
@@ -630,7 +754,10 @@ nur für einen Baum vergeben, 4 nur für Reihen und 11 nur für Spalten. Falls d
 endgültige Probeflächengröße nicht bekannt ist oder geplant ist die Fläche zu
 erweitern, sollten entsprechen große Zahlenbereiche zur Erweiterung reserviert
 bleiben. Andererseits wird es kein Problem darstellen, wenn die gleichen Zahlen
-sowohl für Reihen als auch für Spalten vergeben werden.
+sowohl für Reihen als auch für Spalten vergeben werden. Vorteilhaft ist es
+jedoch schon, wenn alleine an der Zahl erkennbar ist, ob es sich um einen Baum,
+eine Reihe oder eine Spalte handelt und die Reihenfolge der Zahlen keine Rolle
+spielt.
 
 Da die Pflanzen zwar regelmäßig aber mit größeren abständen gepflanzt werden,
 ist es vorteilhaft diese mit Stäben zu markieren, um sie beim Nachbessern,
@@ -657,7 +784,7 @@ Freischneiden, phytosanitären Behandlungen, \dots leichter wiederzufinden.
 
 Da es zu erwarten ist, dass einzelnen Pflanzen ausfallen, sollten diese
 nachgepflanzt werden. Dies kann eventuell zwei bis dreimal wiederholt werden.
-Einzelnen kleine Lücken werden nicht stören. Wenn einzelnen Baumarten komplett
+Einzelne kleine Lücken werden nicht stören. Wenn einzelne Baumarten komplett
 ausgefallen sind, solle dort mit einer anderen Baumart ergänzt werden.
 
 
