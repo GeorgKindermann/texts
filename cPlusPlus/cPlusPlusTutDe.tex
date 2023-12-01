@@ -1,0 +1,674 @@
+\documentclass[10pt,twocolumn]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+
+\usepackage{lmodern}
+\usepackage[sc]{mathpazo} % or option osf
+\usepackage{newpxmath}
+\usepackage[scaled = 0.75]{beramono}
+
+\newcommand*\cpp{C\kern-0.3ex\raisebox{0.17ex}{\texttt{+\kern-0.3ex+}}}
+
+\usepackage{xpatch}
+\usepackage{xcolor}
+\usepackage{realboxes}
+\definecolor{mygray}{rgb}{0.9,0.9,0.9}
+\usepackage{listings}
+\lstdefinelanguage{commentonly}{ morecomment=[l]{\#} }
+\lstset{literate=%
+{Ö}{{\"O}}1
+{Ä}{{\"A}}1
+{Ü}{{\"U}}1
+{ß}{{\ss}}1
+{ü}{{\"u}}1
+{ä}{{\"a}}1
+{ö}{{\"o}}1
+,basicstyle=\ttfamily
+,backgroundcolor=\color{mygray}
+,commentstyle=\emph
+,language=commentonly
+,upquote=true
+}
+%\makeatletter
+%\xpretocmd\lstinline{\Colorbox{mygray}\bgroup\appto\lst@DeInit{\egroup}}{}{}
+%\makeatother
+\makeatletter
+\xpretocmd\lstinline
+  {%
+   \bgroup\fboxsep=1.5pt
+   \Colorbox{mygray}\bgroup\kern-\fboxsep\vphantom{\ttfamily\char`\\y}%
+   \appto\lst@DeInit{\kern-\fboxsep\egroup\egroup}%
+  }{}{}
+\makeatother
+
+\usepackage{enumitem}
+
+\usepackage{adjustbox}
+\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+
+\usepackage[pdftitle={Grundlagen der Programmiersprache C++}
+, pdfauthor={Georg Kindermann}
+, pdfsubject={C++}
+, pdfkeywords={C++, Lang, Progammiersprache, Tutorial, Einführung, German,
+               Deutsch}
+, pdflang={de-AT-1996}
+, colorlinks=true
+, linkcolor=blue
+, urlcolor=blue
+, pdfpagemode=UseNone]{hyperref}
+
+\nonfrenchspacing
+\sloppy
+
+\title{Grundlagen der Programmiersprache \cpp{}}
+\author{Georg Kindermann}
+%\date{19. Juni 2023}
+
+\begin{document}
+
+\maketitle
+
+%\begin{abstract}
+%  Eine kurze Einführung in die Sprache Julia.
+%\end{abstract}
+
+\tableofcontents
+
+
+Die Sprache \cpp{} baut auf der Sprache C auf. Für beide gibt es eine ISO Norm
+die laufend aktualisiert wird. Eine Sammlung der letzten Normentwürfe (final
+working draft) ist auf
+\href{https://en.cppreference.com/w/cpp/links}{Cppreference/Links} zu finden.
+Inwieweit diese Norm von verschiedenen Compilern erfüllt wird, ist auf
+\href{https://en.cppreference.com/w/cpp/compiler_support}{Cppreference/Compiler\_support}
+zusammengestellt. Hier wird \cpp{}23 verwendet. Eine ausführliche Referenz zu
+\cpp{} und C ist auf \href{https://en.cppreference.com/w/}{Cppreference} oder
+auch auf \href{https://learn.microsoft.com/de-de/cpp/cpp}{MS Dokumentation zu
+C++} zu finden.
+
+Programme können mit einem beliebigen Texteditor geschrieben werden und
+anschließend mit einem Compiler in ein ausführbares Programm übersetzt werden.
+Integrierte Entwicklungsumgebungen (IDE) helfen beim Schreiben von Programmen
+und Werkzeuge wie \lstinline|make| beim compilieren und erstellen von
+Bibliotheken (libraries).
+
+Mit \lstinline|g++| wird ein Programm mit dem Befehl \lstinline|g++ Programm.cc|
+compiliert und als \lstinline|a.out| abgespeichert. Mit
+\lstinline|g++ -o prg Programm.cc| wird eine Datei \lstinline|prg| erzeugt.
+
+Mit \lstinline|clang| wird ein Programm mit dem Befehl
+\lstinline|clang++ Programm.cc|
+compiliert und als \lstinline|a.out| abgespeichert. Mit
+\lstinline|clang++ -o prg Programm.cc| wird eine Datei \lstinline|prg| erzeugt.
+
+Mit \lstinline|-std=c++23| wird angegeben das \cpp{}23 verwendet wird.
+Mit z.\,B.\ \lstinline|-O3 -march=native -flto| wird das erzeugte Programm
+optimiert, um schneller zu laufen. Mit \lstinline|-Weverything| (nur bei clang),
+\lstinline|-Wall| oder \lstinline|-Wextra| gibt der Compiler zusätzliche
+Warnungen aus.
+
+Mit \lstinline|msvc| (Developer PowerShell for VS) wird ein Programm mit dem
+Befehl \lstinline|cl Programm.cc| compiliert und als \lstinline|Programm.exe|
+abgespeichert. Mit \lstinline|cl Programm.cc /O2| wird auf Geschwindigkeit
+optimiert. Mit \lstinline|cl Programm.cc /Wall| werden alle Warnungen
+ausgegeben. Mit \lstinline|cl Programm.cc /std:c++20| wird \cpp{}20\footnote{23
+ist derzeit v17.8.2/19.38.33130 nicht verfügbar. Eventuell
+\lstinline|/std:c++latest| oder \lstinline|/experimental| verwenden} verwendet. 
+
+C Dateien enden mit \lstinline|.c|. \cpp{} Dateien haben üblicherweise die
+Extension \lstinline|.cc| oder \lstinline|.cpp|. Header Dateien für C enden mit
+\lstinline|.h|. Header Dateien für \cpp{} enden meist mit \lstinline|.h|,
+\lstinline|.hh| oder \lstinline|.hpp|.
+
+Die Quelldatei (Sourcecode) wird zunächst vom Präprozessor verarbeitet (z.\,B.\
+\lstinline|#include|) und wird anschließend compiliert. Danach bindet der Linker
+Bibliotheken (Libraries) zu einem ausführbaren Programm zusammen.
+
+\section{Basis}
+\label{sec:einleitung}
+
+\subsection{Grundstruktur}
+
+Die erste Funktion die bei einem Programmstart aufgerufen wird ist
+\lstinline|main|.
+\begin{lstlisting}[language=C++]
+int main() {}
+\end{lstlisting}
+\lstinline|main| gibt mit \lstinline|return| eine \lstinline|Integerzahl| an das
+Betriebssystem zurück, die angibt, ob das Programm erfolgreich abgeschlossen (0)
+oder durch einen Fehler (nicht 0) beendet wurde. In \lstinline|main| kann
+\lstinline|return| weggelassen werden, was \lstinline|return 0;| entspricht. In
+\lstinline|stdlib.h| bzw.\ \lstinline|cstdlib| sind \lstinline|EXIT_SUCCESS| und
+\lstinline|EXIT_FAILURE| definiert.
+\begin{lstlisting}[language=C++]
+#include <cstdlib>
+
+int main() {
+  return EXIT_SUCCESS;
+}
+\end{lstlisting}
+\lstinline|main()| (oder \lstinline|main(void)|) bedeutet, das beim
+Programmaufruf keine Argumente an die Funktion übergeben werden. Mit:
+\begin{lstlisting}[language=C++]
+int main(int argc, char* argv[]) {}
+\end{lstlisting}
+können Argumente (command line arguments) von der Funktion übernommen werden.
+\lstinline|argc| gibt die Anzahl an Argumenten an die in \lstinline|argv| zu
+finden sind. Auf Position 0 steht der Programmname.
+
+\subsection{Kommentare}
+
+\begin{lstlisting}[language=C++]
+/* Kommentar */
+
+// Kommentar
+
+#if 0
+  std::cout << "Wird weder ausgeführt noch Compiliert\n";
+#endif
+
+if (false)
+{
+  std::cout << "Wird nicht ausgeführt\n";
+}
+\end{lstlisting}
+
+\subsection{Bibliotheken -- Libraries}
+
+Funktionen sind in Bibliotheken abgelegt. Diese müssen aktiv ausgewählt werden,
+bevor sie verwendet werden können. Dies geschieht mit dem Präprozessorbefehl
+\lstinline|#include|. \lstinline|#include <lib>| sucht die Headerdatei von
+\lstinline|lib| im Standardsuchpfad für header Dateien.
+\lstinline|#include "lib.h"| sucht im aktuellen Verzeichnis nach der Datei
+\lstinline|lib.h|. Wenn diese nicht gefunden wird, wird im Standardsuchpfad für
+Headerdateien weiter gesucht. Headerdateien von C enden mit \lstinline|.h|.
+
+\subsection{Ein-- und Ausgabe}
+
+Ein-- und Ausgabe ist in \lstinline|iostream| definiert. Es gibt die Befehle
+\lstinline|cin| (Eingabe), \lstinline|cout| (Ausgabe), \lstinline|cerr|
+(unmittelbare Fehlerausgabe) und \lstinline|clog| (gepufferte Fehlerausgabe).
+Alle Befehle gibt es auch für wide Character mit vorangestelltem w, also z.B.
+\lstinline|wcin|.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int n;
+  std::cout << "Anzahl n: ";
+  std::cin >> n;
+}
+\end{lstlisting}
+
+Eine neue Zeile kann mit \lstinline|std::cout << "\n";| oder mit
+\lstinline|std::cout << std::endl;| erzeugt werden, wobei \lstinline|endl| den
+buffer leert (flush) und damit in der Regel langsamer ist als \lstinline|\n|.
+
+\subsection{Namespace}
+
+Helfen Namenskonflikte zu vermeiden, indem Funktionen bestimmten Namensräumen
+zugeordnet werden. Funktionen mit gleichem Nahmen stellen kein Problem dar,
+solange sie in verschiedenen Namensräumen definiert sind. Funktionen des
+Standardlibraries sind im Namensraum \lstinline|std| und können mit
+\lstinline|std::FUNKTIONSNAME| aufgerufen werden. Mit
+\lstinline|using namespace std;| kann die Funktion auch ohne \lstinline|std::|
+aufgerufen werden. Namespaces können auch selbst erzeugt werden.
+
+\subsection{Datentypen}
+
+\lstinline|bool| ist der logische typ mit \lstinline|true| oder
+\lstinline|false|.
+
+Ganzzahlige Typen mit steigender Größe sind \lstinline|char|, \lstinline|short|,
+\lstinline|int|, \lstinline|long| und \lstinline|long long|. Diese können mit
+\lstinline|signed| und \lstinline|unsigned| also positive und negative oder nur
+positive Zahl definiert werden.
+
+Gleitkommazahlen mit steigender Größe sind \lstinline|float|,
+\lstinline|double|, \lstinline|long double|.
+
+\subsection{Deklaration, Definition, Initialisierung und Zuweisung}
+
+\begin{lstlisting}[language=C++]
+int i;     // Deklaration und Definition, i hat unbekannten Wert
+i = 0;     // Zuweisung - Assignment
+i = {0};   // Zuweisung - Assignment - EMPFOHLEN
+//i = {0.};  // Fehler: narrowing conversion
+int j = 1; // Dekl., Def. und Copy-Initialisierung
+int jn = 1.5; // jn == 1
+int k(2);  // Dekl., Def. und Constructor/Direct-Initialisierung
+int kn(2.5);  // kn == 2
+// int f();  // Würde die Funktion k deklarieren
+// int f() {return 0};  // Dek. und Def. von Funktion f
+// f(2);   // Würde die Funktion f mit Argument 2 aufrufen
+int l{};   // Dekl., Def. und Value-Initialisierung, l == 0
+int m{3};  // Dekl., Def. und Uniform/Direct-Init. - EMPFOHLEN
+// int mn{3.5};  // Fehler: narrowing conversion
+\end{lstlisting}
+
+\subsection{Blöcke -- Compound / block}
+
+Fassen mehrere Anweisungen zu einer zusammen. Sie beeinflussen die Gültigkeit
+und Sichtbarkeit von Variablen.
+
+\begin{lstlisting}[language=C++]
+#include <fstream>
+int i{0};  // i0, global
+int main()
+{ // Beginn des äußeren Blocks
+  int i{1};  // i1 verdeckt globales i
+  int j{3};
+  {  // Beginn des inneren Blocks
+    std::ofstream f("test.txt");  // Datei test.txt öffnen
+    f << i << "\n";               // i1 schreiben
+    int i {2};  // lokales i2, verdeckt i1, auf welches ab hier
+                //   nicht mehr zugegriffen werden kann
+    f << i << "\n";               // lokales i2 schreiben
+    f << ::i << "\n";             // globales i0 schreiben
+    f << j << "\n";               // j3 schreiben
+  }  // Ende des inneren Blocks
+     //   Destruktor Aufruf von f -> flush und schließen
+     //   lokales i2 entfernt, i1 wider sichtbar
+} // Ende des äußeren Blocks
+\end{lstlisting}
+
+\section{Kontrollstrukturen}
+
+\subsection{Auswahlanweisungen -- Selection}
+
+\subsubsection{if else}
+
+Ausführen von Code, wenn Bedingung erfüllt ist.
+
+\begin{lstlisting}[language=C++]
+int i{1};
+
+if (i > 2)
+  if (i < 4)
+    i = {0};
+  else  // gehört zu if (i < 4)
+    i = {1};
+else  // gehört zu if (i > 4)
+  i = {2};
+
+if (i > 2)  // das Gleiche nur mit Klammern
+{
+  if (i < 4)
+  {
+    i = {0};
+  }
+  else
+  {
+    i = {1};
+  }
+}
+else
+{
+  i = {2};
+}
+
+if (int ii = i*i; i > 0)  // mit Initialisierer
+  i -= ii;
+else {
+  // int ii;  // error: redeclaration of ii
+  i += ii;
+}
+// ++ii;  // ii hier nicht bekannt
+
+// typedef declaration
+if (typedef int Foo; true) { (void)Foo{}; }
+
+// alias declaration
+if (using Foo = int; true) { (void)Foo{}; }
+
+constexpr bool TEST = true;
+if constexpr (TEST) {  //Auswertung wenn Compiliert wird
+  if (i == 0) i = {1};
+}
+i = {10 / i};
+\end{lstlisting}
+
+Mit \lstinline|if consteval| testen ob constexpr-Funktion zur Compilationszeit
+ausgewertet wird. Hier müssen Blöcke (compound \lstinline|{ }|) verwendet
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+constexpr int f(int x) noexcept
+{
+  if consteval { return 0; } else { return x; }
+}
+
+int main()
+{
+  const int i { f(2) };  // Auswertung zur Compilationszeit
+  int j{2};             // nicht konstant
+  const int k { f(j) };  // Auswertung zur Laufzeit
+  std::cout << i << " " << k << "\n";
+}
+\end{lstlisting}
+
+\subsubsection{?: -- dreiteilige Bedingung / Ternary conditional}
+
+\lstinline|E1 ? E2 : E3| Wenn E1 true, dann E2 sonst E3.
+
+\begin{lstlisting}[language=C++]
+int n = {1 > 2 ? 7 : 8};  // 1 > 2 ist false, so n = 8
+int m{0};
+(n == m ? n : m) = {9};  // n == m ist false, so m = 9
+\end{lstlisting}
+
+\subsubsection{switch}
+
+Springe, in Abhängigkeit eines Wertes, an eine Programmzeile. Der Wert muss
+\lstinline|int| oder \lstinline|enum| oder implizit in int umwandelbar
+sein.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  const int k{9};
+  switch (int i{k / 2}; i)  // i nur in switch bekannt
+  // switch (k)  // Variante ohne Initialisierer
+  {
+    case 1:
+      std::cout << '1';
+      break;
+    [[unlikely]] case 2:
+      std::cout << '2';
+      [[fallthrough]]; // nicht nötig, Hinweise das beabsichtigt
+    [[likely]] case 3:
+      std::cout << '3';
+      break;
+    case 4:
+      //int j{0};  // Error weil man in den scope von
+                    // initialisiertem i springen kann
+      int j;
+      j = {0};
+      break;
+    case 5:
+    {
+      int j{0};
+      break;
+    }
+    case 6:
+      // int i;  // error: redeclaration of i
+    default:
+      std::cout << "Default\n";
+  }
+}
+\end{lstlisting}
+
+\subsection{Schleifen, Wiederholungen -- Iteration}
+\subsubsection{for}
+
+Schleife mit Startwert, Bedingung (wird vor jeder Iteration geprüft) und
+iteration-expression (wird nach jedem loop ausgeführt).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <tuple>
+#include <vector>
+
+int main()
+{
+  double s{0.};
+  int j{1};  // Wird in Schleife verdeckt
+  for (int i{1}, j{9}; i < 10; ++i, --j)
+  {
+    double x{0.5};  // constructor and destructor wird bei
+                    // jedem loop aufgerufen
+    //double i{0.};  // Error: redeclaration von i
+    s += i * j * x;
+  }
+  //--i;  // Error: Out of scope
+  std::cout << s << "\n";
+
+  char cstr[]{"Hallo"};
+  for (int n = 0; char c = cstr[n]; ++n) std::cout << c;
+
+  s = {0.};
+  // Verschiedene Typen mittels structured binding declaration
+  for (auto [i, f] = std::tuple{int{1}, float{0.1}}; i < 10 ;
+       ++i, f += .1)
+  {
+    s += i * f;
+    //int i;  // Error: redeclaration von i
+  }
+  std::cout << s << "\n";
+
+  s = {0.};
+  {
+    int i{1};
+    float f{0.1};
+    for (; i < 10 ; ++i, f += .1) {
+      s += i * f;
+      int i;
+    }
+  }
+  std::cout << s << "\n";
+}
+\end{lstlisting}
+
+\subsubsection{range-for}
+
+Schleife über einen Bereich (range).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <ranges>
+
+void o(const std::vector<int>& v, const char* s = {""}) {
+  std::cout << s;
+  for (const auto& i : v) std::cout << i << ' ';
+  std::cout << "\n";
+}
+
+int main()
+{
+  std::vector<int> v = {2, 0, 1};
+
+  // Index based. Geht nur bei sequential random access
+  for (std::size_t i{0}; i < v.size(); ++i) ++v[i];
+  o(v, "0: ");  // 3 1 2
+
+  // Iterator based
+  for (auto it{v.begin()}; it != v.end(); ++it) ++*it;
+  o(v, "1: ");  // 4 2 3
+
+  for (auto& e : v) ++e;  // Über Reference
+  o(v, "2: ");  // 5 3 4
+
+  for (auto e : v) ++e;  // Kopie
+  o(v, "3: ");  // 5 3 4
+
+  for (auto&& e : v) ++e; // forwarding reference
+  o(v, "4: ");  // 6 4 5
+
+  std::ranges::for_each(v, [](auto& e) { ++e; });
+  o(v, "5: ");  // 7 5 6
+
+  std::for_each(v.begin(), v.end(), [](auto& e) { ++e; });
+  o(v, "6: ");  // 8 6 7
+
+  for (int i{0}; const auto& e : v) // Mit init-statement
+    std::cout << i++ << ':' << e << ' ';
+  std::cout << '\n';
+
+  for (const auto& [i, e] : std::views::enumerate(v))
+    std::cout << i << ':' << e << ' ';
+  std::cout << '\n';
+
+  for (int i : {3, 1, 2}) std::cout << i; // braced-init-list
+  std::cout << '\n';
+
+  // Variable nicht verwendet
+  for ([[maybe_unused]] int i : v) std::cout << 'X';
+}
+\end{lstlisting}
+
+\subsubsection{while}
+
+Führt eine Anweisung so lange aus, bis die Bedingung \lstinline|false| wird.
+Geprüft wird \emph{vor} jeder Iteration.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  int i{0};
+  while (i < 3) ++i;
+  std::cout << i << '\n';
+
+  while (i < 9)
+  {
+    std::cout << i << '\n';
+    i += 2;
+  }
+
+  char cstr[]{"Hallo"};
+  i = {0};
+  while (char c{cstr[i++]})
+    std::cout << c;
+}
+\end{lstlisting}
+
+\subsubsection{do-while}
+
+Führt eine Anweisung so lange aus, bis die Bedingung \lstinline|false| wird.
+Geprüft wird \emph{nach} jeder Iteration.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  int i{0};
+  do
+  {
+    i += 2;
+    std::cout << i << '\n';
+  }
+  while (i < 9);
+}
+\end{lstlisting}
+
+\subsection{Sprunganweisungen -- Jump}
+\subsubsection{continue}
+
+Überspringt den verbleibenden Teil des umschließenden \lstinline|for| oder
+\lstinline|while| Schleifenkörpers.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  for (int i{0}; i < 3; ++i)
+  {
+    for (int j{0}; j < 3; ++j)
+    {
+      if (j == 1) continue;  // wirkt bei j for loop
+      std::cout << i << ' ' << j << '\n';
+    }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{break}
+
+Beendet umschließendes \lstinline|for|, \lstinline|while| oder
+\lstinline|switch|.
+
+\begin{lstlisting}[language=C++]
+  #include <iostream>
+
+int main()
+{
+  for (int i{0}; i < 3; ++i)
+  {
+    for (int j{0}; j < 3; ++j)
+    {
+      if (j == 1) break;  // wirkt bei j for loop
+      std::cout << i << ' ' << j << '\n';
+    }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{goto}
+
+Setzt Programm an anderer Stelle fort.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct nt {  // non-trivial destructor
+  ~nt() { std::cout << "X\n";}
+};
+
+int main()
+{
+  for (int i{0}; i < 3; ++i)
+  {
+    for (int j{0}; j < 3; ++j)
+    {
+      if (j == 1) goto endloop; // Ausstieg aus beiden for loops
+      std::cout << i << ' ' << j << '\n';
+    }
+  }
+endloop:  // Sprungmarke label
+  goto label2; // Sprung in den scope von n
+//int n{0};  //error: jump bypasses variable initialization
+  [[maybe_unused]] int n; // no initializer
+  n = {7};
+//nt o;  // error: bypas variable with non-trivial destructor
+label2:
+  std::cout << n;  // n hat Zufallswert
+}
+\end{lstlisting}
+
+\subsubsection{return}
+
+Beendet Funktion und gibt Wert (falls vorhanden) an den Aufrufer zurück.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <utility>
+
+void fa(int i) {
+  if (i == 1) return;
+  std::cout << "fa("<< i << ")\n";
+} // impliziertes return;
+
+int fb(int i) {
+  if (i > 4) return 4;
+  std::cout << "fb(" << i << ")\n";
+  return 2; }
+
+std::pair<int, float> fc(int i, float x) {
+  return {i, x}; }
+
+int main()
+{
+  fa(0);  // Gibt fa(0) aus
+  fa(1);  // Nichts
+  int i{fb(5)};  // i == 4
+  i = fb(i);     // gibt fb(4) aus, i == 2
+  std::cout << fc(0, 1.).first << " " << fc(2, 3.).second; //0 3
+}
+\end{lstlisting}
+
+
+%Autor: Georg Kindermann
+
+\end{document}
