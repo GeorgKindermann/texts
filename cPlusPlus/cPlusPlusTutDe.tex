@@ -44,6 +44,7 @@
 \makeatother
 
 \usepackage{enumitem}
+\setlist{nosep}
 
 \usepackage{adjustbox}
 \usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
@@ -456,6 +457,28 @@ int main()
 }
 \end{lstlisting}
 
+Float Zähler (counter) vermeiden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <cmath>
+
+int main()
+{
+  int j{0};
+  for (float x{0.}; x <= 1.; x += .01)
+    std::cout << j++ << ":" << x << " ";
+  std::cout << "\n";
+  float start{0.}, end{1.}, inc{.01};
+  long n{lround((end - start) / inc)};
+  for (long i{0}; i <= n; ++i)
+    std::cout << i << ":" << (start + (inc * i)) << " ";
+  std::cout << "\n";
+  for (long i{0}; i <= 100; ++i)  //Empfohlen
+    std::cout << i << ":" << i/100.f << " ";
+}
+\end{lstlisting}
+
 \subsubsection{range-for}
 
 Schleife über einen Bereich (range).
@@ -667,6 +690,354 @@ int main()
   std::cout << fc(0, 1.).first << " " << fc(2, 3.).second; //0 3
 }
 \end{lstlisting}
+
+\section{Ausdruck -- Expression}
+
+Operatoren (z.\,B.\ +,-,*,/,\dots) führen etwas mit Operanden aus. Bei der
+Auswertung (evaluation) kann ein Ergebnis (z.\,B.\ 4 bei \lstinline|2+2|) und
+oder Nebenwirkungen (side-effects) (z.\,B.\ gibt
+\lstinline|std::printf("\%d", 4)| 4 aus) entstehen.
+
+\subsection{Wertkategorien -- Value categories}
+
+\lstinline|lvalue = prvalue;|
+
+\begin{description}
+  \item[lvalue] Steht auf der linken Seite einer Zuweisung.
+  \begin{itemize}
+    \item Adresse eines Ausdrucks kann übernommen werden.
+    \item Typ eines Ausdrucks ist eine L-Wert-Referenz (z.\,B.\ \lstinline|int&|
+    oder \lstinline|const int&|)
+  \end{itemize}
+  \item[prvalue] Steht auf der rechten Seite einer Zuweisung. R-Werte
+  entsprechen temporären Objekten, wie sie beispielsweise von Funktionen
+  zurückgegeben oder durch implizite Typkonvertierungen erstellt werden. Die
+  meisten Literale (z.\,B.\ \lstinline|7| oder \lstinline|7.8|) sind ebenfalls
+  R-Werte.
+  \item[xvalue] Verschwindende (expiring) lvalue.
+  \item[glvalue] lvalue oder xvalue
+  \item[rvalue] prvalue oder xvalue
+\end{description}
+
+\subsection{Operator}
+
+Diese werden nach definierten Reihenfolgen und Richtungen evaluiert.
+
+\begin{description}
+  \item[assignment] \lstinline|a = b| :
+    \lstinline"= += -= *= /= \%= \&= |= ^= <<= >>="
+  \item[increment / decrement] \lstinline|++a --a a++ a--|
+  \item[arithmetic]
+    \lstinline|+a| \lstinline|-a| \lstinline|~a|;
+    \lstinline|a + b| :
+    \lstinline"+ - * / \% & | ^ << >>"
+  \item[logical]
+    \lstinline|!a|
+    \lstinline|a && b|
+    \lstinline"a || b"
+  \item[comparison] \lstinline|a == b| :
+    \lstinline|== != < > <= >= <=>|
+  \item[member access] \lstinline|a[b] a[...] *a &a a->b a.b a->*b a.*b|
+  \item[function call] \lstinline|a(a1, a2)|
+  \item[comma] \lstinline|a, b|
+  \item[conditional] \lstinline|a ? b : c|
+  \item[Conversions] \lstinline|const_cast| \lstinline|static_cast|
+    \lstinline|dynamic_cast| \lstinline|reinterpret_cast|
+  \item[Memory allocation] \lstinline|new delete|
+  \item[Other] \lstinline|sizeof alignof typeid throw-expression|
+\end{description}
+
+\subsection{Constant}
+
+\begin{description}
+  \item[const] Wert kann nicht geändert werden.
+  \item[constexpr] Wert liegt beim Kompilieren vor.
+\end{description}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <array>
+
+int f0 ( int a, int b ) { return a + b; }
+constexpr int f1 ( int a, int b ) { return a + b; }
+
+int main()
+{
+  int n{2};
+//std::array<int, n> a0;  // Error: Argument not const expr
+  const int cn{2};
+  std::array<int, cn> a1;
+  constexpr int cn2{2};
+  std::array<int, cn2> a2;
+//std::array<int, f0(1, 1)> a3; // Error: non-constexpr function
+  std::array<int, f1(1, 1)> a4;
+  ++n;
+//++cn;   // Error: declared const
+//++cn2;  // Error: declared const
+}
+\end{lstlisting}
+
+\subsection{Operator overloading}
+
+Operatoren (z.\,B.\ +) für benutzerdefinierte Typen definieren. Overloaded operators sind Funktionen mit speziellen Funktionsnamen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Foo {
+  int a;
+  double b;
+  Foo& operator++()  // prefix increment
+  {
+    ++a;
+    ++b;
+    return *this; // return new value by reference
+  }
+};
+
+std::ostream& operator<<(std::ostream& out, Foo const& f) {
+  return out << f.a << " " << f.b;
+}
+
+int main() {
+  Foo x = {0, 1.5};
+  std::cout << x << "\n";  // 0 1.5
+  ++x;
+  std::cout << x << "\n";  // 1 2.5
+}
+\end{lstlisting}
+
+\subsection{Conversions}
+
+\subsubsection{Implicit}
+
+\begin{lstlisting}[language=C++]
+float f{ 0 };  // int nach float
+f = 1;         // int nach float
+if (2) {}      // int nach bool
+\end{lstlisting}
+
+\subsubsection{Explicit}
+
+\begin{lstlisting}[language=C++]
+int i;
+i = 0.5;  // Implicit
+i = (int) 1.5;
+i = int(2.5);
+//i = int{3.5};  // Error: narrowing conversion
+i = auto(2.5);
+i = auto{3.5};
+\end{lstlisting}
+
+\subsubsection{User-defined}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct foo {
+  int i{2};
+  // implicit conversion
+  operator int() const { return 1; }
+  // explicit conversion
+  explicit operator int*() const { return const_cast<int*>(&i);}
+};
+
+int main() {
+  foo x;
+  int i = x;
+  std::cout << i << ' ' << (int)x << ' ' << int(x) << ' ' <<
+    int{x} << ' ' << static_cast<int>(x) << '\n';  // immer 1
+//int* j = x;  // Error: no implicit conversion
+  int* j = (int*)x;
+  std::cout << *j << ' ' << *((int*)x) << ' ' <<
+    *static_cast<int*>(x) << '\n';  // immer 2
+}
+\end{lstlisting}
+
+\subsubsection{Usual arithmetic conversions}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <typeinfo>
+
+int main() {
+  int i = 2;
+  long l = 5l;
+  auto n = i + l;
+  std::cout << typeid(n).name() << '\n';  // l
+  float x = 1.f;
+  double y = 2.;
+  auto z = x + y;
+  std::cout << typeid(z).name() << '\n';  // d
+}
+\end{lstlisting}
+
+\subsubsection{static\_cast}
+
+\lstinline|static_cast<int>(2.)| macht das gleiche wie \lstinline|int(2.)| oder
+\lstinline|(int)2.|, ist aber bei einer Suche leichter zu finden.
+
+\begin{lstlisting}[language=C++]
+long l = 5l;
+//int i{l};  // narrowing conversion
+int i{static_cast<int>(l)};
+int j{int(l)};
+int k{(int)l};
+\end{lstlisting}
+
+\subsubsection{dynamic\_cast}
+
+Bei virtual Vererbung für Zeiger oder Referenz auf eine Klasse.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+struct Animal   { virtual ~Animal() = default; int i{0}; };
+struct Creature { virtual ~Creature() = default;
+                  int i{1}; int j{2}; };
+struct Bird : public Animal, Creature { };
+
+int main() {
+  Bird *bird = new Bird();
+  Creature *creature = dynamic_cast<Creature*>(bird);
+  Animal *animal = dynamic_cast<Animal*>(creature);
+  Creature *creature1 = new Creature();
+//Bird *bird1 = dynamic_cast<Animal*>(creature1);  // invalid conversion
+  Animal *animal1 = dynamic_cast<Animal*>(creature1);
+//std::cout << bird->i << '\n';  // Error: ambiguous
+  std::cout << bird->Animal::i << '\n';
+  std::cout << bird->Creature::i << ' ' << bird->j << '\n';
+  std::cout << creature->i << ' ' << creature->j << '\n';
+  std::cout << animal->i /*<< ' ' << animal->j*/ << '\n';
+  std::cout << creature1->i << ' ' << creature1->j << '\n';
+//std::cout << animal1->i << '\n'; //Seg fault
+  delete bird;
+  delete creature1;
+}
+\end{lstlisting}
+
+\subsubsection{const\_cast}
+
+Erzeugt eine nicht konstante Referenz oder Zeiger auf ein konstantes Objekt, das
+damit verändert werden kann und damit undefiniertes Verhalten verursachen kann.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int i = 0;
+  const int& rci = i;
+//rci = 1;  /Error: read-only reference
+  const_cast<int&>(rci) = 2;  // OK
+  std::cout << i << '\n';     // 2
+
+  const int j = 3;
+  int* pj = const_cast<int*>(&j);
+  *pj = 4;      // undefined behavior
+  std::cout << j << ' ' << *pj << '\n';  // ? ?
+}
+\end{lstlisting}
+
+\subsubsection{reinterpret\_cast}
+
+Konvertiert zwischen Typen durch Neuinterpretation des zugrunde liegenden
+Bitmusters.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  signed char i = -1;
+  std::cout << +i << ' ' <<                       // -1
+   +reinterpret_cast<unsigned char&>(i) << '\n';  // 255
+}
+\end{lstlisting}
+
+\subsection{Literals}
+
+Im Quellcode eingebettete konstante Werte.
+\begin{description}
+  \item[boolean] \lstinline|true|, \lstinline|false|
+  \item[integer] ~
+  \begin{description}
+    \item[integer-suffix] ~
+    \begin{description}
+      \item[u U] Unsigned \lstinline|0u|
+      \item[l L] Long \lstinline|0l|
+      \item[ll LL] Long long \lstinline|0ll|
+      \item[z Z] size \lstinline|std::size_t i{0uz};|
+    \end{description}
+    \item[decimal-literal] \lstinline|42|
+    \item[octal-literal] \lstinline|052|
+    \item[hex-literal] \lstinline|0x2a| \lstinline|0X2A|
+    \item[binary-literal] \lstinline|0b101010| \lstinline|0B101010|
+  \end{description}
+  \item[floating] ~
+  \begin{description}
+    \item[3.1f] float
+    \item[3.1] double
+    \item[3.1l] long double
+    \item[3.1f16] float16; f32, f64, f128, bf16
+    \item[4e2] double
+    \item[3.14'15'92] double, single quotes ignored
+  \end{description}
+  \item[character] ~
+  \begin{description}
+    \item['c'] Gewöhnliches Zeichenliteral
+    \item[u8'c'] UTF8
+    \item[u'c'] UTF16
+    \item[U'c'] UTF32
+    \item[L'c'] Wide character
+    \item['char'] Literal mit mehreren Zeichen
+  \end{description}
+  \item[string] ~
+  \begin{description}
+    \item[\dq\dq] Gewöhnliches Stringliteral
+    \item[\dq{}abc\dq] Gewöhnliches Stringliteral
+    \item[R\dq{}(abc)\dq] Raw string literals
+    \item[R\dq{}any(abc)any\dq] Raw string literals
+    \item[u8\dq{}abc\dq] UTF8
+    \item[u\dq{}abc\dq] UTF16
+    \item[U\dq{}abc\dq] UFT32
+    \item[L\dq{}abc\dq] Wide
+  \end{description}
+  \item[Escape sequences] Für spezielle Zeichen
+  \begin{description}
+    \item[\textbackslash{}'] single quote
+    \item[\textbackslash{}"] double quote
+    \item[\textbackslash{}?] question mark
+    \item[\textbackslash{}\textbackslash{}] backslash
+    \item[\textbackslash{}a] audible bell
+    \item[\textbackslash{}b] backspace
+    \item[\textbackslash{}f] form feed - new page
+    \item[\textbackslash{}n] line feed - new line
+    \item[\textbackslash{}r] carriage return
+    \item[\textbackslash{}t] horizontal tab
+    \item[\textbackslash{}v] vertical tab
+    \item[\textbackslash{}nnn] Octal code 1-3 stellig
+    \item[\textbackslash{}o\{n\dots\}] Octal code
+    \item[\textbackslash{}xn\dots] Hex Code
+    \item[\textbackslash{}x\{n\dots\}] Hex Code
+    \item[\textbackslash{}unnnn] Unicode Wert 4 stellig
+    \item[\textbackslash{}Unnnnnnnn] Unicode Wert 8 stellig
+    \item[\textbackslash{}u\{n\dots\}] Unicode Wert
+    \item[\textbackslash{}N\{Name\}] Unicode Name
+    \item[\textbackslash{}c] Conditional escape sequence
+  \end{description}
+  \item[nullptr] Nullpointer literal
+  \item[user-defined] Literals können auch selber definiert werden
+\end{description}
+
+%\section{Deklaration Initialisation}
+
+%\section{Functions}
+
+%\section{Classes}
+
+%\section{Templates}
+
+%\section{Exceptions}
+
+%\section{Prepocessor}
 
 
 %Autor: Georg Kindermann
