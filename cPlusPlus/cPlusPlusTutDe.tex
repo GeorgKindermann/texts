@@ -125,7 +125,10 @@ Extension \lstinline|.cc| oder \lstinline|.cpp|. Header Dateien für C enden mit
 
 Die Quelldatei (Sourcecode) wird zunächst vom Präprozessor verarbeitet (z.\,B.\
 \lstinline|#include|) und wird anschließend compiliert. Danach bindet der Linker
-Bibliotheken (Libraries) zu einem ausführbaren Programm zusammen.
+Bibliotheken (Libraries) zu einem ausführbaren Programm zusammen. Mit
+\lstinline|g++ -c srcA.cc| wird nur compiliert und die Datei \lstinline|srcA.o|
+erzeugt. Mit \lstinline|g++ srcB.cc srcB.o| wird srcB compiliert und die
+Objektdatei von srcA dazugebunden.
 
 \section{Basis}
 \label{sec:einleitung}
@@ -928,7 +931,7 @@ int main() {
   const int& rci = i;
 //rci = 1;  /Error: read-only reference
   const_cast<int&>(rci) = 2;  // OK
-  std::cout << i << '\n';     // 2
+  std::cout << i << ' ' << rci << '\n';  // 2 2
 
   const int j = 3;
   int* pj = const_cast<int*>(&j);
@@ -1027,7 +1030,389 @@ Im Quellcode eingebettete konstante Werte.
   \item[user-defined] Literals können auch selber definiert werden
 \end{description}
 
-%\section{Deklaration Initialisation}
+\section{Deklaration}
+
+\begin{description}
+  \item[Deklaration] Bekanntgabe von Namen
+  \item[Definition] Deklaration die ausreicht um sie verwenden zu können
+\end{description}
+
+\begin{lstlisting}[language=C++]
+int f(int); // deklariert Funktion f, aber definiert sie nicht
+int g(int x) {  // definert Funktion g
+  return x + 1;
+}
+\end{lstlisting}
+
+Eine Deklaration kann keine bereits bestehende Deklaration im selben Namensraum
+(Namepace) überschreiben (Conflicting declarations).
+
+\begin{lstlisting}[language=C++]
+int i;
+//int i; // Error:  redeclaration
+{
+  int i;  // OK: Im Block
+}
+int f(float x);
+int f(int x);   // OK Function Overloading
+\end{lstlisting}
+
+\subsection{Storage class specifiers}
+
+\begin{description}
+  \item[~] Nichts: automatische Speicherdauer. Dauer: Vom Beginn bis zum Ende des Blocks.
+  \item[static] Nur bei Deklaration von Objekten, Funktionen oder anonymen
+  unions. Greift bei jeder Instanz auf die gleiche Variable zurück. Dauer: Vom Beginn bis zum Ende des Programms.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class A {
+  static int N;
+  public:
+  A() { ++N; }
+  int n() {return N;}
+};
+int A::N{0};
+
+int main() {
+  A x;
+  std::cout << x.n() << '\n';  // 1
+  A y;
+  std::cout << x.n() << ' ' << y.n() << '\n';  // 2 2
+}
+\end{lstlisting}
+
+  \item[extern] Für Zugriff auf variablen oder Funktionen, die in anderen souce-Dateien definiert sind.
+
+\begin{lstlisting}[language=C++]
+//Datei1
+int a{1};
+const int b{2};  // Gilt nur in Datei1
+extern const int c{3};
+\end{lstlisting}
+\begin{lstlisting}[language=C++]
+//Datei2
+#include <iostream>
+extern int a;
+extern const int b;  // Kommt nicht von Datei1
+extern const int c;
+
+int main() {
+  std::cout << a << '\n';  // 1
+//std::cout << b << '\n';  // undefined reference to `b'
+  std::cout << c << '\n';  // 3
+}
+\end{lstlisting}
+
+  \item[thread\_local] Jeder thread hat eine eigen Kopie der Variable. Dauer: Vom Beginn bis zum Ende des threads.
+  \item[mutable] Erlaubt die Veränderung eines Klassenmitglieds, wenn das Objekt als const deklariert ist.
+\end{description}
+
+\subsection{Translation-unit-local}
+
+Verhindert, dass lokale Instanzen in anderen Dateien verwendet werden
+
+\begin{lstlisting}[language=C++]
+//Datei1
+int a{1};  // Kann mit extern in anderem Source verwendet werden
+static int b{2};  // Lokal verfügbar
+namespace {
+  int c{3};      // Lokal verfügbar
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++]
+//Datei2
+#include <iostream>
+extern int a;
+extern int b;  // Kommt nicht von Datei1
+extern int c;  // Kommt nicht von Datei1
+
+int main() {
+  std::cout << a << '\n';  // 1
+//std::cout << b << '\n';  // undefined reference to `b'
+//std::cout << c << '\n';  // undefined reference to `c'
+}
+\end{lstlisting}
+
+\subsection{Language linkage}
+
+\lstinline|extern| zur Verknüpfung von Funktionen, die in einer anderen
+Programmiersprache geschrieben wurden.
+
+\subsection{Namespace declaration}
+
+Zur Vermeidung von Namenskonflikten.
+Bezeichner im Unnamed namespace sind nur in der Übersetzungseinheit sichtbar.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int i{0};  // global namespace
+int j{1};
+
+namespace {  // Unnamed namespace
+  int i{2};  // Nicht erreichbar wegen globalem i
+  int k{3};
+}
+
+namespace A {
+  int i{4};
+  int n{12};
+  namespace B {
+    int i{5};
+    extern int j;
+    extern int k;
+  }
+//int B::i{6};  // Error: Redefinition von i
+  int B::j{7};
+//int B::l{8};  // Error: B::l nicht deklariert
+  inline namespace C {  // In C und A
+    int m{9};
+    int n{13};  // Verdeck A::n
+  }
+  namespace {  // In A
+    int o{14};
+  }
+}
+namespace D {
+//int A::B::k{10};  // Error: Does not enclose B
+}
+int A::B::k{11};
+
+namespace A::B {  // nested namespace definition
+  int p{15};
+}
+
+namespace A::inline D {
+  int q{16};
+}
+
+namespace X = A::B;  // Namespace alias
+
+int main() {
+//std::cout << i << '\n';  // ambiguous
+  std::cout << ::i << '\n';  // 0
+  std::cout << j << ' ' << ::j << '\n';  // 1 1
+  std::cout << k << ' ' << ::k << '\n';  // 3 3
+  std::cout << A::i << ' ' << ::A::i << '\n';  // 4 4
+  std::cout << A::B::i << '\n';  // 5
+  std::cout << A::B::j << '\n';  // 7
+  std::cout << A::B::k << '\n';  // 11
+  std::cout << A::m << ' ' << A::C::m << '\n';  // 9 9
+//std::cout << A::n << '\n';  // ambiguous
+  std::cout << A::C::n << '\n';  // 13
+  std::cout << A::o << '\n';  // 14
+  std::cout << A::B::p << '\n';  // 15
+  std::cout << A::q << ' ' << A::D::q << '\n';  // 16 16
+  std::cout <<X::i <<' ' <<X::j <<' ' <<X::k <<'\n'; // 5 7 11
+}
+\end{lstlisting}
+
+Mit \lstinline|using| können Inhalte von Namensräume sichtbar gemacht werden. In
+Header Dateien \lstinline|using namespace| vermeiden, da jeder der den Heder
+verwendet auch diesen namespace mitverwendet.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int i{0};
+
+namespace A {
+  int i{1};
+  int j{2};
+}
+
+namespace B {
+  int i{3};
+  int k{4};
+}
+
+namespace C {
+//using ::i, A::i;  // Error: Name conflict
+  using ::i, A::j; // Werden in C sichtbar
+}
+
+int main() {
+  using namespace A;
+  using namespace B;
+//std::cout << i << '\n';  // ambiguous
+  std::cout << A::i << ' ' << B::i << '\n';  // 1 3
+  std::cout << j << ' ' << k << '\n';  // 2 4
+  std::cout << C::i << ' ' << C::j << '\n';  // 0 2
+}
+\end{lstlisting}
+
+\subsection{References}
+
+Mit \lstinline|&| (lvalue) bzw.\ \lstinline|&&| (rvalue) wird ein zusätzlicher
+Namen für ein bereits vorhandenes Objekt vergeben.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void add(int& x) { ++x; }  // Direkt Zugriff auf übergebenes x
+int& set(int& x) { return x; }  // lvalue expression
+int& bad() {  // Dangling reference
+  int i{0};
+  return i;  // return reference to local variable
+}  // Aufruf Destruktor von i
+
+int main() {
+  int i{0};
+  int& r = i;
+  const int& cr = i;
+  ++r;
+  std::cout << i << '\n';  // 1
+//++cr;  // Error: cr ist const
+  add(i);
+  std::cout << i << '\n';  // 2
+  add(r);
+  std::cout << i << ' ' << r << ' ' << cr << '\n';  // 3 3 3
+  set(i) = 5;
+  std::cout << i << '\n';  // 5
+
+//int&& r1 = i;  // Error: can't bind to lvalue
+  int&& r2 = i + 0;
+  std::cout << i << ' ' << r2 << '\n';  // 5 5
+  r2 += 5;
+  std::cout << i << ' ' << r2 << '\n';  // 5 10
+  i += 5;
+  std::cout << i << ' ' << r2 << '\n';  // 10 10
+
+  int& j = bad();
+//std::cout << j << '\n';  // Undef. bis Seg. fault
+}
+\end{lstlisting}
+
+\subsection{Pointer -- Zeiger}
+
+Zeiger enthalten üblicherweise die Anfangsadresse eines Objekts. Bei der
+Deklaration wird \lstinline|*| verwendet. Die Adresse eines Objekts erhält man
+durch voranstellen von \lstinline|&| vor dem Namen. Zeiger werden mit
+\lstinline|*| vor dem Zeigernamen dereferenziert um auf deren Inhalt und nicht
+auf ihre Adresse zuzugreifen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+float f0(const int& i) {return i + .5;}
+float f1(const int& i) {return i - .5;}
+
+int main() {
+  int i{0};
+  int* p{&i};  // Pointer auf i
+  int& r{i};   // Referenz auf i
+//int&* pr;  // Error: Pointer auf Referenz
+  int& rd{*p};  // Referenz auf dereferenzierten Pointer
+  int*& rp{p};  // Referenz auf Pointer
+  std::cout << i << ' ' << *p << ' ' << r << ' ' << rd
+            << ' ' << *rp << '\n';  // 0 0 0 0 0
+
+  int j{0};
+  const int* q{&i};  // Kann i nicht verändern
+//++*q;
+  q = &j;
+  int const* q2{&i};  // Kann i nicht verändern
+//++*q2;
+  q2 = &j;
+  int* const s{&i};  // Kann die Pointeradresse nicht verändern
+  ++*s;
+//s = &j;
+  const int* const t{&i};
+//++*t;
+//t = &j;
+  int const* const t2{&i};
+//++*t2;
+//t2 = &j;
+  int** pp{&p};  // Pointer auf Pointer
+  int* const* cp{&p}; // Const P. auf P.
+  std::cout << **pp << ' ' << **cp << '\n'; // 1 1
+
+  p = nullptr;  // Empfohlen Null Pointer
+  p = NULL;
+  p = 0;
+
+  int a[]{0,1};  // Array
+  std::cout << a[0] << ' ' << a[1] << '\n';  // 0 1
+  int (*ap)[2]{&a};  // Pointer auf Array
+  std::cout << (*ap)[0] << ' ' << (*ap)[1] << '\n';  // 0 1
+  int* a0{a};  // int Pointer auf erstes Element
+  std::cout << a0[0] << ' ' << a0[1] << '\n';  // 0 1
+  std::cout << *a0 << ' ' << *(a0+1) << '\n';  // 0 1
+
+  void* pv{&i};  // Void kann auf alles Zeigen
+  std::cout << i << ' ' << *static_cast<int*>(pv) << '\n';  // 1 1
+
+  float (*pf0)(const int&){&f0};
+  float (*pf1)(const int&){f1};  // Implizite Umwandlung in &f1
+  float (*af[2])(const int&);  // Pointer zu Funktion Array
+  af[0] = &f0;
+  af[1] = &f1;
+  using F = float(const int&);  // named type alias
+  F* af2[]{f0, f1};              // vereinfacht Deklaration
+  std::cout << f0(1) << ' ' << f1(1) << '\n';  // 1.5 0.5
+  std::cout << pf0(1) << ' ' << (*pf1)(1) << '\n';  // 1.5 0.5
+  std::cout << af[0](1) << ' ' << af[1](1) << '\n';  // 1.5 0.5
+  std::cout << af2[0](1) << ' ' << af2[1](1) << '\n';  // 1.5 0.5
+
+  struct K { int m; };
+  int K::* pK{&K::m};          // Pointer auf m der Klasse K
+  K k{7};
+  std::cout << k.m << ' ' << k.*pK << '\n';   // 7 7
+  K* kp{&k};
+  kp->m = 10;
+  std::cout << k.m << ' ' << kp->m << ' ' << (*kp).m <<
+     ' ' << kp->*pK << '\n'; // 10 10 10 10
+
+  struct Base { int m; };
+  struct Derived : Base { int n; };
+  Derived d;
+  d.m = 1;
+  int Base::* bpm = &Base::m;
+  int Derived::* dpm = bpm;
+  std::cout << d.*dpm << ' ' << d.*bpm << '\n';  // 1 1
+  Base* bp{&d};  // implicit conversion
+  std::cout << bp->m << ' ' << (*bp).m << '\n';  // 1 1
+  std::cout << (*bp).*bpm << ' ' << bp->*bpm << '\n';  // 1 1
+  d.n = 7;
+  int Derived::* dpn = &Derived::n;
+  int Base::* bpn = static_cast<int Base::*>(dpn);
+  std::cout << d.*bpn << '\n';  // 7
+  std::cout << bp->*bpn << '\n';  // 7
+  Base B;
+//std::cout << B.*bpn << '\n';  // Undefined
+
+  struct E { void f(int n) { std::cout << n << '\n'; } };
+  void (E::* pf)(int) = &E::f; // Pointer auf Funktion f in E
+  E e;
+  e.f(4);  // 4
+  (e.*pf)(5);  // 5
+  E* ep{&e};
+  (ep->*pf)(6);  // 6
+}
+\end{lstlisting}
+
+%Arrays
+%Structured bindings
+%Enumerations and enumerators
+%inline specifier
+%Inline assembly
+%const/volatile
+%constexpr
+%consteval
+%constinit
+%decltype
+%auto
+%typedef
+%Type alias
+%Elaborated type specifiers
+%Attributes
+%alignas
+%static\_assert
+
+
+%\section{Initialisation}
 
 %\section{Functions}
 
