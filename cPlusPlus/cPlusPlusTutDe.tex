@@ -127,7 +127,7 @@ Die Quelldatei (Sourcecode) wird zunächst vom Präprozessor verarbeitet (z.\,B.
 \lstinline|#include|) und wird anschließend compiliert. Danach bindet der Linker
 Bibliotheken (Libraries) zu einem ausführbaren Programm zusammen. Mit
 \lstinline|g++ -c srcA.cc| wird nur compiliert und die Datei \lstinline|srcA.o|
-erzeugt. Mit \lstinline|g++ srcB.cc srcB.o| wird srcB compiliert und die
+erzeugt. Mit \lstinline|g++ srcB.cc srcA.o| wird srcB compiliert und die
 Objektdatei von srcA dazugebunden.
 
 \section{Basis}
@@ -1140,6 +1140,36 @@ int main() {
 \lstinline|extern| zur Verknüpfung von Funktionen, die in einer anderen
 Programmiersprache geschrieben wurden.
 
+\begin{lstlisting}[language=fortran]
+! Fortran compiliert z.B.: gfortran -c fortran.f90
+integer FUNCTION fun1(i,j)
+    fun1 = i + j
+END FUNCTION fun1
+
+MODULE fort
+contains
+integer FUNCTION fun2(i,j)
+    fun2 = i - j
+END FUNCTION fun2
+END MODULE fort
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+// C++ compiliert z.B.: g++ c.cc fortran.o
+#include <iostream>
+
+extern"C" {
+  int fun1_(int*, int*);
+  int __fort_MOD_fun2(int*, int*);
+}
+
+int main() {
+  int i{1};
+  std::cout << fun1_(&i, &i) << ' ' <<  // 2
+    __fort_MOD_fun2(&i, &i) << '\n';    // 0
+}
+\end{lstlisting}
+
 \subsection{Namespace declaration}
 
 Zur Vermeidung von Namenskonflikten.
@@ -1291,10 +1321,13 @@ Zeiger enthalten üblicherweise die Anfangsadresse eines Objekts. Bei der
 Deklaration wird \lstinline|*| verwendet. Die Adresse eines Objekts erhält man
 durch voranstellen von \lstinline|&| vor dem Namen. Zeiger werden mit
 \lstinline|*| vor dem Zeigernamen dereferenziert um auf deren Inhalt und nicht
-auf ihre Adresse zuzugreifen.
+auf ihre Adresse zuzugreifen. Bei Zeiger auf Klassen kan mit \lstinline|->| auf
+Klassenelemente zugegriffen werden.
 
 \begin{lstlisting}[language=C++]
 #include <iostream>
+#include <iterator>
+#include <ranges>
 
 float f0(const int& i) {return i + .5;}
 float f1(const int& i) {return i - .5;}
@@ -1337,6 +1370,10 @@ int main() {
   std::cout << a[0] << ' ' << a[1] << '\n';  // 0 1
   int (*ap)[2]{&a};  // Pointer auf Array
   std::cout << (*ap)[0] << ' ' << (*ap)[1] << '\n';  // 0 1
+  int (*ap2)[std::size(a)]{&a};
+  std::cout << (*ap2)[0] << ' ' << (*ap2)[1] << '\n';  // 0 1
+  int (*ap3)[std::ranges::size(a)]{&a};
+  std::cout << (*ap3)[0] << ' ' << (*ap3)[1] << '\n';  // 0 1
   int* a0{a};  // int Pointer auf erstes Element
   std::cout << a0[0] << ' ' << a0[1] << '\n';  // 0 1
   std::cout << *a0 << ' ' << *(a0+1) << '\n';  // 0 1
@@ -1393,7 +1430,143 @@ int main() {
 }
 \end{lstlisting}
 
-%Arrays
+\subsection{Arrays}
+
+Arrays (Felder) beinhalten mehrere Elemente des gleichen Typs. Bei bekannter
+Größe wird \lstinline|std::array| empfohlen. \lstinline|std::vector| wenn Größe
+verändert werden soll. \lstinline|std::valarray| bietet einfache
+Rechenoperatoren für alle Elemente.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <span>
+#include <array>
+#include <vector>
+#include <valarray>
+
+int main() {
+  int a[2];  // Array mit 2 Elementen uninitialisiert
+  std::cout << a[0] << ' ' << a[1] << '\n';  // ? ?
+  std::fill_n(a, std::size(a), 7);  // Alle auf 7 setzen
+  std::cout << a[0] << ' ' << a[1] << '\n';  // 7 7
+  int b[2]{};  // Array mit 2 Elementen default initialisiert
+  std::cout << b[0] << ' ' << b[1] << '\n';  // 0 0
+  int c[]{3,4}; // 2 Elemente mit 3 4 initialisiert
+  std::cout << c[0] << ' ' << c[1] << '\n';  // 3 4
+  for (int i : c) std::cout << i << '\n';  // 3 4
+  int d[2]{3};  // 2 Elemente mit 3 0 initialisiert
+  std::cout << d[0] << ' ' << d[1] << '\n';  // 3 0
+
+  int* p{c};  // Pointer auf erstes Element
+  std::cout << p[0] << ' ' << p[1] << '\n';  // 3 4
+// Error: no viable 'begin'
+//for (int i : p) std::cout << i << '\n';
+  int (*ap)[2]{&c};  // Pointer auf Array
+  std::cout << (*ap)[0] << ' ' << (*ap)[1] << '\n';  // 3 4
+  for (int i : *ap) std::cout << i << '\n';  // 3 4
+  int (&r)[] = c;  // Referenz
+  std::cout << r[0] << ' ' << r[1] << '\n';  // 3 4
+// Error: incomplete type 'int[]'
+//for (int i : r) std::cout << i << '\n';
+  int (&s)[2] = c;  // Referenz
+  for (int i : s) std::cout << i << '\n';  // 3 4
+
+  int e[2][3]{{1,2,3},{4,5,6}};  // 2*3 Array
+  std::cout << e[0][0] << e[0][1] << e[0][2] <<
+               e[1][0] << e[1][1] << e[1][2] << '\n';  // 123456
+  int* q{*e};  // Pointer Auf erstes Element
+  std::cout << q[0] << q[1] << q[2] << q[3] <<
+               q[4] << q[5] << '\n';  // 123456
+
+  int* g{new int[2]};//Dynamisch erzeugtes Array uninitialisiert
+  delete[] g;  // Speicher freigeben wenn nicht mehr benötigt
+  int* h{new int[2]{}};  // Default 0 initialisiert
+  std::cout << h[0] << ' ' << h[1] << '\n';  // 0 0
+  delete[] h;
+  int* j{new int[]{7,8}};  // 7, 8 initialisiert
+  std::cout << j[0] << ' ' << j[1] << '\n';  // 7 8
+// Error: no viable 'begin'
+//for (int i : j) std::cout << i << '\n';
+  delete[] j;
+  int (*k)[2]{reinterpret_cast<int (*)[2]>(new int[2]{})};
+  for (int i : *k) {std::cout << i << '\n';}  // 0 0
+  delete[] k;
+  std::span<int> l = std::span<int>(new int[2]{}, 2);
+  std::cout << l[0] << ' ' << l[1] << '\n';  // 0 0
+  for (int i : l) {std::cout << i << '\n';}  // 0 0
+  delete[] l.data();
+
+  std::array<int, 2> m{};  // Default 0 initialisiert
+  std::cout << m[0] << ' ' << m[1] << '\n';  // 0 0
+  for (int i : m) {std::cout << i << '\n';}  // 0 0
+  std::array<int, 2> m1;  // Uninitialisiert
+  m1.fill(8);  // Alle auf 8 setzen
+  std::array<int, 2> m2{4,7};  // 4 7 initialisiert
+
+  std::vector<int> v(2);  // default 0 initialisiert
+  std::cout << v[0] << ' ' << v[1] << '\n';  // 0 0
+  for (int i : v) std::cout << i << '\n';  // 0 0
+  std::vector<int> v1(2, 5);  // 5 initialisiert
+
+  std::valarray<int> w(2);  // default 0 initialisiert
+  std::cout << w[0] << ' ' << w[1] << '\n';  // 0 0
+  for (int i : w) std::cout << i << '\n';  // 0 0
+  std::valarray<int> w1(7, 2);  // 7 initialisiert
+}
+\end{lstlisting}
+
+Wenn die Größe das Arrays zur Kompilierungszeit nicht bekannt ist, bieten sich
+folgende Möglichkeiten an, das Array zu erzeugen. Für uninitialisierte Arrays
+zeigt die Variante \lstinline|new| mit \lstinline|span| Vorteile.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <array>
+#include <vector>
+#include <span>
+#include <valarray>
+
+int main() {
+  std::size_t n;
+  std::cin >> n;
+//int a[n];  // C99 feature: variable length arrays
+
+  int* p{new int[n]};  // uninitialisiert
+  std::cout << p[0] << '\n';
+// Error: no viable 'begin' function
+//for (int i : p) std::cout << i << '\n';
+  for (int i : std::span<int>(p, n)) std::cout << i << '\n';
+  delete[] p;
+
+  int* p1{new int[n]{}};  // default 0 initialisiert
+
+// C99 feature: variable length arrays
+//int (*q)[n]{reinterpret_cast<int (*)[n]>(new int[n])};
+//std::cout << (*q)[0] << '\n';
+//for (int i : *q) {std::cout << i << '\n';}
+//delete[] q;
+
+  std::span<int> e = std::span<int>(new int[n], n);
+  std::cout << e[0] << '\n';
+  for (int i : e) {std::cout << i << '\n';}
+  delete[] e.data();
+
+// Error: argument is not a constant expression
+//std::array<int, n> b;
+
+  std::vector<int> v(n);  // default 0 initialisiert
+  std::cout << v[0] << '\n';
+  for (int i : v) std::cout << i << '\n';
+  std::vector<int> v1(n, 5);  // 5 initialisiert
+
+  std::valarray<int> w(n);  // default 0 initialisiert
+  std::cout << w[0] << '\n';
+  for (int i : w) std::cout << i << '\n';
+  std::valarray<int> w1(7, n);  // 7 initialisiert
+}
+\end{lstlisting}
+
+
 %Structured bindings
 %Enumerations and enumerators
 %inline specifier
