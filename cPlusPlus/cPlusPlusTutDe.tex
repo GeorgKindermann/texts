@@ -342,13 +342,11 @@ werden.
 \begin{lstlisting}[language=C++]
 #include <iostream>
 
-constexpr int f(int x) noexcept
-{
+constexpr int f(int x) noexcept {
   if consteval { return 0; } else { return x; }
 }
 
-int main()
-{
+int main() {
   const int i { f(2) };  // Auswertung zur Compilationszeit
   int j{2};             // nicht konstant
   const int k { f(j) };  // Auswertung zur Laufzeit
@@ -751,21 +749,22 @@ Diese werden nach definierten Reihenfolgen und Richtungen evaluiert.
 \end{description}
 
 \subsection{Constant}
+\label{sec:Ausdruck:constant}
 
 \begin{description}
-  \item[const] Wert kann nicht geändert werden.
-  \item[constexpr] Wert liegt beim Kompilieren vor.
+  \item[const] Kann nicht geändert werden.
+  \item[constexpr] Wert \emph{kann} beim Kompilieren vorliegen.
+  \item[consteval] Wert \emph{muss} beim Kompilieren vorliegen. Nur für Funktionen.
 \end{description}
 
 \begin{lstlisting}[language=C++]
-#include <iostream>
 #include <array>
 
 int f0 ( int a, int b ) { return a + b; }
 constexpr int f1 ( int a, int b ) { return a + b; }
+consteval int f2 ( int a, int b ) { return a + b; }
 
-int main()
-{
+int main() {
   int n{2};
 //std::array<int, n> a0;  // Error: Argument not const expr
   const int cn{2};
@@ -774,6 +773,11 @@ int main()
   std::array<int, cn2> a2;
 //std::array<int, f0(1, 1)> a3; // Error: non-constexpr function
   std::array<int, f1(1, 1)> a4;
+//std::array<int, f1(n, n)> a5; // Error: nicht const
+  std::array<int, f1(cn, cn)> a6;
+  f1(n, n);
+//f2(n, n);  //Error: nicht constant
+  f2(cn, cn);
   ++n;
 //++cn;   // Error: declared const
 //++cn2;  // Error: declared const
@@ -919,6 +923,7 @@ int main() {
 \end{lstlisting}
 
 \subsubsection{const\_cast}
+\label{sec:Conversion:constCast}
 
 Erzeugt eine nicht konstante Referenz oder Zeiger auf ein konstantes Objekt, das
 damit verändert werden kann und damit undefiniertes Verhalten verursachen kann.
@@ -1453,23 +1458,23 @@ int main() {
   std::cout << b[0] << ' ' << b[1] << '\n';  // 0 0
   int c[]{3,4}; // 2 Elemente mit 3 4 initialisiert
   std::cout << c[0] << ' ' << c[1] << '\n';  // 3 4
-  for (int i : c) std::cout << i << '\n';  // 3 4
+  for (const int& i : c) std::cout << i << '\n';  // 3 4
   int d[2]{3};  // 2 Elemente mit 3 0 initialisiert
   std::cout << d[0] << ' ' << d[1] << '\n';  // 3 0
 
   int* p{c};  // Pointer auf erstes Element
   std::cout << p[0] << ' ' << p[1] << '\n';  // 3 4
 // Error: no viable 'begin'
-//for (int i : p) std::cout << i << '\n';
+//for (const int& i : p) std::cout << i << '\n';
   int (*ap)[2]{&c};  // Pointer auf Array
   std::cout << (*ap)[0] << ' ' << (*ap)[1] << '\n';  // 3 4
-  for (int i : *ap) std::cout << i << '\n';  // 3 4
+  for (const int& i : *ap) std::cout << i << '\n';  // 3 4
   int (&r)[] = c;  // Referenz
   std::cout << r[0] << ' ' << r[1] << '\n';  // 3 4
 // Error: incomplete type 'int[]'
-//for (int i : r) std::cout << i << '\n';
+//for (const int& i : r) std::cout << i << '\n';
   int (&s)[2] = c;  // Referenz
-  for (int i : s) std::cout << i << '\n';  // 3 4
+  for (const int& i : s) std::cout << i << '\n';  // 3 4
 
   int e[2][3]{{1,2,3},{4,5,6}};  // 2*3 Array
   std::cout << e[0][0] << e[0][1] << e[0][2] <<
@@ -1486,31 +1491,31 @@ int main() {
   int* j{new int[]{7,8}};  // 7, 8 initialisiert
   std::cout << j[0] << ' ' << j[1] << '\n';  // 7 8
 // Error: no viable 'begin'
-//for (int i : j) std::cout << i << '\n';
+//for (const int& i : j) std::cout << i << '\n';
   delete[] j;
   int (*k)[2]{reinterpret_cast<int (*)[2]>(new int[2]{})};
-  for (int i : *k) {std::cout << i << '\n';}  // 0 0
+  for (const int& i : *k) {std::cout << i << '\n';}  // 0 0
   delete[] k;
   std::span<int> l = std::span<int>(new int[2]{}, 2);
   std::cout << l[0] << ' ' << l[1] << '\n';  // 0 0
-  for (int i : l) {std::cout << i << '\n';}  // 0 0
+  for (const int& i : l) {std::cout << i << '\n';}  // 0 0
   delete[] l.data();
 
   std::array<int, 2> m{};  // Default 0 initialisiert
   std::cout << m[0] << ' ' << m[1] << '\n';  // 0 0
-  for (int i : m) {std::cout << i << '\n';}  // 0 0
+  for (const int& i : m) {std::cout << i << '\n';}  // 0 0
   std::array<int, 2> m1;  // Uninitialisiert
   m1.fill(8);  // Alle auf 8 setzen
   std::array<int, 2> m2{4,7};  // 4 7 initialisiert
 
   std::vector<int> v(2);  // default 0 initialisiert
   std::cout << v[0] << ' ' << v[1] << '\n';  // 0 0
-  for (int i : v) std::cout << i << '\n';  // 0 0
+  for (const int& i : v) std::cout << i << '\n';  // 0 0
   std::vector<int> v1(2, 5);  // 5 initialisiert
 
   std::valarray<int> w(2);  // default 0 initialisiert
   std::cout << w[0] << ' ' << w[1] << '\n';  // 0 0
-  for (int i : w) std::cout << i << '\n';  // 0 0
+  for (const int& i : w) std::cout << i << '\n';  // 0 0
   std::valarray<int> w1(7, 2);  // 7 initialisiert
 }
 \end{lstlisting}
@@ -1525,6 +1530,7 @@ zeigt die Variante \lstinline|new| mit \lstinline|span| Vorteile.
 #include <vector>
 #include <span>
 #include <valarray>
+#include <memory>
 
 int main() {
   std::size_t n;
@@ -1535,7 +1541,6 @@ int main() {
   std::cout << p[0] << '\n';
 // Error: no viable 'begin' function
 //for (int i : p) std::cout << i << '\n';
-  for (int i : std::span<int>(p, n)) std::cout << i << '\n';
   delete[] p;
 
   int* p1{new int[n]{}};  // default 0 initialisiert
@@ -1543,46 +1548,358 @@ int main() {
 // C99 feature: variable length arrays
 //int (*q)[n]{reinterpret_cast<int (*)[n]>(new int[n])};
 //std::cout << (*q)[0] << '\n';
-//for (int i : *q) {std::cout << i << '\n';}
+//for (const int& i : *q) {std::cout << i << '\n';}
 //delete[] q;
 
   std::span<int> e = std::span<int>(new int[n], n);
   std::cout << e[0] << '\n';
-  for (int i : e) {std::cout << i << '\n';}
+  for (const int& i : e) {std::cout << i << '\n';}
   delete[] e.data();
+
+  std::unique_ptr<int[]> f = std::make_unique_for_overwrite<int[]>(n);
+  std::span<int> g = std::span<int>(f.get(), n);
+  for (const int& i : g) {std::cout << i << '\n';}
 
 // Error: argument is not a constant expression
 //std::array<int, n> b;
 
   std::vector<int> v(n);  // default 0 initialisiert
   std::cout << v[0] << '\n';
-  for (int i : v) std::cout << i << '\n';
+  for (const int& i : v) std::cout << i << '\n';
   std::vector<int> v1(n, 5);  // 5 initialisiert
 
   std::valarray<int> w(n);  // default 0 initialisiert
   std::cout << w[0] << '\n';
-  for (int i : w) std::cout << i << '\n';
+  for (const int& i : w) std::cout << i << '\n';
   std::valarray<int> w1(7, n);  // 7 initialisiert
 }
 \end{lstlisting}
 
+\subsection{Structured bindings}
 
-%Structured bindings
-%Enumerations and enumerators
-%inline specifier
-%Inline assembly
-%const/volatile
-%constexpr
-%consteval
-%constinit
-%decltype
-%auto
-%typedef
-%Type alias
-%Elaborated type specifiers
-%Attributes
-%alignas
-%static\_assert
+Zugriff auf Strukturelemente mittels selbst vergebener Namen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int a[2]{1, 2};
+
+  auto [x, y] = a;  // Kopie
+  ++x; ++y;
+  std::cout << a[0] << a[1] << ' ' << x << y << '\n';  // 12 23
+
+  auto& [xr, yr] = a;  // Referenz
+  ++a[0]; ++yr;
+  std::cout << a[0] << a[1] << ' ' << xr << yr << '\n'; //23 23
+
+  const auto& [cxr, cyr] = a;  // Const Referenz
+  ++a[0];
+//++cyr;  // Error: const
+  std::cout << a[0] << a[1] << ' ' << cxr << cyr << '\n';//33 33
+}
+\end{lstlisting}
+
+\subsection{Aufzählung -- Enumerations und enumerators}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+enum Color1 { red, blue };
+//enum Color2 { red };  // Error: Redefiniotion von red
+
+// Typsicher, keine implizite Umwandlung möglich
+enum class Color3 { red, blue };
+
+enum Foo { a, b, c = 10, d, e = 1, f, g = f + c };
+//a = 0, b = 1, c = 10, d = 11, e = 1, f = 2, g = 12
+
+// Mit Typangabe
+enum class byte : unsigned char { a, b, c };
+
+int main() {
+  Color1 x = red;
+  std::cout << x << '\n';  // 0
+//Color3 y = red;  // Error: red ist type Color1
+  Color3 z = Color3::red;
+//std::cout << z << '\n';  // Error: Keine Methode
+  std::cout << static_cast<int>(z) << '\n';  // 0
+}
+\end{lstlisting}
+
+\subsection{inline}
+
+Hat die Bedeutung: Mehrfachdefinitionen sind zulässig. Wenn Funktionen im header
+definiert sind. Für Variable mit externer Verknüpfung.
+
+\begin{lstlisting}[language=C++]
+// example.h
+#ifndef EXAMPLE_H
+#define EXAMPLE_H
+
+inline int sum(int a, int b) {
+  return a + b;
+}
+
+inline std::atomic<int> counter(0);
+
+#endif
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+// Source 1
+#include "example.h"
+
+int a() {
+  ++counter;
+  return sum(1, 2);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+// Source 2
+#include "example.h"
+
+int b() {
+  ++counter;
+  return sum(3, 4);
+}
+\end{lstlisting}
+
+\subsection{Inline assembly}
+
+Mit \lstinline|asm| kann Assembler--Quellcode in einem \cpp{}--Programm
+geschrieben werden.
+
+\subsection{const, mutable und volatile}
+
+Siehe \nameref{sec:Conversion:constCast} und \nameref{sec:Ausdruck:constant}.
+
+\begin{description}
+  \item[const] Wert kann nicht geändert werden.
+  \item[mutable] Erlaubt die Veränderung eines Klassenmitglieds in einem const Objekt.
+  \item[volatile] Kann von aussen abgefragt und verändert werden. Schränkt Optimierung ein.
+\end{description}
+
+\begin{lstlisting}[language=C++]
+int main() {
+  int n1 = 0;          // non-const object
+  const int n2 = 0;    // const object
+  int const n3 = 0;    // const object wie n2
+  volatile int n4 = 0; // volatile object
+
+  const struct {
+    int n1;
+    mutable int n2;
+  } x = {0, 0};        // const object mit mutable
+
+  n1 = 1;   // OK
+//n2 = 2;   // error: const
+  n4 = 3; n4 = 4;  // Wird nicht optimiert als nur n4=4;
+//x.n1 = 4; // error: member of a const object is const
+  x.n2 = 4; // OK: mutable member of a const object isn't const
+}
+\end{lstlisting}
+
+\subsection{constexpr}
+
+Siehe \nameref{sec:Ausdruck:constant}. Wert liegt bei Kompilierzeit vor bzw.\
+Funktionsaufruf \emph{kann}, muss aber nicht, eine Konstante zur
+Kompilierungszeit erzeugen.
+
+\subsection{consteval}
+
+Siehe \nameref{sec:Ausdruck:constant}. Funktionsaufruf \emph{muss} eine Konstante zur Kompilierungszeit erzeugen.
+
+\subsection{constinit}
+
+Variable wird beim compilieren initialisiert, und nicht erst bei Ausführen wenn
+es über die Deklaration läuft.
+
+\begin{lstlisting}[language=C++]
+constinit int i{0};
+constinit const int j{0};
+
+int main() {
+  ++i;
+//++j;  // Error: Const
+}
+\end{lstlisting}
+
+\subsection{decltype}
+
+Ermittelt den Typ einer Deklaration.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int i{7};
+  decltype(i) j{i + 0};   // int : Kopie von i + 0
+//decltype((i)) k{i + 0}; // Error: braucht lvalue
+  decltype((i)) k{i};     // int& : Referenz auf i;
+  ++i;
+  std::cout << i << ' ' << j << ' ' << k <<'\n';  // 8 7 8
+  ++j;
+  std::cout << i << ' ' << j << ' ' << k <<'\n';  // 8 8 8
+  ++k;
+  std::cout << i << ' ' << j << ' ' << k <<'\n';  // 9 8 9
+}
+\end{lstlisting}
+
+\subsection{auto}
+
+Typ (int, double, \dots) wird automatisch abgeleitet.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <typeinfo>
+
+int main() {
+  auto i{7};  // int
+  std::cout << typeid(i).name() << '\n';  // int
+
+  auto c0{i};  // int, Kopie von i
+  auto& c1{i};  // int&, Referenz auf i
+
+  decltype(auto) c2{i};   // int, Kopie von i
+  decltype(auto) c3{(i)};  // int&, Referenz auf i
+
+//auto a[]{1, 2};  // Error: Geht nur mit einem Element
+  int a[]{1, 2};
+  auto [x, y]{a};  // Kopie: x=a[0]; y=a[1];
+  auto& [xr, yr]{a};  // Referenz
+}
+\end{lstlisting}
+
+\subsection{typedef}
+
+Alias für einen (komplexen) Typnamen.
+
+\begin{lstlisting}[language=C++]
+typedef unsigned long ul;
+unsigned long l1; // unsigned long
+ul l2;            // unsigned long
+\end{lstlisting}
+
+\subsection{Type alias}
+
+Alias für einen bereits definierten Typ.
+
+\begin{lstlisting}[language=C++]
+template<class T>  // alias template
+using ptr = T*;  // 'ptr<T>' als alias für T*
+ptr<int> x;  // int* x
+
+int main() {
+  float (*af[2])(const int&);  // Pointer zu Funktion Array
+  using F = float(const int&);  // named type alias
+  F* af2[2];  // Das gleiche wie af
+}
+\end{lstlisting}
+
+\subsection{Elaborated type specifiers}
+
+Werden verwendet, um auf einen zuvor deklarierten Klassennamen zu verweisen,
+selbst wenn diser verdeckt wurde, oder um einen neunen Klassennamen zu
+deklarieren.
+
+\begin{lstlisting}[language=C++]
+struct X { int y; };
+
+int main() {
+  int X;  // verdeckt Klasse X
+//X z;    // Error: Verwendet Variable X
+  class X z;
+}
+\end{lstlisting}
+
+\subsection{Attributes}
+
+Geben Hinweise.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Kehrt nicht zu aufrufender Funktion zurück
+[[noreturn]] void f0() { throw "error"; }
+
+[[deprecated]] int f1() {return 1;}
+[[deprecated("Use f0 instead")]] int f2() {return 2;}
+
+[[nodiscard]] int f3() {return 1;}
+
+int f4(int n) {
+  int i;
+  switch (n) {
+    case 1: [[fallthrough]];  // Keine Warnung
+    case 2: i=1; break;
+    default: i=0;
+  }
+  return i;
+}
+
+int f5(int i) {
+  if (i < 1) [[likely]]  // Hilft beim Optimieren
+    return 0;
+  else [[unlikely]]
+    return 1;
+}
+
+int f6(int x, int y) {
+    [[assume(y == 1)]];  // Wenn y!=1 Ergebnis undefiniert
+    return x / y;
+}
+
+int main() {
+  f1();  // Warnung depreciated beim compilieren
+  f2();  // Warnung depreciated beim compilieren
+
+  f3();  // Warnung das Rückgabewert nicht verwendet
+  int i;
+  i = f3();
+
+  // Verhindert Warnung wenn nicht verwendet
+  [[maybe_unused]] int j{0};
+
+  std::cout << f6(4, 2) << '\n';
+}
+\end{lstlisting}
+
+\subsection{alignas}
+
+Gibt die Bytegrenzen eines Types an.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct alignas(32) Bar {  // Angereiht alle 32 byte
+  int i;       // 4 bytes
+  alignas(16) char arr[5];  // Angereiht alle 16 byte
+  short s;     // 2 bytes
+};
+
+int main() {
+  Bar x;
+  std::cout << alignof(Bar) << std::endl;    // 32
+  std::cout << sizeof(Bar) << std::endl;     // 32
+  std::cout << x.arr - (char*)&x.i << '\n';  // 16
+  std::cout << (char*)&x.s - x.arr << '\n';  // 6
+}
+\end{lstlisting}
+
+\subsection{static\_assert}
+
+Überprüfung von Annahmen wärend der Compilierung.
+
+\begin{lstlisting}[language=C++]
+int main() {
+  const int x{3};
+//static_assert(x / 2 > 1); // error: static assertion failed
+  static_assert(x / 2 > 0, "x/2 > 0?");
+  static_assert(sizeof(int) == 4, "Int ist nicht 4 Byte");
+}
+\end{lstlisting}
 
 
 %\section{Initialisation}
