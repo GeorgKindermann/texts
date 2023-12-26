@@ -245,7 +245,7 @@ int j = 1; // Dekl., Def. und Copy-Initialisierung
 int jn = 1.5; // jn == 1
 int k(2);  // Dekl., Def. und Constructor/Direct-Initialisierung
 int kn(2.5);  // kn == 2
-// int f();  // Würde die Funktion k deklarieren
+// int f();  // Würde die Funktion f deklarieren
 // int f() {return 0};  // Dek. und Def. von Funktion f
 // f(2);   // Würde die Funktion f mit Argument 2 aufrufen
 int l{};   // Dekl., Def. und Value-Initialisierung, l == 0
@@ -819,9 +819,13 @@ int main() {
 \subsubsection{Implicit}
 
 \begin{lstlisting}[language=C++]
-float f{ 0 };  // int nach float
-f = 1;         // int nach float
-if (2) {}      // int nach bool
+  float f{ 0 };  // int nach float
+  f = 1;         // int nach float
+  if (2) {}      // int nach bool
+//int i{0.};     // Error: float nach int narrowing conversion
+  int i = 0.;    // float nach int
+//i = { 1. };    // Error: float nach int narrowing conversion
+  i = 1.;        // float nach int
 \end{lstlisting}
 
 \subsubsection{Explicit}
@@ -1078,7 +1082,7 @@ class A {
   A() { ++N; }
   int n() {return N;}
 };
-int A::N{0};
+int A::N{0};  // Initialisierung von static N
 
 int main() {
   A x;
@@ -1902,9 +1906,371 @@ int main() {
 \end{lstlisting}
 
 
-%\section{Initialisation}
+\section{Initialisation}
 
-%\section{Functions}
+Setzt Anfangswert beim Erstellen.
+
+\begin{lstlisting}[language=C++]
+#include <string>
+
+struct T1 { int i; };  // implicit default constructor
+struct T2 {
+    int i;
+    T2() {}; // default Constructor
+};
+struct T3 {
+  int x;
+  struct T4 {
+    int i;
+    int j;
+    int a[3];
+  } b;
+};
+
+int main() {
+// Default-initialization - Objekt erzeugt ohne Initializer
+  int i;  // hier Wert unbestimmt
+  int* a{new int[3]};  // Array, Werte unbestimmt
+  delete[] a;
+//const int j;  // Error: uninitialized const
+//const T1 t1;  // Error: kein default constructor
+  const T2 t2;  // t2.i unbestimmt
+//int& r;  // Error: uninitialized Referenz
+
+// Value-initialization - Objekt erzeugt mit leerem Initializer
+  int j{};  // j == 0
+  int k = int();    // k == 0
+//int f();  // Würde die Funktion f deklarieren
+  int* a2{new int[3]()};  // Array, Werte 0
+  delete[] a2;
+  const T1 t3{};  // t3.i == 0
+  T2 t4{};  // t4.i ist undefiniert
+
+// Copy-initialization
+  int i1 = 3;  // Copy elision - wird direkt initialisiert
+  int i2 = 3.14;  // Double nach Int
+//int i2n = {3.14};  // Error: narrowing conversion
+
+// Direct-initialization
+  int i3(3);
+  int i4(3.14);  // Double nach Int
+  int i5{3};
+//int i6{3.14};  // Error: narrowing conversion
+
+// Aggregate initialization - für Aggregate (ohne Constructor)
+  T3 s1 = {1, {2, 3, {4, 5, 6}}};
+  T3 s2 = {1, 2, 3, 4, 5, 6};  // Das Gleiche nur ohne Klammern
+  T3 s3{1, {2, 3, {4, 5, 6}}}; // direct-list-initialization
+  T3 s4{1, 2, 3, 4, 5, 6};
+  // Designated initializers, Nur in dieser Reihenfolge
+  T3 s5{.x{1}, .b{.i{2}, .j{3}, .a{4, 5, 6}}};
+  T3 s6{1};  // alle Restlichen sind 0
+  int ar[] = {1, 2, 3};
+
+// List-initialization - für Objekte
+  int n1{1}; // direct-list-initialization
+  // initializer-list constructor call
+  std::string s7{'a', 'b', 'c', 'd'};
+
+// Reference initialization
+  double d{2.};
+  double& rd{d};  // Referenz auf d, Direct binding
+//double& rd2{2.};  // Error: Ref. auf rvalue
+  const double& rd2{2.}; // Indirect binding auf temporären Wert
+  double&& rd3{2.};  // rvalue Referenz
+}
+\end{lstlisting}
+
+\section{Funktionen}
+
+Fasst Anweisungen (mit Funktionsparametern) zusammen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Function name:  "f"
+// Parameter list: nothing
+// Returns:        nothing
+// Description:    Writes "Hi" to the terminal
+void f()  // void..Rückgabewert, f..Funktionsname, ()..Argumente
+{  // Beginn des Funktionskörpers
+  std::cout << "Hi" << '\n';
+}  // Ende  des Funktionskörpers
+
+int main() {
+  f();  // Aufruf von Funktion f
+}
+\end{lstlisting}
+
+Wie Variblen müssen auch Funktionen \emph{vor} ihrere Verwendung deklariert
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+//f();  //Error: f ist nicht deklariert
+}
+
+void f() { std::cout << "Hi" << '\n'; }
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Deklaration und Definition
+void f() { std::cout << "Hi" << '\n'; }
+
+int main() {
+  f();
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Deklaration
+void f();
+
+int main() {
+  f();
+}
+
+// Definition
+void f() { std::cout << "Hi" << '\n'; }
+\end{lstlisting}
+
+\subsection{Overloading}
+
+Verschiedene Funktionen mit gleichem Namen sind erlaubt, solange deren Parameter
+verschieden sind (function overloading).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f() { std::cout << "A" << '\n'; }
+void f(int i) { std::cout << "B" << '\n'; }
+void f(double i) { std::cout << "C" << '\n'; }
+// Error: Unterscheidet sich nur im Rückgabewert
+//int f() { std::cout << "D" << '\n'; return 0;}
+
+int main() {
+  f();    // A
+  f(0);   // B
+  f(0.);  // C
+}
+\end{lstlisting}
+
+\subsection{Übergabe von Funktionen}
+
+Wenn Funktionen an Funktionen übergeben oder von ihnen zürückgegeben werden
+sollen, müssen dafür Pointern oder Referenzen auf Funktionen verwendet werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f() { std::cout << "A" << '\n'; }
+// Gibt Pointer auf Funktion f() zurück
+void (*pf())() { std::cout << "PF: "; return &f; }
+// Das Gleiche mit impliziter Umwandlung
+void (*pf2())() { std::cout << "PF2: "; return f; }
+// Das Gleiche mit Trailing return type
+auto pf3() -> void(*)() { std::cout << "PF3: "; return &f; }
+// Gibt Referenz auf Funktion zurück
+void (&rf())() { std::cout << "RF: "; return f; }
+// Übergabe von Pointer auf Funktion
+void fp( void (*p)() ) { std::cout << "FP: "; (*p)();}
+// Übergabe von Referenz auf Funktion
+void fr( void (&r)() ) { std::cout << "FR: "; r();}
+
+int main() {
+  f();        // A
+  (*pf())();  // PF: A
+  pf()();     // PF: A
+  pf2()();    // PF2: A
+  pf3()();    // PF3: A
+  rf()();     // RF: A
+  fp(&f);     // FP: A
+  fr(f);      // FR: A
+}
+\end{lstlisting}
+
+\subsection{Rückgabetypherleitung --  Return type deduction}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,language=C++]
+#include <type_traits>
+
+int x = 1;
+auto           f0() { return x; }   // return type: int
+auto           f1() { return(x); }  // return type: int
+auto&          f2() { return x; }   // return type: int&
+const auto&    f3() { return x; }   // return type: const int&
+decltype(auto) f4() { return x; }   // return type: int, decltype(x)
+decltype(auto) f5() { return(x); }  // return type: int&, decltype((x))
+
+int main() {
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f0)>, int>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f1)>, int>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f2)>, int&>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f3)>, const int&>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f4)>, int>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f5)>, int&>);
+}
+\end{lstlisting}
+
+\subsection{Parameter Liste}
+
+\begin{lstlisting}[language=C++]
+int f0(int);  // Parameter ohne Namen
+int f1(int i);  // Benannter Parameter
+int f2(int i = 7);  // Mit Name und default Wert
+int f3(int = 7);  // Ohne Name, mit default Wert
+int f4();  // Ohne Parameter
+int f5(void);  // Wie f4
+int f6(int i ...);  // Variadic, Beliebige Anzahl von Argumenten
+int f7(int i, ...);  // wie f6
+int f8(auto);  // Wie: template<class T> int f8(T)
+\end{lstlisting}
+
+\subsubsection{Default Arguments}
+
+Erlaubt den Funktionsaufruf, auch wenn abschießende Argumente fehlen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f0(int i = 3, int j = 4) {}
+
+void f1(int, int = 7) {}
+
+// Error: Nachfolgender Parameter hat keinen Defaultwert
+//void f2(int = 1, int);
+
+void f3(int, int) {}
+//void f3(int = 3, int);  // Error, wie bei f2
+void f3(int, int = 4);  // Fügt Defaultargument zu
+void f3(int = 3, int);  // Jetzt gleich wie f0
+//void f3(int = 3, int = 4);  // Error: redefinition
+
+void f4(int = 3 ...);  // OK, ellipsis ist kein Parameter
+
+int i{1};  // Scope auf dieses i
+void f5(int j = i) { std::cout << j << '\n';}
+//void f6(int i, int j = i);  // Error: i Schon verwendet
+//void f6(int a, int j = a);  //Error:  a ist nicht definiert
+
+void f7() {
+  int i{0};
+//void f(int = i);  // Lokale Variablen sind nicht erlaubt
+};
+
+int b;
+class X {
+  int a;
+  static int b;
+  static X y;
+//void f(X* p = this);  // Error: this nicht erlaubt
+//void m0(int i = a);  // Error: non-static data member
+  void m1(int X::* i = &X::a);  // Geht mit Pointer
+  void m2(int i = y.a);
+  void m3(int i = b);
+};
+
+int main() {
+  f0(1, 2);  // f0(1, 2)
+  f0(1);     // f0(1, 4)
+  f0();      // f0(3, 4)
+
+  f1(1, 2);  // f1(1, 2)
+  f1(1);     // f1(1, 7)
+//f1();      // Error: Zu wenig Argumente
+
+  int i{0};
+  f5();  // 1
+  ++::i;
+  f5();  // 2
+}
+\end{lstlisting}
+
+\subsubsection{Variadic arguments}
+
+Es gibt keine Möglichkeit die Anzahl der Variadic Argumente zu bestimmen. Man
+kann nur auf sie zuzugreifen wenn es vor ihnen ein benanntes Argument gibt.
+Alternativen sind Variadic templates oder initializer\_list.
+
+\begin{lstlisting}[language=C++]
+#include <cstdarg>
+#include <iostream>
+
+int iSum(int n...) {
+  int s = 0;
+  std::va_list vArgs;  // Enthält Info von ...
+  va_start(vArgs, n);  // Ermöglicht Zugriff auf ...
+  for (int i = 0; i < n; ++i)
+    s += va_arg(vArgs, int);  // Holt nächstes Argument
+  va_end(vArgs);  // Beendet Zugriff auf ...
+  return s;
+}
+
+int main() {
+  std::cout << iSum(4, 1, 2, 3, 4) << '\n';  // 10
+}
+\end{lstlisting}
+
+\subsection{Gelöschte Funktionen}
+
+Können mit \lstinline|delete| definiert werden.
+
+\begin{lstlisting}[language=C++]
+int f0(int) = delete;
+
+int main() {
+//int i = f0(0);  // Error: use of deleted function
+//int i = f1(0);  // Error: not declared
+}
+\end{lstlisting}
+
+\subsection{Zugriff auf Funktionsnamen}
+
+Mit \lstinline|__func__|.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void funktionA() { std::cout << __func__ << '\n';}
+
+int main() {
+  funktionA();  // Ausgabe: funktionA
+}
+\end{lstlisting}
+
+\subsection{Lambda Funktionen}
+
+Namenlose Funtkionen, die dort wo sie verwendet auch definert werden. Ihnen kann
+der Zugriff auf Variablen im selben Scope (Sichtbarkeitsbereich) ermöglicht
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int a[]{1,2,3,4};
+  int s{0};
+  for(int i : a) s += i;  // Mit For loop
+  std::cout << s << '\n';  // 10
+  // Lambda Funktion wird gleich aufgerufen
+  [&]{for(int i : a) s += i;}();
+  std::cout << s << '\n';  // 20
+  // Lambda Funktion definieren
+  auto f = [&]{for(int i : a) s += i;};
+  f();  // und aufrufen
+  std::cout << s << '\n';  // 30
+}
+\end{lstlisting}
+
+Allgemeiner Aufbau:\\
+\lstinline|[captures]<tparams>(params)->ret{body}|\\
+
 
 %\section{Classes}
 
