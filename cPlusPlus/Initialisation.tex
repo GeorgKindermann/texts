@@ -1,0 +1,74 @@
+\section{Initialisation}
+
+Setzt Anfangswert beim Erstellen.
+
+\begin{lstlisting}[language=C++]
+#include <string>
+
+struct T1 { int i; };  // implicit default constructor
+struct T2 {
+    int i;
+    T2() {}; // default Constructor
+};
+struct T3 {
+  int x;
+  struct T4 {
+    int i;
+    int j;
+    int a[3];
+  } b;
+};
+
+int main() {
+// Default-initialization - Objekt erzeugt ohne Initializer
+  int i;  // hier Wert unbestimmt
+  int* a{new int[3]};  // Array, Werte unbestimmt
+  delete[] a;
+//const int j;  // Error: uninitialized const
+//const T1 t1;  // Error: kein default constructor
+  const T2 t2;  // t2.i unbestimmt
+//int& r;  // Error: uninitialized Referenz
+
+// Value-initialization - Objekt erzeugt mit leerem Initializer
+  int j{};  // j == 0
+  int k = int();    // k == 0
+//int f();  // Würde die Funktion f deklarieren
+  int* a2{new int[3]()};  // Array, Werte 0
+  delete[] a2;
+  const T1 t3{};  // t3.i == 0
+  T2 t4{};  // t4.i ist undefiniert
+
+// Copy-initialization
+  int i1 = 3;  // Copy elision - wird direkt initialisiert
+  int i2 = 3.14;  // Double nach Int
+//int i2n = {3.14};  // Error: narrowing conversion
+
+// Direct-initialization
+  int i3(3);
+  int i4(3.14);  // Double nach Int
+  int i5{3};
+//int i6{3.14};  // Error: narrowing conversion
+
+// Aggregate initialization - für Aggregate (ohne Constructor)
+  T3 s1 = {1, {2, 3, {4, 5, 6}}};
+  T3 s2 = {1, 2, 3, 4, 5, 6};  // Das Gleiche nur ohne Klammern
+  T3 s3{1, {2, 3, {4, 5, 6}}}; // direct-list-initialization
+  T3 s4{1, 2, 3, 4, 5, 6};
+  // Designated initializers, Nur in dieser Reihenfolge
+  T3 s5{.x{1}, .b{.i{2}, .j{3}, .a{4, 5, 6}}};
+  T3 s6{1};  // alle Restlichen sind 0
+  int ar[] = {1, 2, 3};
+
+// List-initialization - für Objekte
+  int n1{1}; // direct-list-initialization
+  // initializer-list constructor call
+  std::string s7{'a', 'b', 'c', 'd'};
+
+// Reference initialization
+  double d{2.};
+  double& rd{d};  // Referenz auf d, Direct binding
+//double& rd2{2.};  // Error: Ref. auf rvalue
+  const double& rd2{2.}; // Indirect binding auf temporären Wert
+  double&& rd3{2.};  // rvalue Referenz
+}
+\end{lstlisting}

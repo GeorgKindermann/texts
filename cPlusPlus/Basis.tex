@@ -1,0 +1,148 @@
+\section{Basis}
+\label{sec:einleitung}
+
+\subsection{Grundstruktur}
+
+Die erste Funktion die bei einem Programmstart aufgerufen wird ist
+\lstinline|main|.
+\begin{lstlisting}[language=C++]
+int main() {}
+\end{lstlisting}
+\lstinline|main| gibt mit \lstinline|return| eine \lstinline|Integerzahl| an das
+Betriebssystem zurück, die angibt, ob das Programm erfolgreich abgeschlossen (0)
+oder durch einen Fehler (nicht 0) beendet wurde. In \lstinline|main| kann
+\lstinline|return| weggelassen werden, was \lstinline|return 0;| entspricht. In
+\lstinline|stdlib.h| bzw.\ \lstinline|cstdlib| sind \lstinline|EXIT_SUCCESS| und
+\lstinline|EXIT_FAILURE| definiert.
+\begin{lstlisting}[language=C++]
+#include <cstdlib>
+
+int main() {
+  return EXIT_SUCCESS;
+}
+\end{lstlisting}
+\lstinline|main()| (oder \lstinline|main(void)|) bedeutet, das beim
+Programmaufruf keine Argumente an die Funktion übergeben werden. Mit:
+\begin{lstlisting}[language=C++]
+int main(int argc, char* argv[]) {}
+\end{lstlisting}
+können Argumente (command line arguments) von der Funktion übernommen werden.
+\lstinline|argc| gibt die Anzahl an Argumenten an die in \lstinline|argv| zu
+finden sind. Auf Position 0 steht der Programmname.
+
+\subsection{Kommentare}
+
+\begin{lstlisting}[language=C++]
+/* Kommentar */
+
+// Kommentar
+
+#if 0
+  std::cout << "Wird weder ausgeführt noch Compiliert\n";
+#endif
+
+if (false)
+{
+  std::cout << "Wird nicht ausgeführt\n";
+}
+\end{lstlisting}
+
+\subsection{Bibliotheken -- Libraries}
+
+Funktionen sind in Bibliotheken abgelegt. Diese müssen aktiv ausgewählt werden,
+bevor sie verwendet werden können. Dies geschieht mit dem Präprozessorbefehl
+\lstinline|#include|. \lstinline|#include <lib>| sucht die Headerdatei von
+\lstinline|lib| im Standardsuchpfad für header Dateien.
+\lstinline|#include "lib.h"| sucht im aktuellen Verzeichnis nach der Datei
+\lstinline|lib.h|. Wenn diese nicht gefunden wird, wird im Standardsuchpfad für
+Headerdateien weiter gesucht. Headerdateien von C enden mit \lstinline|.h|.
+
+\subsection{Ein-- und Ausgabe}
+
+Ein-- und Ausgabe ist in \lstinline|iostream| definiert. Es gibt die Befehle
+\lstinline|cin| (Eingabe), \lstinline|cout| (Ausgabe), \lstinline|cerr|
+(unmittelbare Fehlerausgabe) und \lstinline|clog| (gepufferte Fehlerausgabe).
+Alle Befehle gibt es auch für wide Character mit vorangestelltem w, also z.B.
+\lstinline|wcin|.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int n;
+  std::cout << "Anzahl n: ";
+  std::cin >> n;
+}
+\end{lstlisting}
+
+Eine neue Zeile kann mit \lstinline|std::cout << "\n";| oder mit
+\lstinline|std::cout << std::endl;| erzeugt werden, wobei \lstinline|endl| den
+buffer leert (flush) und damit in der Regel langsamer ist als \lstinline|\n|.
+
+\subsection{Namespace}
+
+Helfen Namenskonflikte zu vermeiden, indem Funktionen bestimmten Namensräumen
+zugeordnet werden. Funktionen mit gleichem Nahmen stellen kein Problem dar,
+solange sie in verschiedenen Namensräumen definiert sind. Funktionen des
+Standardlibraries sind im Namensraum \lstinline|std| und können mit
+\lstinline|std::FUNKTIONSNAME| aufgerufen werden. Mit
+\lstinline|using namespace std;| kann die Funktion auch ohne \lstinline|std::|
+aufgerufen werden. Namespaces können auch selbst erzeugt werden.
+
+\subsection{Datentypen}
+
+\lstinline|bool| ist der logische typ mit \lstinline|true| oder
+\lstinline|false|.
+
+Ganzzahlige Typen mit steigender Größe sind \lstinline|char|, \lstinline|short|,
+\lstinline|int|, \lstinline|long| und \lstinline|long long|. Diese können mit
+\lstinline|signed| und \lstinline|unsigned| also positive und negative oder nur
+positive Zahl definiert werden.
+
+Gleitkommazahlen mit steigender Größe sind \lstinline|float|,
+\lstinline|double|, \lstinline|long double|.
+
+\subsection{Deklaration, Definition, Initialisierung und Zuweisung}
+
+\begin{lstlisting}[language=C++]
+int i;     // Deklaration und Definition, i hat unbekannten Wert
+i = 0;     // Zuweisung - Assignment
+i = {0};   // Zuweisung - Assignment - EMPFOHLEN
+//i = {0.};  // Fehler: narrowing conversion
+int j = 1; // Dekl., Def. und Copy-Initialisierung
+int jn = 1.5; // jn == 1
+int k(2);  // Dekl., Def. und Constructor/Direct-Initialisierung
+int kn(2.5);  // kn == 2
+// int f();  // Würde die Funktion f deklarieren
+// int f() {return 0};  // Dek. und Def. von Funktion f
+// f(2);   // Würde die Funktion f mit Argument 2 aufrufen
+int l{};   // Dekl., Def. und Value-Initialisierung, l == 0
+int m{3};  // Dekl., Def. und Uniform/Direct-Init. - EMPFOHLEN
+// int mn{3.5};  // Fehler: narrowing conversion
+\end{lstlisting}
+
+\subsection{Blöcke -- Compound / block}
+
+Fassen mehrere Anweisungen zu einer zusammen. Sie beeinflussen die Gültigkeit
+und Sichtbarkeit von Variablen.
+
+\begin{lstlisting}[language=C++]
+#include <fstream>
+int i{0};  // i0, global
+int main()
+{ // Beginn des äußeren Blocks
+  int i{1};  // i1 verdeckt globales i
+  int j{3};
+  {  // Beginn des inneren Blocks
+    std::ofstream f("test.txt");  // Datei test.txt öffnen
+    f << i << "\n";               // i1 schreiben
+    int i {2};  // lokales i2, verdeckt i1, auf welches ab hier
+                //   nicht mehr zugegriffen werden kann
+    f << i << "\n";               // lokales i2 schreiben
+    f << ::i << "\n";             // globales i0 schreiben
+    f << j << "\n";               // j3 schreiben
+  }  // Ende des inneren Blocks
+     //   Destruktor Aufruf von f -> flush und schließen
+     //   lokales i2 entfernt, i1 wider sichtbar
+} // Ende des äußeren Blocks
+\end{lstlisting}

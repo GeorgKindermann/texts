@@ -1,0 +1,412 @@
+\section{Kontrollstrukturen}
+
+\subsection{Auswahlanweisungen -- Selection}
+
+\subsubsection{if else}
+
+Ausführen von Code, wenn Bedingung erfüllt ist.
+
+\begin{lstlisting}[language=C++]
+int i{1};
+
+if (i > 2)
+  if (i < 4)
+    i = {0};
+  else  // gehört zu if (i < 4)
+    i = {1};
+else  // gehört zu if (i > 4)
+  i = {2};
+
+if (i > 2)  // das Gleiche nur mit Klammern
+{
+  if (i < 4)
+  {
+    i = {0};
+  }
+  else
+  {
+    i = {1};
+  }
+}
+else
+{
+  i = {2};
+}
+
+if (int ii = i*i; i > 0)  // mit Initialisierer
+  i -= ii;
+else {
+  // int ii;  // error: redeclaration of ii
+  i += ii;
+}
+// ++ii;  // ii hier nicht bekannt
+
+// typedef declaration
+if (typedef int Foo; true) { (void)Foo{}; }
+
+// alias declaration
+if (using Foo = int; true) { (void)Foo{}; }
+
+constexpr bool TEST = true;
+if constexpr (TEST) {  //Auswertung wenn Compiliert wird
+  if (i == 0) i = {1};
+}
+i = {10 / i};
+\end{lstlisting}
+
+Mit \lstinline|if consteval| testen ob constexpr-Funktion zur Compilationszeit
+ausgewertet wird. Hier müssen Blöcke (compound \lstinline|{ }|) verwendet
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+constexpr int f(int x) noexcept {
+  if consteval { return 0; } else { return x; }
+}
+
+int main() {
+  const int i { f(2) };  // Auswertung zur Compilationszeit
+  int j{2};             // nicht konstant
+  const int k { f(j) };  // Auswertung zur Laufzeit
+  std::cout << i << " " << k << "\n";
+}
+\end{lstlisting}
+
+\subsubsection{?: -- dreiteilige Bedingung / Ternary conditional}
+
+\lstinline|E1 ? E2 : E3| Wenn E1 true, dann E2 sonst E3.
+
+\begin{lstlisting}[language=C++]
+int n = {1 > 2 ? 7 : 8};  // 1 > 2 ist false, so n = 8
+int m{0};
+(n == m ? n : m) = {9};  // n == m ist false, so m = 9
+\end{lstlisting}
+
+\subsubsection{switch}
+
+Springe, in Abhängigkeit eines Wertes, an eine Programmzeile. Der Wert muss
+\lstinline|int| oder \lstinline|enum| oder implizit in int umwandelbar
+sein.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  const int k{9};
+  switch (int i{k / 2}; i)  // i nur in switch bekannt
+  // switch (k)  // Variante ohne Initialisierer
+  {
+    case 1:
+      std::cout << '1';
+      break;
+    [[unlikely]] case 2:
+      std::cout << '2';
+      [[fallthrough]]; // nicht nötig, Hinweise das beabsichtigt
+    [[likely]] case 3:
+      std::cout << '3';
+      break;
+    case 4:
+      //int j{0};  // Error weil man in den scope von
+                    // initialisiertem i springen kann
+      int j;
+      j = {0};
+      break;
+    case 5:
+    {
+      int j{0};
+      break;
+    }
+    case 6:
+      // int i;  // error: redeclaration of i
+    default:
+      std::cout << "Default\n";
+  }
+}
+\end{lstlisting}
+
+\subsection{Schleifen, Wiederholungen -- Iteration}
+\subsubsection{for}
+
+Schleife mit Startwert, Bedingung (wird vor jeder Iteration geprüft) und
+iteration-expression (wird nach jedem loop ausgeführt).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <tuple>
+#include <vector>
+
+int main()
+{
+  double s{0.};
+  int j{1};  // Wird in Schleife verdeckt
+  for (int i{1}, j{9}; i < 10; ++i, --j)
+  {
+    double x{0.5};  // constructor and destructor wird bei
+                    // jedem loop aufgerufen
+    //double i{0.};  // Error: redeclaration von i
+    s += i * j * x;
+  }
+  //--i;  // Error: Out of scope
+  std::cout << s << "\n";
+
+  char cstr[]{"Hallo"};
+  for (int n = 0; char c = cstr[n]; ++n) std::cout << c;
+
+  s = {0.};
+  // Verschiedene Typen mittels structured binding declaration
+  for (auto [i, f] = std::tuple{int{1}, float{0.1}}; i < 10 ;
+       ++i, f += .1)
+  {
+    s += i * f;
+    //int i;  // Error: redeclaration von i
+  }
+  std::cout << s << "\n";
+
+  s = {0.};
+  {
+    int i{1};
+    float f{0.1};
+    for (; i < 10 ; ++i, f += .1) {
+      s += i * f;
+      int i;
+    }
+  }
+  std::cout << s << "\n";
+}
+\end{lstlisting}
+
+Float Zähler (counter) vermeiden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <cmath>
+
+int main()
+{
+  int j{0};
+  for (float x{0.}; x <= 1.; x += .01)
+    std::cout << j++ << ":" << x << " ";
+  std::cout << "\n";
+  float start{0.}, end{1.}, inc{.01};
+  long n{lround((end - start) / inc)};
+  for (long i{0}; i <= n; ++i)
+    std::cout << i << ":" << (start + (inc * i)) << " ";
+  std::cout << "\n";
+  for (long i{0}; i <= 100; ++i)  //Empfohlen
+    std::cout << i << ":" << i/100.f << " ";
+}
+\end{lstlisting}
+
+\subsubsection{range-for}
+
+Schleife über einen Bereich (range).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <ranges>
+
+void o(const std::vector<int>& v, const char* s = {""}) {
+  std::cout << s;
+  for (const auto& i : v) std::cout << i << ' ';
+  std::cout << "\n";
+}
+
+int main()
+{
+  std::vector<int> v = {2, 0, 1};
+
+  // Index based. Geht nur bei sequential random access
+  for (std::size_t i{0}; i < v.size(); ++i) ++v[i];
+  o(v, "0: ");  // 3 1 2
+
+  // Iterator based
+  for (auto it{v.begin()}; it != v.end(); ++it) ++*it;
+  o(v, "1: ");  // 4 2 3
+
+  for (auto& e : v) ++e;  // Über Reference
+  o(v, "2: ");  // 5 3 4
+
+  for (auto e : v) ++e;  // Kopie
+  o(v, "3: ");  // 5 3 4
+
+  for (auto&& e : v) ++e; // forwarding reference
+  o(v, "4: ");  // 6 4 5
+
+  std::ranges::for_each(v, [](auto& e) { ++e; });
+  o(v, "5: ");  // 7 5 6
+
+  std::for_each(v.begin(), v.end(), [](auto& e) { ++e; });
+  o(v, "6: ");  // 8 6 7
+
+  for (int i{0}; const auto& e : v) // Mit init-statement
+    std::cout << i++ << ':' << e << ' ';
+  std::cout << '\n';
+
+  for (const auto& [i, e] : std::views::enumerate(v))
+    std::cout << i << ':' << e << ' ';
+  std::cout << '\n';
+
+  for (int i : {3, 1, 2}) std::cout << i; // braced-init-list
+  std::cout << '\n';
+
+  // Variable nicht verwendet
+  for ([[maybe_unused]] int i : v) std::cout << 'X';
+}
+\end{lstlisting}
+
+\subsubsection{while}
+
+Führt eine Anweisung so lange aus, bis die Bedingung \lstinline|false| wird.
+Geprüft wird \emph{vor} jeder Iteration.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  int i{0};
+  while (i < 3) ++i;
+  std::cout << i << '\n';
+
+  while (i < 9)
+  {
+    std::cout << i << '\n';
+    i += 2;
+  }
+
+  char cstr[]{"Hallo"};
+  i = {0};
+  while (char c{cstr[i++]})
+    std::cout << c;
+}
+\end{lstlisting}
+
+\subsubsection{do-while}
+
+Führt eine Anweisung so lange aus, bis die Bedingung \lstinline|false| wird.
+Geprüft wird \emph{nach} jeder Iteration.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  int i{0};
+  do
+  {
+    i += 2;
+    std::cout << i << '\n';
+  }
+  while (i < 9);
+}
+\end{lstlisting}
+
+\subsection{Sprunganweisungen -- Jump}
+\subsubsection{continue}
+
+Überspringt den verbleibenden Teil des umschließenden \lstinline|for| oder
+\lstinline|while| Schleifenkörpers.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main()
+{
+  for (int i{0}; i < 3; ++i)
+  {
+    for (int j{0}; j < 3; ++j)
+    {
+      if (j == 1) continue;  // wirkt bei j for loop
+      std::cout << i << ' ' << j << '\n';
+    }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{break}
+
+Beendet umschließendes \lstinline|for|, \lstinline|while| oder
+\lstinline|switch|.
+
+\begin{lstlisting}[language=C++]
+  #include <iostream>
+
+int main()
+{
+  for (int i{0}; i < 3; ++i)
+  {
+    for (int j{0}; j < 3; ++j)
+    {
+      if (j == 1) break;  // wirkt bei j for loop
+      std::cout << i << ' ' << j << '\n';
+    }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{goto}
+
+Setzt Programm an anderer Stelle fort.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct nt {  // non-trivial destructor
+  ~nt() { std::cout << "X\n";}
+};
+
+int main()
+{
+  for (int i{0}; i < 3; ++i)
+  {
+    for (int j{0}; j < 3; ++j)
+    {
+      if (j == 1) goto endloop; // Ausstieg aus beiden for loops
+      std::cout << i << ' ' << j << '\n';
+    }
+  }
+endloop:  // Sprungmarke label
+  goto label2; // Sprung in den scope von n
+//int n{0};  //error: jump bypasses variable initialization
+  [[maybe_unused]] int n; // no initializer
+  n = {7};
+//nt o;  // error: bypas variable with non-trivial destructor
+label2:
+  std::cout << n;  // n hat Zufallswert
+}
+\end{lstlisting}
+
+\subsubsection{return}
+
+Beendet Funktion und gibt Wert (falls vorhanden) an den Aufrufer zurück.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <utility>
+
+void fa(int i) {
+  if (i == 1) return;
+  std::cout << "fa("<< i << ")\n";
+} // impliziertes return;
+
+int fb(int i) {
+  if (i > 4) return 4;
+  std::cout << "fb(" << i << ")\n";
+  return 2; }
+
+std::pair<int, float> fc(int i, float x) {
+  return {i, x}; }
+
+int main()
+{
+  fa(0);  // Gibt fa(0) aus
+  fa(1);  // Nichts
+  int i{fb(5)};  // i == 4
+  i = fb(i);     // gibt fb(4) aus, i == 2
+  std::cout << fc(0, 1.).first << " " << fc(2, 3.).second; //0 3
+}
+\end{lstlisting}

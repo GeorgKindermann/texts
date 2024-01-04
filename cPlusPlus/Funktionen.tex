@@ -1,0 +1,460 @@
+\section{Funktionen}
+
+Fasst Anweisungen (mit Funktionsparametern) zusammen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Function name:  "f"
+// Parameter list: nothing
+// Returns:        nothing
+// Description:    Writes "Hi" to the terminal
+void f()  // void..Rückgabewert, f..Funktionsname, ()..Argumente
+{  // Beginn des Funktionskörpers
+  std::cout << "Hi" << '\n';
+}  // Ende  des Funktionskörpers
+
+int main() {
+  f();  // Aufruf von Funktion f
+}
+\end{lstlisting}
+
+Wie Variblen müssen auch Funktionen \emph{vor} ihrere Verwendung deklariert
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+//f();  //Error: f ist nicht deklariert
+}
+
+void f() { std::cout << "Hi" << '\n'; }
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Deklaration und Definition
+void f() { std::cout << "Hi" << '\n'; }
+
+int main() {
+  f();
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+// Deklaration
+void f();
+
+int main() {
+  f();
+}
+
+// Definition
+void f() { std::cout << "Hi" << '\n'; }
+\end{lstlisting}
+
+\subsection{Overloading}
+
+Verschiedene Funktionen mit gleichem Namen sind erlaubt, solange deren Parameter
+verschieden sind (function overloading).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f() { std::cout << "A" << '\n'; }
+void f(int i) { std::cout << "B" << '\n'; }
+void f(double i) { std::cout << "C" << '\n'; }
+// Error: Unterscheidet sich nur im Rückgabewert
+//int f() { std::cout << "D" << '\n'; return 0;}
+
+int main() {
+  f();    // A
+  f(0);   // B
+  f(0.);  // C
+}
+\end{lstlisting}
+
+\subsection{Übergabe von Funktionen}
+
+Wenn Funktionen an Funktionen übergeben oder von ihnen zürückgegeben werden
+sollen, müssen dafür Pointern oder Referenzen auf Funktionen verwendet werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f() { std::cout << "A" << '\n'; }
+// Gibt Pointer auf Funktion f() zurück
+void (*pf())() { std::cout << "PF: "; return &f; }
+// Das Gleiche mit impliziter Umwandlung
+void (*pf2())() { std::cout << "PF2: "; return f; }
+// Das Gleiche mit Trailing return type
+auto pf3() -> void(*)() { std::cout << "PF3: "; return &f; }
+// Gibt Referenz auf Funktion zurück
+void (&rf())() { std::cout << "RF: "; return f; }
+// Übergabe von Pointer auf Funktion
+void fp( void (*p)() ) { std::cout << "FP: "; (*p)();}
+// Übergabe von Referenz auf Funktion
+void fr( void (&r)() ) { std::cout << "FR: "; r();}
+
+int main() {
+  f();        // A
+  (*pf())();  // PF: A
+  pf()();     // PF: A
+  pf2()();    // PF2: A
+  pf3()();    // PF3: A
+  rf()();     // RF: A
+  fp(&f);     // FP: A
+  fr(f);      // FR: A
+}
+\end{lstlisting}
+
+\subsection{Rückgabetypherleitung --  Return type deduction}
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,language=C++]
+#include <type_traits>
+
+int x = 1;
+auto           f0() { return x; }   // return type: int
+auto           f1() { return(x); }  // return type: int
+auto&          f2() { return x; }   // return type: int&
+const auto&    f3() { return x; }   // return type: const int&
+decltype(auto) f4() { return x; }   // return type: int, decltype(x)
+decltype(auto) f5() { return(x); }  // return type: int&, decltype((x))
+
+int main() {
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f0)>, int>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f1)>, int>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f2)>, int&>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f3)>, const int&>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f4)>, int>);
+  static_assert(std::is_same_v<std::invoke_result_t<decltype(f5)>, int&>);
+}
+\end{lstlisting}
+
+\subsection{Parameter Liste}
+
+\begin{lstlisting}[language=C++]
+int f0(int);  // Parameter ohne Namen
+int f1(int i);  // Benannter Parameter
+int f2(int i = 7);  // Mit Name und default Wert
+int f3(int = 7);  // Ohne Name, mit default Wert
+int f4();  // Ohne Parameter
+int f5(void);  // Wie f4
+int f6(int i ...);  // Variadic, Beliebige Anzahl von Argumenten
+int f7(int i, ...);  // wie f6
+int f8(auto);  // Wie: template<class T> int f8(T)
+\end{lstlisting}
+
+\subsubsection{Default Arguments}
+
+Erlaubt den Funktionsaufruf, auch wenn abschießende Argumente fehlen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f0(int i = 3, int j = 4) {}
+
+void f1(int, int = 7) {}
+
+// Error: Nachfolgender Parameter hat keinen Defaultwert
+//void f2(int = 1, int);
+
+void f3(int, int) {}
+//void f3(int = 3, int);  // Error, wie bei f2
+void f3(int, int = 4);  // Fügt Defaultargument zu
+void f3(int = 3, int);  // Jetzt gleich wie f0
+//void f3(int = 3, int = 4);  // Error: redefinition
+
+void f4(int = 3 ...);  // OK, ellipsis ist kein Parameter
+
+int i{1};  // Scope auf dieses i
+void f5(int j = i) { std::cout << j << '\n';}
+//void f6(int i, int j = i);  // Error: i Schon verwendet
+//void f6(int a, int j = a);  //Error:  a ist nicht definiert
+
+void f7() {
+  int i{0};
+//void f(int = i);  // Lokale Variablen sind nicht erlaubt
+};
+
+int b;
+class X {
+  int a;
+  static int b;
+  static X y;
+//void f(X* p = this);  // Error: this nicht erlaubt
+//void m0(int i = a);  // Error: non-static data member
+  void m1(int X::* i = &X::a);  // Geht mit Pointer
+  void m2(int i = y.a);
+  void m3(int i = b);
+};
+
+int main() {
+  f0(1, 2);  // f0(1, 2)
+  f0(1);     // f0(1, 4)
+  f0();      // f0(3, 4)
+
+  f1(1, 2);  // f1(1, 2)
+  f1(1);     // f1(1, 7)
+//f1();      // Error: Zu wenig Argumente
+
+  int i{0};
+  f5();  // 1
+  ++::i;
+  f5();  // 2
+}
+\end{lstlisting}
+
+\subsubsection{Variadic arguments}
+
+Es gibt keine Möglichkeit die Anzahl der Variadic Argumente zu bestimmen. Man
+kann nur auf sie zuzugreifen wenn es vor ihnen ein benanntes Argument gibt.
+Alternativen sind Variadic templates oder initializer\_list.
+
+\begin{lstlisting}[language=C++]
+#include <cstdarg>
+#include <iostream>
+
+int iSum(int n...) {
+  int s = 0;
+  std::va_list vArgs;  // Enthält Info von ...
+  va_start(vArgs, n);  // Ermöglicht Zugriff auf ...
+  for (int i = 0; i < n; ++i)
+    s += va_arg(vArgs, int);  // Holt nächstes Argument
+  va_end(vArgs);  // Beendet Zugriff auf ...
+  return s;
+}
+
+int main() {
+  std::cout << iSum(4, 1, 2, 3, 4) << '\n';  // 10
+}
+\end{lstlisting}
+
+\subsection{Gelöschte Funktionen}
+
+Können mit \lstinline|delete| definiert werden.
+
+\begin{lstlisting}[language=C++]
+int f0(int) = delete;
+
+int main() {
+//int i = f0(0);  // Error: use of deleted function
+//int i = f1(0);  // Error: not declared
+}
+\end{lstlisting}
+
+\subsection{Zugriff auf Funktionsnamen}
+
+Mit \lstinline|__func__|.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void funktionA() { std::cout << __func__ << '\n';}
+
+int main() {
+  funktionA();  // Ausgabe: funktionA
+}
+\end{lstlisting}
+
+\subsection{Lambda Funktionen}
+
+Namenlose Funtkionen, die dort wo sie verwendet auch definert werden. Ihnen kann
+der Zugriff auf Variablen im selben Scope (Sichtbarkeitsbereich) ermöglicht
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int a[]{1,2,3,4};
+  int s{0};
+  for(int i : a) s += i;  // Mit For loop
+  std::cout << s << '\n';  // 10
+  // Lambda Funktion wird gleich aufgerufen
+  [&]{for(int i : a) s += i;}();
+  std::cout << s << '\n';  // 20
+  // Lambda Funktion definieren
+  auto f = [&]{for(int i : a) s += i;};
+  f();  // und aufrufen
+  std::cout << s << '\n';  // 30
+}
+\end{lstlisting}
+
+Minimaler Aufbau:\\
+\lstinline|[captures]{body}|\\
+\begin{description}
+  \item[captures] Gibt ann welche Variablen von der Funktion verwendbar sind. Kann leer sein. Bei mehreren Angaben werden diese mit \lstinline|,| getrennt.
+  \begin{description}
+    \item[\&] Alle mittels Referenz, an erster Position
+    \item[=] Alle mittels Kopie, an erster Position
+    \item[Variablenname] Einezlne Varable über Kopie
+    \item[\&Variablenname] Einezlne Varable über Referenz
+    \item[Variablenname...] Über Kopie mit Packexpansion (bei Template)
+    \item[NameInFunction = Variablenname] Varable über neuen Namen verwenden
+    \item[this] Referenz auf derzeitiges Objekt
+    \item[*this] Kopie auf derzeitiges Objekt
+  \end{description}
+  \item[body] Die Befehle der Funktion.
+\end{description}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int i{0};
+  int j{0};
+//[]{++i;}();  // Error: i nicht bekannt
+//[i]{++i;}();  // Error: i read only
+  [&i]{++i;}();
+  std::cout << i << '\n';  // 1
+  [&]{++i;}();  // Alle per Referenz
+  std::cout << i << '\n';  // 2
+// Alle per Referenz ausser i
+//[&,i]{++i;}();  // Error: i read only
+// Alle per Kopie
+//[=]{++i;}();  // Error: i read only
+//[&i,=]{i=j;}();  // Error: = nicht an erster Position
+  [=,&i]{i=j;}();  // Alle per Kopie, i per Referenz
+  std::cout << i << '\n';  // 0
+// x als Kopie auf i
+//[x=i]{++x;}();  // Error: x read only
+  [&x=i]{++x;}();  // x als Referenz auf i
+  std::cout << i << '\n';  // 1
+}
+\end{lstlisting}
+
+Allgemeiner Aufbau:\\
+\lstinline|[captures] <tparams> opt1 (params) opt2 {body}|\\
+
+\begin{description}
+  \item[tparams] Template Parameter
+  \item[opt1] Optionale Parameter
+  \item[params] Funktionsparametern
+  \item[opt2] Optionale Parameter
+  \begin{description}
+    \item[specs] \lstinline|mutable|, \lstinline|constexpr|,
+    \lstinline|consteval| oder \lstinline|static|
+    \item[Rückgabetyp] z.\,B.\ \lstinline|->int|
+  \end{description}
+\end{description}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int i{0};
+  [i] mutable {++i;}();  // Verändert die Kopie von i
+  std::cout << i << '\n';  // 0
+  [](int j){++j;}(i);  // Verändert die Kopie von i
+  std::cout << i << '\n';  // 0
+  [](int& j){++j;}(i);  // Nur für int
+  std::cout << i << '\n';  // 1
+  [](auto& j){++j;}(i);  // Nicht nur für int
+  std::cout << i << '\n';  // 2
+  []<class T>(T& j){++j;}(i);  // Über Template
+  std::cout << i << '\n';  // 3
+
+  i = [i] mutable ->int {return ++i;}(); //Return Type explizit
+  std::cout << i << '\n';  // 4
+  i = [i] mutable {return ++i;}();  // Return Type Automatisch
+  std::cout << i << '\n';  // 5
+  i = [](int j){return ++j;}(i);
+  std::cout << i << '\n';  // 6
+}
+\end{lstlisting}
+
+\subsection{Overload resolution}
+
+Funktionen werden über ihren Namen gesucht. Ist dieser Überladen, wird nach
+Übereinstimmung mit den Argumenten gesucht. Für Funktion Templates
+(Muster/Vorlage) werden die Argumenttypen hergeleitet.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f(double x) {std::cout << typeid(x).name() << '\n';}
+void f(int x) {std::cout << typeid(x).name() << '\n';}
+void g(int x) {std::cout << typeid(x).name() << '\n';}
+template<class T>
+void t(T x) {std::cout << typeid(x).name() << '\n';}
+
+int main() {
+  f(0.);   // d
+  f(0);    // i
+  f(0.f);  // d  float -> double
+//f(0.l);  // Error: ambigious  long double -> ?
+//f(0l);   // Error: ambigious  long int -> ?
+  g(0);    // i
+  g(0.);   // i  double -> int
+  g(0.f);  // i  float -> int
+  g(0.l);  // i  long double -> int
+  g(0l);   // i  long int -> int
+  t(0);    // i
+  t(0.);   // d
+  t(0.f);  // f
+  t(0.l);  // e
+  t(0l);   // l
+}
+\end{lstlisting}
+
+\subsection{Operator overloading}
+
+Für selbst definierte Typen kann die Funktion von Operatoren wie \lstinline|+|
+oder \lstinline|*| selbst definiert werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Foo {
+  int x;
+  Foo operator*(const Foo& Y) {
+    Foo a = *this;
+    a.x *= Y.x;
+    return a;
+  }
+  Foo operator+=(const Foo& rhs) {  // compound assignment
+    x += rhs.x;
+    return *this;
+  }
+  friend Foo operator+(Foo lhs, const Foo& rhs) {
+    lhs += rhs;  // Verwende compound assignment
+    return lhs;
+  }
+  int operator()(int y) const {  // Function call operator
+    return x * y;
+  }
+  Foo& operator++() {  // Prefix
+    ++x;
+    return *this;
+  }
+  Foo operator++(int) {  // Postfix
+    Foo old = *this;
+    operator++();  // Verwende Prefix
+    return old;
+  }
+  friend bool operator<(const Foo& l, const Foo& r) {
+    return l.x < r.x;
+  }
+  friend bool operator>(const Foo& l, const Foo& r) {
+    return r < l;  // Verwendet <
+  }
+};
+
+int main() {
+  Foo x{2};
+  Foo y{3};
+  std::cout << (x + y).x << '\n';  // 5
+  std::cout << (x * y).x << '\n';  // 6
+  std::cout << (x + y * x).x << '\n';  // 8
+  x += y;
+  std::cout << x.x << '\n';  // 5
+  std::cout << x(2) << '\n';  // 10
+  std::cout << (x++).x << ' ' << (++x).x << '\n';  // 5 7
+  std::cout << (x < y) << ' ' << (x > y) << '\n';  // 0 1
+}
+\end{lstlisting}
