@@ -1,0 +1,215 @@
+\section{Klasse}
+
+Ist ein selbst definierter Typ. Eine Klasse kann aus folgenden Elementen
+bestehen: \emph{Daten}, \emph{Funktionen}, Klassen, enum, typedef und Templates.
+Diese Elemente müssen bei der Klassendefinition angegeben werden.
+
+Klassen können mit \lstinline|class|, \lstinline|struct| oder \lstinline|union|
+erzeugt werden. Elemente und Basisklassen von struct und union sind default
+\lstinline|public| und bei class \lstinline|private|. In Templates kann nur
+\lstinline|template<class T>| verwendet werden. Wird eine Basisklasse angegeben,
+werden deren Elemente übernommen
+
+\begin{lstlisting}[language=C++]
+// Definiert Klasse S mit Element i
+struct S { int i; };
+class C { int i; };
+// Definiert Klasse SS mit Basisklasse S
+struct SS : S { int j; };
+class CS : S { int j; };
+
+int main() {
+  S s;  // Erzeugt Instanz s der Klasse S
+  s.i = 0;  // Greift auf i zu
+  C c;
+//c.i = 0;  // Error: i ist privat
+  SS ss;
+  ss.i = 0;
+  ss.j = 0;
+  CS cs;
+//cs.i = 0;  // Error: i ist privat
+//cs.j = 0;  // Error: j ist privat
+}
+\end{lstlisting}
+
+\subsection{Zugriffsbeschränkung -- Access specifiers}
+
+Es gibt \lstinline|public| \lstinline|protected| und \lstinline|private|. Mit
+\lstinline|friend| kann Zugriff auf private oder protected ermöglicht werden.
+
+\begin{lstlisting}[language=C++]
+class A {
+  public:    int x;  // Erreichbar über Instanz
+  void Afy() {y = 0;}  // Funktion der Klasse A
+  void Afz() {z = 0;}
+  protected: int y;  // Erreichbar in Klasse
+  private:   int z;  // Nicht erreichbar in abgeleiteter Klasse
+};
+
+class B : A
+//class B : private A  // Alternative
+{  // private: x,y  Unerreichbar:z
+  void Bfy() {y = 0;}
+//void Bfz() {z = 0;}  // Error: z ist private
+  void Bfzf() {Afz();}  // Über public Funktion erreichbar
+};
+
+class C : public A {
+// Public:x protected:y Unerreichbar:z
+};
+
+class D : protected A {
+// Protected:x,y Unerreichbar:z
+};
+
+class E : B {
+// Unerreichbar:x,y,z
+//void Efx() {x = 0;}  // Error: x ist private
+};
+
+class F { public: int i; };
+class G { public: int j; };
+// F ist public, G ist private
+class H : public F, G {};
+
+int main() {
+  A a;
+  a.x = 0;
+//a.y = 0;  // Error: y ist protected
+  a.Afy();  // Über public Funktion erreichbar
+//a.z = 0;  // Error: y ist private
+  a.Afz();  // Über public Funktion erreichbar
+  B b;
+//b.x = 0;  // Error: x ist privat
+  C c;
+  c.x = 0;
+  H h;
+  h.i = 0;
+//h.j = 0;  // Error: j ist privat
+}
+\end{lstlisting}
+
+\subsection{Friend declaration}
+
+Ermöglicht Zugriff auf private oder protected. Zugriffsbeschränkung (public,
+protected, private) haben keinen Einfluss auf \lstinline|friend|.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class A { int i; };
+
+class B {
+  friend class D;  // Friend class forward declaration
+  int j;
+};
+
+class D;  // Forward declaration
+
+class C {
+  friend D;  // Friend class declaration
+  int k;
+};
+
+class E;  // Forward declaration
+class D : A, B, C {
+//void fa() {i = 0;};  // Error: i ist privat
+  void fb() {j = 0;};
+  void fc() {k = 0;};
+  void fe(E &e);
+  public:
+//void fe2(E &e) {e.l = 0;};  // Error: E hier noch incomplete
+  void fe2(E &);  // Deshalb hier nur Deklaration...
+};
+
+class E {
+//friend void D::fe(E &);  // Error D::fe ist privat
+  friend void D::fe2(E &);
+  int l;
+};
+
+void D::fe2(E &e)  {e.l = 0;};  // ...und hier Definition
+
+class F {
+  friend void setI(F &);  // Friend Funktion
+  friend void setI2(F &f) {f.i = 2;};  // Friend definiert
+  int i;
+  public:
+  void setI() {i = 1;}
+  int getI() {return i;}
+};
+
+void setI(F &f) {f.i = 0;}
+//int getI(F &f) {return f.i;}  // Error: i ist privat
+
+int main() {
+  F f;
+  f.setI();
+  std::cout << f.getI() << '\n';  // 1
+  setI(f);
+  std::cout << f.getI() << '\n';  // 0
+  setI2(f);
+  std::cout << f.getI() << '\n';  // 2
+}
+\end{lstlisting}
+
+\emph{Forward declaration} ermöglicht Klassen, die aufeinander verweisen.
+
+Freundschaft ist nicht transitiv (ein Freund deines Freundes ist nicht dein
+Freund). Freundschaft wird nicht vererbt (die Kinder Ihres Freundes sind nicht
+Ihre Freunde und Ihre Freunde sind nicht die Freunde Ihrer Kinder).
+
+\begin{lstlisting}[language=C++]
+class A {
+  friend class B;
+  friend class F;
+  protected:
+  int i;
+};
+
+class B : A {
+  friend class C;
+  friend class D;
+  void f() {i = 0;};
+};
+
+class C : A {
+// C Freund von B, B Freund von A, C nicht von A
+//void f() {i = 0;};  // Kein Zugriff
+};
+
+class D : B {
+// B Freund von A nicht auf D vererbbar
+//void f() {i = 0;};  // Kein Zugriff
+};
+
+class E : A {  // Abgeleitet von A
+  void f() {i = 0;};
+};
+
+class F : E {
+// A Freund von F, E nicht Freund von F
+//void f() {i = 0;};
+};
+\end{lstlisting}
+
+\subsection{Lokale Klassen -- Local classes}
+
+Klassendeklaration erfolgt innerhalb einer Funktion und ist auch nur innerhalb
+dieser Funktion verwendbar.
+
+\begin{lstlisting}[language=C++]
+int main() {
+  class Local {
+    friend class A;
+    friend class B;
+    int i;
+  };
+  class B : Local {  // Local hier bekannt
+    void f() {i = 0;};
+  };
+}
+//class A : Local {  // Local hier nicht bekannt
+//  void f() {i = 0;};
+//};
+\end{lstlisting}
