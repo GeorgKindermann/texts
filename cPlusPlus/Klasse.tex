@@ -33,6 +33,7 @@ int main() {
 \end{lstlisting}
 
 \subsection{Zugriffsbeschränkung -- Access specifiers}
+\label{subsec:Klasse:Zugriffsbeschränkung}
 
 Es gibt \lstinline|public| \lstinline|protected| und \lstinline|private|. Mit
 \lstinline|friend| kann Zugriff auf private oder protected ermöglicht werden.
@@ -213,3 +214,416 @@ int main() {
 //  void f() {i = 0;};
 //};
 \end{lstlisting}
+
+\subsection{Union}
+
+Unterschiedliche Elemente (int, float, \dots) zeigen auf den gleichen
+Speicherplatz. Wenn möglich sollte \lstinline|std::variant| anstatt von union
+verwendet werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <variant>
+
+union U {
+  char c;
+  int i;
+};
+
+int main() {
+  U u{'A'};  // erstes Element wird initialisiert
+  std::cout << u.c << ' ' << u.i << '\n';  // A 65
+  u.i = 66;
+  std::cout << u.c << ' ' << u.i << '\n';  // B 66
+
+  std::variant<char, int> v{'A'};
+  std::cout << std::get<char>(v) << ' ' <<
+    static_cast<int>(std::get<char>(v)) << '\n';  // A 65
+  v = 66;
+  std::cout << static_cast<char>(std::get<int>(v)) <<
+    ' ' << std::get<int>(v) << '\n';  // A 65
+}
+\end{lstlisting}
+
+\subsection{Datenelemente -- Initialisierung}
+
+Daten (int, float, arrays, \dots) können in Klassen deklariert werden.
+Konstruktor mit direkter Initialisierung wird empfohlen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct A {
+  int i;
+  float f;
+};
+
+struct B {
+  int i;
+  float f;
+  B() : i{4}, f{2.} {}  // Konstruktor Direkt Initialisierung
+};
+
+struct C {
+  int i{4};
+  float f{2.};
+};
+
+struct D {
+  int i;
+  float f;
+  D(int ii, float ff) : i{ii}, f{ff} {}
+};
+
+struct E {
+  int i;
+  float f;
+  E() {i = 4; f = 2.;};
+};
+
+struct F {
+  const int i{7};
+  const int j;
+//const int k;  // Error: uninitialized const member
+  F(int jj) : j{jj} {
+//  k = 9;  // Error: assignment of read-only
+  }
+};
+
+int main() {
+  A a0;  // Uninitialisiert
+  std::cout << a0.i << ' ' << a0.f << '\n';  // ? ?
+  A a1{4, 2.};  // Mit 4 2 initialisiert
+  std::cout << a1.i << ' ' << a1.f << '\n';  // 4 2
+  B b0;
+  std::cout << b0.i << ' ' << b0.f << '\n';  // 4 2
+//B b1{7, 3.};  // Error: Funktion nicht gefunden
+  C c0;
+  std::cout << c0.i << ' ' << c0.f << '\n';  // 4 2
+  C c1{7, 3.};
+  std::cout << c1.i << ' ' << c1.f << '\n';  // 7 3
+  C c2{7};
+  std::cout << c2.i << ' ' << c2.f << '\n';  // 7 2
+//D d0;  // Error: Funktion nicht gefunden
+  D d1{7, 3.};
+  std::cout << d1.i << ' ' << d1.f << '\n';  // 7 3
+  E e;
+  std::cout << e.i << ' ' << e.f << '\n';  // 4 2
+}
+\end{lstlisting}
+
+\subsection{Bit--fields}
+
+Deklariert ein Klassendatenelement mit expliziter Größe in Bits. Wird mit \lstinline|typ name : nbits|, z.\,B.\ \lstinline|int x : 2| angegeben.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct S {
+  unsigned char b1 : 3;  // 3 Bit, 0..7
+  unsigned char    : 2;  // nicht verwendet
+  unsigned char b2 : 2;  // 3 Bit, 0..3
+  unsigned char    : 0;  // Neues Byte beginnen
+  unsigned char b3 : 5{0b11111};  // 5 Bit mit Initialisierung
+};
+
+int main() {
+  std::cout << sizeof(S) << '\n';  // 2
+  S s;
+  s.b1 = 0b111;
+  s.b2 = 0b11;
+  std::cout << int(s.b1) << ' '  // 7 3 31
+    << int(s.b2) << ' '
+    << int(s.b3) << '\n';
+}
+\end{lstlisting}
+
+\subsection{Member Funktionen}
+
+Sind Funktionen (siehe Kapitel \ref{sec:Funtkionen}), die in einer Klasse
+deklariert sind und über diese aufgerufen werden und auf deren Elemente
+zugreifen können.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct S {
+  int i{0};
+  void f0();
+  void f1() {};
+  int fc0() const {return i;}  // Funktion verändert nichts
+//void fc1() const {++i;}  // Error: Verändert i
+//void fc2() const {f1();}  // Error: f1() ist nicht const
+};
+
+void S::f0() { ++i; }
+
+int main() {
+  S s0, s1;
+  std::cout << s0.i << ' ' << s1.i << '\n';  // 0 0
+  s0.f0();
+  std::cout << s0.i << ' ' << s1.i << '\n';  // 1 0
+  s1.f0();
+  std::cout << s0.i << ' ' << s1.i << '\n';  // 1 1
+}
+\end{lstlisting}
+
+\subsection{Der this Pointer}
+
+Zeigt auf die Adresse der Klasseninstanz. \lstinline|static| Funktionen haben keinen \lstinline|this| pointer.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct S {
+  int i;
+  void f0() { i = 0; }  // transformiert in this->i = 0;
+  void f1() { this->i = 1; }  // Explizite Verwendung von ->
+  void f2() { (*this).i = 2; }  // Das Gleiche wie f1
+  void f3(int i) { i = 3; }  // Setzt Argument i
+  void f4(int i) { this->i = 4; }  // Setzt Klassen i
+//static void f5(int i) { this->i = 4; }  // Error: stataic
+  S& operator=(const S& rhs) {  // Zuweisungsoperator
+      i = rhs.i + 1;
+      return *this;
+  }
+};
+
+int main() {
+  S s;
+  s.f0();
+  std::cout << s.i << '\n';  // 0
+  s.f1();
+  std::cout << s.i << '\n';  // 1
+  s.f2();
+  std::cout << s.i << '\n';  // 2
+  s.f3(0);
+  std::cout << s.i << '\n';  // 2
+  s.f4(0);
+  std::cout << s.i << '\n';  // 4
+  S t;
+  t = s;
+  std::cout << t.i << '\n';  // 5
+}
+\end{lstlisting}
+
+\lstinline|this| kann nur in einen Memberfunktion verwendet werden.
+\lstinline|this| zeigt auf die innerste umschließende Klasse.
+
+\begin{lstlisting}[language=C++]
+class Outer {
+//int a[sizeof(*this)];  // Error: Nicht in Memberfunktion
+  unsigned int sz{sizeof(*this)}; // OK: default initializer
+  void f() {
+    int b[sizeof(*this)];     // OK
+    class Inner {
+//    int c[sizeof(*this)]; // Error: Nicht in Memberfunktion
+                            // this bezieht sich hier auf Inner
+    };
+  }
+};
+\end{lstlisting}
+
+\subsection{Static members}
+
+\lstinline|static| deklariert Mitglieder, die nicht an Klasseninstanzen gebunden
+sind. \lstinline|static| Funktionen haben keinen \lstinline|this| Pointer.
+\lstinline|static| Daten existieren, selbst wenn es keine Instanz der Klasse
+gibt.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct S {
+  int i{0};  // Je Instanz
+//static int n0{0};  // Error: Static hier nicht initialisierbar
+  static int n1;  // Je Klasse
+  inline static int n2{2};
+  static int const n3;
+  static int const n4{4};
+//constexpr static int n5;  // Error: Initialisierung fehlt
+  constexpr static int n6{6};
+  void f0() { i = 0; }
+  void f1() { this->i = 1; }  // Gleich wie f0
+//static void f2() { i = 2; }  // Error: versucht S::i = 2
+//static void f3() { this->i = 3; }  // Error: kein this
+  void f4() { n1 = 4; }
+  void f5() { S::n1 = 5; } // Gleich wie f4
+  static void f6() { n1 = 6; }
+  static void f7() { S::n1 = 7; }  // Gleich wie f6
+};
+
+int S::n1{1};  // Initialisierung einer static Variablen
+int const S::n3{3};
+
+int main() {
+  std::cout << S::n1 << ' ' << S::n2 << ' ' << S::n3
+    << ' ' << S::n4 << ' ' << S::n6 << '\n';  // 1 2 3 4 6
+//std::cout << S::i;  // Error: i nicht statisch
+  S s;
+  std::cout << s.i << '\n';  // 0
+  S::n1 = 0;
+  s.n2 = 0;
+//S::n3 = 0;  // Error: const
+//S::n6 = 0;  // Error: const
+  std::cout << s.n1 << ' ' << s.n2 << ' ' << s.i << '\n';//0 0 0
+  S s2;
+  s2.n1 = 1;
+  s2.i = 1;
+  std::cout << s.n1 << ' ' << s2.n1 <<
+    ' ' << s.i << ' ' << s2.i << '\n';  // 1 1 0 1
+//S::f4();  // Error: f4 nicht static
+  S::f6();
+}
+\end{lstlisting}
+
+\subsection{Geschachtelte / eingebettete (nested) Klassen}
+
+Deklaration einer Klasse innerhalb einer anderen Klasse. Hat Zugriff auf alle
+Elemente (auch private und protected) der umschließenden Klasse. Hat einen
+eigenen \lstinline|this| Zeiger.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class enclose {
+  int i;
+  static int s;
+public:
+  struct nested {
+  //void f0() { i = 0; }  // Error: i braucht Instanz
+    void f1() { s = 1; }
+    int b{sizeof i};
+    void f2();  // Deklaration
+  };
+  struct n2 {
+    enclose& owner;  // Referenz auf Instanz
+    n2(enclose& owner_) : owner(owner_) {}
+    void f() {owner.i = 0;}
+  };
+  class n3;  // forward Deklaration
+  static nested f() { return nested{}; }
+};
+
+//void enclose::nested::f2() { s=2; }  // Error von Linker
+class enclose::n3 { int j; };  // Definition
+
+int main() {
+//enclose::nested::f1();  // Error: braucht Instanz
+//enclose::f().f1();  // Error von Linker
+}
+\end{lstlisting}
+
+\subsection{Vererbte / Abgeleitete (derived) Klasse}
+
+Eigenschaften von (basis) Klassen können auf (abgeleitete) Klassen vererbt
+werden. Diese können ihre Eigenschaften ebenfalls weitervererben womit eine
+Vererbungshierarchie entsteht. Syntax:
+\lstinline|class DerivedName : BaseName;|.
+Siehe auch Abschnitt \nameref{subsec:Klasse:Zugriffsbeschränkung}.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Base {
+  int a{0}, b{0};
+};
+
+struct Derived : Base {  // Derived enthält Base als Subobjekt
+  int b{1}, c{1};
+};
+
+// Enthält Derived und Base als Subobjekt
+struct Derived2 : Derived {
+    int b{2};
+};
+
+// Da Base schon in Derived, Mehrdeutigkeit für Base
+//struct Derived3 : Base, Derived {};
+
+int main() {
+  Base B;
+  Derived D;
+  Derived2 D2;
+  std::cout << D.a << ' ' << D.c << '\n';  // 0 1
+  std::cout << D.b << ' ' << D.Base::b << '\n';  // 1 0
+  std::cout << D2.b << ' ' << D2.Derived::b << ' ' <<
+    D2.Derived::Base::b << ' ' << D2.Base::b << '\n'; // 2 1 0 0
+}
+\end{lstlisting}
+
+Die Konstruktoren und Destruktoren der Basisklassen werden vom Konstruktor der
+abgeleiteten Klasse aufgerufen.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Base {
+  Base() { std::cout << "A "; }  // Default Konstruktor
+  Base(int) { std::cout << "B "; }
+  ~Base() { std::cout << "X\n"; }  // Destruktor
+};
+
+struct Derived : Base {
+  // Ruft Base default Konstruktor auf
+  Derived() { std::cout << "C "; }
+  // Ruft Base{0} Konstruktor auf
+  Derived(int) : Base{0} { std::cout << "D "; }
+  ~Derived() { std::cout << "Z "; }
+};
+
+int main() {
+  { Base B; }  // A X
+  { Base B{0}; }  // B X
+  { Derived D; }  // A C Z X
+  { Derived D{0}; }  // B D Z X
+}
+\end{lstlisting}
+
+Für \lstinline|virtual| Basisklassen existiert nur \emph{eine} Basisklasse in
+der abgeleiteten Klasse.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct A {
+  int i;
+  A() : i{0} {}  // Default Konstruktor
+  A(int j) : i{j} {}
+};
+struct X : virtual A { X() : A{1} {} };
+struct Y : virtual A { Y() : A{2} {} };
+struct Z : A {};
+
+struct D : X, Y, Z {};
+
+int main() {
+// Konstruktor von virtual A wird von D und nicht
+// von X oder Y aufgerufen
+  D d;
+  std::cout << d.X::i << d.Y::i << d.Z::i << '\n';  //000
+  d.X::i = 0;  // Setzt virtual A
+  d.Y::i = 1;  // Überschreibt virtual A
+  d.Z::i = 2;  // Z hat eigenes A
+//d.A::i = 3;  // Mehrdeutig D::X::A oder D::Z::A ?
+  std::cout << d.X::i << d.Y::i << d.Z::i << '\n';  //112
+}
+\end{lstlisting}
+
+%using-declaration
+%Empty base optimization (EBO)
+%Virtual function
+%Abstract class (ABC)
+%override
+%final
+%Member access
+%friend
+%Constructors and member initializer lists
+%Default constructor
+%Destructor
+%Copy constructor
+%Copy assignment
+%Move constructor
+%Move assignment
+%Converting constructor
+%explicit specifier

@@ -118,6 +118,8 @@ ausgegeben. Mit \lstinline|cl Programm.cc /std:c++20| wird \cpp{}20\footnote{23
 ist derzeit v17.8.2/19.38.33130 nicht verfügbar. Eventuell
 \lstinline|/std:c++latest| oder \lstinline|/experimental| verwenden} verwendet.
 
+Unter \href{https://godbolt.org/}{godbolt.org} können verschiedenen Compiler online verwendet werden.
+
 C Dateien enden mit \lstinline|.c|. \cpp{} Dateien haben üblicherweise die
 Extension \lstinline|.cc| oder \lstinline|.cpp|. Header Dateien für C enden mit
 \lstinline|.h|. Header Dateien für \cpp{} enden meist mit \lstinline|.h|,
@@ -146,6 +148,39 @@ Objektdatei von srcA dazugebunden.
 
 \input{Klasse.tex}
 %Template Friends weggelassen
+%injected-class-name weggelassen
+%Member functions with ref-qualifier weggelassen
+%Linker Error bei nested
+
+%this: explicit object parameter erst ab g++14, clang18: en.cppreference.com/w/cpp/language/member_functions
+%#include <iostream>
+%
+%struct A {
+%  int i;
+%  void f(this A a) {  // explicit object parameter
+%//  auto x = this; // Error: no this
+%//  i = 0;         // Error: no implicit this->
+%    a.i = 0;       // ok
+%  }
+%};
+%
+%struct Y {
+%  int f(int, int) const&;
+%  int g(this Y const&, int, int);
+%};
+%
+%auto pf = &Y::f;
+%pf(y, 1, 2);              // error: pointers to member functions are not callable
+%(y.*pf)(1, 2);            // ok
+%std::invoke(pf, y, 1, 2); // ok
+%
+%auto pg = &Y::g;
+%pg(y, 3, 4);              // ok
+%(y.*pg)(3, 4);            // error: pg is not a pointer to member function
+%std::invoke(pg, y, 3, 4); // ok
+%
+%int main() {
+%}
 
 
 %\section{Templates}
