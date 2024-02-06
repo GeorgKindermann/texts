@@ -246,6 +246,7 @@ int main() {
 \end{lstlisting}
 
 \subsection{Datenelemente -- Initialisierung}
+\label{ssec:class.Initialisierung}
 
 Daten (int, float, arrays, \dots) können in Klassen deklariert werden.
 Konstruktor mit direkter Initialisierung wird empfohlen.
@@ -515,6 +516,7 @@ int main() {
 \end{lstlisting}
 
 \subsection{Vererbte / Abgeleitete (derived) Klasse}
+\label{ssec:derivedClass}
 
 Eigenschaften von (basis) Klassen können auf (abgeleitete) Klassen vererbt
 werden. Diese können ihre Eigenschaften ebenfalls weitervererben womit eine
@@ -610,20 +612,610 @@ int main() {
 }
 \end{lstlisting}
 
-%using-declaration
-%Empty base optimization (EBO)
-%Virtual function
-%Abstract class (ABC)
-%override
-%final
-%Member access
-%friend
-%Constructors and member initializer lists
-%Default constructor
-%Destructor
-%Copy constructor
-%Copy assignment
-%Move constructor
-%Move assignment
-%Converting constructor
-%explicit specifier
+\subsection{using Deklaration}
+
+Erlaubt die Verwendung eines Namens, der anderswo deklariert wurde. Fügt ein
+Element einer Basisklasse in eine abgeleitete Klasse ein.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class A {
+  public:
+  int i{0};
+  int j{0};
+  protected:
+  int k{0};
+  private:
+  int l{0};
+};
+
+struct B : A {
+  int j{1};
+};
+
+struct C : A {
+  using A::i;  // Nicht nötig, Verhindert aber,
+  using A::j;   // das i und j nochmals deklariert werden
+  using A::k;  // k wird hier public
+//using A::l;  // Error: l ist privat
+//int j{1};   // Error: Verdeckt A::j
+};
+
+struct D { D(int) {} };
+struct E : D {
+  using D::D;  // Konstruktoren erben
+};
+
+int main() {
+  B b;
+  std::cout << b.i << b.j << b.A::j << '\n';  // 010
+//std::cout << b.k << '\n';  // Error: k ist protected
+
+  C c;
+  std::cout << c.i << c.j << c.k << '\n';  // 000
+
+//D d;  // Error: Kein default Konstruktor
+  D d{0};
+//E e;  // Error: Kein default Konstruktor
+  E e{0};
+}
+\end{lstlisting}
+
+\subsection{Virtual Funktion}
+
+Können in abgeleiteten Klassen überschrieben werden, was sich bei Verwendung von
+Referenzen oder Pointer einer Base Klasse auf eine Derived Klasse auswirkt.
+Die Base Funktion kann mit \lstinline|referenz.Base::funktion()| bzw.\
+\lstinline|pointer->Base::funktion()| aufgerufen werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Base {
+  void f() {std::cout << "A ";}
+  virtual void v() {std::cout << "B ";}
+};
+
+struct Derived : Base {
+  void f() {std::cout << "C ";}
+  void v() override {std::cout << "D ";}
+};  // override ist optional
+
+struct D2 : Base {
+  void f(int) {std::cout << "E ";}  // Verdeckt Base::f()
+  void v(int) {std::cout << "F ";}  // Verdeckt Base::v()
+};
+
+struct D3 : Base {
+//void f() override {std::cout << "G ";}  // Error Nichts überschrieben
+  void v() override {std::cout << "H ";}
+//void f(int) override {std::cout << "I ";}  // Error Nichts überschrieben
+//void v(int) override {std::cout << "J ";}  // Error Nichts überschrieben
+};
+
+struct D4 : Base {
+//int v() {return 0;}  // Error: Return verschieden
+};
+
+void nl() { std::cout << '\n'; }
+
+int main() {
+  Base b;
+  Derived d;
+  b.f(); b.v(); nl();  // A B
+  d.f(); d.v(); nl();  // C D
+
+  // Aufruf virtueller Funktion über Referenz
+  Base& rb = b;
+  Base& rd = d;
+  rb.f(); rb.v(); nl();  // A B
+  rd.f(); rd.v(); rd.Base::v(); nl(); // A D B
+
+  // Aufruf virtueller Funktion über Zeiger
+  Base* pb = &b;
+  Base* pd = &d;
+  pb->f(); pb->v(); nl();  // A B
+  pd->f(); pd->v(); pd->Base::v(); nl();  // A D B
+
+  D2 d2;
+//d2.f();  // Error: Funktion nicht gefunden
+//d2.v();  // Error: Funktion nicht gefunden
+  d2.Base::f(); d2.Base::v(); nl();  // A B
+}
+\end{lstlisting}
+
+Dabei werden auch private Funktionen überschrieben.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class A {
+  virtual void fA() { std::cout << "A\n"; }
+  public:
+  void f() { fA(); }  // Public Interface für fA
+};
+struct B : public A {
+  void fA() { std::cout << "B\n"; }
+};
+
+class X {
+  void fA() { std::cout << "X\n"; }
+  public:
+  void f() { fA(); }
+};
+struct Y : public X {
+  void fA() { std::cout << "Y\n"; }
+};
+
+int main() {
+  B b;
+  A& ar = b;
+  ar.f();     // B
+  ar.A::f();  // B
+  b.f();      // B
+
+  Y y;
+  X& xr = y;
+  xr.f();  // X
+  y.f();   // X
+}
+\end{lstlisting}
+
+Destruktoren können auch virtual sein. Wird benötigt, wenn abgeleitete Klasse
+über einen Zeiger auf die Basisklasse gelöscht wird, da dann beide Destruktoren
+(von Base und Derived) aufgerufen werden. Der Destruktor einer Basisklasse
+sollte public und virtual oder protected und nicht virtual sein, wenn delete
+verwendet wird.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Base {
+  virtual ~Base() { std::cout << " Base\n"; }
+};
+
+struct Derived : Base {
+  ~Derived() { std::cout << "Derived"; }
+};
+
+struct B {
+  ~B() { std::cout << " B\n"; }
+};
+
+struct D : B {
+  ~D() { std::cout << "D"; }
+};
+
+int main() {
+  Base* b = new Derived;
+  delete b;  // Derived Base
+  B* b2 = new D;
+  delete b2;  // B
+}
+\end{lstlisting}
+
+Siehe auch in Abschnitt~\ref{ssec:derivedClass} \emph{virtuelle Basisklasse}
+sowie \emph{pure virtual function} im folgenden Abschnitt.
+
+\subsection{Abstrakte Klassen}
+\label{ssec:class.Abstract}
+
+Können keine Instanzen haben, aber als Basisklasse verwendet werden. Hat
+zumindest eine Funktion die \emph{pure virtual} ist. Eine \emph{pure virtual
+function} endet mit \lstinline|= 0| in der Deklaration.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct Abstract {        // Abstrakte Klasse
+  virtual void f() = 0;  // pure virtual
+};
+
+// Definition der pure virtual Funktion
+void Abstract::f() { std::cout << "A\n"; }
+
+struct Concrete : Abstract {
+  void f() override { std::cout << "B\n"; }
+  virtual void g() {};
+};
+
+struct Abstract2 : Concrete {  // Abstrakte Klasse
+  void g() override = 0;       // pure virtual overrider
+};
+
+int main() {
+//Abstract a;        // Error: abstrakte Klasse
+  Concrete b;
+  b.f();             // B
+  b.Concrete::f();   // B
+  b.Concrete::Abstract::f();  // A
+  b.Abstract::f();   // A
+  Abstract& a = b;   // Abstrakte Referenz geht
+  a.f();             // B
+//a.Concrete::f();   // Error: Concrete kein Member von Abstract
+  a.Abstract::f();   // A
+  Abstract* p = &b;  // Abstrakter Pointer geht
+  p->f();            // B
+//Abstract2 a2;      // Error: abstrakte Klasse
+}
+\end{lstlisting}
+
+\subsection{override}
+
+Gibt an, dass eine virtuelle Funktion eine andere virtuelle Funktion
+überschreibt. Ist optional.
+
+\begin{lstlisting}[language=C++]
+struct A {
+  virtual void f() {};
+  virtual void g() {};
+  void h() {};
+  void i() {};
+};
+
+struct B : public A {
+  void f() override {};
+// Ohne override eventuell Warnung das Überschrieben wird
+  void g() {};
+// Error: h nicht virtual
+//void h() override {};
+  void i() {};
+// Error: nichts zum Überschreiben
+//void j() override {};
+};
+\end{lstlisting}
+
+\subsection{final}
+
+\begin{description}
+  \item[virtuelle Funktion] kann in abgeleiteten Klasse nicht überschrieben
+  werden
+  \item[Klasse] kann nicht abgeleitet werden kann
+\end{description}
+
+\begin{lstlisting}[language=C++]
+struct A final {};
+
+//struct B : A {};  // Error: A ist final
+
+struct C {
+  virtual void f();
+  virtual void g() final;
+//void h() final;  // Error: Nicht virtual
+};
+
+struct D : C {
+  void f() override;
+//void g() override;  // Error: C::g ist final
+};
+\end{lstlisting}
+
+\subsection{Constructor}
+
+Funktion, die den Namen der Klasse hat, zum Initialisieren von Objekten ihres
+Klassentyps verwendet und als erstes aufgerufen wird.
+Siehe auch Abschnitt \ref{ssec:class.Initialisierung} über Initialisierung.
+
+\begin{lstlisting}[language=C++]
+struct S {
+  int i;
+  S() : i{0} {}  // Konstruktor setzt i=0
+};
+
+int main() {
+  S s;   // S::S() wird aufgerufen
+}
+\end{lstlisting}
+
+\subsection{Default constructor}
+
+Konstruktor ohne Argumente. Wenn kein Konstruktor deklariert wurde, wird ein
+\emph{Implicitly-defined} Konstruktor generiert, solange dies nicht mit
+\lstinline|delete| verhindert wird.
+
+\begin{lstlisting}[language=C++]
+struct A {
+  int i;
+  A() : i{0} {}  // Default Konstruktor setzt i=0
+};
+
+struct B {
+  int i;
+  B(int i = 0) : i(i) {} // Default Konstruktor setzt i=0
+};
+
+struct C : A {
+  // implicitly-defined C::C(), ruft A::A() auf
+};
+
+struct D {
+  A a;
+  // implicitly-defined D::D(), ruft A::A() auf
+};
+
+struct E : B {
+  E(int i) : B(i) {}
+  // kein implicitly-defined E::E()
+  // weil anderer Konstruktor vorhanden
+};
+
+struct F : B {
+  F(int i) : B(i) {}
+  F() = default; // explizit default, ruft B::B() auf
+};
+
+struct G : A {
+  G() = delete;  // kein implicitly-defined G::G()
+};
+
+int main() {
+  A a;
+  B b;
+  C c;
+  D d;
+//E e;  // Error: Kein default Konstruktor
+  F f;
+//G g;  // Error: Kein default Konstruktor
+}
+\end{lstlisting}
+
+\subsection{Destructor}
+
+Wird am Ende der Lebensdauer eines Objekts aufgerufen, um noch belegte
+Ressourcen freizugeben und hat den Namen der Klasse mit vorangestelltem
+\lstinline|~|. Wenn keiner deklariert wurde, wird ein \emph{Implicitly-defined}
+generiert, solange dies nicht mit \lstinline|delete| verhindert wird.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+struct A {
+  int i;
+  ~A() {std::cout << i << ' ';}  // Destruktor
+};
+
+A a0{0};
+
+int main() {
+  A a1{1};
+  A* p;
+  {
+    A a2{2};
+    p = new A{3};
+  } // Destruktor van a2
+  delete p; // Destruktor of "a3"
+}  // Ausgabe: 2 3 1 0
+\end{lstlisting}
+
+Der Destruktor einer Basisklasse sollte entweder \lstinline|public| und
+\lstinline|virtual| oder \lstinline|protected| und nicht \lstinline|virtual|
+sein.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class A {
+  public:
+  virtual ~A() {std::cout << "A ";}
+};
+
+class B : public A {
+  ~B() {std::cout << "B ";}
+};
+
+// Achtung: Destruktor C wird eventuell nicht aufgerufen
+class C {
+  public:
+  ~C() {std::cout << "C ";}
+};
+
+class D : public C {
+  ~D() {std::cout << "D ";}
+};
+// Achtung: Destruktor von C wird eventuell nicht aufgerufen
+
+class E {
+  protected:
+  ~E() {std::cout << "E ";}
+};
+
+class F : public E {
+  ~F() {std::cout << "F ";}
+};
+
+int main() {
+  A* b = new B;
+  delete b; // B A : Sicher, ruft Destruktor von A und B auf
+  C* d = new D;
+  delete d; // C : Unsicher, ruft nur Destruktor von C auf
+  E* e = new F;
+//delete e; // Error: E::~E() ist protected
+// Destruktor wird nicht aufgerufen
+}
+\end{lstlisting}
+
+Ein \emph{pure virtual} Destruktor erzeugt eine
+\hyperref[ssec:class.Abstract]{abstrakte Klasse}, die keine Instanz haben
+kann.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+class A {  // Abstrakte Klasse
+  public:
+  virtual ~A() = 0;  // Pure virtual Destruktor
+};
+A::~A() {std::cout << "A ";}
+
+class B : public A {
+  public:
+  ~B() {std::cout << "B ";}
+};
+
+int main() {
+//A a;  // Error: A ist abstrakt
+  {
+    B b;
+  }  // B A
+  A* pb = new B;
+  delete pb;  // B A
+}
+\end{lstlisting}
+
+\subsection{Copy constructor}
+
+Konstruktor hat als Argument dieselbe Klasse und kopiert dessen Inhalt ohne ihn
+zu verändern.
+
+\begin{lstlisting}[language=C++]
+struct A {
+  int i;
+  A(int i = 1) : i(i) {}
+//A(const A a) : i(a.i) {}  // Error: Falscher Parameter
+  A(const A& a) : i(a.i) {} // Copy constructor
+};
+
+struct B : A {
+  // implicit default constructor B::B()
+  // implicit copy constructor B::B(const B&)
+};
+
+struct C : A {
+  C(const C&) = delete;
+  C() = default;
+};
+
+int main() {
+  A a(7);
+  A a2(a);  // Aufruf des copy constructors
+  B b;
+  B b2 = b;
+  A a3 = b;  // Umwandlung in A& dann copy constructor
+  C c;
+//C c2(c1);  // Error: deleted copy constructor
+}
+\end{lstlisting}
+
+\subsection{Copy assignment}
+
+Member function \lstinline|operator=| mit derselben Klasse als Argument, deren
+Inhalt kopiert wird, ohne ihn zu verändern.
+
+\begin{lstlisting}[language=C++]
+#include <algorithm>
+
+struct A {
+  int i;
+//A operator=(const A other); // Error: incorrect parameter type
+  A operator=(A other) {  // copy assignment operator
+    std::swap(i, other.i);
+    return *this;
+  }
+};
+
+struct B {
+  int i;
+  B& operator=(const B& other) {  // copy assignment operator
+    i = other.i;
+    return *this;
+  }
+};
+
+struct C {
+  int i;
+  C& operator=(C&) = delete;
+};
+
+int main() {
+  A a1, a2;
+  a1 = a2;
+  B b1, b2;
+  b1 = b2;
+  C c1, c2;
+//c1 = c2;  // Error: deleted
+}
+\end{lstlisting}
+
+\subsection{Move constructor / assignment}
+
+Konstruktor hat als Argument dieselbe Klasse mit \lstinline|&&| und kopiert
+dessen Inhalt, der eventuell verändert wird. Move und copy unterscheiden sich
+z.\,B.\ bei einem String, der von copy kopiert wird und von move der übernommen
+wird.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <string>
+#include <utility>
+
+struct A {
+  std::string s;
+  int i;
+  A(std::string s, int i) : s(s), i(i) {}
+  A(A&& o) :                 // Move constructor
+    s(std::move(o.s)),       // move einer Klasse
+    i(std::exchange(o.i, 0)) // move einer nicht Klasse
+    {}
+  A& operator=(A&& o) {      // Move assignment operator
+    s = std::move(o.s);
+    i = std::move(o.i);
+    return *this;
+  }
+};
+
+int main() {
+  A a1("test", -1);
+  std::cout << '>' << a1.s << "< " << a1.i << '\n'; // >test< -1
+  A a2(std::move(a1));
+  std::cout << '>' << a1.s << "< " << a1.i << '\n'; // >< 0
+  std::cout << '>' << a2.s << "< " << a2.i << '\n'; // >test< -1
+  a1 = std::move(a2);
+  std::cout << '>' << a1.s << "< " << a1.i << '\n'; // >test< -1
+  std::cout << '>' << a2.s << "< " << a2.i << '\n'; // >< -1
+}
+\end{lstlisting}
+
+\subsection{Converting constructor und explicit specifier}
+
+Umwandlung der Typen der Argumente in den Typ der Klasse. \lstinline|explicit|
+verhindert unbeabsichtigte Umwandlungen etwa über copy-initialization.
+
+\begin{lstlisting}[language=C++]
+struct A {
+  A() { }         // converting constructor
+  A(int) { }      // converting constructor
+  A(int, int) { } // converting constructor
+  operator bool() const { return true; }
+};
+
+struct B {
+  explicit B() { }
+  explicit B(int) { }
+  explicit B(int, int) { }
+  explicit operator bool() const { return true; }
+};
+
+int main() {
+  A a1 = 1;      // OK: copy-initialization mit A::A(int)
+  A a2(2);       // OK: direct-initialization mit A::A(int)
+  A a3{4, 5}; //OK: direct-list-initialization mit A::A(int,int)
+  A a4 = {4, 5}; // OK: copy-list-initialization  A::A(int, int)
+  A a5 = (A)1;   // OK: explicit cast, direct-initialization
+  if (a1) { }    // OK: A::operator bool()
+  bool na1 = a1; // OK: copy-initialization A::operator bool()
+  bool na2 = static_cast<bool>(a1); // OK: static_cast
+
+//B b1 = 1;    // error: copy-initialization und nicht B::B(int)
+  B b2(2);       // OK: direct-initialization mit B::B(int)
+  B b3{4, 5};   // OK: direct-list-initialization B::B(int, int)
+//B b4 = {4, 5}; // error: copy-list-initialization
+  B b5 = (B)1;   // OK: explicit cast, direct-initialization
+  B b6;          // OK, default-initialization
+  B b7{};        // OK, direct-list-initialization
+//B b8 = {};     // error: copy-list-initialization
+  if (b2) { }    // OK: B::operator bool()
+//bool nb1 = b2; // error: copy-initialization
+  bool nb2 = static_cast<bool>(b2); // OK: static_cast
+}
+\end{lstlisting}

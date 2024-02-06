@@ -83,10 +83,12 @@ buffer leert (flush) und damit in der Regel langsamer ist als \lstinline|\n|.
 
 Helfen Namenskonflikte zu vermeiden, indem Funktionen bestimmten Namensräumen
 zugeordnet werden. Funktionen mit gleichem Nahmen stellen kein Problem dar,
-solange sie in verschiedenen Namensräumen definiert sind. Funktionen des
-Standardlibraries sind im Namensraum \lstinline|std| und können mit
-\lstinline|std::FUNKTIONSNAME| aufgerufen werden. Mit
-\lstinline|using namespace std;| kann die Funktion auch ohne \lstinline|std::|
+solange sie in verschiedenen Namensräumen definiert sind. Funktionen der
+Standardbibliothek (Standard Library) sind im Namensraum \lstinline|std| und
+können mit \lstinline|std::FUNKTIONSNAME| aufgerufen werden. Mit
+\lstinline|using std::FUNKTIONSNAME;| kann die \emph{einzelne} Funktion auch
+ohne \lstinline|std::| aufgerufen werden. Mit \lstinline|using namespace std;|
+können \emph{alle} Funktionen der Standardbibliothek auch ohne \lstinline|std::|
 aufgerufen werden. Namespaces können auch selbst erzeugt werden.
 
 \subsection{Datentypen}
