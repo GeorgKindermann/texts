@@ -1,0 +1,107 @@
+\section{Templates}
+
+Um nicht den gleichen Code für verschiedene Datentypen schreiben zu müssen, wird
+der Datentyp als Parameter übergeben (generische Programmierung).
+
+\subsection{Function template}
+
+Definiert eine Funktionsfamilie.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <typeinfo>
+
+int minI(const int& lhs, const int& rhs) {
+  return lhs < rhs ? lhs : rhs;
+}
+
+auto minA(const auto& lhs, const auto& rhs) {
+  return lhs < rhs ? lhs : rhs;
+}
+
+template<typename T>
+T minT(const T& lhs, const T& rhs) {
+  return lhs < rhs ? lhs : rhs;
+}
+
+int main() {
+  std::cout << minI(3, 7) << '\n';    // 3
+  std::cout << minI(3.6, 7) << '\n';  // 3
+  std::cout << minA(3, 7) << '\n';    // 3
+  std::cout << minA(3.6, 7) << '\n';  // 3.6
+  std::cout << minT(3, 7) << '\n';    // 3
+//std::cout << minT(3.6, 7) << '\n';  // Error: double int
+  std::cout << minT<double>(3.6, 7) << '\n';  // 3.6
+  std::cout << minT<int>(3.6, 7) << '\n';     // 3
+  std::cout << typeid(minA(3, 7)).name() << '\n';    // int
+  std::cout << typeid(minA(3.6, 7)).name() << '\n';  // double
+  std::cout << typeid(minA(3, 7.2)).name() << '\n';  // double
+}
+\end{lstlisting}
+
+Funktionen können auf bestimmte Typen spezialisiert werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+template<typename T>
+void f(const T& x) {
+  std::cout << "T: " << x << '\n';
+}
+
+template<>  // Spezialisierung auf f(int)
+void f<int>(const int& x) {
+  std::cout << "Int: " << x << '\n';
+}
+
+int main() {
+  f('a');        // T: a
+  f(1);          // Int: 1
+  f<int>('a');   // Int: 97
+//void *pf = f;  // Error: Overloaded Function
+  void (*pfi)(const int&) = f;
+  pfi(1);        // Int: 1
+  pfi('a');      // Int: 97
+  void (*pfc)(const char&) = f;
+  pfc(98);       // Int: b
+  pfc('a');      // Int: a
+}
+\end{lstlisting}
+
+\subsection{Class template}
+
+Definiert eine Klassenfamilie.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+template<class T>
+struct S {
+  T x;
+  S(T x) : x(x) {};
+  void f() {std::cout << x << '\n';}
+};
+
+int main() {
+  S<int> i{0};
+  i.f();  // 0
+  S j{1};
+  j.f();  // 1
+  S d{4.2};
+  d.f();  // 4.2
+}
+\end{lstlisting}
+
+%Variable template
+%Template parameters and arguments
+%Class member template
+%Template argument deduction: function – class
+%Explicit specialization
+%Partial specialization
+%Parameter packs
+%sizeof...
+%Fold expressions
+%Dependent names
+%SFINAE
+%Constraints and concepts
+%Requires expression
