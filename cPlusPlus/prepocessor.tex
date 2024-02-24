@@ -1,0 +1,128 @@
+\section{Prepocessor}
+
+Der Präprozessor wird vor der Kompilierung ausgeführt und kann den Sourcecode
+verändern. Befehle beginnen mit \lstinline|#|.
+
+\subsection{include}
+
+Fügt eine Datei ein.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>  // Fügt einen Header ein
+#include "my.h"      // Fügt die Datei my.h ein
+\end{lstlisting}
+
+Um zu verhindern, dass der Inhalt einer Datei immer wieder eingebunden wird,
+werden \emph{header guards} verwendet.
+
+\begin{lstlisting}[language=C++]
+#ifndef FOO_H_INCLUDED // Eindeutiger unique Name
+#define FOO_H_INCLUDED
+// Inhalt der Datei
+#endif
+\end{lstlisting}
+
+\subsection{Bedingungen}
+
+Bedingtes weglassen oder einbinden von Sourcecode mit \lstinline|#if| --
+\lstinline|#elif| -- \lstinline|#else| -- \lstinline|#endif|, \lstinline|#ifdef|
+(ist definiert) -- \lstinline|#elifdef|, \lstinline|#ifndef| (ist nicht
+definiert) -- \lstinline|#elifndef|.
+
+\begin{lstlisting}[language=C++]
+#define ABCD 2  // Definere ABDC = 2
+#include <iostream>
+
+int main() {
+#ifdef ABCD  // Ist ABCD definiert: Ja
+  std::cout << "1: Ja\n";  // Wird ausgegeben
+#endif
+
+#ifndef ABCD  // Ist ABCD nicht definiert: nein
+  std::cout << "2: JA\n";  // Wird entfernt
+#else
+  std::cout << "2: Nein\n";  // Wird ausgegeben
+#endif
+
+#if ABCD == 1
+    std::cout << "3: 1\n";
+#elif ABCD == 2
+    std::cout << "3: 2\n";  // Wird ausgegeben
+#endif
+
+// Kombination von Bedingungen
+#if !defined(DCBA) && (ABCD < 2*4-3)
+  std::cout << "4: Ja\n";  // Wird ausgegeben
+#endif
+
+#undef ABCD
+#ifndef ABCD
+  std::cout << "5: JA\n";  // Wird ausgegeben
+#endif
+#define ABCD
+#ifdef ABCD
+  std::cout << "6: Ja\n";  // Wird ausgegeben
+#endif
+}
+\end{lstlisting}
+
+\subsection{Ersetzen}
+
+Platzhalter können durch (generierte) Texte ersetzt werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+#define P std::cout
+#define O(a) std::cout << #a
+
+int main() {
+  P << "A\n";  // p wird durch std::cout ersetzt
+  O(B\n);  // Gibt B\n aus, ohne Anführungszeichen
+}
+\end{lstlisting}
+
+\subsection{Warnungen und Fehler}
+
+Mit \lstinline|#error| wird die Kompilierung abgebrochen.
+
+\begin{lstlisting}[language=C++]
+#define E
+#ifdef E
+#error "E is defined"
+#endif
+\end{lstlisting}
+
+Mit \lstinline|#warning| wird beim Kompilieren eine Warnung ausgegeben aber
+weiter kompiliert.
+
+\begin{lstlisting}[language=C++]
+#define W
+#ifdef W
+#warning "W is defined"
+#endif
+\end{lstlisting}
+
+Mit \lstinline|#line| kann die Zeilennummer und der Dateinahme verändert werden.
+
+\begin{lstlisting}[language=C++]
+#include <cassert>
+int main() {
+  assert(false);
+}
+\end{lstlisting}
+
+Gibt: \lstinline|c.cc:3: int main(): Assertion `false' failed| aus.
+
+\begin{lstlisting}[language=C++]
+#include <cassert>
+int main() {
+#line 42 "datName.cc"
+
+  assert(false);
+}
+\end{lstlisting}
+
+Gibt: \lstinline| datName.cc:43: int main(): Assertion `false' failed|
+aus.
+

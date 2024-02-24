@@ -1,0 +1,55 @@
+\section{Exceptions -- Ausnahmen}
+
+Überträgt die Kontrolle an den Aufrufer.
+
+\begin{lstlisting}[language=C++]
+#include <stdexcept>
+#include <iostream>
+
+int f(int i) {
+  return i > 100 ? throw std::overflow_error("too big") : i*i;
+}
+
+int main() {
+  int i{-1};
+  try { i = f(2); }
+  catch (std::overflow_error& e) {
+    std::cerr << e.what() << '\n';
+    throw;
+  }
+  std::cout << i << '\n';  // 4
+//f(101);  // Würde zu Programmabbruch führen
+  try { i = f(101); }
+  catch (std::overflow_error& e) {
+    std::cerr << e.what() << '\n';  // too big
+  }
+  std::cout << i << '\n';  // 4
+  try { i = f(101); }
+  catch (std::overflow_error& e) {
+    std::cerr << e.what() << '\n';  // too big
+    throw;     // Bricht Programm ab
+  }
+  std::cout << i << '\n';
+}
+\end{lstlisting}
+
+\lstinline|noexcept| gibt an, ob eine Funktion Ausnahmen auslösen kann. Enthalten diese ein throw, führt das immer zum Programmabbruch.
+
+\begin{lstlisting}[language=C++]
+#include <stdexcept>
+#include <iostream>
+
+int f(int i) noexcept {
+  return i > 100 ? throw std::overflow_error("too big") : i*i;
+}
+
+int main() {
+  int i{-1};
+  try { i = f(101); }  // Bricht hier ab weil
+               // throw in Funktion mit noexcept
+  catch (std::overflow_error& e) {
+    std::cerr << e.what() << '\n';  // too big
+  }
+  std::cout << i << '\n';  // 4
+}
+\end{lstlisting}
