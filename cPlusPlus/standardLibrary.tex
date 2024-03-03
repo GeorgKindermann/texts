@@ -1,0 +1,358 @@
+\section{Standard Library}
+
+Enthält Funktionen die in standard \cpp verwendet werden können. Hier erfolgt
+eine knappe, subjective Auswahl.
+
+\subsection{Input / Output}
+
+Bildschirmausgabe (stdout) erfolgt mit \lstinline|std::cout| und Tastatureingabe
+(stdin) mit \lstinline|std::cin|. Ungepufferte (unmittelbar) Fehlerausgabe
+(stderr) erfolgt mit \lstinline|std::cerr| und gepufferte mit
+\lstinline|std::clog|. Der Puffer kann mit \lstinline|std::flush| gelehrt
+werden. Die Funktionen sind in \lstinline|iostream| definiert.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+int main() {
+  int n;
+  std::cout << "Bitte Anzahl eingeben:";
+  std::cin >> n;
+  std::cout << "Sie haben >" << n << "< eingegeben.\n";
+  std::cerr << "Ungepufferte Fehlerausgabe auf stderr\n";
+  std::clog << "Gepufferte Fehlerausgabe auf stderr\n";
+}
+\end{lstlisting}
+
+Für formatierte Ausgabe gibt es die Funktionen \lstinline|std::print| (ohne
+\lstinline|\n|) bzw.\ \lstinline|std::println| (mit \lstinline|\n|).
+
+\begin{lstlisting}[language=C++]
+#include <print>
+
+int main() {
+  std::print("{} B {}\n", "A", "C");    // A B C
+  std::println("{1} B {0}", "C", "A");  // A B C
+  std::print("{0} B {0}\n", "C");       // C B C
+}
+\end{lstlisting}
+
+Ein / Ausgabe von / zu Dateien über \lstinline|fstream|.
+
+\begin{lstlisting}[language=C++]
+#include <fstream>
+#include <iostream>
+#include <string>
+
+int main() {
+  {
+    std::ofstream ostrm("tmp.txt");  // Öffnet Datei zum schreiben
+    ostrm << "xy " << 42 << '\n';    // Schreibt in Datei
+  }                                  // Schließt ostrm
+  std::ifstream istrm("tmp.txt");    // Öffnet Datei zum lesen
+  if(!istrm.is_open())  // Test ob öffnen funktioniert hat
+    std::cout << "Failed to open\n";
+  else {
+    std::string s;
+    int i;
+    if(istrm >> s >> i)              // Liest von Datei
+      std::cout << s << ' ' << i << '\n';
+  }
+}
+\end{lstlisting}
+
+Mit \lstinline|getline| können ganze Zeilen eingelesen werden. Wenn Space als
+Zeilenende gesetzt wird, kann damit in einzelne Wörter / Token zerlegt werden.
+
+\begin{lstlisting}[language=C++]
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <sstream>
+
+int main() {
+  {
+    std::ofstream ostrm("tmp.txt");
+    ostrm <<
+R"(#a b c
+7 5 3
+2 4 6)";
+  }
+  std::ifstream istrm("tmp.txt");
+  if(!istrm.is_open())
+    std::cout << "Failed to open\n";
+  else {
+    std::string line;
+    while(std::getline(istrm, line)) {  // Liest Zeile
+      if(line.length() > 0 & line[0] != '#') { // Skip comments
+        std::string token;
+        std::istringstream linestream(line);
+        // Teilt Zeile in Tokens (Wörter)
+        while (std::getline(linestream, token, ' ')) {
+          std::cout << token << " : ";
+        }
+        std::cout << '\n';
+      }
+    }
+  }
+}
+\end{lstlisting}
+
+\subsection{Zeichenketten / Strings}
+
+Zeichenketten sind in \lstinline|string| definiert. Strings können
+beispielsweise verkettet werden oder in ihnen nach bestimmten Zeichen gesucht
+werden.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <string>
+
+int main() {
+  std::string c{'E'};       // String erzeugen
+  std::string s{"MC²"};
+  auto cs = c + " = " + s;  // Strings zusammenhängen
+  std::cout << cs << '\n';  // E = MC²
+  std::string::size_type pos = cs.find("=");  // Position von = suchen
+  std::cout << cs.substr(0, pos) << '\n';     // E 
+  std::cout << cs.substr(pos + 1) << '\n';    //  MC²
+  cs[0] = 'X';              // Estes Zeichen austauschen
+  std::cout << cs << '\n';  // X = MC²
+}
+\end{lstlisting}
+
+\subsection{Regular expression}
+
+Zur Mustersuche (pattern matching) in Zeichenketten (Strings).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <string>
+#include <regex>
+
+int main() {
+  std::string s{"R2-D2"};
+  std::regex r("D.");  // Sucht D gefolgt von beliebigem Zeichen
+  if(std::regex_search(s, r)) std::cout << "Treffer\n";
+}
+\end{lstlisting}
+
+\subsection{Container}
+
+Gängige Datenstrukturen wie Vektoren, Listen oder Stapel.
+
+\subsubsection{Sequenziell}
+
+Elemente sind nacheinander angeordnet. Dazu gehören \lstinline|array|
+(statisches fortlaufendes Datenfeld), \lstinline|vector| (größenveränderbares
+fortlaufendes Datenfeld), \lstinline|deque| (Vektor mit zwei Enden),
+\lstinline|list| (nach beiden Richtungen verkettete Elemente - Zeiger auf
+Nachbarelemente) und \lstinline|forward_list| (in eine Richtung verkettet).
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <array>
+#include <vector>
+#include <deque>
+#include <list>
+#include <iterator>
+#include <forward_list>
+
+void P(auto x) {
+  for(const auto& s : x) std::cout << s << ' ';
+  std::cout << '\n';
+}
+
+int main() {
+  std::array<int, 3> a1{1, 2, 3};
+  std::array a2{4, 5, 6};
+  a1[0] = 0;  // Erstes element auf 0 setzen
+  P(a1);  // 0 2 3
+
+  std::vector<int> v = {1, 2};
+  v.push_back(3);  // Element hinten anhängen
+  v[0] = 0;
+  P(v);  // 0 2 3
+
+  std::deque<int> d = {7};
+  d.push_front(0);
+  d.push_back(3);
+  d[1] = 2;
+  P(d);  // 0 2 3
+
+  std::list<int> l = {2, 6};
+  l.push_front(0);
+  l.push_back(8);
+  {
+    auto it = l.begin();
+    std::advance(it, 2);
+    if (it != l.end()) l.insert(it, 4);
+  }
+  P(l);  // 0 2 4 6 8
+
+  std::forward_list<int> f{2, 6};
+  f.push_front(0);
+  {
+    auto it = f.begin();
+    std::advance(it, 1);
+    if (it != f.end()) f.insert_after(it, 4);
+  }
+  P(f);  // 0 2 4 6
+}
+\end{lstlisting}
+
+\subsubsection{Assoziativ}
+
+Elemente werden über einen Schlüssel gefunden. Dazu gehören \lstinline|set|
+(Sammlung eindeutiger sortierter Schlüssel) \lstinline|map| (Sammlung
+eindeutiger sortierter Schlüssel-Wert Paaren). Mit den Varianten
+\lstinline|multiset| und \lstinline|multimap|, mit mehr als einem Schlüssel. Für
+diese gibt es die Varianten \lstinline|unorderd|, welche mit Hashfunktionen die
+Einträge sucht.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <set>
+#include <map>
+#include <unordered_set>
+
+int main() {
+  std::set<int> s{3, 1};
+  s.insert(2);
+  s.insert(1);
+  for(const auto& x : s) std::cout << x << ' ';  // 1 2 3
+  std::cout << '\n';
+
+  std::map<int, int> m{{3,7}, {1,2}};
+  m[2] = 5;
+  m[1] = 3;
+  for(const auto& x : m) std::cout << x.first << '=' <<
+    x.second << ' ';  // 1=3 2=5 3=7
+  std::cout << '\n';
+
+  std::multiset<int> ms{3, 1};
+  ms.insert(2);
+  ms.insert(1);
+  for(const auto& x : ms) std::cout << x << ' ';  // 1 1 2 3
+  std::cout << '\n';
+
+  std::unordered_set<int> us{3, 1};
+  us.insert(2);
+  us.insert(1);
+  for(const auto& x : us) std::cout << x << ' ';  // 2 1 3
+  std::cout << '\n';
+  // Optimierung des Hash
+  us.max_load_factor(.5);  // Verwaltet Elemente pro Bucket
+  us.reserve(1000);  // Reserviert für n Elemente
+}
+\end{lstlisting}
+
+\subsection{Parallelität / Concurrency / Threads}
+
+Synchrone Ausführung auf mehreren Prozessorkernen mit \lstinline|std::thread|
+und \lstinline|join|.
+
+\begin{lstlisting}[language=C++]
+#include <thread>
+#include <iostream>
+#include <vector>
+
+void f(int n) {
+  double s{0.};
+  for(int j=0; j<100000; ++j) {
+    for(int i=0; i<100000; ++i) s+=n/100000.;
+  }
+  std::cout << n << ' ' << s << '\n';
+}
+
+void spawnThreads(int n) {
+  std::vector<std::thread> threads(n);
+  // spawn n threads:
+  for(int i = 0; i < n; ++i) {
+    threads[i] = std::thread(f, i + 1);
+  }
+  for(auto& th : threads) {
+    th.join();
+  }
+}
+
+int main() {
+  spawnThreads(7);
+}
+\end{lstlisting}
+
+Falls die Funktion einen Wert zurückgibt, kann beispielsweise mit
+\lstinline|std::async| und \lstinline|std::future| gearbeitet werden.
+
+\begin{lstlisting}[language=C++]
+#include <thread>
+#include <iostream>
+#include <vector>
+#include <future>
+
+double f(int n) {
+  double s = 0.;
+  for(int j=0; j<100000; ++j) {
+    for(int i=0; i<100000; ++i) s+=n/100000.;
+  }
+  return s;
+}
+
+void spawnThreads(int n) {
+  std::vector<std::future<double>> threads(n);
+  // spawn n threads:
+  for(int i = 0; i < n; ++i) {
+    threads[i] = std::async(f, i + 1);
+  }
+  for(int i = 0; i < n; ++i) {
+    std::cout << i+1 << ' ' << threads[i].get() << '\n';
+  }
+}
+
+int main() {
+  spawnThreads(7);
+}
+\end{lstlisting}
+
+\subsection{Numerics}
+
+Allgemeine mathematische Funktionen, Konstanten, numerische Arrays und
+Zufallszahlgenerierung.
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <numbers>
+#include <cmath>
+#include <random>
+#include <numeric>
+#include <vector>
+#include <valarray>
+
+int main() {
+  std::cout << std::numbers::pi // Double
+  << ' ' << std::numbers::pi_v<float> << '\n';
+
+  std::cout << std::pow(3, 2) << '\n';  // 9
+
+  std::random_device rd{};
+  std::mt19937 gen{rd()};  // Generator
+  gen.seed(42);  // Immer gleiche Zufallszahlenfolge
+  std::normal_distribution<> nd(7., 2.);
+  std::cout << nd(gen) << '\n';  // 5.89953
+
+  std::vector<int> v{2, 5};
+  // Summe, Produkt
+  std::cout << std::accumulate(v.begin(), v.end(), 0) <<
+  std::accumulate(v.begin(), v.end(), 1, std::multiplies<int>())
+  << '\n';  // 7 10
+
+  std::valarray<int> x{2, 5};
+  std::cout << x[0] << ' ' << x[1] << '\n';  // 2 5
+  x *= 2;  // Multiplizieren des ganzen Vektors
+  std::cout << x[0] << ' ' << x[1] << '\n';  // 4 10
+}
+\end{lstlisting}
+
+%\subsection{Algorithmen}
+
+%\subsection{General utilities}
