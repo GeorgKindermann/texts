@@ -353,6 +353,49 @@ int main() {
 }
 \end{lstlisting}
 
-%\subsection{Algorithmen}
+\subsection{Algorithmen}
+
+Beinhaltet Funktionen zum Suchen, Sortieren, Zählen oder Verändern von
+Elementlisten.
+
+\begin{lstlisting}[language=C++]
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <iterator>
+
+int main() {
+  std::vector<int> v {3, 7, 1};
+  // ruft Funktion für jedes Element auf
+  std::for_each(v.cbegin(), v.cend(),
+   [](const int &n) { std::cout << n << ' '; });  // 3 7 1
+  std::cout << '\n';
+
+  // Suche ersten Treffer
+  auto idx = std::find(v.cbegin(), v.cend(), 7);
+  if(idx == v.cend()) {std::cout << "nicht gefunden\n";
+  } else {std::cout << "Auf position: " <<
+   std::distance(v.cbegin(), idx) << '\n';}  // gibt 1 aus
+
+  // Anzahl der Zahlen kleiner 4
+  std::cout << std::count_if(v.cbegin(), v.cend(),
+   [](const int &n) { return n < 4; }) << '\n';  // 2
+
+  int a = 1, b = 2;
+  std::cout << a << ' ' << b << '\n';  // 1 2
+  std::swap(a, b);  // Tauscht a und b
+  std::cout << a << ' ' << b << '\n';  // 2 1
+
+  std::reverse(v.begin(), v.end());  // umgekehrte Reihenfolge
+  for (auto a : v) std::cout << a << ' ';  // 1 7 3
+  std::cout << '\n';
+
+  std::sort(v.begin(), v.end());
+  for (auto a : v) std::cout << a << ' ';  // 1 3 7
+  std::cout << '\n';
+
+  std::cout << *std::max_element(v.begin(), v.end()) << '\n';//7
+}
+\end{lstlisting}
 
 %\subsection{General utilities}
