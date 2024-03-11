@@ -314,6 +314,55 @@ int main() {
 }
 \end{lstlisting}
 
+Eine Liste von Jobs abarbeiten, wobei maximal N threads laufen. Warten bis ein
+Job fertig ist und den nächsten starten.
+
+\begin{lstlisting}[language=C++]
+#include <thread>
+#include <iostream>
+#include <vector>
+#include <future>
+#include <chrono>
+#include <map>
+
+double f(int n) {
+  double s = 0.;
+  for(int j=0; j<100000; ++j) {
+    for(int i=0; i<100000; ++i) s+=n/100000.;
+  }
+  return s;
+}
+
+void spawnThreads(int n) {
+  const int N{4};
+  using namespace std::chrono_literals;
+  std::map<int, std::future<double>> m;
+  std::vector<double> res(n);
+  for(int i = 0; i < n; ++i) {
+    m[i] = std::async(std::launch::async, f, i + 1);
+    while(m.size() >= N) {
+      auto t = m.begin();
+      while (t != m.end()) {
+        auto status = t->second.wait_for(30ms);
+        if (status == std::future_status::ready) {
+          res[t->first] = t->second.get();
+          t = m.erase(t);
+        } else {++t;}
+      }
+    }
+  }
+  for(auto &t : m) res[t.first] = t.second.get();
+  m.clear();
+  for(int i = 0; i < n; ++i) {
+    std::cout << i+1 << ' ' << res[i] << '\n';
+  }
+}
+
+int main() {
+  spawnThreads(7);
+}
+\end{lstlisting}
+
 \subsection{Numerics}
 
 Allgemeine mathematische Funktionen, Konstanten, numerische Arrays und
