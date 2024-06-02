@@ -55,7 +55,7 @@ using Optim
 x = 0:.025:.6
 f(x) = x - (x^1.8)
 y = f.(x)
-plot(x./x[end], y./y[end], xlab="Natürlicher Bestockungsgrad", ylab="Relativer Zuwachs", label="Mit Optimum", color=:black, lw=3)
+plot(x./x[end], y./y[end], xlab="Natürlicher Bestockungsgrad", ylab="Relativer Zuwachs", label="Mit Scheitelpunkt", color=:black, lw=3)
 hline!([.97], label=nothing, color=:gray, linestyle=:dash)
 #i = findmax(y)[2]
 #scatter!([x[i]/maximum(x)], [y[i]/y[end]], label=nothing, color=:white)
@@ -74,7 +74,7 @@ scatter!([xir/x[end]], [f(xir)/y[end]], label=nothing, color=:white)
 
 f(x) = x - (x^3)
 y = f.(x)
-plot!(x./maximum(x), y./y[end], label="Ohne Optimum", color=:black, lw=3, linestyle=:dot)
+plot!(x./maximum(x), y./y[end], label="Ohne Scheitelpunkt", color=:black, lw=3, linestyle=:dot)
 xi = optimize(y->(f(y) - .97*f(x[end]))^2, 0.1, 0.59).minimizer
 scatter!([xi/x[end]], [f(xi)/y[end]], label=nothing, color=:gray)
 vline!([[xi/x[end]]], label=nothing, color=:gray, linestyle=:dash, z_order=:back)
@@ -198,3 +198,38 @@ scatter!(points[14], label=nothing, color=:black, markersize=10)
 
 plot(p1, p2, p3, p4, layout = (2, 2), size=(360*1.5, 340*1.5))
 savefig("bestandesdichteEinzelbaum.pdf")
+
+
+e0 = 1.6
+n0 = 200000
+
+d = [1, 100]
+n = n0 .* d.^(-e0)
+plot(d, n, axis=:log, xlims=extrema(d), ylims=extrema(n), label=nothing, color=:gray, linestyle=:dot, xlabel="Durchmesser [cm]", ylabel="Stammzahl [n/ha]", minorticks=9, lw=3)
+
+#o = (2/3) .^ (0:16)
+o = ((1/3)^.5) .^ (0:16)
+#o = 1
+#o = [o; vec(stack([global o = o[end] .* [2/3, 1/3] for i in 1:8]))]
+
+for p in [[50000, 2.2, :solid, :black], [10000, 2, :dot, :black], [1500, 1.8, :solid, :gray]]
+  n1 = p[1]
+  e1 = p[2]
+  print(n1)
+  n = n1 .* o
+  d = (n0 ./ n[1]).^(1/e0)
+  n1 = d^e1 * n[1]
+  d = (n1 ./ n).^(1/e1)
+  d[2:2:end] .*= 1 .- 1 ./ (1 .+ n[2:2:end].^ .4)
+  x = [1; repeat(d[1:end-1], inner=2)]
+  y = [repeat(n[1:end-1], inner=2); n[end]]
+  display(plot!(x, y, lw=2, color=p[4], label=nothing, linestyle=p[3]))
+end
+savefig("bestandesdichteDN.pdf")
+
+
+h = [0; exp.(0:.1:log(61)) .- 0.99; 61]
+g = 30 .* h .^ 0.3
+#plot(h, g, label=nothing, xlabel="(Ober)-Höhe [m]", ylabel="Maximale Grundfläche [m²/ha]")
+plot(h[[2, end]], g[[2, end]], label=nothing, xlabel="(Ober)-Höhe [m]", ylabel="Maximale Grundfläche [m²/ha]", axis=:log, minorticks=9, xticks=[.01, .1, 1, 10], yticks=[10, 100], color=:black, lw=2)
+savefig("bestandesdichteHG.pdf")

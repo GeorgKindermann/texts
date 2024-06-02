@@ -62,7 +62,7 @@ Eine knappe Darstellung mir wichtig erscheinender Grundlagen des Wachstums von
 Bäumen, Beständen und Betriebsklassen (Zusammenfassung von Beständen eines
 Forstbetriebes). Ausführlichere bzw.\ historisch interessante Arbeiten zum
 Waldwachstum sind:
-\cite{guttenberg1885Wachstumsgesetze,guttenberg1912ZuwachslehreInHandbuchDerForstwissenschaft,vanselow1941Zuwachslehre,weck1948,wiedemann1951Ertragskunde,assmann1961Waldertraskunde,erteld1966Waldertragslehre,mitscherlich1975WaldWachstumUmwelt,kramer1988Waldwachstumslehre,wenk1990Waldertragslehre,pretzsch2002Grundlagen,Pretzsch2003Modellierung,Vanclay2006,Weiskittel2011,Pretzsch2019}.
+\cite{guttenberg1885Wachstumsgesetze,guttenberg1912ZuwachslehreInHandbuchDerForstwissenschaft,vanselow1941Zuwachslehre,weck1948,wiedemann1951Ertragskunde,assmann1961Waldertraskunde,erteld1966Waldertragslehre,mitscherlich1975WaldWachstumUmwelt,kramer1988Waldwachstumslehre,wenk1990Waldertragslehre,Gadow1999Modelling,Gadov2003Waldstruktur,pretzsch2002Grundlagen,Pretzsch2003Modellierung,Vanclay2006,Weiskittel2011,Pretzsch2019}.
 
 \section{Standort -- Bonität}
 
@@ -180,7 +180,7 @@ Höhenzuwachs haben können.
 
 Ähnlich wie die Höhe entwickelt sich auch der Baumdurchmesser bzw.\ dessen
 Kreisfläche im Laufe der Zeit. Auf den Durchmesserzuwachs hat jedoch die
-Durchmessergröße eine wesentlicheren Einfluss als das Alter. Es ist bei uns
+Durchmessergröße einen wesentlicheren Einfluss als das Alter. Es ist bei uns
 üblich den Durchmesser in 1,3\,m Höhe zu messen (Wurzelanlauf, kein Bücken).
 Dieser Durchmesser wird als Brusthöhendurchmesser (BHD) bezeichnet. Von Bäume
 die eine Höhe 1,3\,m noch nicht erreicht haben, kann daher kein BHD gemessen
@@ -190,9 +190,11 @@ geprägt. Wird der Kreisflächenzuwachs $(d_1^2 - d_0^2)\cdot \pi/4$, wobei $d_0
 der Durchmesser zum Zeitpunkt null und $d_1$ zum Zeitpunkt eins ist, von allen
 Bäumen eines Bestandes durch die Bestandesfläche und Zuwachsperiodenlänge
 dividiert, erhält man die Grundflächenzuwachsleistung [m²/ha/Jahr]. Diese
-Zuwachsleistung ist abhängig von Baumart, Baumdimensionen, Alter, Standort und
-Bestandesdichte, wobei es eine zuwachsoptimale Bestandesdichte geben kann.
+Zuwachsleistung ist abhängig von Baumart, Baumdimensionen, Alter, Länge der
+Beobachtungsperiode, Standort, Bestandesdichte sowie Zeitraum seit und
+Intensität der letzten Durchforstung.
 
+Es gibt eine zuwachsoptimale Bestandesdichte.
 Abbildung~\ref{fig:zuwachsBestockungsgrad} zeigt mögliche Verläufe zwischen
 natürlichem Bestockungsgrad und relativer Zuwachsleistung. Der natürliche
 Bestockungsgrad gibt das Verhältnis von aktueller zu maximal möglicher
@@ -202,13 +204,17 @@ Bestandesdichte zu Zuwachs bei aktueller Bestandesdichte an, wobei meist der
 Grundflächenzuwachs/ha/Jahr, Volumnszuwachs/ha/Jahr oder
 Biomassenzuwachs/ha/Jahr betrachtet wird. Es gibt Bestandessituationen, bei
 denen eine Absenkung der Bestandesdichte zu einem Zuwachsverlust führt
-(gestrichelte Linie). Bei anderen kommt es bei einer Absenkung der
+(gestrichelte Linie). Bei anderen hingegen kommt es bei einer Absenkung der
 Bestandesdichte, zunächst zu einer Zuwachszunahme, um erst danach abzunehmen
-(durchgezogene Linie). Bei diesen gibt es eine zuwachsoptimale Bestandesdichte.
-Junge Bäume mit gut entwickelten Kronen auf zuwachsstarken Standorten zeigen
-eher ein Optimum als ältere mit kurzen Kronen auf zuwachsschwachen. Insbesondere
-die Baumart hat neben Bestandesstruktur, Baumartenmischung, \dots einen Einfluss
-auf die Zuwachsreaktion auf verschiedene Bestandesdichten.
+(durchgezogene Linie). In beiden Situationen gibt es eine zuwachsoptimale
+Bestandesdichte. In der einen Situation ist dies bei der maximal möglichen, in
+der anderen bei einer geringeren Bestandesichte. Junge Bäume mit gut
+entwickelten Kronen auf zuwachsstarken Standorten zeigen eher ein Optimum bei
+geringeren Dichten. Hingegen ältere Bestände, Bestände mit kurzen Kronen auf
+zuwachsschwachen Standorten haben den größten Zuwachs bei maximaler
+Bestandesdichte. Insbesondere die Baumart hat neben Bestandesstruktur,
+Baumartenmischung, \dots einen Einfluss auf die Zuwachsreaktion auf verschiedene
+Bestandesdichten.
 
 \begin{figure}[htbp]
   \centering
@@ -221,15 +227,28 @@ Einen Bestand laufend auf der zuwachsoptimalen Bestandesdichte zu halten ist
 praktisch nicht möglich. Vielmehr wird im Zuge von Durchforstungseingriffen die
 Bestandesdichte soweit abgesenkt, wie es ein akzeptierter Zuwachsverlust
 erlaubt. In Abb.~\ref{fig:zuwachsBestockungsgrad} wurde angenommen, dass 3\,\%
-Zuwachsverlust gegenüber dem Vollbestockten Bestand akzeptiert werden und durch
-eine horizontale graue strichlierte Linie angedeutet. Beim Bestand mit
-Zuwachsoptimum kann auf ca.\ 60\,\% der Bestandesdichte abgesenkt werden, beim
-anderen nur auf ca.\ 80\,\%. Bei dem Bestand mit Zuwachsoptimum hätte man aber,
-bezogen auf das Optimum nicht 3\,\%, sondern mehr als 3\,\% Zuwachsverlust.
-Bezogen auf das Optimum wäre in dem Bereich zwischen den beiden weißen Punkten
-mit maximal 3\,\% Zuwachsverlust zu rechnen.
+Zuwachsverlust gegenüber dem vollbestockten Bestand akzeptiert werden. Dieser
+tolerierte Zuwachsverlust wurde durch eine horizontale graue strichlierte Linie
+angedeutet. Beim Bestand mit Scheitelpunkt kann auf ca.\ 60\,\% der
+Bestandesdichte abgesenkt werden, beim anderen nur auf ca.\ 80\,\%. Bei dem
+Bestand mit Scheitelpunkt hätte man aber, bezogen auf das Optimum nicht 3\,\%,
+sondern mehr als 3\,\% Zuwachsverlust. Bezogen auf das Optimum wäre in dem
+Bereich zwischen den beiden weißen Punkten mit maximal 3\,\% Zuwachsverlust zu
+rechnen.
 
-Die Beziehung Bestandesdichte--Zuwachs ist nicht statisch, sondern verändert sich im Lauf der Zeit. Die Art der Veränderung wird unter anderem auch durch die Bestandesdichte mitbestimmt.
+Die Beziehung Bestandesdichte--Zuwachs ist nicht statisch, sondern verändert
+sich im Lauf der Zeit. Die Art der Veränderung wird unter anderem auch durch die
+Bestandesdichte mitbestimmt (Abb.~\ref{fig:zuwachsveraenderungBestockungsgrad}).
+Wird in einem Jungbestand, dessen laufender Zuwachs noch nicht kulminiert hat,
+in der Aussgangssituation eine Bestandesdichte nahe dem Zuwachsoptimum gewählt,
+also bei relativ hoher Bestandesdichte, nimmt der Durchmesser der einzelnen
+Bäume langsamer zu als bei einem Bestand, bei dem der Bestockungsgrad stärker
+abgesenkt wurde. Der unmittelbare Zuwachs ist zwar bei dem Bestand mit hoher
+Dichte höher als bei jenem mit geringer. Dadurch dass die Durchemsser der
+einzelnen Bäume des Bestandes mit geringer Dichte schneller zunehmen, nimmt auch
+deren Zuwachsleistung schneller zu als beim Bestand mit höherer Dichte, sodass
+der Bestand mit geringerer Dichte nach wenigen Jahren eine höhere
+Zuwachsleistung hat als jener mit hoher Dichte (Wuchsbeschleunigungseffekt).
 
 \begin{figure}[htbp]
   \centering
@@ -248,8 +267,8 @@ die Standfläche der Nachbarbäume um 1/6 d.\,h. wenn der Bestockungsgrad eins w
 reduziert er sich auf 6/7 ($\sim 0.86$). Die dabei entstehende Standfläche ist
 asymmetrisch, was in der Regel zu Zuwachseinbußen, asymmetrischen Kronen,
 schiefem Wuchs und damit zu Reaktionsholz führt. Es könnte in dem vereinfachten
-Beispiel den gegenüberliegenden Nachbarn entnehmen und könnte den
-Standflächenschwerpunkt wieder in Zentrum bringen. Die Form wäre aber stark
+Beispiel den gegenüberliegenden Nachbarn entnehmen, womit der
+Standflächenschwerpunkt wieder ins Zentrum kommt. Die Form wäre aber stark
 abweichend von der Idealform des Kreises. Ein Kompromiss wäre die Entnahme von
 drei Nachbarn, wie es in Abb.~\ref{fig:bestandesdichteEinzelbaum} links unten
 dargestellt ist, wobei sich die ursprüngliche Standfläche um 50\,\% erhöht. Eine
@@ -265,11 +284,12 @@ wenn 6~Nachbarn entnommen werden, was die Standfläche verdreifacht.
 
 Die möglichen Bestandesdichtestufen sind in Abb.~\ref{fig:bestockungsgradstufen}
 dargestellt wobei eine Verringerung des Zuwachses aufgrund ungünstiger
-Standflächen-- und Kronenformen nicht berücksichtigt sind. Dabei spiel es eine
-Rolle wie hoch die Bestandesdichte vor dem Eingriff war. Oben wurde angenommen
-das die maximal mögliche, unten nur 80\,\% der maximal möglichen Bestandesdichte
-vor dem Eingriff geherrscht hat. Im linken Teil der Abbildung ist die Situation
-des Dreicksverbandes wie in Abb.~\ref{fig:bestandesdichteEinzelbaum} links oben
+Standflächen-- und Kronenformen sowie der bei der Entnehme entstandenen
+Bestandeslücken nicht berücksichtigt sind. Dabei spiel es eine Rolle wie hoch
+die Bestandesdichte vor dem Eingriff war. Oben wurde angenommen das die maximal
+mögliche, unten nur 80\,\% der maximal möglichen Bestandesdichte vor dem
+Eingriff geherrscht hat. Im linken Teil der Abbildung ist die Situation des
+Dreicksverbandes wie in Abb.~\ref{fig:bestandesdichteEinzelbaum} links oben
 dargestellt und im rechten Teil der Abb.~\ref{fig:bestockungsgradstufen}, wenn
 um einen Zentrumsbaum nur noch drei Nachbarn vorhanden sind
 (Abb.~\ref{fig:bestandesdichteEinzelbaum} links unten), dargestellt.
@@ -283,20 +303,23 @@ um einen Zentrumsbaum nur noch drei Nachbarn vorhanden sind
 
 Bei der Betrachtung von Zuwachs und Bestandesdichte darf nicht übersehen werden,
 dass mit der Bestandesdichte auch das Kronenvolumen der Bäume gesteuert wird und
-damit die Zuwachsleistung bzw.\ die zukünftige Form der Kurve zwischen
+damit die zukünftige Zuwachsleistung bzw.\ die Form der Kurve zwischen
 Bestandesdichte und Zuwachs bestimmt wird, ob es eine Kurve mit oder ohne
-Optimum ist. Auch hat der BHD des Baumes einen großen Einfluss zum einen auf die
+Scheitel ist und ab welche Bestandesdichte mit bedeutendem Zuwachsrückgang zu
+rechnen ist. Auch hat der BHD des Baumes einen großen Einfluss zum einen auf die
 Zuwachsleistung, zum anderen auf die Beziehung Zuwachs--Bestandesdichte.
 Zunächst steigt die Zuwachsleistung mit Zunahme des BHD's. Mit einer Reduktion
 der Bestandesdichte steigt der Durchmesser des BHD's schneller an und führt
 damit zu größeren Zuwächsen (=Wuchsbescheunigung). Ab einem gewissen BHD nimmt
-die Zuwachsleistung wieder ab. Zu Beginn sind geringe Bestandesdichte gut, da
-sie den BHD--Zuwachs steigern, die Kronen schneller an Volumen zunehmen. Jedoch
-ab einem bestimmten BHD sollte dieser nicht zu schnell steigen, da ansonsten die
-Zuwachsleistung wieder sinkt. Hier Hilft zum einen eine hohe Bestandesdichte als
-auch die Entnahme der stärkeren Bäume (Plenterdurchforstung). Dies gilt aber nur
-solange dadurch zum einen nicht die Baumkronen zu stark verkleinert und
-starkwüchsige Bäume zugunsten schwachwüchsiger entnommen werden.
+die Zuwachsleistung wieder ab. Zu Beginn sind geringe Bestandesdichten gut, da
+sie den BHD--Zuwachs steigern und die Kronen schneller an Volumen zunehmen.
+Jedoch ab einem bestimmten BHD, ab einer bestimmen Kronegrösse sollten diese
+nicht zu schnell steigen, da ansonsten die Zuwachsleistung wieder sinkt. Hier
+hilft zum einen eine hohe Bestandesdichte als auch die Entnahme der stärkeren
+Bäume (Plenterdurchforstung). Dies gilt aber nur solange dadurch zum einen nicht
+die Baumkronen zu stark verkleinert und starkwüchsige Bäume zugunsten
+schwachwüchsiger entnommen werden. Es wird die gestaffelte Durchforstung, mit
+starken Eingriffen in der Jugend und geringen bis keinen im Alter, empfohlen.
 
 Da Altbestände weniger auf Druchforstungen reagieren können (geringerer
 Höhenzuwachs), bzw.\ dort Entnahmen, aufgrund der Größe der entnommenen Bäume,
@@ -305,41 +328,214 @@ geschlossen werden können, ist es üblich ab etwa der Hälfte der geplanten
 Umtriebszeit keine weiteren Durchforstungen zu machen. Bei der letzten
 Durchforstung sollte die Baumverteilung möglichst einem gleichmäßigen
 Dreiecksverband, mit sechseckigen Standflächen, nahe kommen und die
-Bestandesdichte so weit abgesenkt werden, dass bei Erreichen des Erntealters in
-etwa die maximal mögliche Bestandesdichte erreicht wird. Eine Bestandesdichte
+Bestandesdichte so weit abgesenkt werden, dass bei Erreichen des Erntealters die
+maximal mögliche Bestandesdichte noch nicht erreicht wird. Eine Bestandesdichte
 nahe der maximal Möglichen und eine Baumverteilung wie in
 Abb.~\ref{fig:bestandesdichteEinzelbaum} links unten ist vor der letzten
 Durchforstung zu begrüßen, da hier nach der Entnahme von drei Nachbarn ein
 Dreiecksverband entsteht und der natürliche Bestockungsgrad auf ca.\ 0.5
-abgesenkt wird. Dieser stake Eingriff führt zwar auf den ersten Blick zu einem
-Zuwachsverlust, erlaubt es jedoch den Verbleibenden Bäumen relativ große, vitale
+abgesenkt wird. Dieser starke Eingriff führt zwar auf den ersten Blick zu einem
+Zuwachsverlust, erlaubt es jedoch den verbleibenden Bäumen relativ große, vitale
 Kronen zu entwickeln, die bei gleicher Bestandesdichte höhere Zuwächse erbringt
-als unterentwickelte Kronen. Auch kann nur mit starken Reduktion der
+als unterentwickelte Kronen. Auch kann nur mit starker Reduktion der
 Bestandesdichte gewährleistet werden, dass die maximal mögliche Bestandesdichte
-nicht zu früh erreicht wird und es nicht zu konkurrenzbedingter Mortalität bzw.\
-vorzeitigen Eingriffen, vor erreichen der geplanten Umtriebszeit, kommt.
+nicht zu früh erreicht wird und es nicht zu konkurrenzbedingter Mortalität
+kommt. Eingriffe knapp vor erreichen der geplanten Umtriebszeit können
+beabsichtigt sein um z.\,B.\ eine Naturverjüngung unter Schirm oder am
+Bestandessaum einzuleiten.
 
 Zum Zeitpunkt des Eingriffs kommt es so gut wie immer zu einem Zuwachsrückgang,
-da sich die Blätter und Nadeln der verbleibenden Bäume erst and die geänderte
-Situation anpassen müssen. Auch sind Bäume eines realen Bestandes nie gleich
-groß. Die weit verbreitete Regel: >>Entnahme der 2--3 größten Bedränger eines
+da sich die Blätter und Nadeln der verbleibenden Bäume erst an die geänderte
+Situation anpassen müssen und Zeit benötigt wird um die entstanden Lücken zu
+schließen. Auch sind Bäume eines realen Bestandes nie gleich groß. Die weit
+verbreitete Regel: >>Entnahme der 2--3 größten Bedränger eines
 Z(ukunfts)--Baumes<< kann für Auslesedurchforstungen empfohlen werden. Bäume die
 keine bzw.\ nur eine geringe Konkurrenz ausüben und bei einer Entnahme nicht
-Kostendeckend sind oder sonstige nachteilige Wirkungen ausüben, werden
-nicht entnommen.
+Kostendeckend sind oder sonstige nachteilige Wirkungen ausüben, werden nicht
+entnommen.
 
-\section{Volumen}
+\section{Volumen und Biomasse}
 
-\section{Alter}
+Üblicherweise wird unter Volumen das Schaftvolumen (Stamm) oder das
+Derbholzvolumen (bei uns alles ab 7\,cm Durchmesser) gemeint. Im weiteren Sinn
+kann aber auch Astvolumen und Wurzelvolumen und bei Betrachtung von Biomasse
+zusätzlich noch Blatt- und Nadelmasse sowie Früchte beinhaltet sein.
 
-\section{Erntezeitpunkt}
+Die Veränderung des Schaftvolumens wird durch den Durchmesser-- und Höhenzuwachs
+bestimmt, wobei die Größe des Durchmesserzuwachses entlang der Stammachse
+variabel ist. Bäume mit großer Standfläche und geringer Konkurrenz legen
+vermehrt im unteren Stammbereich, Bäume mit kleiner Standfläche vermehrt im
+oberen Stammbereich ihren Holzzuwachs an. Bäume die bei hohen Bestandesdichten
+wachsen haben vollholzigere Stämme (Durchmesserabnahme nach oben hin ist
+gering). Die hat z.B. Vorteile beim Einschnitt im Sägewerk, da beim Besäumen
+(wegschneiden der Waldkante) weniger Verschnitt anfällt. Umgekehrt sind
+Abholzige Bäume meist stabiler gegen Windwurf und Schneebruch.
+
+Bäume mit ständig großer Standfläche haben große Kronen mit vielen Ästen und
+großer Blatt-- bzw.\ Nadelmasse sowie großer Wurzelmasse und auch entsprechend
+höhere Zuwächse. Große Ausdurchmesser verursachen geringer Holzqualität.
+Andererseits sind großkronige Bäume in der regel vitaler und könne
+beispielsweise einen Borkenkäferbefall besser abwehren.
+
+Auf Bestandesebene muss die Summe der Einzelbäume durch die Bestandesfläche
+dividiert werden. Dabei zeigt sich ähnlich wie beim Durchmesserzuwachs, dass es
+einen Scheitelpunkt der Zuwachsleistung über der Bestandesdichte geben kann, bei
+dem die aktuelle Zuwachsleistung am größten ausfällt. Aber auch hier gilt, dass
+die aktuelle Bestandesdichte das zukünftige Zuwachspotential beeinflusst, und
+eine aktuell geringere Zuwachsleistung bei geringer Bestandesdichte zu einem
+späteren Zeitpunkt höhere Zuwachsleistungen hervorrufen kann.
+
+\section{Alter und Erntezeitpunkt}
+
+Die Baumgröße hat in der Regel einen größeren Einfluss auf den laufenden Zuwachs
+als das Alter. Zur Bestimmung einer Zuwachsleistung wird durch die Zeitspanne,
+in der der Zuwachs erfolgte, dividiert. Eine gebräuchliche Kennzahl ist der
+durchschnittliche Gesamtzuwachs (DGZ). Hierbei wird der bis zu einem bestimmten
+Alter geleistete Gesamtzuwachs (= stehender Vorrat + Summe des bisher
+ausgeschiedenen Vorrats) je Hektar durch das Alter dividiert. Wenn man den DGZ
+für jedes Alter bestimmt, findet man ein Alter, bei dem dieser Wert am größten
+ist. Bei dem Ziel der Zuwachsmaximierung wäre der ideale Erntezeitpunkt jenes
+Alter bei dem der DGZ ein Maximum erreicht. Da der Kurvenverlauf zu seiner
+Kulmination relativ flach verläuft, führt eine Verschiebung diese Zeitpunks um
+einige Jahre bis Jahrzehnte nur zu geringen Verringerungen der
+durchschnittlichen Zuwachsleistung.
+
+Der Verlauf des DGZ über dem Alter wird von den durchgeführten Durchforstungen
+mitbestimmt. Geringe Bestandesdichten führen zu einer rascheren Zunahme des
+BHD's und damit zu einem früheren Kulminationszeitpunkt des DGZ. In der Jugend
+stark durchforstete Bestände füllen den ihnen zur Verfügung gestellten Raum
+relativ früh mit ihren Kronen aus, haben aber durch die geringe Stammzahl auch
+eine geringe kokurrenzbedingte Mortalität. Es kommt somit auch im höheren Alter
+zu geringen Ausfällen und damit nur zu wenigen unproduktiven Bestandeslücken die
+im Alter relativ lange Zeiträume benötigen, um sich wieder zu schließen. Damit
+fällt die Zuwachsleistung mit zunehmendem Alter relativ gering ab und erlaubt
+den Erntezeitpunkt relativ lange nach hinten zu verschieben ohne mit größeren
+Zuwachseinbußen rechnen zu müssen.
+
+Auf Betriebsebene ergibt sich durch die Größe der unterschiedlich alten Bestände
+eine Altersverteilung der Betriebsfläche. Bei Annahme von gleicher Wüchsigkeit
+und gleicher Baumartenzusammensetzung der einzelnen Bestände wäre eine
+Gleichverteilung der Bestandesflächen je Altersklasse bis zum Alter der
+geplanten Umtriebszeit anzustreben (Normalwaldmodell) um jedes Jahr die gleiche
+Nutzungsmenge bei gleichbleibendem Zuwachs und Vorrat erhalten zu können. Bei
+Beständen mit unterschiedlicher Bonität und unterschiedlicher
+Baumartenzusammensetzung ergeben sich meist unterschiedliche Zielumtriebszeiten.
+Falls die Fläche der Wälder je Zielumtriebszeit zu klein sind um eine eigene
+Betriebsklasse zu bilden, muss entweder die Erntemenge und Nutzungsfläche in
+einzelnen Jahren variieren oder es muss flexibel mit der Zielumtriebszeit
+umgegangen werden.
 
 \section{Zufallsnutzung}
 
-\section{Stammzahl}
-\section{Bestandesdichte}
+Bei geplanten Vor-- und Endnutzungen sowie Untriebszeiten sollten
+Zufallsnutzungen (ungeplante Ausfälle), sofern diese einigermaßen bekannt sind,
+berücksichtigt werden. In der Regel ist es nicht das Ziel das Niveau der
+zufälligen Ausfälle möglichst niedrig zu halten. Wer das Ziel hat möglichst hohe
+Holzmengen zu ernten, kann dies mit einer Baumart mit einer hohen
+Zuwachsleistung aber auch höherem Ausfallsrisiko eventuell besser erreichen als
+mit einer schwachwüchsigen Baumart mit sehr geringem Ausfallsrisiko.
+Zufallsnutzungen verlangen oft eine rasche Aufarbeitung um Folgeschäden
+abzuwenden. Damit binden sie Arbeitskräfte und können dazu führen das geplante
+Durchforstungen und Endnutzungen aufgeschoben werden, was wiederum Auswirkungen
+auf deren Leistung hat. Am einfachen Beispiel der geplanten Umtriebszeit führt
+eine Zufallsnutzung zum einen zu einer verfrühten Nutzung und kann durch die
+Bindung der Arbeitskraft bei den verbleibenden Beständen zu einer verspäteten
+Nutzung führen. Die Integration dieser Einflussfaktoren in der Planung wird
+dadurch Erschwert, dass zum Einen das Niveau der Zufallsnutzungen nicht exakt
+bekannt ist und dass dieses zwischen einzelnen Jahren stark variieren kann.
+
+\section{Stammzahl und Bestandesdichte}
+
+Es gibt eine maximale Stammzahl, Grundfläche, Volumen bzw.\ Biomasse je
+Flächeneinheit. Diese Obergrenze ist abhängig von der Baumart, Baumgröße sowie
+Standortseigenschaften. Auf Einzelbaumebene ist dies der minimale Wuchsraum
+bzw.\ die minimale Standfläche die ein Baum zum Überleben benötigt. Wird ein
+Baum größer, nimmt auch diese minimale Standfläche zu. Oft wird der Zusammenhang
+zwischen Stammzahl und Stammdurchmesser, wenn beide logarithmiert werden, als
+linear angenommen (Abb.~\ref{fig:bestandesdichteDN}). Dabei wird in der Regel
+der BHD als Stammdurchmesser verwendet, was insbesondere bei kleinen Bäumen
+problematisch wird. Augenfällig wird dies bei Bäumen die eine Höhe von 1,3\,m
+noch nicht erreicht haben, damit einen BHD von 0 haben und ihnen damit eine
+hypothetisch mögliche Stammzahl von unendlich unterstellt wird, was in Realität
+selbstverständlich nicht möglich ist. Wird hingegen der Durchmesser dort
+angenommen, wo der Samen zu keimen beginnt, wird diese Problematik zumindest
+abgemildert. Eine andere (bessere) Möglichkeit besteht darin die maximal
+mögliche Grundfläche in Abhängigkeit von der (Ober)--Höhe zu beschreiben, wobei
+beim Logarithmieren beider der Zusammenhang meist als linearer angenommen wird
+(Abb.~\ref{fig:bestandesdichteHG}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/bestandesdichteDN}
+  \caption{Maximale Stammzahl bei erreichtem Stammdurchmesser}
+  \label{fig:bestandesdichteDN}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/bestandesdichteHG}
+  \caption{Maximale Grundfläche bei erreichte (Ober)--Höhe}
+  \label{fig:bestandesdichteHG}
+\end{figure}
+
+Die Gleichmäßigkeit der Baumverteilung bzw.\ die möglichst kreisförmige
+Standfläche bzw.\ Kronenprojektiosfläche, welche zur Erzielung hoher
+Bestandesdichten dienlich sein dürfte, kann nur mit sehr starken Eingriffen, als
+nur in Ausnahmen, über die Bestandesentwicklung ständig erhalten werden. Eine
+Entwicklung ständig in der Nähe der maximal möglichen Bestandesdichte ist nur
+mit inhomogenen Beständen denkbar. Auf Baumebene kann eben nur ein ganzer
+Nachbar entnommen werden und damit die Bestandesdichte nur stufenweise, aber
+nicht kontinuierlich, abgesenkt werden (Abb.~\ref{fig:bestandesdichteDN}). Dabei
+wird die Bestandesentwicklung einen Einfluss auf die maximale Stammzahl bei
+erreichtem Durchmesser haben. Ein Bestand der mit 10\,000~Bäumen die maximale
+Bestandesdichte erreicht und dann Stufenweise immer wieder das neue Maximum
+erreicht, wird bei einer maximalen Stammzahl von 1500~Bäumen einen geringeren
+Durchmesser aufweisen als ein Bestand der mit 1500~Bäumen begründet wurde und
+das erste Mal seine Maximaldichte erreicht.
+
+Eine Kombination von Durchmesser, Höhe, Volumen, Kroendimensionen,
+Bestandesstruktur, Standort, \dots könnte zur Bestimmung der maximalen
+Bestandesdichte (Stammzahl, Grundfläche, Volumen, Biomasse) nötig sein. Da die
+Bestimmung der Standfläche für Einzelbäume noch nicht eindeutig gelöst ist,
+werden üblicherweise Bestände oder Teile dieser, mit bekannter Fläche
+betrachtet. Summen wie Stammzahl, Grundfläche oder Volumen lassen sich für diese
+Flächen berechnen. Wie die dazugehörigen (Mittel)--Werte von Durchmesser und
+Höhe zu bestimmen sind ist zwar klar definiert, aber ob beispielsweise der
+Grundflächenmittelstamm, also das quadratische Mittel des Durchmessers, oder das
+Mittel aus $d^\text{Geradenanstieg}$ also beispielsweise für einen Anstieg von
+$-1.6$ mit $\left(\frac{\sum d^{1.6}}{n}\right)^{1/1.6}$ bestimmt besser
+geeignet wäre, ist erst in wenigen Arbeiten untersucht worden. Generell kann
+gesagt werden, dass Bestände aus möglichst ähnlichen, gleichmäßig verteilten
+Bäumen für die Ermittlung maximal möglicher Bestandesdichten unproblematischer
+verwendet werden können.
 
 \section{Baumartenmischung}
+
+Die Nachbarbäume beeinflussen das Wachstum des betrachteten Baumes. Es ist zu
+erwarten das dabei auch die Baumart der Nachbarbäume eine Rolle spiel. Der
+einfachste Fall liegt vor, wenn untersuchter Baum und Nachbarbäume derselben
+Baumart angehören. Komplexer wird es, wenn sich diese unterscheiden, wobei nicht
+nur 2, sondern auch mehrere Baumarten beteiligt sein können und unterschiedlich
+miteinander interagieren. Neben der Baumart spiel nach wie vor auch deren
+Baumgrößen, Bestandesdichten und damit deren Konkurrenzirkung eine Rolle und
+dies wird durch Standortsfaktoren überprägt. Eine große Bedeutung hat dabei wie
+die Baumarten gemischt sind, ob sie sich lediglich entlang einer Bestandesgrenze
+beeinflussen bis hin zur Einzelmischung.
+
+Mischungen von verschiedenen Baumarten können die Zuwachsleistung steigern aber
+auch verringern. Generell kann man die Produktivität von Beständen aus
+Lichtbaumarten, durch Einbringen von Schattbaumarten im Unterbestand steigern.
+Für die Beurteilung, ob ein konkreter Mischbestand aus zwei Baumarten eine
+höhere oder eine geringere Zuwachsleistung als zwei Reinbestände der gleichen
+Baumarten hat sollte zumindest der Anteil der beiden Baumarten im Mischbestand
+bestimmbar sein sowie deren Mischungsform (einzeln, Trupp, Gruppe, Horst, Reihe,
+Streifen, flächig) und deren Veränderung im Lauf der Zeit angegeben werden. Die
+Behandlung des Mischbestands und der beiden Reinbestände sollte ähnlich
+gestaltet sein, also z.B.\ das Ziel haben die höchst mögliche
+Gesammtwuchsleistung zu erzielen. Wobei neben der Zuwachsleistung beispielsweise
+die erzeile Holzqualität oder der Bewirtschaftungsaufwand von Interesse sein
+dürften.
+
 
 \addcontentsline{toc}{section}{Literatur}
 \bibliography{literature}
