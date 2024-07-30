@@ -52,6 +52,83 @@ savefig("hoehenzuwachs.pdf")
 
 
 using Optim
+t = 0:.5:150
+f(c0, t) = c0.*log1p.(c2.*t.^c3).^c1
+c1 = 0.75
+c3 = 3.
+c2 = exp(-6)
+c0 = Optim.minimizer(optimize(c0 -> (30-f(c0[1], 100))^2, [8.], BFGS()))[1]
+h = f(c0, t)
+ih = [0; diff(h) ./ diff(t)]
+it = [0; t[2:end] .- diff(t) ./ 2.]
+plot(it, ih, ylabel="Höhenzuwachs [m/Jahr]", labels=nothing, color=:gray, lw=2, yguidefontcolor=:gray, linestyle=:dash, z_order=:front)
+axis2 = twinx()
+plot!(axis2, t, h, labels="Früh", xlabel="Alter [Jahre]", ylabel="Höhe [m]", color=:black, lw=2, linestyle=:dash, z_order=:front, legend=:right)
+i = findmax(ih)[2]
+scatter!([it[i]], [ih[i]], label=nothing, mc=:white, msc=:gray)
+scatter!(axis2, [t[i]], [h[i]], label=nothing, mc=:white, msc=:black)
+c2 = exp(-9)
+c0 = Optim.minimizer(optimize(c0 -> (30-f(c0[1], 100))^2, [8.], BFGS()))[1]
+h = f(c0, t)
+ih = [0; diff(h) ./ diff(t)]
+it = [0; t[2:end] .- diff(t) ./ 2.]
+plot!(it, ih, labels=nothing, color=:gray, lw=2, z_order=:back)
+plot!(axis2, t, h, labels="Mittel", color=:black, lw=2)
+i = findmax(ih)[2]
+scatter!([it[i]], [ih[i]], label=nothing, mc=:white, msc=:gray)
+scatter!(axis2, [t[i]], [h[i]], label=nothing, mc=:white, msc=:black)
+c2 = exp(-11.5)
+c0 = Optim.minimizer(optimize(c0 -> (30-f(c0[1], 100))^2, [8.], BFGS()))[1]
+h = f(c0, t)
+ih = [0; diff(h) ./ diff(t)]
+it = [0; t[2:end] .- diff(t) ./ 2.]
+plot!(it, ih, labels=nothing, color=:gray, linestyle=:dot, lw=2, z_order=:back)
+plot!(axis2, t, h, labels="Spät", color=:black, lw=2, linestyle=:dot)
+i = findmax(ih)[2]
+scatter!([it[i]], [ih[i]], label=nothing, mc=:white, msc=:gray)
+scatter!(axis2, [t[i]], [h[i]], label=nothing, mc=:white, msc=:black)
+savefig("hoehenzuwachsFrueMittelSpaet.pdf")
+
+
+t = 0:.5:150
+f(c0, t) = c0.*log1p.(c2.*t.^c3).^c1
+c1 = 0.75
+c3 = 3.
+c2 = exp(-7)
+c0 = 9
+h = f(c0, t)
+ih = [0; diff(h) ./ diff(t)]
+it = [0; t[2:end] .- diff(t) ./ 2.]
+plot(it, ih, ylabel="Höhenzuwachs [m/Jahr]", labels=nothing, color=:gray, lw=2, yguidefontcolor=:gray, linestyle=:dash, z_order=:front)
+axis2 = twinx()
+plot!(axis2, t, h, labels="Hoch", xlabel="Alter [Jahre]", ylabel="Höhe [m]", color=:black, lw=2, linestyle=:dash, z_order=:front, legend=(.8,.25))
+i = findmax(ih)[2]
+scatter!([it[i]], [ih[i]], label=nothing, mc=:white, msc=:gray)
+scatter!(axis2, [t[i]], [h[i]], label=nothing, mc=:white, msc=:black)
+c2 = exp(-8.4)
+c0 = 7.6
+h = f(c0, t)
+ih = [0; diff(h) ./ diff(t)]
+it = [0; t[2:end] .- diff(t) ./ 2.]
+plot!(it, ih, labels=nothing, color=:gray, lw=2, z_order=:back)
+plot!(axis2, t, h, labels="Mittel", color=:black, lw=2)
+i = findmax(ih)[2]
+scatter!([it[i]], [ih[i]], label=nothing, mc=:white, msc=:gray)
+scatter!(axis2, [t[i]], [h[i]], label=nothing, mc=:white, msc=:black)
+c2 = exp(-10)
+c0 = 6
+h = f(c0, t)
+ih = [0; diff(h) ./ diff(t)]
+it = [0; t[2:end] .- diff(t) ./ 2.]
+plot!(it, ih, labels=nothing, color=:gray, linestyle=:dot, lw=2, z_order=:back)
+plot!(axis2, t, h, labels="Nieder", color=:black, lw=2, linestyle=:dot)
+i = findmax(ih)[2]
+scatter!([it[i]], [ih[i]], label=nothing, mc=:white, msc=:gray)
+scatter!(axis2, [t[i]], [h[i]], label=nothing, mc=:white, msc=:black)
+savefig("hoehenzuwachsBonitaet.pdf")
+
+
+using Optim
 x = 0:.025:.6
 f(x) = x - (x^1.8)
 y = f.(x)
