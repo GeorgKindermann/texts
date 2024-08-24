@@ -1,4 +1,18 @@
 using Plots
+
+c1 = 0.75
+c3 = 3
+c2 = exp(-8)
+c0 = 8
+f(c0, t) = c0.*log1p.(c2.*t.^c3).^c1
+#t = [x:2:x+20 for x in 0:10:140]
+#h = [f(c0, x) .+ [0, 1, -1][x[1] ÷ 10 % 3 + 1] ./ (x[end] / 50)^.4 for x in t]
+t = [x:2:x+20 for x in 0:16:140]
+h = [f(c0, x) .+ [0, 1][x[1] ÷ 16 % 2 + 1] ./ ((20 .+ x) ./ 25).^.5 for x in t]
+plot(t, h, label=nothing, xlabel="Alter [Jahre]", ylabel="Höhe [m]", color=:black, lw=2)
+savefig("wuchsreiheHoehe.pdf")
+
+
 c1 = 0.75
 c3 = 3
 c2 = exp(-8)
@@ -132,7 +146,7 @@ using Optim
 x = 0:.025:.6
 f(x) = x - (x^1.8)
 y = f.(x)
-plot(x./x[end], y./y[end], xlab="Natürlicher Bestockungsgrad", ylab="Relativer Zuwachs", label="Mit Scheitelpunkt", color=:black, lw=3)
+plot(x./x[end], y./y[end], xlab="Natürlicher Bestockungsgrad [1]", ylab="Relativer Zuwachs [1/ha/Jahr]", label="Mit Scheitelpunkt", color=:black, lw=3)
 hline!([.97], label=nothing, color=:gray, linestyle=:dash)
 #i = findmax(y)[2]
 #scatter!([x[i]/maximum(x)], [y[i]/y[end]], label=nothing, color=:white)
@@ -159,10 +173,11 @@ vline!([[xi/x[end]]], label=nothing, color=:gray, linestyle=:dash, z_order=:back
 savefig("zuwachsBestockungsgrad.pdf")
 
 
+pythonplot()  # arrow groese veraendern geht derzeit mit gr (noch) nicht
 x = 0:.025:.6
 f(x) = x - (x^1.8)
 y = f.(x)
-plot(x./x[end], y./y[end], xlab="Natürlicher Bestockungsgrad", ylab="Zuwachs", label="Ausgangssituation", color=:black, lw=3, legend=:bottomright)
+plot(x./x[end], y./y[end], xlab="Natürlicher Bestockungsgrad [1]", ylab="Zuwachs [m²/ha/Jahr]", label="Ausgangssituation", color=:black, lw=3, legend=:bottomright)
 scatter!([x[12]/x[end]], [y[12]/y[end]], label=nothing, color=:white)
 scatter!([x[20]/x[end]], [y[20]/y[end]], label=nothing, color=:gray)
 f(x) = x - (x^1.4)
@@ -173,15 +188,16 @@ f(x) = x - (x^2.5)
 y1 = f.(x)
 plot!(x[1:23]./x[end], 1.15 .* y1[1:23]./y1[end], label="Zukunft hohe Dichte", color=:black, lw=3, linestyle=:dot)
 scatter!([x[23]/x[end]], [1.15 * y1[23]/y1[end]], label=nothing, color=:gray)
-plot!([x[12]/x[end], x[15]/x[end]], [y[12]/y[end], 1.2*y0[15]/y0[end]], label=nothing, color=:gray, lw=2, arrow=true)
-plot!([x[20]/x[end], x[23]/x[end]], [y[20]/y[end], 1.15*y1[23]/y1[end]], label=nothing, color=:gray, lw=2, arrow=true)
+plot!([x[12]/x[end], x[15]/x[end]], [y[12]/y[end], 1.2*y0[15]/y0[end]], label=nothing, color=:gray, lw=2, arrow=(:closed, 1, 0.7))
+plot!([x[20]/x[end], x[23]/x[end]], [y[20]/y[end], 1.15*y1[23]/y1[end]], label=nothing, color=:gray, lw=2, arrow=(:closed, 1, 0.7))
 savefig("zuwachsveraenderungBestockungsgrad.pdf")
+gr()
 
 
 x = .6 ./ (1 .+ [0:1/6:1.5; 2])
 f(x) = x - (x^1.8)
 y = f.(x)
-p1 = plot([0], [0], ylab="Relativer Zuwachs", label=nothing, legend=:bottomright, xformatter=_->"")
+p1 = plot([0], [0], ylab="Relativer Zuwachs/ha", label=nothing, legend=:bottomright, xformatter=_->"")
 plot!([1], [1], label=nothing)
 scatter!(x[2:end]./x[begin], y[2:end]./y[begin], label=nothing, color=:black)
 f(x) = x - (x^3)
@@ -189,7 +205,7 @@ y = f.(x)
 scatter!(x[2:end]./x[begin], y[2:end]./y[begin], label=nothing, color=:white)
 
 x = [.6; .8 * .6 ./ (1 .+ [0:1/6:1.5; 2])]
-p2 = plot([0], [0], xlab="Natürlicher Bestockungsgrad", ylab="Relativer Zuwachs", label=nothing, legend=:bottomright)
+p2 = plot([0], [0], xlab="Natürlicher Bestockungsgrad", ylab="Relativer Zuwachs/ha", label=nothing, legend=:bottomright)
 plot!([1], [1], label=nothing)
 f(x) = x - (x^1.8)
 y = f.(x)
@@ -222,24 +238,14 @@ vline!([.8], label=nothing, color=:gray)
 
 tt = stack([[collect(xlims(x)); collect(ylims(x))] for x = [p1, p2, p3, p4]])
 tt = [minimum(tt[1,:]), maximum(tt[2,:]), minimum(tt[3,:]), maximum(tt[4,:])]
-for x = [p1, p2, p3, p4]
+for (x, s) = zip([p1, p2, p3, p4], ["A", "C", "B", "D"])
   xlims!(x, tt[1], tt[2])
   ylims!(x, tt[3], tt[4])
+  annotate!(x, tt[2], tt[4], (s, :right, :top))
 end
 
 plot(p1, p3, p2, p4, layout = (2, 2))
 savefig("bestockungsgradstufen.pdf")
-
-
-x = range(0, step = 0.01, stop = 2pi)
-y1 = sin.(x)
-y2 = cos.(x)
-
-plt1 = plot(x, y1)
-plt2 = plot(x, y2)
-plt1 = plot(x, y1, xformatter=_->"")
-plot(plt1, plt2, layout = (2, 1), framestyle=:box)
-
 
 
 using VoronoiCells
@@ -273,6 +279,11 @@ plot!(tess2, label=nothing, xlims=(0.7,4.3), ylims=(0.1,3.4), color=:black, lw=3
 scatter!(points[i], label=nothing, color=:black)
 scatter!(points[14], label=nothing, color=:black, markersize=10)
 
+for (x, s) = zip([p1, p2, p3, p4], ["A", "B", "C", "D"])
+#  annotate!(x, 4, 3, (s, :right, :top))
+#  annotate!(x, 3.7, 3.4, (s, :right, :top))
+  annotate!(x, 0.8, 3.5, (s, :right, :top))
+end
 plot(p1, p2, p3, p4, layout = (2, 2), size=(360*1.5, 340*1.5))
 savefig("bestandesdichteEinzelbaum.pdf")
 
@@ -303,10 +314,3 @@ for p in [[50000, 2.2, :solid, :black], [10000, 2, :dot, :black], [1500, 1.8, :s
   display(plot!(x, y, lw=2, color=p[4], label=nothing, linestyle=p[3]))
 end
 savefig("bestandesdichteDN.pdf")
-
-
-h = [0; exp.(0:.1:log(61)) .- 0.99; 61]
-g = 30 .* h .^ 0.3
-#plot(h, g, label=nothing, xlabel="(Ober)-Höhe [m]", ylabel="Maximale Grundfläche [m²/ha]")
-plot(h[[2, end]], g[[2, end]], label=nothing, xlabel="(Ober)-Höhe [m]", ylabel="Maximale Grundfläche [m²/ha]", axis=:log, minorticks=9, xticks=[.01, .1, 1, 10], yticks=[10, 100], color=:black, lw=2)
-savefig("bestandesdichteHG.pdf")
