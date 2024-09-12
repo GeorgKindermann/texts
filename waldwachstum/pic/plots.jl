@@ -314,3 +314,51 @@ for p in [[50000, 2.2, :solid, :black], [10000, 2, :dot, :black], [1500, 1.8, :s
   display(plot!(x, y, lw=2, color=p[4], label=nothing, linestyle=p[3]))
 end
 savefig("bestandesdichteDN.pdf")
+
+using Interpolations
+x = [550., 600., 500., 400] .* .8
+y = [0.15, 0.8, 4., 10.]
+jr = y[1]:.1:y[end]
+f = interpolate(y, x, FiniteDifferenceMonotonicInterpolation())
+plot(jr, f.(jr), label="Nadelholz", xlabel="Jahrringbreite [mm]", ylabel="Darrdichte ρ₀ [kg/m³]", legend=:bottomleft, lw=3, color=:black)
+#x = [600., 680., 700.]
+#y = [0.5, 4., 10.]
+x = [550., 630., 680., 700.]
+y = [0.5, 2., 4., 10.]
+jr = y[1]:.1:y[end]
+f = interpolate(y, x, FiniteDifferenceMonotonicInterpolation())
+plot!(jr, f.(jr), label="Ringporig", lw=3, linestyle=:dot, color=:black)
+x = [510., 530., 550, 550.]
+y = [0.25, 0.5, 1., 10.]
+jr = y[1]:.1:y[end]
+f = interpolate(y, x, SteffenMonotonicInterpolation())
+plot!(jr, f.(jr), label="Zerstreutporig", lw=3, linestyle=:dash, color=:black)
+savefig("holzdichteJahrringbreite.pdf")
+
+
+h = [ 1.3, 4.3, 8.3,12.3,16.3,19.3,21.3,23.3,25.3,27.3,29.3]
+d = [1.06 0.97 0.91 0.98 1.05 1.07 1.19 1.18 1.30 1.36 2.02
+     1.09 1.00 0.81 0.84 0.95 0.83 0.82 0.80 0.76 0.69 0.74
+     1.49 1.28 1.15 1.09 1.05 0.95 0.94 0.86 0.81 0.70 0.64]
+hi = h[1]:.25:h[end]
+PF = plot(interpolate(h, d[1,:], SteffenMonotonicInterpolation()).(hi), hi, label=nothing, xlabel="Duchmesserzuwachs [cm/Jahr]", ylabel="Höhe [m]", legend=:outertop, xlim=(0,2.1), ylim=(0, 30), lw=2, color=:black)
+plot!(interpolate(h, d[2,:], SteffenMonotonicInterpolation()).(hi), hi, label=nothing, lw=2, color=:black, linestyle=:dot)
+plot!(interpolate(h, d[3,:], SteffenMonotonicInterpolation()).(hi), hi, label=nothing, lw=2, color=:black, linestyle=:dash)
+plot!([], label="Jahrzehnt vor der Freistellung", color=:black)
+plot!([], label="1. Jahrzehnt nach der Freistellung", color=:black, linestyle=:dot)
+plot!([], label="2. Jahrzehnt nach der Freistellung", color=:black, linestyle=:dash)
+
+h = [ 0.3, 1.3, 3.3, 5.3, 8.3,12.3,16.3,19.3,21.3]
+d = [4.26 3.18 2.82 2.94 2.70 2.48 2.48 2.43 2.46
+     3.77 3.10 2.76 2.95 2.74 2.58 2.38 2.32 2.18
+     3.35 2.59 2.41 2.57 2.32 2.34 2.17 1.80 2.00] ./ 10
+hi = h[1]:.25:h[end]
+PS = plot(interpolate(h, d[1,:], SteffenMonotonicInterpolation()).(hi), hi, leg_title="Alter", label=nothing, xlabel="Duchmesserzuwachs [cm/Jahr]", ylabel="Höhe [m]", xlim=(0,maximum(d)), ylim=(0, maximum(h)), lw=2, color=:black)
+plot!(interpolate(h, d[2,:], SteffenMonotonicInterpolation()).(hi), hi, label=nothing, lw=2, color=:black, linestyle=:dot)
+plot!(interpolate(h, d[3,:], SteffenMonotonicInterpolation()).(hi), hi, label=nothing, lw=2, color=:black, linestyle=:dash)
+plot!([], label="190-199", color=:black)
+plot!([], label="200-209", color=:black, linestyle=:dot)
+plot!([], label="209-219", color=:black, linestyle=:dash)
+
+plot(PF, PS, layout = (1, 2))
+savefig("freistellung.pdf")
