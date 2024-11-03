@@ -3,13 +3,17 @@ using Plots
 c1 = 0.75
 c3 = 3
 c2 = exp(-8)
-c0 = 8
+c0 = 9
 f(c0, t) = c0.*log1p.(c2.*t.^c3).^c1
 #t = [x:2:x+20 for x in 0:10:140]
 #h = [f(c0, x) .+ [0, 1, -1][x[1] ÷ 10 % 3 + 1] ./ (x[end] / 50)^.4 for x in t]
 t = [x:2:x+20 for x in 0:16:140]
 h = [f(c0, x) .+ [0, 1][x[1] ÷ 16 % 2 + 1] ./ ((20 .+ x) ./ 25).^.5 for x in t]
 plot(t, h, label=nothing, xlabel="Alter [Jahre]", ylabel="Höhe [m]", color=:black, lw=2)
+h = [f(7, x) .+ [0, 1][x[1] ÷ 16 % 2 + 1] ./ ((20 .+ x) ./ 25).^.5 for x in t]
+plot!(t, h, label=nothing, xlabel="Alter [Jahre]", ylabel="Höhe [m]", color=:black, lw=2)
+h = [f(5, x) .+ [0, 1][x[1] ÷ 16 % 2 + 1] ./ ((20 .+ x) ./ 25).^.5 for x in t]
+plot!(t, h, label=nothing, xlabel="Alter [Jahre]", ylabel="Höhe [m]", color=:black, lw=2)
 savefig("wuchsreiheHoehe.pdf")
 
 
@@ -362,3 +366,30 @@ plot!([], label="209-219", color=:black, linestyle=:dash)
 
 plot(PF, PS, layout = (1, 2))
 savefig("freistellung.pdf")
+
+
+#Zundel 1960 Kiefer ueber Tanne
+#Hoehe Ki
+hKi = [0 10 20 31 48 65 79 93 107 123 134 140
+0 2 6 11 17.3 19.8 20.4 21.3 22.9 25.4 27.9 29.5]
+hKi2 = [hKi[:,1:7];; [140; 22.2]]
+hKaKi = [0 20 70 100 117 131 140
+0 0 8.2 10.3 12.6 15.3 17.3]
+hTa = [58 70 89 105 120 140
+0 2.5 8.1 13.7 17.3 20.8]
+hTa2 = [58 75 93 107 140
+0 4.2 11.9 16.8 23.4]
+
+t = 0:140
+f = interpolate(hKi[1,:], hKi[2,:], SteffenMonotonicInterpolation())
+f2 = interpolate(hKaKi[1,:], hKaKi[2,:], SteffenMonotonicInterpolation())
+plot(t, f2.(t), fillrange = f.(t), fillalpha = 0.3, color=:green, label="Krone Kiefer", lw=2, xlabel="Alter [Jahre]", ylabel="Höhe [m]", xticks = ([0:25:125; 58]))
+plot!(t, f.(t), lw=2, label="Höhe Kiefer", color=:black)
+f = interpolate(hKi2[1,:], hKi2[2,:], SteffenMonotonicInterpolation())
+plot!(t, f.(t), lw=2, label="Höhe Kiefer erwartet", linestyle=:dash, color=:black)
+t = 58:140
+f = interpolate(hTa[1,:], hTa[2,:], SteffenMonotonicInterpolation())
+plot!(t, f.(t), lw=2, label="Höhe Tanne beschirmt", color=:red)
+f = interpolate(hTa2[1,:], hTa2[2,:], SteffenMonotonicInterpolation())
+plot!(t, f.(t), lw=2, label="Höhe Tanne frei", color=:red, linestyle=:dash)
+savefig("hoeheKonkVonUnten.pdf")
