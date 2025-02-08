@@ -1,0 +1,659 @@
+\documentclass[twocolumn]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+
+\usepackage[sc]{mathpazo} % or option osf
+\usepackage{newpxmath}
+
+\usepackage[comma,authoryear]{natbib}
+\bibliographystyle{apalike}
+
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+
+\usepackage{siunitx}
+\usepackage{etoolbox}
+\renewcommand{\bfseries}{\fontseries{b}\selectfont}
+\robustify\bfseries
+\newrobustcmd{\B}{\bfseries}
+
+\usepackage{graphicx}
+\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+
+\usepackage[pdftitle={Estimating the stem volume of a tree by using section wise measured diameters}
+, pdfauthor={Georg Kindermann}
+, pdfsubject={Tree, Stem, Volume, Forestry, Baum, Schaft, Volumen, Forestwirtschaft}
+, pdfkeywords={Tree, Stem, Volume, Forestry, Baum, Schaft, Volumen, Forestwirtschaft}
+, pdflang={en}
+, hidelinks
+, pdfpagemode={UseNone}]{hyperref}
+
+\nonfrenchspacing
+\sloppy
+
+\title{Estimating the stem volume of a tree by using section wise measured diameters}
+\author{Georg Kindermann}
+
+\begin{document}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{abstract}
+      Tree volumes are typically not measured directly. Some inventories just
+      measure the diameter in 1.3\,m height, measure or estimate the tree height
+      and use a form factor to estimate stem volume. Those form factors are
+      based on relations between diameter (and height, crown length, \dots) and
+      estimated tree volumes. Those tree volumes typical are estimated by using
+      section wise measured stem diameters. Some methods to estimate tree volume
+      using section wise diameters are compared. From this investigation the
+      methods interpolating between the measured diameters and building the
+      integral of those areas along the stem could be recommended. From the
+      interpolation methods the one which are monotonic and non overshooting
+      showed good results. Of the interpolation methods compared, the method
+      developed by Steffen in 1990 showed the best performance.
+    \end{abstract}
+  \end{@twocolumnfalse}
+]
+
+\tableofcontents
+
+\section{Introduction}
+
+The volume of a tree could be distinguished in the parts below ground (roots)
+and those above ground (stem, branches, twigs, needles, leaves). Typical those
+volumes are not measured directly. By using laser scanners diameters along the
+stem could be measured. Still in most cases only the diameter in 1.3\,m height
+(diameter at breast height -- DBH) is measured. Sometimes tree height is
+measured in addition, sometimes it is estimated. Sometimes also the height of
+the crown base. With DBH, height and height of the crown base a form factor is
+used to calculate the stem volume. The form factor was estimated by using the
+relation between DBH, height and volume from trees where diameters along the
+stem (section wise) have been measured. The volume was estimated by assuming
+that the stem has the shape of a circle and calculating the stem area at the
+position of the measured diameter with $d^2 \pi/4$ and multiplying this area
+with the length of the section where this diameter was in the middle. This
+method was e.\,g.\ described by
+\cite{huber1839volumen,kruenitz1781encyclopaedie,kaestner1766mathematische}.
+
+In order to get some information about the real shape of the stem, sometimes two
+cross-sectional diameters are measured. Their arithmetic mean will represent the
+stem area in a good way while their geometric mean would be theoretical better
+\citep{Tischendorf1925holzmassenermittlung}. When diameters are measured
+orthogonal as stem disc radii the arithmetic mean of the basal areas of the
+individual radii is close to the true basal area of the stem
+\citep{Siostrzonek1958grundflaechenzuwachs}.
+
+Nowadays, it is possible to interpolate between the measured diameters and
+calculate the integral along the stem. The simplest interpolation between
+measured diameters will be linear, but also splines have been used since decades
+(see fig.~\ref{fig:vMethods}). As the real volume is not known the different
+methods could not be ranked by comparing how near they come to the real volume.
+Instead, it is possible to leave one measured diameter away and let the
+interpolation method estimate the diameter on this now missing position.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/vMethods}
+  \caption{Different methods to estimate stem volume.}
+  \label{fig:vMethods}
+\end{figure}
+
+There are different definitions of stem volume. Here the stem is the
+part of the tree which goes from the ground continuously to the top. There is
+only one stem per tree. The stem includes the bark. Even if many older stems are
+hollow, this volume which was wood in the past but does not exist now anymore is
+here still counted to the stem volume. The height where a tree was or will be
+cut plays no role when estimating the stem volume. Here it is considered that
+trees are standing on flat land. If it is standing on a slope the tree height is
+typically measured starting from the slope side, but this point might move over
+time e.\,g.\ when the diameter is growing. So the point should be there where
+the root and the shoot come together when the tree was a seedling what will be
+approximately at the height of half of the stem.
+
+
+\section{Data}
+
+The dataset provided by
+\cite{Didion2024sectionWiseStemDiametersText,Didion2024sectionWiseStemDiametersData}
+has been used. The dataset contains 15\,684 measured spruce stems (Picea abies)
+which have been selected. The DBH ranges form 0.6\,cm to 100.8\,cm, height
+ranges form 1.6\,m to 48.6\,m. Most observations are in the range of DBH
+10--50\,cm and height 5--35\,m (see fig.~\ref{fig:dhScatter} and
+\ref{fig:dhCumObs}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/dhScatter}
+  \caption{DBH and Height scatter plot of measured spruce.}
+  \label{fig:dhScatter}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/dhCumObs}
+  \caption{Cumulative observations along DBH and Height.}
+  \label{fig:dhCumObs}
+\end{figure}
+
+The stem diameter was measured starting at the height of 1\,m in sections of
+2\,m as long as the diameter was larger than 7\,cm 1\,m above the measurement
+position. If there was a final segment larger than 7\,cm but shorter than 2\,m
+the diameter of this segment was measure at half of its length. The diameter of
+the final segment smaller than 7\,cm was measured in its middle. In addition,
+the DBH (Diameter at Breast Height) at 1.3\,m height and for some trees the
+diameter at 0.65\,m height was measured. The number of measured diameters is
+given in tab.~\ref{tab:nDiamAtHeight}.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l *{7}{c@{~~}}}
+    h & 0.65 & 1 & 1.3 & 3 & 5 & 7 & 9 \\
+    n & 2964 & 15\,177 & 15\,684 & 14\,651 & 13\,930 & 13\,016 & 12\,026\\
+    \hline
+    h & 11 & 13 & 15 & 17 & 19 & 21 & 23 \\
+    n & 11\,037 & 10\,025 & 8\,939 & 7\,812 & 6\,634 & 5\,604 & 4\,617\\
+    \hline
+    h & 25 & 27 & 29 & 31 & 33 & 35 & 37\\
+    n & 3\,649 & 2\,748 & 1\,886 & 1\,045 & 475 & 164 & 58\\
+    \hline
+    h & 39 & 41 & 43 & 45 & Coarse & d=7 & DTop \\
+    n & 24 & 8 & 4 & 1 & 10\,063 & 15\,417 & 13\,079\\
+  \end{tabular}
+  \caption{Measured diameters at different tree heights.}
+  \label{tab:nDiamAtHeight}
+  \raggedright
+  \footnotesize{h .. Height im [m]\\
+  n .. Number of measured diameters.\\
+  Coarse .. Diameter of the last coarse segment of the stem\\
+  d=7 .. Height where diameter is 7\,cm\\
+  DTop .. Diameter of stem top with a dimater lower than 7\,cm}
+\end{table}
+
+
+\section{Methods}
+
+As the traditional method needs the diameter in the middle of each segment,
+those have been measured. For methods which are interpolating between the
+measurements at least the diameters at the ground and at the tree top are needed
+in addition. As the tree top does not have a diameter of 0\,cm an assumption
+needs to be made how wide the diameter at the tree top is. For the used data it
+is not relevant how large the diameter for small trees is as they are not
+present there. Anyhow, it was assumed that the diameter is 0.1\,cm at height
+0\,m and is increasing up to 0.7\,cm following the relation: $d_t = 0.1 + 0.6
+\cdot \tanh(15 \cdot h^{1.7})$ where the diameter at the tree top ($d_t$) is
+in~cm and the tree height ($h$) is in~m (see fig. \ref{fig:dAtTop}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/dAtTop}
+  \caption{Assumed dependence between tree height and diameter at the top of the tree.}
+  \label{fig:dAtTop}
+\end{figure}
+
+The tree diameter at the ground was estimated creating a regression of the form
+$d = c_0 + c_1 \dot (x - h)^{c_2}$ where $d$ is the diameter at height $h$.
+$c_0$, $c_1$, $c_2$ are coefficients which are estimated for each tree
+individually and $x$ is the highest used height. For $x$ a height of 5\,m was
+selected and all measured diameters until the height of 5\,m have been used to
+estimate the regression coefficients. By using this function the diameter at
+height~0 could be estimated. For some interpolation methods it is useful to have
+an addition point behind the last point of the interpolation range. So a
+hypothetical diameter at height -1\,m was also estimated with this equation. For
+2\,828 trees $d_0$ and $d_{-1m}$ could be estimated by using the measured
+diameters up to a height of 5\,m. 40 tree individual estimated $d_0$ where
+larger than $2\cdot$DBH and 412 $d_{-1m}$ where larger than $3\cdot$DBH and have
+been replaced with an estimate based only on DBH and tree height. For those and
+the remaining trees where $d_0$ and $d_{-1m}$ could not be estimated on a tree
+individual basis it was estimated with eq.~\ref{eq:d0} and \ref{eq:dm1}.
+\begin{align}
+  d_{a} & = \begin{cases}
+    DBH + 1.3 & \text{if } h \geq 1.3\,m\\
+    h         & \text{otherwise}
+\end{cases}\\
+\label{eq:d0}
+d_0 & = d_{a} \cdot (1 + e^{c_0 + c_1\cdot \ln(h) + c_2\cdot d_{a}})\\
+\label{eq:dm1}
+d_{-1m} & = d_{a} \cdot (1 + e^{c_3 + c_4\cdot \ln(h) + c_5\cdot d_{a}})
+\end{align}
+
+Where $d_{a}$ is an auxiliary diameter, $DBH$ diameter in 1.3\,m height in cm,
+$h$ the tree height in m, $d_0$ diameter in 0\,m height, $d_{-1m}$ hypothetical
+diameter 1\,m below ground and $c_0$ to $c_5$ coefficients.
+
+For each tree, one measured diameter was omitted, and for this position, a
+diameter was calculated using various interpolation methods. This was done for
+each single measured diameter as long as interpolation was possible for this
+position. Interpolation is not possible for the first and last observation. The
+estimated diameter was compared with the observed. The interpolation methods
+which have been compared are: % given in tab.~\ref{tab:interpolMethods}:
+
+%\begin{table}[htbp]
+\begin{description}[nolistsep]
+  \item[A] Linear
+  \item[B] B-Spline second, third and fourth order
+  \item[C] Finite Difference (cubic interpolation, no tension parameter)
+  \item[D] Cubic cardinal splines, with tension parameter 0.1, 0.5, 0.9 and 1
+  \item[E] Fritsch Carlson \citep{fritschCarlson1980interpolation}
+  \item[F] Fritsch Butland \citep{fritschButland1984interpolation}
+  \item[G] Steffen \citep{steffen1990interpolation}
+  \item[H] Akima \citep{akima1970interpolation}
+  \item[I] cubic spline keeping first and second derivatives continuous
+  \item[J] Hyman89 \citep{Dougherty1989interpolation}
+  \item[K] C2MP -- adjust first derivatives according to the simplest monotonicity preserving scheme \citep{huynh1993interpolation}
+  \item[L] C2MP2 -- adjust first derivatives according to the extended monotonicity preserving scheme \citep{huynh1993interpolation}
+  \item[M] Huyn-Rational -- the first derivatives are estimated through a rational function which guarantees monotonicity \citep{huynh1993interpolation}
+  \item[N] Van-Albada -- Van Albada type of approximation for the first derivatives \citep{huynh1993interpolation}
+  \item[O] Van-Leer -- Van Leer type of approximation for the first derivatives \citep{huynh1993interpolation}
+  \item[P] Brodlie -- similar to Fritch Butland but takes into account the non-uniformity of the knots
+  \item[Q] Hyman Non Negative
+  \item[R] Bessel
+  \item[S] Fukasawa
+  \item[T] Quadratic Lagrange Interpolation
+\end{description}
+%\caption{Methods used for interpolation.}
+%\label{tab:interpolMethods}
+%\end{table}
+
+After finding a good method to interpolate between measured diameters the
+estimated stem volumes using
+\begin{itemize}[nolistsep]
+  \item Traditional sectional step method using the diameter in the middle of the section
+  \item Linear interpolation
+  \item Cubic spline
+  \item Selected interpolation method
+\end{itemize}
+are calculated. Differences of the volumes between those methods will be shown.
+
+All calculations have been made with the programming language Julia 1.11.3
+\citep{Julia-2017}. The interpolations have been done with the packages
+Interpolations v0.15.1 \citep{juliaMathInterpolations}, Dierckx v0.5.4
+\citep{juliaDierckx} and PPInterpolation v0.7.3 \citep{juliaPPInterpolation}.
+Integrals are calculated using the package Integrals v4.5.0
+\citep{juliaIntegrals} with the method QuadGKJL \citep{laurie1997calculation}.
+Regressions are estimated with the package GLM v1.9.0 \citep{juliaGLM} and
+nonlinear with LsqFit v0.15.0 \citep{juliaLsqFit}. For data handling DataFrames
+v1.7.0 \citep{juliaDataframes} and CSV v0.10.15 \citep{juliaCsv} have been used.
+For plotting and formatting Plots v1.40.9 \citep{juliaPlots}, LaTeXStrings
+v1.4.0 \citep{juliaLaTeXStrings}, Format v1.3.7 \citep{juliaFormat} and for
+trend lines Loess v0.7.2 \citep{juliaLoess} have been used. For statistics
+StatsBase v0.34.4 \citep{juliaStatsBase} and Statistics 1.11.3
+\citep{Julia-2017} have been used.
+
+
+\section{Results}
+
+To estimate the diameter in 0\,m height ($d_0$) using eq.~\ref{eq:d0} and the
+hypothetical diameter 1\,m below ground ($d_{-1m}$) using eq.~\ref{eq:dm1} the
+coefficients $c_0$ to $c_5$ have been estimate as:
+
+\begin{tabular}{l S[table-format=2.6] S[table-format=1.6] S[table-format=2.6] S[table-format=2.6]}
+      & {Coef.} &{Std. Error}  &  {Lower 95\%} &   {Upper 95\%}\\
+\hline
+$c_0$ & -5.87166  & 0.306584 & -6.47255 & -5.27077 \\
+$c_1$ &  1.48349  & 0.100722 &  1.28608 &  1.68090 \\
+$c_2$ & -0.008991 & 0.001367 & -0.01167 & -0.00631 \\[.4em]
+$c_3$ & -5.39029  & 0.321219 & -6.01986 & -4.76071 \\
+$c_4$ &  1.64376  & 0.106548 &  1.43493 &  1.85259 \\
+$c_5$ & -0.012548 & 0.001531 & -0.01555 & -0.00954
+\end{tabular}
+
+The residuals along prediction, $d_a$, tree height and height\,/\,$d_a$ are
+shown for $d_0$ in fig.~\ref{fig:d0Resid} and for $d_{-1m}$ in
+fig.~\ref{fig:dm1Resid} which show no trend.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/d0Resid}
+  \caption{Residual plots of $d_0$ model.}
+  \label{fig:d0Resid}
+  \footnotesize{Residual .. (predicted $d_0$ - "observed" $d_0) / d_a - 1$}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/dm1Resid}
+  \caption{Residual plots of $d_{-1m}$ model.}
+  \label{fig:dm1Resid}
+  \footnotesize{Residual .. (predicted $d_{-1m}$ - "observed" $d_{-1m}) / d_a - 1$}
+\end{figure}
+
+The number of observations between measured and estimated diameters at different
+tree heights is given in tab.~\ref{tab:nInterpol}. Regular measured Coarse
+diameters higher than 27\,m are not shown as the number of observations is
+declining, and most methods show the same behavior as shown at the lower
+diameters. The last segment of coarse wood, the diameter of 7\,cm and the
+diameter of the top are also given.
+
+\begin{table*}[htbp]
+\begin{adjustbox}{width=\linewidth}
+\small
+\begin{tabular*}{\linewidth}{l | *{19}{c@{~~}}}
+  h & 0.65 & 1 & 1.3 & 3 & 5 & 7 & 9 & 11 & 13 & 15 & 17 & 19 & 21 & 23 & 25 & 27 & Coarse & d=7 & DTop\\
+  \cline{1-20}
+  n & 2\,960 & 2\,960 & 14\,527 & 13\,807 & 12\,895 & 11\,909 & 10\,940 & 9\,959 & 8\,890 & 7\,781 & 6\,616 & 5\,596 & 4\,615 & 3\,647 & 2\,746 & 1\,884 & 9\,824 & 7\,986 & 12\,519
+\end{tabular*}
+\end{adjustbox}
+\caption{Number of interpolated diameters at different tree heights.}
+\label{tab:nInterpol}
+\end{table*}
+
+The median between the estimated and the observed diameters for different
+heights and methods are shown in tab.~\ref{tab:difMeadInterpol}. The linear
+method (A) is overestimating in the concave sections on the stem basis and
+overestimating in the convex sections. Many methods find quite good estimates in
+the higher stem sections and show median differences lower than 0.03\,cm. Really
+strong in this region is Method G having 6~times the lowest median difference.
+In addition, it has the lowest median difference at DTop and in the sections of
+lower height the differences reach a maximum of 0.18\,cm. Methods I, J, K, Q and
+R belong 4~times to the methods of the lowest differences. Method E has with
+$-0.09$\,cm the lowest maximum median difference, but it underestimates most of
+the time. Up to a height of 3\,m method E has 2~times the lowest difference.
+
+\begin{table*}[htbp]
+  \begin{adjustbox}{width=1.95\columnwidth}
+  \small
+  \begin{tabular*}{\linewidth}{l |@{~~~} *{19}{S[detect-weight,mode=text,table-format=1.2]}}
+h & {0.65} & {1} & {1.3} & {3} & {5} & {7} & {9} & {11} & {13} & {15} & {17} & {19} & {21} & {23} & {25} & {27} & {Coarse} & {d=7} & {DTop}\\
+    \cline{1-20}
+A & 0.51 & 0.39 & 0.30 & 0.31 & \B 0.00 & -0.05 & -0.10 & -0.10 & -0.10 & -0.15 & -0.15 & -0.15 & -0.20 & -0.20 & -0.25 & -0.25 & \B 0.00 & -0.14 & -0.15 \\
+B2 & -0.16 & 0.13 & -0.33 & -0.36 & -0.01 & \B -0.00 & 0.01 & 0.01 & -0.01 & 0.01 & 0.01 & -0.01 & \B 0.01 & 0.01 & -0.01 & -0.03 & 0.06 & -0.09 & 0.14 \\
+B3 & -0.16 & 0.12 & -0.29 & -0.30 & 0.04 & -0.02 & 0.01 & \B 0.00 & -0.01 & 0.01 & 0.01 & -0.01 & \B 0.01 & 0.01 & \B 0.00 & -0.03 & 0.05 & -0.09 & 0.27 \\
+B4 & -0.18 & 0.12 & -0.31 & 0.77 & -0.14 & 0.06 & -0.01 & \B 0.00 & -0.01 & \B -0.00 & 0.02 & -0.01 & \B 0.01 & 0.01 & 0.01 & -0.02 & 0.05 & -0.08 & 0.33 \\
+C & -0.07 & 0.10 & -0.14 & -0.09 & -0.11 & -0.03 & -0.01 & -0.02 & -0.04 & -0.03 & -0.02 & -0.05 & -0.04 & -0.05 & -0.09 & -0.08 & 0.06 & -0.09 & -0.07 \\[.35em]
+D0.1 & 0.07 & 0.05 & 0.07 & 0.24 & -0.07 & -0.04 & -0.05 & -0.05 & -0.07 & -0.07 & -0.07 & -0.10 & -0.10 & -0.12 & -0.16 & -0.15 & 0.03 & -0.08 & -0.04 \\
+D0.5 & \B 0.03 & 0.17 & 0.25 & 0.29 & -0.05 & -0.05 & -0.06 & -0.07 & -0.09 & -0.10 & -0.10 & -0.13 & -0.14 & -0.17 & -0.20 & -0.19 & -0.08 & \B 0.03 & 0.26 \\
+D0.9 & -0.04 & 0.29 & 0.45 & 0.34 & -0.02 & -0.05 & -0.09 & -0.09 & -0.10 & -0.13 & -0.13 & -0.15 & -0.19 & -0.20 & -0.24 & -0.24 & -0.20 & 0.14 & 0.56 \\
+D1 & -0.05 & 0.32 & 0.50 & 0.36 & \B -0.00 & -0.05 & -0.10 & -0.10 & -0.10 & -0.15 & -0.15 & -0.15 & -0.20 & -0.20 & -0.25 & -0.25 & -0.23 & 0.16 & 0.64 \\
+E & -0.08 & 0.08 & \B -0.03 & \B -0.03 & -0.09 & -0.02 & -0.01 & -0.02 & -0.04 & -0.03 & -0.01 & -0.05 & -0.04 & -0.05 & -0.09 & -0.08 & 0.06 & -0.09 & -0.06 \\[.35em]
+F & -0.08 & 0.07 & 0.12 & 0.08 & -0.06 & -0.02 & -0.01 & -0.01 & -0.03 & -0.02 & -0.01 & -0.04 & -0.03 & -0.04 & -0.06 & -0.07 & 0.05 & -0.08 & -0.02 \\
+G & -0.18 & 0.05 & 0.08 & 0.08 & -0.08 & -0.02 & \B 0.00 & \B 0.00 & \B 0.00 & 0.01 & 0.02 & \B -0.00 & \B 0.01 & \B 0.00 & -0.02 & -0.03 & 0.06 & -0.08 & \B -0.01 \\
+H & -0.06 & 0.07 & 0.07 & 0.14 & -0.02 & -0.03 & -0.02 & -0.02 & -0.03 & -0.03 & -0.03 & -0.06 & -0.05 & -0.06 & -0.09 & -0.09 & 0.05 & -0.09 & 0.05 \\
+I & -0.23 & 0.13 & -0.30 & -0.29 & 0.03 & -0.02 & 0.01 & \B 0.00 & -0.01 & \B 0.00 & 0.01 & -0.01 & \B 0.01 & 0.01 & \B 0.00 & -0.03 & 0.06 & -0.08 & 0.05 \\
+J & -0.23 & 0.11 & -0.10 & -0.15 & 0.02 & -0.02 & 0.01 & \B 0.00 & -0.01 & \B 0.00 & 0.01 & -0.01 & \B 0.01 & 0.01 & \B 0.00 & -0.03 & 0.06 & -0.08 & 0.05 \\[.35em]
+K & -0.23 & 0.11 & -0.10 & -0.15 & 0.02 & -0.02 & 0.01 & \B 0.00 & -0.01 & \B 0.00 & 0.01 & -0.01 & \B 0.01 & 0.01 & \B 0.00 & -0.03 & 0.06 & -0.08 & 0.05 \\
+L & -0.14 & \B 0.01 & -0.10 & -0.10 & -0.14 & -0.02 & \B 0.00 & \B 0.00 & -0.02 & -0.01 & \B 0.00 & -0.03 & -0.02 & -0.04 & -0.05 & -0.06 & 0.11 & -0.13 & -0.11 \\
+M & -0.06 & 0.06 & 0.10 & 0.11 & -0.07 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.02 & -0.05 & -0.04 & -0.06 & -0.08 & -0.09 & 0.05 & -0.09 & \B 0.01 \\
+N & \B -0.03 & 0.06 & 0.25 & 0.27 & -0.03 & -0.03 & -0.02 & -0.03 & -0.04 & -0.03 & -0.03 & -0.06 & -0.05 & -0.07 & -0.08 & -0.09 & 0.04 & -0.08 & 0.07 \\
+O & -0.06 & 0.06 & 0.15 & 0.17 & -0.05 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.02 & -0.05 & -0.04 & -0.06 & -0.08 & -0.09 & 0.05 & -0.09 & 0.03 \\[.35em]
+P & -0.07 & 0.07 & 0.12 & 0.08 & -0.06 & -0.02 & -0.01 & -0.01 & -0.03 & -0.02 & -0.01 & -0.04 & -0.03 & -0.04 & -0.06 & -0.07 & 0.05 & -0.08 & 0.04 \\
+Q & -0.23 & 0.13 & -0.30 & -0.29 & 0.03 & -0.02 & 0.01 & \B 0.00 & -0.01 & \B 0.00 & 0.01 & -0.01 & \B 0.01 & 0.01 & \B 0.00 & -0.03 & 0.06 & -0.08 & 0.05 \\
+R & -0.18 & 0.17 & -0.30 & -0.40 & -0.14 & -0.02 & \B 0.00 & 0.01 & \B 0.00 & 0.01 & 0.02 & \B -0.00 & 0.02 & \B 0.00 & -0.02 & -0.02 & 0.06 & -0.08 & 0.06 \\
+S & -0.05 & 0.07 & 0.11 & 0.11 & -0.08 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.02 & -0.05 & -0.05 & -0.06 & -0.09 & -0.09 & 0.05 & -0.09 & \B 0.01 \\
+T & -0.14 & 0.22 & -0.39 & -0.95 & -0.31 & -0.03 & -0.03 & -0.03 & -0.03 & \B -0.00 & \B -0.00 & -0.03 & -0.03 & -0.03 & -0.03 & \B -0.00 & 0.07 & -0.09 & 0.13
+\end{tabular*}
+\end{adjustbox}
+\caption{Median difference [cm] between estimated - observed diameter.}
+\label{tab:difMeadInterpol}
+\end{table*}
+
+As the arithmetic mean could be strong influenced by outliers it was calculated
+using only values which are between the 2.5\,\% and 97.5\,\% quantile. It is
+shown in tab.~\ref{tab:difMeanInterpol}. G, J and K belong 10~times and B2, B3,
+B4, I and Q belong 9~times to the methods with the lowest differences. Methods J
+and K have with $0.09$\,cm the lowest maximum difference. Up to a height of 3\,m
+method G has 2~times the lowest difference.
+
+\begin{table*}[htbp]
+  \begin{adjustbox}{width=1.95\columnwidth}
+  \small
+  \begin{tabular*}{\linewidth}{l |@{~~~} *{19}{S[detect-weight,mode=text,table-format=1.2]}}
+h & {0.65} & {1} & {1.3} & {3} & {5} & {7} & {9} & {11} & {13} & {15} & {17} & {19} & {21} & {23} & {25} & {27} & {Coarse} & {d=7} & {DTop}\\
+    \cline{1-20}
+A & 0.78 & 0.48 & 0.49 & 0.54 & 0.01 & -0.07 & -0.09 & -0.10 & -0.12 & -0.13 & -0.15 & -0.17 & -0.19 & -0.24 & -0.26 & -0.26 & -0.02 & -0.13 & -0.15 \\
+B2 & -0.07 & 0.14 & -0.30 & -0.62 & -0.01 & -0.01 & \B 0.00 & 0.01 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & \B -0.00 & \B -0.00 & \B -0.02 & 0.05 & -0.07 & 0.09 \\
+B3 & -0.08 & 0.12 & -0.24 & -0.55 & 0.07 & -0.03 & 0.01 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & \B -0.00 & \B 0.00 & \B -0.02 & 0.05 & -0.07 & 0.13 \\
+B4 & -0.17 & 0.12 & -0.27 & 0.54 & 0.04 & \B 0.00 & \B 0.00 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & 0.01 & 0.02 & \B -0.02 & 0.05 & -0.07 & 0.09 \\
+C & 0.16 & 0.08 & -0.06 & -0.10 & -0.14 & -0.03 & -0.02 & -0.02 & -0.03 & -0.03 & -0.03 & -0.04 & -0.05 & -0.07 & -0.07 & -0.08 & 0.04 & -0.08 & -0.08 \\[.35em]
+D0.1 & 0.33 & \B 0.02 & 0.22 & 0.43 & -0.07 & -0.05 & -0.05 & -0.06 & -0.07 & -0.08 & -0.08 & -0.10 & -0.11 & -0.14 & -0.15 & -0.16 & \B 0.01 & -0.06 & -0.05 \\
+D0.5 & 0.21 & 0.18 & 0.45 & 0.50 & -0.04 & -0.06 & -0.07 & -0.08 & -0.09 & -0.10 & -0.11 & -0.13 & -0.15 & -0.18 & -0.20 & -0.21 & -0.12 & \B 0.05 & 0.25 \\
+D0.9 & 0.08 & 0.35 & 0.69 & 0.58 & \B -0.00 & -0.07 & -0.08 & -0.10 & -0.12 & -0.13 & -0.14 & -0.16 & -0.18 & -0.23 & -0.25 & -0.25 & -0.25 & 0.16 & 0.56 \\
+D1 & 0.05 & 0.39 & 0.75 & 0.60 & 0.01 & -0.07 & -0.09 & -0.10 & -0.12 & -0.13 & -0.15 & -0.17 & -0.19 & -0.24 & -0.26 & -0.26 & -0.28 & 0.19 & 0.64 \\
+E & 0.15 & 0.05 & 0.05 & \B 0.04 & -0.11 & -0.03 & -0.02 & -0.02 & -0.03 & -0.03 & -0.03 & -0.04 & -0.04 & -0.07 & -0.07 & -0.08 & 0.04 & -0.08 & -0.07 \\[.35em]
+F & 0.09 & 0.04 & 0.24 & 0.17 & -0.07 & -0.03 & -0.01 & -0.01 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.05 & -0.05 & -0.07 & 0.03 & -0.07 & -0.02 \\
+G & \B -0.02 & \B 0.02 & 0.18 & 0.16 & -0.10 & -0.02 & \B 0.00 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & -0.01 & -0.01 & \B -0.02 & 0.05 & -0.07 & -0.03 \\
+H & 0.08 & 0.03 & 0.18 & 0.21 & -0.01 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.04 & -0.05 & -0.05 & -0.07 & -0.08 & -0.09 & 0.03 & -0.08 & 0.03 \\
+I & -0.10 & 0.12 & -0.25 & -0.55 & 0.07 & -0.03 & 0.01 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & \B -0.00 & \B 0.00 & \B -0.02 & 0.05 & -0.07 & 0.02 \\
+J & -0.07 & 0.09 & \B -0.04 & -0.08 & 0.02 & -0.03 & 0.01 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & \B -0.00 & \B 0.00 & \B -0.02 & 0.05 & -0.07 & 0.02 \\[.35em]
+K & -0.07 & 0.09 & \B -0.04 & -0.09 & 0.02 & -0.03 & 0.01 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & \B -0.00 & \B 0.00 & \B -0.02 & 0.05 & -0.07 & 0.02 \\
+L & 0.10 & -0.05 & -0.06 & -0.05 & -0.17 & -0.03 & -0.01 & -0.01 & -0.02 & -0.01 & \B -0.01 & -0.02 & -0.02 & -0.04 & -0.05 & -0.06 & 0.09 & -0.12 & -0.14 \\
+M & 0.13 & 0.03 & 0.22 & 0.21 & -0.07 & -0.03 & -0.02 & -0.02 & -0.03 & -0.03 & -0.03 & -0.05 & -0.05 & -0.07 & -0.07 & -0.09 & 0.04 & -0.07 & 0.01 \\
+N & 0.14 & \B 0.02 & 0.41 & 0.40 & -0.02 & -0.03 & -0.02 & -0.03 & -0.04 & -0.04 & -0.04 & -0.05 & -0.05 & -0.08 & -0.08 & -0.09 & 0.02 & -0.06 & 0.08 \\
+O & 0.13 & \B 0.02 & 0.29 & 0.28 & -0.05 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.04 & -0.05 & -0.05 & -0.07 & -0.08 & -0.09 & 0.03 & -0.07 & 0.03 \\[.35em]
+P & 0.09 & 0.04 & 0.24 & 0.17 & -0.07 & -0.03 & -0.01 & -0.01 & -0.03 & -0.02 & -0.02 & -0.04 & -0.03 & -0.05 & -0.05 & -0.07 & 0.03 & -0.07 & 0.04 \\
+Q & -0.10 & 0.12 & -0.25 & -0.55 & 0.07 & -0.03 & 0.01 & \B 0.00 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & \B -0.00 & \B 0.00 & \B -0.02 & 0.05 & -0.07 & 0.02 \\
+R & -0.04 & 0.18 & -0.28 & -0.61 & -0.20 & -0.02 & \B 0.00 & 0.01 & \B -0.00 & \B 0.00 & \B 0.01 & \B -0.00 & \B 0.01 & -0.01 & -0.01 & \B -0.02 & 0.05 & -0.07 & 0.02 \\
+S & 0.13 & 0.03 & 0.25 & 0.22 & -0.08 & -0.03 & -0.02 & -0.02 & -0.04 & -0.04 & -0.04 & -0.05 & -0.05 & -0.07 & -0.08 & -0.09 & 0.03 & -0.07 & \B -0.00 \\
+T & -0.12 & 0.25 & -0.39 & -1.44 & -0.45 & -0.06 & -0.02 & -0.02 & -0.02 & -0.02 & -0.02 & -0.03 & -0.03 & -0.05 & -0.03 & \B -0.02 & 0.06 & -0.07 & 0.08
+  \end{tabular*}
+\end{adjustbox}
+\caption{Mean difference [cm] between estimated - observed diameter skipping upper and lower 2.5\,\% of observations.}
+\label{tab:difMeanInterpol}
+\end{table*}
+
+Like for the arithmetic mean also for calculating the standard deviation only
+values which are between the 2.5\,\% and 97.5\,\% quantile have been used. The
+results are shown in tab.~\ref{tab:stdDifInterpol}. The lowest deviations show
+the linear interpolation (A) with 13 times having the lowest value followed by
+D1 with 12 and D0.9 with 11 times. Methods D1 has with $0.80$\,cm the lowest
+maximum deviance. A similar result is given by comparing the distance between
+2.5\,\% and 97.5\.\% quantile (tab.~\ref{tab:quntRangeInterpol}) and between
+25\,\% and 75\,\% quantile (tab.~\ref{tab:iqrInterpol}).
+
+\begin{table*}[htbp]
+  \begin{adjustbox}{width=1.95\columnwidth}
+  \small
+  \begin{tabular*}{\linewidth}{l |@{~~~} *{19}{S[detect-weight,mode=text,table-format=1.2]}}
+h & {0.65} & {1} & {1.3} & {3} & {5} & {7} & {9} & {11} & {13} & {15} & {17} & {19} & {21} & {23} & {25} & {27} & {Coarse} & {d=7} & {DTop}\\
+    \cline{1-20}
+A & 1.16 & 0.62 & 0.61 & 0.74 & 0.29 & \B 0.26 & \B 0.28 & \B 0.29 & \B 0.30 & \B 0.33 & \B 0.35 & 0.38 & \B 0.40 & \B 0.43 & \B 0.46 & \B 0.48 & \B 0.29 & \B 0.31 & \B 0.42 \\
+B2 & 0.90 & 0.56 & 0.60 & 1.27 & 0.45 & 0.31 & 0.32 & 0.34 & 0.36 & 0.39 & 0.42 & 0.45 & 0.48 & 0.51 & 0.56 & 0.58 & 0.32 & 0.33 & 0.77 \\
+B3 & 0.89 & 0.56 & 0.59 & 1.32 & 0.59 & 0.35 & 0.34 & 0.35 & 0.38 & 0.41 & 0.44 & 0.47 & 0.50 & 0.54 & 0.59 & 0.62 & 0.31 & 0.34 & 1.68 \\
+B4 & 0.91 & 0.56 & 0.63 & 2.91 & 1.73 & 0.80 & 0.49 & 0.44 & 0.45 & 0.49 & 0.53 & 0.57 & 0.62 & 0.68 & 0.75 & 0.84 & 0.33 & 0.36 & 2.63 \\
+C & 1.03 & \B 0.55 & 0.55 & 0.65 & 0.31 & 0.28 & 0.29 & 0.31 & 0.32 & 0.35 & 0.38 & 0.41 & 0.43 & 0.46 & 0.49 & 0.51 & 0.30 & 0.32 & 0.47 \\[.35em]
+D0.1 & 1.09 & 0.56 & 0.59 & 0.64 & \B 0.27 & 0.27 & \B 0.28 & 0.30 & 0.31 & 0.34 & 0.36 & 0.39 & 0.42 & 0.44 & 0.47 & 0.49 & 0.30 & 0.32 & 0.44 \\
+D0.5 & 0.94 & 0.56 & 0.65 & 0.70 & \B 0.27 & \B 0.26 & \B 0.28 & \B 0.29 & 0.31 & \B 0.33 & 0.36 & 0.38 & 0.41 & 0.44 & \B 0.46 & \B 0.48 & 0.30 & 0.32 & 0.43 \\
+D0.9 & 0.82 & 0.59 & 0.73 & 0.75 & 0.29 & \B 0.26 & \B 0.28 & \B 0.29 & \B 0.30 & \B 0.33 & \B 0.35 & \B 0.37 & \B 0.40 & \B 0.43 & \B 0.46 & \B 0.48 & 0.31 & 0.33 & 0.43 \\
+D1 & \B 0.80 & 0.60 & 0.76 & 0.77 & 0.29 & \B 0.26 & \B 0.28 & \B 0.29 & \B 0.30 & \B 0.33 & \B 0.35 & 0.38 & \B 0.40 & \B 0.43 & \B 0.46 & \B 0.48 & 0.31 & 0.33 & \B 0.42 \\
+E & 1.06 & 0.57 & 0.49 & 0.54 & 0.31 & 0.28 & 0.29 & 0.31 & 0.33 & 0.35 & 0.38 & 0.41 & 0.43 & 0.46 & 0.49 & 0.51 & 0.30 & 0.32 & 0.48 \\[.35em]
+F & 1.02 & 0.57 & 0.51 & 0.50 & 0.28 & 0.28 & 0.29 & 0.31 & 0.33 & 0.35 & 0.38 & 0.41 & 0.43 & 0.46 & 0.50 & 0.52 & 0.30 & 0.33 & 0.50 \\
+G & 1.03 & 0.58 & 0.48 & \B 0.48 & 0.29 & 0.28 & 0.30 & 0.32 & 0.33 & 0.36 & 0.39 & 0.42 & 0.45 & 0.48 & 0.51 & 0.53 & 0.31 & 0.32 & 0.52 \\
+H & 1.00 & 0.58 & 0.57 & 0.54 & 0.29 & 0.27 & 0.29 & 0.31 & 0.32 & 0.35 & 0.38 & 0.40 & 0.43 & 0.46 & 0.49 & 0.51 & 0.30 & 0.32 & 0.58 \\
+I & 0.99 & 0.58 & 0.60 & 1.33 & 0.59 & 0.35 & 0.34 & 0.36 & 0.38 & 0.41 & 0.44 & 0.48 & 0.50 & 0.54 & 0.59 & 0.62 & 0.32 & 0.33 & 0.66 \\
+J & 1.08 & 0.59 & 0.49 & 0.66 & 0.44 & 0.34 & 0.34 & 0.35 & 0.38 & 0.41 & 0.44 & 0.47 & 0.50 & 0.54 & 0.59 & 0.62 & 0.32 & 0.33 & 0.66 \\[.35em]
+K & 1.08 & 0.59 & 0.49 & 0.64 & 0.44 & 0.34 & 0.34 & 0.35 & 0.38 & 0.41 & 0.44 & 0.47 & 0.50 & 0.54 & 0.59 & 0.62 & 0.32 & 0.33 & 0.66 \\
+L & 1.15 & 0.63 & \B 0.45 & 0.49 & 0.33 & 0.29 & 0.30 & 0.32 & 0.34 & 0.37 & 0.39 & 0.43 & 0.46 & 0.48 & 0.52 & 0.54 & 0.32 & 0.32 & 0.58 \\
+M & 1.04 & 0.57 & 0.51 & 0.52 & 0.28 & 0.27 & 0.29 & 0.31 & 0.32 & 0.35 & 0.38 & 0.40 & 0.43 & 0.46 & 0.49 & 0.51 & 0.30 & 0.32 & 0.54 \\
+N & 1.03 & 0.58 & 0.56 & 0.57 & 0.28 & 0.27 & 0.29 & 0.31 & 0.32 & 0.35 & 0.38 & 0.40 & 0.43 & 0.46 & 0.50 & 0.52 & \B 0.29 & 0.33 & 0.55 \\
+O & 1.03 & 0.58 & 0.52 & 0.53 & 0.28 & 0.27 & 0.29 & 0.31 & 0.32 & 0.35 & 0.38 & 0.40 & 0.43 & 0.46 & 0.49 & 0.51 & 0.30 & 0.32 & 0.54 \\[.35em]
+P & 1.02 & 0.58 & 0.51 & 0.52 & 0.28 & 0.28 & 0.29 & 0.31 & 0.33 & 0.35 & 0.38 & 0.41 & 0.43 & 0.46 & 0.50 & 0.52 & 0.30 & 0.33 & 0.57 \\
+Q & 0.99 & 0.58 & 0.60 & 1.33 & 0.59 & 0.35 & 0.34 & 0.36 & 0.38 & 0.41 & 0.44 & 0.48 & 0.50 & 0.54 & 0.59 & 0.62 & 0.32 & 0.33 & 0.66 \\
+R & 0.96 & \B 0.55 & 0.58 & 1.04 & 0.36 & 0.29 & 0.30 & 0.32 & 0.34 & 0.36 & 0.39 & 0.42 & 0.45 & 0.48 & 0.52 & 0.54 & 0.31 & 0.33 & 0.61 \\
+S & 1.03 & 0.58 & 0.54 & 0.55 & 0.28 & 0.27 & 0.29 & 0.31 & 0.32 & 0.35 & 0.38 & 0.40 & 0.43 & 0.46 & 0.49 & 0.51 & 0.30 & 0.32 & 0.52 \\
+T & 0.82 & 0.58 & 0.62 & 1.93 & 0.57 & 0.32 & 0.32 & 0.33 & 0.35 & 0.37 & 0.40 & 0.43 & 0.46 & 0.50 & 0.53 & 0.56 & 0.32 & 0.33 & 0.71
+\end{tabular*}
+\end{adjustbox}
+\caption{Standard deviation [cm] between estimated - observed diameter skipping upper and lower 2.5\,\% of observations.}
+\label{tab:stdDifInterpol}
+\end{table*}
+
+\begin{table*}[htbp]
+  \begin{adjustbox}{width=1.95\columnwidth}
+  \small
+  \begin{tabular*}{\linewidth}{l |@{~~~} *{19}{S[detect-weight,mode=text,table-format=1.2]}}
+h & {0.65} & {1} & {1.3} & {3} & {5} & {7} & {9} & {11} & {13} & {15} & {17} & {19} & {21} & {23} & {25} & {27} & {Coarse} & {d=7} & {DTop}\\
+    \cline{1-20}
+A & 5.81 & 3.17 & 3.02 & 3.79 & 1.60 & \B 1.40 & \B 1.45 & \B 1.45 & \B 1.55 & \B 1.65 & \B 1.80 & \B 1.90 & \B 2.00 & 2.19 & \B 2.27 & \B 2.35 & \B 1.47 & \B 1.59 & \B 1.90 \\
+B2 & 4.89 & 2.93 & 3.58 & 7.24 & 2.61 & 1.69 & 1.69 & 1.77 & 1.86 & 1.97 & 2.13 & 2.29 & 2.37 & 2.55 & 2.80 & 2.88 & 1.67 & 1.70 & 3.79 \\
+B3 & 4.81 & 2.97 & 3.52 & 7.62 & 3.46 & 1.92 & 1.79 & 1.86 & 1.94 & 2.07 & 2.24 & 2.40 & 2.50 & 2.65 & 2.93 & 3.12 & 1.65 & 1.71 & 9.37 \\
+B4 & 4.84 & 3.00 & 3.83 & 19.01 & 10.82 & 4.85 & 2.71 & 2.27 & 2.33 & 2.52 & 2.76 & 2.97 & 3.08 & 3.31 & 3.63 & 3.98 & 1.70 & 1.83 & 16.49 \\
+C & 5.59 & 2.95 & 3.16 & 4.02 & 1.70 & 1.49 & 1.55 & 1.60 & 1.67 & 1.78 & 1.91 & 2.05 & 2.18 & 2.32 & 2.49 & 2.57 & 1.57 & 1.64 & 2.22 \\[.35em]
+D0.1 & 5.97 & 2.97 & 3.11 & 3.40 & \B 1.53 & 1.44 & 1.51 & 1.55 & 1.58 & 1.72 & 1.84 & 1.96 & 2.07 & 2.22 & 2.40 & 2.42 & 1.54 & 1.64 & 2.05 \\
+D0.5 & 5.23 & 2.99 & 3.25 & 3.61 & \B 1.53 & 1.42 & 1.49 & 1.52 & \B 1.55 & 1.70 & 1.81 & 1.92 & 2.03 & 2.18 & 2.35 & 2.39 & 1.53 & 1.66 & 2.01 \\
+D0.9 & 4.56 & 3.04 & 3.48 & 3.87 & 1.60 & 1.41 & 1.46 & 1.47 & \B 1.55 & 1.66 & \B 1.80 & \B 1.90 & 2.01 & \B 2.16 & 2.28 & 2.36 & 1.55 & 1.69 & 1.92 \\
+D1 & 4.38 & 3.13 & 3.55 & 3.94 & 1.60 & \B 1.40 & \B 1.45 & \B 1.45 & \B 1.55 & \B 1.65 & \B 1.80 & \B 1.90 & \B 2.00 & 2.19 & \B 2.27 & \B 2.35 & 1.56 & 1.70 & \B 1.90 \\
+E & 6.25 & 3.00 & 2.94 & 3.13 & 1.67 & 1.51 & 1.56 & 1.63 & 1.69 & 1.80 & 1.94 & 2.07 & 2.18 & 2.32 & 2.54 & 2.57 & 1.57 & 1.64 & 2.28 \\[.35em]
+F & 5.82 & 3.04 & 2.77 & 2.83 & 1.57 & 1.50 & 1.56 & 1.62 & 1.69 & 1.79 & 1.93 & 2.05 & 2.17 & 2.35 & 2.60 & 2.54 & 1.56 & 1.67 & 2.33 \\
+G & 5.93 & 3.07 & \B 2.74 & \B 2.72 & 1.57 & 1.52 & 1.58 & 1.65 & 1.73 & 1.85 & 1.98 & 2.10 & 2.25 & 2.38 & 2.66 & 2.63 & 1.61 & 1.66 & 2.44 \\
+H & 5.31 & 3.06 & 3.20 & 3.37 & 1.59 & 1.47 & 1.53 & 1.56 & 1.64 & 1.77 & 1.89 & 2.01 & 2.12 & 2.32 & 2.49 & 2.51 & 1.55 & 1.64 & 2.74 \\
+I & 5.47 & 3.08 & 3.56 & 7.69 & 3.47 & 1.93 & 1.80 & 1.86 & 1.94 & 2.07 & 2.25 & 2.40 & 2.51 & 2.65 & 2.93 & 3.14 & 1.68 & 1.70 & 3.23 \\
+J & 6.33 & 3.10 & 3.09 & 3.69 & 2.29 & 1.82 & 1.77 & 1.83 & 1.92 & 2.07 & 2.22 & 2.39 & 2.49 & 2.64 & 2.91 & 3.14 & 1.67 & 1.70 & 3.22 \\[.35em]
+K & 6.33 & 3.10 & 3.09 & 3.56 & 2.29 & 1.82 & 1.77 & 1.84 & 1.92 & 2.07 & 2.22 & 2.39 & 2.49 & 2.64 & 2.92 & 3.14 & 1.67 & 1.70 & 3.20 \\
+L & 7.18 & 3.28 & 2.85 & 2.84 & 1.73 & 1.56 & 1.64 & 1.66 & 1.74 & 1.88 & 2.01 & 2.18 & 2.30 & 2.38 & 2.59 & 2.70 & 1.66 & 1.65 & 2.97 \\
+M & 5.91 & 3.02 & 2.83 & 2.90 & 1.56 & 1.49 & 1.55 & 1.61 & 1.67 & 1.77 & 1.92 & 2.03 & 2.14 & 2.31 & 2.57 & 2.52 & 1.56 & 1.66 & 2.54 \\
+N & 5.76 & 3.10 & 2.87 & 3.00 & 1.57 & 1.48 & 1.55 & 1.61 & 1.66 & 1.80 & 1.92 & 2.03 & 2.16 & 2.34 & 2.57 & 2.54 & 1.55 & 1.67 & 2.58 \\
+O & 5.88 & 3.05 & 2.82 & 2.87 & 1.55 & 1.49 & 1.54 & 1.61 & 1.67 & 1.78 & 1.92 & 2.02 & 2.15 & 2.34 & 2.57 & 2.53 & 1.55 & 1.66 & 2.55 \\[.35em]
+P & 5.81 & 3.04 & 2.78 & 2.96 & 1.57 & 1.51 & 1.56 & 1.62 & 1.70 & 1.80 & 1.94 & 2.06 & 2.17 & 2.35 & 2.60 & 2.54 & 1.56 & 1.67 & 2.72 \\
+Q & 5.47 & 3.08 & 3.56 & 7.68 & 3.47 & 1.93 & 1.80 & 1.86 & 1.94 & 2.07 & 2.25 & 2.40 & 2.51 & 2.65 & 2.93 & 3.14 & 1.68 & 1.70 & 3.23 \\
+R & 5.28 & \B 2.92 & 3.46 & 5.87 & 1.96 & 1.54 & 1.60 & 1.67 & 1.75 & 1.85 & 2.00 & 2.15 & 2.25 & 2.40 & 2.65 & 2.67 & 1.62 & 1.66 & 2.99 \\
+S & 5.86 & 3.05 & 2.84 & 3.01 & 1.54 & 1.48 & 1.53 & 1.60 & 1.66 & 1.77 & 1.92 & 2.01 & 2.14 & 2.31 & 2.57 & 2.52 & 1.56 & 1.65 & 2.45 \\
+T & \B 4.33 & 3.04 & 3.71 & 10.17 & 3.02 & 1.73 & 1.70 & 1.77 & 1.80 & 1.93 & 2.13 & 2.24 & 2.32 & 2.53 & 2.67 & 2.77 & 1.70 & 1.70 & 3.52
+\end{tabular*}
+\end{adjustbox}
+\caption{Range between 2.5\,\% and 97.5\,\% quantile [cm] between estimated - observed diameter.}
+\label{tab:quntRangeInterpol}
+\end{table*}
+
+\begin{table*}[htbp]
+  \begin{adjustbox}{width=1.95\columnwidth}
+  \small
+  \begin{tabular*}{\linewidth}{l |@{~~~} *{19}{S[detect-weight,mode=text,table-format=1.2]}}
+h & {0.65} & {1} & {1.3} & {3} & {5} & {7} & {9} & {11} & {13} & {15} & {17} & {19} & {21} & {23} & {25} & {27} & {Coarse} & {d=7} & {DTop}\\
+    \cline{1-20}
+A & 1.58 & 0.84 & 0.77 & 0.88 & 0.40 & \B 0.35 & 0.40 & \B 0.40 & 0.45 & \B 0.45 & \B 0.50 & \B 0.55 & 0.60 & 0.65 & \B 0.60 & \B 0.65 & \B 0.38 & \B 0.44 & \B 0.60 \\
+B2 & 1.11 & 0.72 & 0.69 & 1.55 & 0.57 & 0.42 & 0.44 & 0.48 & 0.52 & 0.55 & 0.60 & 0.65 & 0.69 & 0.74 & 0.80 & 0.86 & 0.43 & 0.47 & 1.13 \\
+B3 & 1.14 & 0.73 & 0.67 & 1.59 & 0.72 & 0.48 & 0.47 & 0.50 & 0.54 & 0.58 & 0.63 & 0.69 & 0.73 & 0.78 & 0.85 & 0.93 & 0.42 & 0.47 & 2.29 \\
+B4 & 1.20 & 0.73 & 0.70 & 3.00 & 1.90 & 0.97 & 0.66 & 0.61 & 0.65 & 0.69 & 0.75 & 0.84 & 0.90 & 0.96 & 1.06 & 1.24 & 0.44 & 0.51 & 3.27 \\
+C & 0.98 & \B 0.71 & 0.63 & 0.75 & 0.41 & 0.36 & 0.40 & 0.44 & 0.46 & 0.49 & 0.54 & 0.59 & 0.62 & 0.65 & 0.70 & 0.75 & 0.41 & 0.45 & 0.71 \\[.35em]
+D0.1 & 0.95 & 0.72 & 0.71 & 0.76 & \B 0.36 & 0.36 & 0.39 & 0.42 & 0.44 & 0.47 & 0.51 & 0.57 & 0.60 & 0.63 & 0.66 & 0.70 & 0.41 & \B 0.44 & 0.66 \\
+D0.5 & 0.97 & 0.73 & 0.81 & 0.83 & \B 0.36 & \B 0.35 & \B 0.38 & 0.41 & \B 0.43 & 0.46 & 0.51 & \B 0.55 & \B 0.58 & \B 0.62 & 0.64 & 0.69 & 0.41 & \B 0.44 & 0.64 \\
+D0.9 & 1.03 & 0.78 & 0.95 & 0.90 & 0.38 & \B 0.35 & 0.39 & \B 0.40 & 0.44 & \B 0.45 & \B 0.50 & \B 0.55 & \B 0.58 & 0.64 & 0.62 & 0.67 & 0.43 & 0.45 & 0.61 \\
+D1 & 1.03 & 0.81 & 0.99 & 0.92 & 0.40 & \B 0.35 & 0.40 & \B 0.40 & 0.45 & \B 0.45 & \B 0.50 & \B 0.55 & 0.60 & 0.65 & \B 0.60 & \B 0.65 & 0.43 & 0.45 & \B 0.60 \\
+E & 0.98 & 0.73 & 0.55 & 0.68 & 0.41 & 0.37 & 0.40 & 0.44 & 0.46 & 0.50 & 0.54 & 0.59 & 0.62 & 0.65 & 0.70 & 0.75 & 0.41 & 0.45 & 0.73 \\[.35em]
+F & 1.11 & 0.75 & 0.61 & 0.62 & 0.38 & 0.37 & 0.40 & 0.43 & 0.46 & 0.50 & 0.54 & 0.59 & 0.62 & 0.67 & 0.70 & 0.75 & 0.40 & 0.46 & 0.76 \\
+G & 1.07 & 0.76 & 0.57 & 0.62 & 0.40 & 0.39 & 0.40 & 0.45 & 0.47 & 0.52 & 0.55 & 0.60 & 0.65 & 0.69 & 0.73 & 0.78 & 0.42 & 0.46 & 0.80 \\
+H & 1.20 & 0.76 & 0.68 & \B 0.61 & 0.38 & 0.36 & 0.40 & 0.44 & 0.46 & 0.49 & 0.54 & 0.59 & 0.63 & 0.66 & 0.70 & 0.73 & 0.41 & 0.46 & 0.86 \\
+I & 1.15 & 0.76 & 0.68 & 1.61 & 0.72 & 0.48 & 0.47 & 0.50 & 0.54 & 0.58 & 0.63 & 0.69 & 0.73 & 0.78 & 0.85 & 0.94 & 0.43 & 0.47 & 0.97 \\
+J & 1.15 & 0.77 & 0.53 & 0.90 & 0.61 & 0.47 & 0.47 & 0.50 & 0.54 & 0.58 & 0.63 & 0.69 & 0.73 & 0.78 & 0.85 & 0.94 & 0.43 & 0.47 & 0.98 \\[.35em]
+K & 1.15 & 0.77 & 0.53 & 0.89 & 0.61 & 0.47 & 0.47 & 0.50 & 0.54 & 0.58 & 0.63 & 0.69 & 0.73 & 0.78 & 0.85 & 0.94 & 0.43 & 0.47 & 0.97 \\
+L & \B 0.80 & 0.86 & \B 0.51 & 0.65 & 0.45 & 0.40 & 0.42 & 0.45 & 0.47 & 0.52 & 0.57 & 0.61 & 0.65 & 0.70 & 0.75 & 0.75 & 0.45 & 0.45 & 0.83 \\
+M & 1.07 & 0.75 & 0.62 & 0.63 & 0.38 & 0.37 & 0.40 & 0.43 & 0.46 & 0.49 & 0.53 & 0.58 & 0.62 & 0.66 & 0.69 & 0.74 & 0.41 & 0.45 & 0.81 \\
+N & 1.17 & 0.77 & 0.70 & 0.71 & 0.37 & 0.37 & 0.40 & 0.43 & 0.46 & 0.49 & 0.53 & 0.58 & 0.62 & 0.66 & 0.69 & 0.74 & 0.40 & 0.46 & 0.83 \\
+O & 1.09 & 0.76 & 0.64 & 0.65 & 0.37 & 0.37 & 0.40 & 0.43 & 0.46 & 0.49 & 0.53 & 0.58 & 0.62 & 0.66 & 0.69 & 0.74 & 0.40 & 0.45 & 0.82 \\[.35em]
+P & 1.10 & 0.75 & 0.61 & 0.63 & 0.38 & 0.37 & 0.40 & 0.43 & 0.46 & 0.50 & 0.54 & 0.59 & 0.62 & 0.67 & 0.70 & 0.75 & 0.40 & 0.46 & 0.85 \\
+Q & 1.15 & 0.76 & 0.68 & 1.61 & 0.72 & 0.48 & 0.47 & 0.50 & 0.54 & 0.58 & 0.63 & 0.69 & 0.73 & 0.78 & 0.85 & 0.94 & 0.43 & 0.47 & 0.97 \\
+R & 1.07 & \B 0.71 & 0.67 & 1.27 & 0.46 & 0.40 & 0.40 & 0.45 & 0.47 & 0.52 & 0.57 & 0.60 & 0.65 & 0.70 & 0.73 & 0.78 & 0.42 & 0.46 & 0.91 \\
+S & 1.09 & 0.75 & 0.67 & 0.67 & 0.38 & 0.37 & 0.40 & 0.43 & 0.46 & 0.49 & 0.53 & 0.59 & 0.62 & 0.66 & 0.69 & 0.73 & 0.41 & 0.45 & 0.80 \\
+T & 1.07 & 0.75 & 0.72 & 2.45 & 0.70 & 0.43 & 0.43 & 0.43 & 0.50 & 0.50 & 0.57 & 0.60 & 0.67 & 0.70 & 0.73 & 0.80 & 0.43 & 0.46 & 1.04
+  \end{tabular*}
+\end{adjustbox}
+\caption{Inter quantile range between 25\,\% and 75\,\% quantile [cm] between estimated - observed diameter.}
+\label{tab:iqrInterpol}
+\end{table*}
+
+By combining the results showing the mean difference and the deviation a method
+should be found which has a low bias and also low deviation. From the bias the
+ranking of the methods would be G, J, K, I, Q and R. Out of those methods G also
+shows good performance according to the deviation. Overall the method of
+\cite{steffen1990interpolation} (G) looks like to be recommendable to be used to
+interpolate between measured diameters and integrate those to a stem volume.
+
+Fig.~\ref{fig:vResid} shows the relations between volumes estimated by sectional
+step method using the diameter in the middle of the section (Section), linear
+interpolation (Linear) and cubic spline (Spline) and the volume estimated by
+interpolating using the method by \cite{steffen1990interpolation}. The volume by
+section wise calculation is typically lower than Steffen. Especially for small
+trees this difference could be in the range of 20\,\% of the volume. The linear
+interpolation is underestimating small trees and overestimating marginal for
+larger trees. The spine interpolation is over a wide range consistent with
+Steffen but has sometimes very large differences.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/vResid}
+  \caption{Relation of different volume estimates along tree height.}
+  \label{fig:vResid}
+  \footnotesize{Section .. Section wise Volume / Steffen Volume, Linear ..
+  Volume by linear interpolation / Steffen Volume, Spline .. Volume by
+  interpolation with cubic spline / Steffen Volume. Relations larger than 1.5
+  are shown as 1.5}
+\end{figure}
+
+Fig.~\ref{fig:interpolExamples} compares the result of different interpolation
+methods. If there are many measurements with a continuous pattern the methods
+differ marginal (TreeID: 3). If there are only some observations, but the
+pattern of the measurements looks simple the differences between the methods are
+still small (TreeID: 25). In case of an abrupt break of the trend and missing
+observations over wide height range the differences are getting large (TreeID:
+17314, 8402). Interpolation methods like splines could exceed the range of
+values between two successive points, what might be possible in reality but
+could lead to unrealistic values like negative diameters (TreeID: 17314). Non
+overshooting methods like Steffen do not exceed the range of values between two
+successive points and look like to estimate robust results.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/interpolExamples}
+  \caption{Examples of different interpolation between measured diameters.}
+  \label{fig:interpolExamples}
+\end{figure}
+
+
+\section{Discussion}
+
+\cite{mueller1902holzmesskunde,müller1923holzmesskunde} report a systematic
+error of 3\,\% when using the section wise volume calculation with the
+cross-sectional area in the middle of the stem section.
+\cite{prodan1965holzmesslehre} comes to the conclusion that the volume of
+concave trees is underestimated and of convex overestimated with this method.
+Using linear interpolation the volume of concave sections is overestimated,
+those of convex underestimated. Monotonic non overshooting interpolations showed
+good results for estimating stem shape and with this tree volumes. From those
+which have been compared here the method of \cite{steffen1990interpolation}
+showed good performance.
+
+Extrapolation is uncertain. Measurements at or close to the beginning and the
+end of the stem could avoid the need of extrapolation. For the used dataset it
+was needed to estimate the diameter at height zero. This estimated diameter
+influences the calculated volume and could therefore also influence the shown
+results and the drawn conclusions. Like the diameter at height zero, a
+hypothetical diameter e.\,g.\ 1\,m below the ground could help some
+interpolation methods to find good shapes at the ends of the stem. If this
+diameter was used it needs to be documented how it was estimated.
+
+The definition of where the stem begins needs to be considered.
+\cite{prodan1965holzmesslehre} defines that the stem does not include the stump
+but gives no information how high the stump is. When a tree is felled the stump
+height might have positive relation with the tree size. This would have the
+consequence that parts of the stem volume of a young tree will not be included
+in the old tree. To avoid such problems e.\,g.\
+\cite{assmann1961waldertragskunde} defined that the stem begins at the ground.
+Maybe a refinement of this definition needs to be made when trees are standing
+on slopes.
+
+Diameters at heights close together followed by regions with no measurement
+should be avoided as some interpolation methods propagate this short trend to
+long stem sections and could increase small measurement errors proportional to
+the section length of interpolation. If measurements exist which are closer
+together than x\,cm followed by a section with no measurement, the close
+together measurements could be aggregated to one data point to avoid this
+problem.
+
+In regions, like the stem base, where the diameter is fast decreasing in a
+non-linear way shorter distances between the measurements would help to come to
+accurate volume calculations. The same is the case for small trees. A standard
+measurement of diameters every 2\,m will lead on small trees to a number of less
+than 2--3 measurements what will lead to insecure volume calculations.
+
+
+\addcontentsline{toc}{section}{Literatur}
+\bibliography{literature}
+
+
+%Autor: Georg Kindermann
+
+\end{document}
