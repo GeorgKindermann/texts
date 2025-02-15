@@ -213,7 +213,7 @@ individual basis it was estimated with eq.~\ref{eq:d0} and \ref{eq:dm1}.
 \begin{align}
   d_{a} & = \begin{cases}
     DBH + 1.3 & \text{if } h \geq 1.3\,m\\
-    h         & \text{otherwise}
+    h + d_t   & \text{otherwise}
 \end{cases}\\
 \label{eq:d0}
 d_0 & = d_{a} \cdot (1 + e^{c_0 + c_1\cdot \ln(h) + c_2\cdot d_{a}})\\
@@ -222,8 +222,9 @@ d_{-1m} & = d_{a} \cdot (1 + e^{c_3 + c_4\cdot \ln(h) + c_5\cdot d_{a}})
 \end{align}
 
 Where $d_{a}$ is an auxiliary diameter, $DBH$ diameter in 1.3\,m height in cm,
-$h$ the tree height in m, $d_0$ diameter in 0\,m height, $d_{-1m}$ hypothetical
-diameter 1\,m below ground and $c_0$ to $c_5$ coefficients.
+$h$ the tree height in m, $d_t$ the diameter at the tree top, $d_0$ diameter in
+0\,m height, $d_{-1m}$ hypothetical diameter 1\,m below ground and $c_0$ to
+$c_5$ coefficients.
 
 For each tree, one measured diameter was omitted, and for this position, a
 diameter was calculated using various interpolation methods. This was done for
