@@ -22,10 +22,15 @@
 \usepackage{newpxmath}
 \usepackage[output-decimal-marker={,}]{siunitx}
 
-\usepackage[comma,authoryear]{natbib}
-%\bibliographystyle{natdin}
-%\bibliographystyle{apalike}
-\bibliographystyle{apalike-german}
+%\usepackage[comma,authoryear]{natbib}
+%%\bibliographystyle{natdin}
+%%\bibliographystyle{apalike}
+%\bibliographystyle{apalike-german}
+
+%\usepackage{csquotes}
+\usepackage[backend=biber, style=authoryear, natbib=true]{biblatex}
+%useprefix=true
+\addbibresource{literatur.bib}
 
 \usepackage{adjustbox}
 \usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
@@ -114,13 +119,39 @@ von Baumarten mit gutem Ausschlagvermögen. Aus forstwirtschaftlicher Sicht ist
 neben Stockausschlag die Fähigkeit zur Bildung von Wurzelbrut auf
 verjüngungswidrigen Standorten zu begrüßen, da die Ausschläge nicht an einen
 qualitätsmindernden Stock gebunden und daher meist gleichmäßiger auf der Fläche
-verteilt sind. Während Stockausschlag nach etwa drei Umtrieben in der Regel
-deutlich an Zuwachsleistung und Neuausschlagvermögen verliert, zeigt Wurzelbrut
-diesen unerwünschten Effekt kaum bis gar nicht. Ausreichend Wurzelbrut bilden
-von den heimischen Baumarten Aspe (Popukus tremula), Grauerle (Alnus incarna),
-Ulme (Ulmus spp.), Feldahorn (Acer campestre), Kirsche (Prunus avium) sowie
-Wildobst. Von den nicht heimischen bilden beispielsweise Robinie (Robinia
-pseudoacacia) oder Götterbaum (Ailianthus altisima) reichlich Wurzelbrut.
+verteilt sind.
+
+Stockausschlag verliert nach etwa drei Umtrieben deutlich an Zuwachsleistung und
+Neuausschlagvermögen. Deshalb ist auch bei Bewirtschaftungsformen mit
+vegetativer Verjüngung die generative Verjüngung über Samen weiterhin
+unerlässlich. Auf den gleichen Zeitraum bezogen, kann im Ausschlagwald sogar
+mehr generative Kernverjüngung erforderlich sein als im Hochwald. Geht man davon
+aus, dass beide Betriebsarten in der Verjüngungsphase die gleiche
+Ausgangsstammzahl benötigen und der Hochwald eine Umtriebszeit von 180 Jahren,
+der Niederwald eine von 30 Jahren hat, ergibt sich Folgendes: Wenn der
+Niederwald nach drei Umtrieben, also nach 90 Jahren, generativ verjüngt wird,
+muss man innerhalb von 180 Jahren beim Hochwald einmal, beim Niederwald hingegen
+zweimal generativ Verjüngen. Aus dieser Perspektive würde Niederwald die ohnehin
+schwierige Verjüngungssituation sogar verschärfen. Sein Vorteil liegt jedoch
+darin, dass bei Ausbleiben einer erfolgreichen generativen Verjüngung nach der
+Nutzung, die vegetativen Ausschläge allein den Bestandesschluss wiederherstellen
+können und die generative Verjüngung erst beim nächsten oder übernächsten Hieb
+erfolgen kann.
+
+Nach dem Hieb wird der Bestandesschluss im Ausschlagwald meist deutlich
+schneller wiederhergestellt als im Hochwald. Dies wird mitunter als Hinweis auf
+eine höhere Zuwachsleistung des Niederwaldes interpretiert. Dabei wird jedoch
+übersehen, dass beim Niederwald die Fläche in deutlich kürzeren Abständen und
+damit öfter als beim Hochwald freigestellt wird. Eine höhere Zuwachsleistung des
+Niederwaldes im Vergleich zum Hochwald ist daher nicht zu erwarten.
+
+Während beim Stockausschlag die Zuwachsleistung und das Neuausschlagvermögen bei
+jedem abermaligen Hieb stetig abnimmt, zeigt Wurzelbrut diesen unerwünschten
+Effekt kaum bis gar nicht. Ausreichend Wurzelbrut bilden von den heimischen
+Baumarten Aspe (Popukus tremula), Grauerle (Alnus incarna), Ulme (Ulmus spp.),
+Feldahorn (Acer campestre), Kirsche (Prunus avium) sowie Wildobst. Von den nicht
+heimischen bilden beispielsweise Robinie (Robinia pseudoacacia) oder Götterbaum
+(Ailianthus altisima) reichlich Wurzelbrut.
 
 Diese Eigenschaft ist aber auch ein Grund warum diesen Baumarten das Potential
 eines invasiven Neophyten attestiert wird. Sie sind dadurch eher als andere
@@ -1349,7 +1380,8 @@ Wenn jemand Interesse an der Anlage von Vergleichspflanzungen mit Robinien oder 
 %\printindex
 
 \addcontentsline{toc}{section}{Literatur}
-\bibliography{literatur}
+%\bibliography{literatur}
+\printbibliography
 
 %Autor: Georg Kindermann
 
