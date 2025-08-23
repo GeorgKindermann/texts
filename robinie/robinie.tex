@@ -5,7 +5,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[ngerman]{babel}
+%\usepackage[ngerman]{babel}
+\usepackage[main=ngerman]{babel}
 \usepackage{amsmath}
 
 %\usepackage{makeidx}
@@ -13,12 +14,14 @@
 
 \usepackage{fancyvrb}
 \usepackage{fvextra}
+\usepackage[final]{microtype}
 
 % \usepackage{palatino}
 %
 % \usepackage{newpxtext,newpxmath}
 %
-\usepackage[sc]{mathpazo} % or option osf
+%\usepackage[sc]{mathpazo} % or option osf
+\usepackage[osf]{newpxtext}
 \usepackage{newpxmath}
 \usepackage[output-decimal-marker={,}]{siunitx}
 
@@ -42,7 +45,7 @@
 \usepackage{caption}
 \captionsetup{margin=10pt,font=small,labelfont=bf,format=plain,indention=1.em}
 
-\usepackage[pdftitle={Schnellwüchsige, geradschaftige Robinien}
+\usepackage[pdftitle={Schnellwüchsige, geradschaftige Robinien; Fast-growing, straight-trunked black locust}
 , pdfauthor={Georg Kindermann}
 , pdfsubject={Waldbau, Waldwachstum, Robinie, geradschaftig}
 , pdfkeywords={Waldbau, Waldwachstum, Wald, Forst, Robinie, geradschaftig}
@@ -50,14 +53,17 @@
 , hidelinks
 , pdfpagemode=None]{hyperref}
 
-\nonfrenchspacing
+%\nonfrenchspacing
 \sloppy
-\usepackage{breqn}
+%\usepackage{breqn} %%
 \usepackage{enumitem}
 %\usepackage{rotating}
 \usepackage{pdflscape}
 
-\title{Schnellwüchsige, geradschaftige Robinien}
+\usepackage[capitalize,nameinlink]{cleveref}
+\usepackage{booktabs}
+
+\title{Schnellwüchsige, geradschaftige Robinien\\Fast-growing, straight-trunked black locust}
 \author{Georg Kindermann}
 %\date{23. Juli 2025}
 
@@ -70,15 +76,19 @@
     \begin{otherlanguage}{english}
     \begin{abstract}
       \begin{center}
-        \textbf{Fast-growing, straight-trunked black locust}
+        %\textbf{Fast-growing, straight-trunked black locust}
+        Summary
       \end{center}
       The black locust (Robinia) copes relatively well with dry sites. However, many varieties develop trunks of inferior quality and are therefore mostly suitable only as firewood. Since the 1930s at the latest, black locusts have been selectively bred for straight growth, rapid development, and good drought resistance. Today, there are more than ten varieties that possess these traits. However, only a few of them are available in Austria. To gain practical experience and allow a comparative assessment of the new varieties, a small-scale trial was conducted in which three varieties purchased in Austria and five in Hungary were planted at three different sites in Austria.
     \end{abstract}
     \end{otherlanguage}
     \begin{abstract}
-      Die Robinie kommt mit trockenen Standorten relativ gut zurecht.
+      \begin{center}
+        Zusammenfassung
+      \end{center}
+      Die Robinie ist sehr tolerant gegenüber trockenen Standorten.
       Viele Sorten entwickeln jedoch einen Stamm von minderer Qualität und eignen sich daher meist nur als Brennholz.
-      Seit spätestens den 1930er--Jahren werden Robinien gezielt auf geraden Wuchs, schnelles Wachstum und gute Trockenresistenz gezüchtet.
+      Spätestens seit den 1930er--Jahren werden Robinien gezielt auf geraden Wuchs, schnelles Wachstum und Trockenresistenz gezüchtet.
       Heute existieren mehr als zehn Sorten, die diese Eigenschaften erfüllen.
       In Österreich sind jedoch nur wenige davon erhältlich.
       Um praktische Erfahrungen zu sammeln und einen vergleichenden Eindruck der neuen Sorten zu ermöglichen, wurden im Rahmen eines Kleinstversuchs drei in Österreich und fünf in Ungarn gekaufte Sorten an drei Standorten
@@ -91,61 +101,71 @@
 
 \section{Einleitung}
 
-An bereits niederschlagslimitierten Standorten schränken zunehmende
+An Standorten, wo der Niederschlag bereits jetzt limitierend wirkt,
+schränken zunehmende
 Trockenheit und Wärme sowohl die Bandbreite wirtschaftlich
 vertretbarer waldbaulicher Maßnahmen als auch die Auswahl geeigneter
 Baumarten zunehmend ein. Unter den heimischen Hauptbaumarten kommen
-meist Weiß-- (Pinus sylvestris) und Schwarzkiefer (Pinus
-nigra) sowie verschiedene Eichenarten in Betracht. Die Reihung der
-heimischen Eichen nach zunehmender Trockenresistenz erfolgt meist wie
-folgt: Stieleiche (Quercus robur), Traubeneiche (Quercus petraea),
+meist Weiß- (Pinus sylvestris) und Schwarzkiefer (Pinus
+nigra) sowie verschiedene Eichenarten in Betracht.
+Die heimischen Eichen lassen sich hinsichtlich ihrer Trockenresistenz
+meist folgendermaßen reihen:
+Stieleiche (Quercus robur), Traubeneiche (Quercus petraea),
 Zerreiche (Quercus cerris), Flaumeiche (Quercus pubescens). Leider
 nimmt auch die Holzqualität entlang dieser Reihung ab. Das Holz der
 Zerreiche kann nicht zur Fassproduktion verwendet werden, da es
 aufgrund seiner weiten Poren nicht dicht ist. Zudem ist auch der
-Splint breiter. Flaumeichen mit guter Qualität sind selten, wobei es
-in letzter Zeit Züchtungen und Kreuzungen mit anderen Eichen gibt, die
-sehr genügsam in Bezug auf die Niederschlagsmenge sind und eine gerade
-Schaftform bilden.
+Splint breiter.
+Flaumeichen mit hoher Stammqualität sind selten. In jüngerer Zeit
+wurden jedoch Züchtungen und Kreuzungen mit anderen Eichenarten
+entwickelt, die sich durch Genügsamkeit hinsichtlich Niederschlag und eine
+gerade Schaftform auszeichnen.
 
 Solange es für einen Standort regionale Baumarten aus tieferen Lagen gibt,
 scheint es, angesichts der Klimaerwärmung zweckmäßig, diese in höheren Lagen zu
 verwenden. Befindet man sich jedoch in der tiefsten Höhenstufe, tendieren manche
-dazu Baumarten aus südlichen bzw.\ äquatornäheren Regionen zu verwenden. Dort
-mag zwar die Temperatur höher sein, Sonnenstrahlung und Tageslängen werden sich
-hingegen meist unterscheiden. Auf demselben Breitengrad findet man höhere
-Sommertemperaturen in kontinentaleren Regionen, was bei uns in Österreich in
-Richtung Osten wäre.
+dazu, Baumarten aus südlichen bzw.\ äquatornäheren Regionen zu verwenden.
+Dort sind zwar die Temperaturen höher, jedoch unterscheiden sich beispielsweise Sonnenstrahlung und Tageslängen, an die sich Pflanzen, etwa im Hinblick auf den Austriebszeitpunkt, angepasst haben könnten.
+Auf demselben Breitengrad findet man höhere
+Sommertemperaturen in kontinentaleren Regionen.
+%was bei uns in Österreich in Richtung Osten wäre.
 
-Auf Grenzstandorten mit erschwerter natürlicher Verjüngung wird neben
-der generativen zunehmend auf vegetative Verjüngungsformen gesetzt. In
-Hochlagen kommt es bei der Fichte zu Absenkern. In der Weichholzau
-bilden Pappel und Weide häufig Wurzelbrut.
-Auch mit zunehmender Trockenheit wird die Verjüngung schwieriger, was eine
-Verschiebung der Betriebsart vom Hochwald über Mittelwald hin zum Niederwald zur
-Folge hat. Dieser Wechsel der Betriebsart geht Hand in Hand mit einer Förderung
-von Baumarten mit gutem Ausschlagvermögen. Aus forstwirtschaftlicher Sicht ist
+Auf Grenzstandorten mit erschwerter natürlicher Verjüngung gewinnen vegetative
+gegenüber generativen Verjüngungsformen zunehmend an Bedeutung.
+In Hochlagen kommt es bei der Fichte zu Absenkern.
+In der Weichholzau bilden Pappel und Weide häufig Wurzelbrut.
+Mit zunehmender Trockenheit gestaltet sich die Verjüngung zunehmend
+schwieriger, wodurch es zu einer Verschiebung der Betriebsart vom
+Hochwald über den Mittelwald hin zum Niederwald kommen kann.
+Dieser Wechsel der Betriebsart geht Hand in Hand mit einer Förderung
+von Baumarten mit gutem Ausschlagvermögen.
+Aus forstwirtschaftlicher Sicht ist
 neben Stockausschlag die Fähigkeit zur Bildung von Wurzelbrut auf
 verjüngungswidrigen Standorten zu begrüßen, da die Ausschläge nicht an einen
 qualitätsmindernden Stock gebunden und daher meist gleichmäßiger auf der Fläche
 verteilt sind.
 
 Stockausschlag verliert nach etwa drei Umtrieben deutlich an Zuwachsleistung und
-Neuausschlagvermögen. Deshalb ist auch bei Bewirtschaftungsformen mit
-vegetativer Verjüngung die generative Verjüngung über Samen weiterhin
-unerlässlich. Auf den gleichen Zeitraum bezogen, kann im Ausschlagwald sogar
+Neuausschlagvermögen.
+Deshalb bleibt auch bei vegetativ arbeitenden Bewirtschaftungsformen
+die generative Verjüngung über Samen unerlässlich.
+Auf den gleichen Zeitraum bezogen, kann im Ausschlagwald sogar
 mehr generative Kernverjüngung erforderlich sein als im Hochwald. Geht man davon
 aus, dass beide Betriebsarten in der Verjüngungsphase die gleiche
 Ausgangsstammzahl benötigen und der Hochwald eine Umtriebszeit von 180~Jahren,
 der Niederwald eine von 30~Jahren hat, ergibt sich Folgendes: Wenn der
 Niederwald nach drei Umtrieben, also nach 90~Jahren, generativ verjüngt wird,
 muss man innerhalb von 180~Jahren beim Hochwald einmal, beim Niederwald hingegen
-zweimal generativ Verjüngen. Aus dieser Perspektive würde Niederwald die ohnehin
-schwierige Verjüngungssituation sogar verschärfen. Sein Vorteil liegt jedoch
-darin, dass bei Ausbleiben einer erfolgreichen generativen Verjüngung nach der
-Nutzung, die vegetativen Ausschläge allein den Bestandesschluss wiederherstellen
-können und die generative Verjüngung erst beim nächsten oder übernächsten Hieb
-erfolgen kann.
+zweimal generativ verjüngen.
+Aus dieser Perspektive würde Niederwald die ohnehin
+schwierige Verjüngungssituation sogar verschärfen.
+Sein Vorteil liegt jedoch darin, dass bei Ausbleiben einer
+erfolgreichen generativen Verjüngung nach der Nutzung die vegetativen
+Ausschläge allein den Bestandesschluss wiederherstellen können. Die
+generative Verjüngung kann in diesem Fall auf den nächsten oder sogar
+übernächsten Hieb nachgeholt werden.
+
+%%% HIER WEITER %%%
 
 Während die Fähigkeit zum Stockausschlag bei den meisten Baumarten mit
 zunehmendem Alter deutlich abnimmt, bleibt die Fähigkeit zur
@@ -178,18 +198,18 @@ Effekt kaum bis gar nicht. Ausreichend Wurzelbrut bilden von den heimischen
 Baumarten Aspe (Popukus tremula), Grauerle (Alnus incarna), Ulme (Ulmus spp.),
 Feldahorn (Acer campestre), Kirsche (Prunus avium) sowie Wildobst. Von den nicht
 heimischen bilden beispielsweise Robinie (Robinia pseudoacacia) oder Götterbaum
-(Ailianthus altisima) reichlich Wurzelbrut.
+(Ailianthus altissima) reichlich Wurzelbrut.
 
-Diese Eigenschaft ist aber auch ein Grund warum diesen Baumarten das
+Diese Eigenschaft ist aber auch ein Grund, warum diesen Baumarten das
 Potential eines invasiven Neophyten attestiert wird. Sie sind dadurch
-eher als andere Baumarten in der Lage beispielsweise Trockenrasen zu
+eher als andere Baumarten in der Lage, beispielsweise Trockenrasen zu
 besiedeln (Abb.~\ref{fig:feldmannstreu}). Dabei wird man die Frage
 stellen dürfen, wie diese Trockenrasengesellschaften entstanden sind.
 Gelegentlich wird sich zeigen, dass sie in der Vergangenheit durch
 (Brand\mbox{--)}Rodung eingeleitet wurden, ein Vorgang, der
 neuerdings, offenbar in wörtlicher Anlehnung an den englischen Begriff
 deforestation, als \enquote{Entwaldung} bezeichnet wird. Danach kam es
-zu Erosion, Plaggenwirtschaft und Beweidung meist durch Schaf und
+zu Erosion, Plaggenwirtschaft und Beweidung, meist durch Schaf und
 Ziege. Nach Einstellung der Bewirtschaftung ist eine natürliche
 Sukzession, zunächst über heimische Sträucher wie Schlehe (Prunus
 spinosa), Weißdorn (Crataegus monogyna), Hundsrose (Rosa canina),
@@ -213,11 +233,19 @@ Steppenbrand, wonach sich neben Trockenrasenpflanzen auch Föhren
 einfanden \citep{rosenkranz1953heideBrand}. Ich kenne diese Fläche
 seit den 1980er--Jahren, als sie bereits größtenteils zu einem Wald
 aus Schwarzkiefern und Eichen geworden war.
+Dass alles ständig im Wandel ist, ist schon lange bekannt und wurde
+bereits in der Antike mit dem allgemein bekannten \enquote{Pánta rheî}
+(Alles fließt) treffend auf den Punkt gebracht.
+Derzeit deutet vieles darauf hin, dass trockene Lebensräume auch in
+Österreich häufiger werden. Wälder, insbesondere im
+panonisch-illyrischen Raum, werden sowohl an Zuwachsleistung als auch
+an Holzvorrat verlieren und mit einer massiven Erschwerung der
+Verjüngung konfrontiert sein.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/feldmannstreu2}
-  \caption{Robinie (Bildmitte), zusammen mit Weißdorn (links), Eiche (rechts) und Feld-Mannstreu (Hintergrund) auf einem trocken erscheinenden Standort. Die Robinie hat ihre Fiederblättchen nach oben geklappt, um die zur Sonne exponierte Blattfläche zu verringern.}
+  \caption{Robinie (Bildmitte), zusammen mit Weißdorn (links), Eiche (rechts) und Feld-Mannstreu (Hintergrund) auf einem trocken erscheinenden Standort. Die Robinie hat ihre paarigen Fiederblättchen nahezu vollständig nach oben geklappt und reduziert damit die der Sonne zugewandte Blattfläche.}
   \label{fig:feldmannstreu}
 \end{figure}
 
@@ -371,7 +399,7 @@ Zitate nicht übersetzt, sondern nur im Original wiedergegeben
 werden. Dennoch habe ich mir erlaubt, Hinweise einzufügen und
 Hervorhebungen vorzunehmen. Leider kann ich nicht ausschließen,
 dass die von mir gefundenen Stellen einem Selektionsbias unterliegen.\\
-In \citep{szyp2023robinie} findet sich folgender Satz mit Bezug auf
+In \citep{szyp2023robinieGenetik} findet sich folgender Satz mit Bezug auf
 die Robinie:
 \enquote{Due to its negative impact on biodiversity and forest
   ecosystem functioning \citep{langmaier2020alienPlants}, there are no
@@ -385,7 +413,7 @@ In \citep{langmaier2020alienPlants} heißt es:
   \citep{rahmonov2009robinieLitter}).},
 \enquote{The regeneration of Scots pine (Pinus sylvestris) was
   negatively influenced by Prunus serotina and Robinia pseudoacacia
-  \citep{sebert2007invasiv,rahmonov2009robinieLitter}.},
+  \citep{sebert2007invasive,rahmonov2009robinieLitter}.},
 \enquote{Robinia pseudoacacia originating from North America is a good
   example of an invading plant species that uses different impact
   mechanisms at different stages of invasion. It increases nitrogen
@@ -432,7 +460,7 @@ In \cite{campagnaro2018alien} findet sich:
   lichen species (Nascimbene, Nimis, \& Ravera 2013), was found in
   R. pseudoacacia but not in oak stands in Italy (Nascimbene \& Marini
   2010).}\\
-\citet{sebert2007invasiv} behandelt die Spätblühende Traubenkirsche
+\citet{sebert2007invasive} behandelt die Spätblühende Traubenkirsche
 (Prunus serotina). Darin finde ich mit Referenz auf
 \citet{lee2004robinie} eine Beschreibung, dass die Robinie im
 Altbestand eine Verjüngung in Warteposition hat, die bei
@@ -596,12 +624,21 @@ Erosion und Auswaschung in bewaldeten Flächen in der Regel deutlich
 geringer als im unbewachsenen Freiland.
 
 Nach
+\citet[S.~474, 483]{ramann1898influssBodendeckeAufPhysikalischeBodeneigenschaften}
+findet eine Bodenlockerung unter der Robine statt.  Die Robinie
+scheint schwach, aber günstig auf den Boden zu wirken.
+Nach
 \citet{albert1926robinieBodenlockerheit,penschuck1931robinieBodenphysik}
 besitzt die Robinie die Fähigkeit, den Waldboden aufzulockern und eine
 besonders günstige Bodengare herauszubilden, also optimale
 physikalische Bedingungen für das Pflanzenwachstum zu schaffen.  Die
 Bodenlockerung erleichtert den für die Knölchenbackterien nötigen
-Gasaustausch mit der Luft.  Kompakte, nasse, stauende Horizonte können
+Gasaustausch mit der Luft. Gleichzeitig erhöht sich damit die
+Bodenwasserkapazität.
+Nach \citet{bluemke1955robinie} sind unter Robinie und unter Holunder
+die meisten Regenwürmer in Waldböden, welche bei der Bodenlockerung
+mithelfen.
+Kompakte, nasse, stauende Horizonte können
 von den Wurzeln nicht durchdrungen werden \citep{mueller1991robinie}.
 Diese Bodenlockerung könnte auf die Kombination von intensiver
 Wurzeltätigkeit, einer förderlichen Bodenfauna sowie einer günstigen
@@ -613,7 +650,7 @@ und die damit verbundene Wasserspeicherfähigkeit eine entscheidende
 Rolle. \citet{kastler2013robinieBoden} ermittelt in einem
 Robinienbestand in der Au bei Orth einen Bodenkohlenstoffgehalt von
 5,28\,\%, während in einem angrenzenden Stieleichen-Hainbuchen-Bestand
-5,03\,\% gemessen wurden. \citet{Kanzler2021robinieBodenc} zeigten,
+5,03\,\% gemessen wurden. \citet{kanzler2021robinieBodenc} zeigten,
 dass sich auf Bergbauschuttflächen unter Robinienbewuchs der
 Bodenkohlenstoff schneller anreichert als unter Getreideanbau.
 
@@ -703,6 +740,11 @@ die Robinie bald in ihrem Lichthaushalt so gestört, daß sie meiner
 Meinung nach kümmern oder so gar absterben würde
 \citep{kohler1963robinie}.
 
+Die beste Strategie zur Eindämmung der Ausbreitung der Robinie besteht
+darin, Störungen zu vermeiden, die die Ansiedlung der Robinie
+begünstigen, und auf die natürliche Verdrängung der Art durch andere
+Bäume zu warten \citep{motta2009robinieBekaempfung}.
+
 Nach \citet{hanzelka2015robinie} sind in Mitteleuropa Robinienbestände
 im gesamten Wachstumszeitraum lichter im Vergleich zu einheimischen
 Wäldern und sowohl die Strauch-- als auch die Kräutschicht sind daher
@@ -710,6 +752,15 @@ dichter. Die Beschattung in Robinienbeständen lag bei 57\,\% im
 Vergleich zu 72\,\% in einem einheimischen Eichenwald, die
 Strauchbedeckung lag bei 57\,\% im Vergleich zu 11\,\% und die
 Krautschicht bei 53\,\% im Vergleich zu 5\,\%.
+\citet[S.~47]{bluemke1955robinie} schreibt, dass sich bei 25--30\,m
+hohen Robinien mit hohen HD-Wert
+(Verhältnis von Baumhöhe zu Durchmesser, hier also dünne hohe Bäume)
+durch die Windebewegung und damit
+verbundenes abschlagen von Ästen, 1--2\,m breite \enquote{Windschächte}
+bzw. Lichschächte zwischen den Baumkronen bilden die dementsprechend
+viel licht auf den Waldboden bzw.\ zur Bodenvegetation durchlassen.
+Bei Robinen mit niedrigem HD-Wert sind diese Lücken höchsten 0,5\,m
+breit bzw.\ können sich die Kronen berühren oder sogar überdecken.
 
 Nach \citet{vitkova2017robinie} ist die Belaubungszeit der Robinie
 relativ kurz. Die Blätter erscheinen spät im Frühjahr (Mai) und
@@ -729,12 +780,15 @@ können, jedoch nur eine Elche außerhalb.
 Die äußerst lichtbedürftige Birke (Betula pendula) dürfte eine der
 wenigen Baumarten sein, der die Robinie in Bezug auf Licht tatsächlich
 Konkurrenz machen kann, was jedoch Mischungen nicht
-ausschließt. \citet{gaier2009robinieVorverjuengung} berichten von
-einem 60-jährigen Robinien-Birken-Mischbestand, in dem im Alter von
-60~Jahren erfolgreich eine Vorverjüngung unter Schirm mit Traubeneiche
-(Quercus petraea), Bergahorn (Acer pseudoplatanus), Spitzahorn (Acer
-platanoides), Winterlinde (Tilia cordata) und Hainbuche (Carpinus
-betulus) durchgeführt wurde.
+ausschließt.
+\citet{gaier2009robinieVorverjuengung} berichten von einem
+Robinien-Birken-Mischbestand, bei dem im Alter von 60~Jahren
+erfolgreich eine Vorverjüngung unter Schirm durchgeführt wurde.  Bei
+einem Bestockungsgrad von 0,8 entwickelten sich Winterlinde (Tilia
+cordata) und Spitzahorn (Acer platanoides) bei einer von 0,3
+Traubeneiche (Quercus petraea) und Hainbuche (Carpinus betulus) etwas
+besser.  Die Robinie bildete Wurzelbrut, jedoch konnten keine
+negativen Auswirkungen auf den Voranbau festgestellt werden.
 
 Nach \citet[S.~19]{erteld1952robinieErtrag}
 gelingt die natürliche Besamung mit Eiche und Edelhölzern
@@ -744,6 +798,12 @@ Mehrschichtigkeit und die üppige Bodenflora schwierig die Robinie mit
 Kiefer zu unterbauen. Mit Fichte und Douglasie ist es mit
 entsprechender Pflege eher möglich \citep[S.~94]{erteld1952robinieErtrag}.
 
+Entgegen der weit verbreiteten Meinung, dass die Robinie andere
+Baumarten neben sich nicht duldet, hat sich gezeigt, dass sie sich
+auch als Mischbaumart eignet. Deshalb wird vielfach empfohlen, in
+Reinbestände der Robinie andere Baumarten durch Vor- oder Unterbau
+einzubringen \citep{ewald2001klone}.
+
 \citet[p.\,467, 586]{ashton2018silviculture} beschreibt ein
 Agroforst-Weidewirtschaftssystem (silvopastoral system) wobei die
 Robinie aufgrund ihrer Stickstoffbindungskapazität und ihres lichten
@@ -751,7 +811,9 @@ Blätterdaches das Wachstum der darunter liegenden Gräser fördert.
 
 Einmal etablierte Robinien sind aufgrund ihrer Ausschlagfähigkeit
 bzw.\ Wurzebrut, insbesondere auf unbewirtschafteten Trockenrasen, aber
-auch in lichten Wäldern, schwer wieder loszuwerden. Da sie zu den
+auch in lichten Wäldern, schwer wieder loszuwerden. Wobei der Zeitpunkt
+der Fällung einen Einfluss auf die Bildung von Stockausschlag und
+haben wird. Da sie zu den
 Lichtbaumarten mit Pionierkarakter zählt, wird ihre Verjüngung durch
 dichten Unterwuchs oder Schattbaumarten stark
 eingeschränkt. Schalgflächen kann sie rasch wiederbestocken, ist aber
@@ -877,8 +939,8 @@ auf 100~Jahre ausdehnen.
 
 \subsection{Bis zur Eiszeit}
 
-Im Oligozän~(33,9--23,03~mya\footnote{million years ago -- vor
-Millionen Jahren}) wurden Ablagerungen von zwei Robinienarten in
+Im Oligozän~(33,9--23,03~mya; Million Years Ago -- vor
+Millionen Jahren) wurden Ablagerungen von zwei Robinienarten in
 Europa nachgewiesen. Im Miozän~(23,03--5,333~mya) wurden hingegen mehr
 als ein Dutzend Ablagerungen als Robinienart identifiziert. Eine davon
 aus dem späten Miozän ähnelt der heutigen Robinie Nordamerikas so
@@ -976,7 +1038,7 @@ Robinie in Österreich.
 %Friedensreich Hundertwasser in der Alserbachstraße~11 gepflanzt wurde.
 
 Über 100~Jahre später schreibt
-\citet[S.~339]{Feistmantel1835DieForstwissenschaft} über die Robinie:
+\citet[S.~339]{Feistmantel1835dieForstwissenschaft} über die Robinie:
 \enquote{Obschon sie bereits, allenthalben in Oesterreich verbreitet
   ist, so sieht man sie doch keine eigentlichen Waldbestände bilden.}
 \citet{hofmann1851baumloseEbenen} empfiehlt neben vielen anderen
@@ -1053,14 +1115,16 @@ bedecken, als diese senkrecht zu pflanzen.
 Senkrecht gepflanzte Schnittlinge sollten oben höchstens 1\,cm mit
 Erde bedeckt sein. Bei der Wurzelsaat werden 3--5\,cm lange Schnittlinge
 waagrecht mit höchstens 4\,cm Erde bedeckt.
-Für die jungen beernteten Bäume sind 3--4, 5\,cm lange Wurzelstummel mit Feinwurzeln ausreichend.
+Für die jungen beernteten Bäume sind 3--4, 5\,cm lange Wurzelstummel mit Feinwurzeln ausreichend sofern sie in der Baumschule bleiben. Bäume die
+im Wald gesetzt werden, sollten ein voll entwickeltes Wurzelsystem,
+das weder eingekürzt noch zur Vermehrung über Wurzeln beerntet wurde, besitzen.
 Leichte Böden wie sandiger
 Lehm eignen sich für die Anzucht, wobei der Boden nicht austrocknen darf.
 Bis eine Höhe von 10--15\,cm erreicht ist, sollte ausreichend bewässert werden.
 Sprossrückschnitte während des Wachstums sind
 schlecht. Stecklinge sowohl aus unverholzten als auch verholzten
 Jungtrieben bekommen nur ganz selten Wurzeln
-\citep{swingle1937robinie,Redei2001robinieVermehrung,redei2005robinieVermehrung}.
+\citep{swingle1937robinie,redei2001robinieVermehrung,redei2005robinieVermehrung}.
 
 \citet{keresztesi1983robinie} unterteilt ausgewählte Robiniensorten in
 die Klassen: Schnittholz (bessere Standorte); Pfähle und Posten
@@ -1068,13 +1132,13 @@ die Klassen: Schnittholz (bessere Standorte); Pfähle und Posten
 Sorten sollen sowohl forstlich als auch zur Honigproduktion geeignet
 sein. Für die Honigernte interessant sind frühblüher (var.\ praecox),
 spätblüher (var.\ galiana) und dauer-- bzw. öftersblüher
-(var. semperflorens Carrière). \citet[S.~80]{crane1985honig} geben ein
+(var. semperflorens Carrière). \citet[S.~80]{crane1986honig} geben ein
 Honigpotential von 48--1600\,kg/ha für Robinie an. Zum Vergleich werden
 20--42\,kg/ha beim Apfel, 100--200\,kg/ha bei der Salweide,
 35--100\,kg/ha beim Raps, 16--200\,kg/ha beim Weißklee oder
 25--1000\,kg/ha beim Löwenzahn angegeben.
 
-Robiniensorten wurden von \citet{vilmos1903robiniensorten} beschrieben
+Robiniensorten wurden von \citet{vilmos1908robiniensorten} beschrieben
 und Möglichkeiten der Züchtung erwähnt. Er geht unter anderem auf die
 äußeren Form des Baumes sowie die Platzierung und das Wachstums der
 Zweige ein.
@@ -1095,17 +1159,20 @@ Auch die Wurzelform (Flach oder Pfahlwurzel) soll ein wichtiges Auslesemoment
 für die Robiniezüchtung für trockene Gebiete sein.
 Nach \citet{bunger1938robinieWurzeltiefe} können Robinienwurzeln
 bis zu 26~Fuß (7{,}9\,m) und nach
-\citet[S.~424]{harlow2000Dendrology} 20--25~Fuß (6,1--7,2\,m) tief reichen.
+\citet[S.~424]{harlow2000dendrology} 20--25~Fuß (6,1--7,2\,m) tief reichen.
 Laut \citet{lyr1967wurzel}
 können sie bereits in der ersten Vegetationsperiode Tiefen von
 1{,}5--2\,m erreichen, was ihnen hilft, Trockenperioden zu überstehen.
+Nach \citet[S.~38]{bluemke1955robinie} kann ein einjähriger Sämling eine
+Wurzeltiefe von 2,32\,m erreichen.
 Mit Bezug auf die
 Schiffsmast--Robinie \citep{raber1936shipmast} wird erwähnt, dass auch im
 ungarischen Züchtungsplan die Holzqualität sowie Resistenzzüchtungen gegen
 Schädlinge aufgenommen sind. \citet{mihalyi1937robinie} schreibt, dass für Ungarn
 Saatgut von einem zertifizierten Robinienbestand in Amerika angefordert wurde
 und das er ein Paket mit Wurzelschnitlingen der Schiffsmast--Robinie bekommen
-hat. Auch wenn die ersten Publikationen, die ich gefunden habe und die
+hat.
+Auch wenn die ersten Publikationen, die ich gefunden habe und die
 ausdrücklich das Ziel angeben, geradschaftige Robinien zu züchten, aus den
 1930er--Jahren stammen, zeigen beispielsweise einige Abbildungen in
 \citet{vadas1911robinie} bereits geradschaftige Robinien, die vermutlich schon um
@@ -1183,16 +1250,33 @@ Schiffsmast--Robinie. Danach nimmt der Zuwachs der gewöhnlichen
 Robinie ab, während die Schiffsmast--Robinie hohe Zuwachsraten
 beibehält.
 
-\citet{hirt1938robinie} und \citet{toole1938robinie} verglichen die Resistenz von
-normalen mit der Schiffsmast--Robinie gegenüber holzzerstörenden Pilzen, wobei
-die Schiffsmast--Robinie bei zwei von vier untersuchten Pilzen resistenter war.
-\citet{hall1937robinie} beschreibt, dass ein großer Anteil der in den Vereinigten
-Staaten gepflanzten Bäume aus in Europa beerntetem Saatgut produziert wurde. Bei
-Saatgut aus Amerika wurden auch kleinen, minderwertigen und oft vom Robinienbock
-befallene Bäume beerntet. 1935 wurde die Resistenz der Schiffsmast--Robinie im
-Vergleich zur gewöhnlichen untersucht mit dem Ergebnis, dass die
-Schiffsmast--Robinie weniger anfällig gegenüber dem Robinienbockkäfer ist und
-die Anfälligkeit mit zunehmender Bonität abnimmt.
+\citet{hirt1938robinie} und \citet{toole1938robinie} verglichen die
+Resistenz von normalen mit der Schiffsmast--Robinie gegenüber
+holzzerstörenden Pilzen, wobei die Schiffsmast--Robinie bei zwei von
+vier untersuchten Pilzen resistenter war.
+Nach \citet{duenisch2009robineHolzJungAlt} haben die ersten
+10--20~Jahrringe, die der Markröhre anliegen, eine deutlich geringere
+Resistenz gegenüber Pilzen als das übrige Kernholz. Das in der Jugend
+des Baumes angelegte Kernholz verlor innerhalb von 16~Wochen
+durchschnittlich 17,0,\% an Holzmasse, während das im höheren Alter
+gebildete Kernholz nur um 1,7,\% abnahm. Dabei streut die Abbaurate im
+marknahen Holz stark und dürfte von den Standortsverhältnissen sowie
+dem Genotyp des Baumes beeinflusst werden \citep{brischke2024robineDauerhaftigkeit}.
+\citet{szczepkowski2025robinePilze} stellten ebenfalls fest, dass die
+Widerstandsfähigkeit von Robinienholz mit zunehmendem Alter deutlich
+zunimmt.
+Auch die Holzfestigkeit ist im innersten Kern der ersten 7--11~Jahre
+reduziert, während sich die Holzdichte hingegen kaum unterscheidet
+\citep{adamopoulos2007jungesUndAltesRobinienholz,bijak2021robinienholz}.
+
+\citet{hall1937robinie} beschreibt, dass ein großer Anteil der in den
+Vereinigten Staaten gepflanzten Bäume aus in Europa beerntetem Saatgut
+produziert wurde. Bei Saatgut aus Amerika wurden auch kleinen,
+minderwertigen und oft vom Robinienbock befallene Bäume beerntet. 1935
+wurde die Resistenz der Schiffsmast--Robinie im Vergleich zur
+gewöhnlichen untersucht mit dem Ergebnis, dass die
+Schiffsmast--Robinie weniger anfällig gegenüber dem Robinienbockkäfer
+ist und die Anfälligkeit mit zunehmender Bonität abnimmt.
 
 Einigkeit herrscht darüber das die von Long Island
 bechriebenen Schiffsmastrobinien gepflanzt und vorher offensichtlich
@@ -1261,7 +1345,8 @@ nach \citet{hopp1941robinie} die beste Herkunft im natürlichen Verbreitungsgebi
 zu finden ist.  Damit eine gewisse genetische Heterogenität besteht, sollen alle
 drei Klone gemeinsam gepflanzt werden, wobei für Algonquin ein Anteil von
 50--80\,\%, aufgrund ihrere hohen Wuchsleistung, empfohlen wird. Diese
-Klonmischung wurde Steiner Group genannt. Die von \citet{liesebach2012robinie}
+Klonmischung wurde Steiner Group, nach dem Züchter Wilmer W.Steiner, genannt.
+Die von \citet{liesebach2012robinie}
 untersuchten Proben der Klone Allegheny und Algonquin waren identisch und
 stimmten auch mit einer früheren Lieferung von Appalachia überein, wohingegen
 sich eine neue Lieferung von Appalachia von den anderen genetisch unterschied.
@@ -1313,6 +1398,9 @@ Jászkiséri (92\,\%Schnittholz)
 oder HC--4148 (42,5\,\%)
 angeführt. Dies zeigt dass die Selektionen aus Amerika oder Rumänien
 fast zeitgleich in Ungarn angekommen und geprüft wurden.
+\citet{bluemke1955robinie} berichtet das der Klon HG--4138 aus Blackwood (was
+vermutlich HC--4138 sein sollte und damit Appalacia wäre) in Holland
+für den Handel freigegeben wurde.
 
 \begin{description}
   \item[Zalai:] 1973 in Ungarn registriert \citep{keresztesi1983robinie}
@@ -1433,10 +1521,10 @@ Robinie. Als geradschaftige Selektionen werden Hapcheon und Daegu
 angegeben \citep{lee2007robinieKorea}.
 
 Vergleichsanbauten mit fremdländischen Baumarten wurden in Österreich
-von \citet{cieslar1901FremdlaendischeHolzarten} publiziert. Robinien
+von \citet{cieslar1901fremdlaendischeHolzarten} publiziert. Robinien
 wurde dabei nicht untersucht. Auch in Deutschland wurde die Robinie
 beim Vergleich fremdländischer Baumarten
-nicht untersucht \citep{schwappach1902fremdlaendischeHolzarten}.
+nicht untersucht \citep{schwappach1901fremdlaendischeHolzarten}.
 \enquote{Auf Grund der guten Erfahrungen, die bisher mit in heimischen
 Wäldern angebauten Weymouthskiefern, Robinien, der amerikanischen
 Schwarznuß und Roteiche sowie Douglasien gemacht worden sind, spricht
@@ -1445,7 +1533,7 @@ und kündigt von der Versuchsanstalt geplante Exotenkulturversuche
 an. \dots Von der Exoten-Inventur ausgeschlossen waren die Robinie und
 die verschiedenen Pappelarten, da diese wegen ihrer weiten Verbreitung
 im östlichen Österreich schon als "heimisch"\ betrachtet werden
-konnten} \citep{rannert1979FremdlaendischeBaumarten}. Solange es
+konnten} \citep{rannert1979fremdlaendischeBaumarten}. Solange es
 darum geht, zu prüfen, ob eine Baumart in einer neuen Region überhaupt
 wächst, mag diese Beschränkung gerechtfertigt sein.
 Wenn jedoch die Baumart mit der besten Leistung gesucht wird,
@@ -1547,7 +1635,7 @@ Oberhöhe von 31\,m und einen mittleren BHD von 43\,cm.
   \centering
   \includegraphics[width=.45\linewidth]{./bild/HerzogenburgRobinie2023a}
   \includegraphics[width=.45\linewidth]{./bild/HerzogenburgRobinie2023b}
-  \caption{Robinien bei Herzogenburg}
+  \caption{Robinien bei Oberwinden}
   \label{fig:hezogenburg}
 \end{figure}
 
@@ -1557,7 +1645,7 @@ ausschließlich auf die möglichst geradewüchsigen beschränkt, mittlerweile ei
 große Anzahl von Robiniensorten gibt. Robiniensorten können relativ
 einfach durch Wurzelschnittlinge vermehrt werden, wobei hierbei Rechte
 des Züchters zu beachten sind.
-In Österreich gibt es kaum Vergleichsanbauten -– und wenn, dann nur für ältere Sorten.
+In Österreich gibt es kaum Vergleichsanbauten -- und wenn, dann nur für ältere Sorten.
 Zudem kam es dabei zu Sortenverwechslungen.
 Für eine fundierte Entscheidungsfindung wären Demonstrationsbestände wünschenswert,
 die praktische Erfahrungen ermöglichen und einen realistischen Eindruck vom Sortenverhalten vermitteln.
@@ -1582,6 +1670,11 @@ einer Region und in einer anderen nicht, kann ein Klone auf einem
 Standort geradschaftig auf einem anderen hingegen geknickt wachsen.
 Nach \citet[S.~48]{erteld1952robinieErtrag} sind Robinien auf
 gutwüchsigen Standorten erheblich besser geformt.
+Unterschiede im Jugendwachstum zwischen Sorten könnten darauf
+zurückzuführen sein, dass bestimmte Sorten einen größeren Anteil ihrer
+Wuchsressourcen in das Wurzelwachstum investieren als andere. Dies
+könnte wiederum ihre unterschiedliche Resistenz gegenüber Trockenheit
+erklären.
 Bei Versuchsflächen ist es empfehlenswert eine oft verwendete einklonige
 Sorte als Referenz zu haben. Appalachia würde sich hierfür eignen, nur
 sollte dabei geklärt sein, welcher Klon tatsächlich Appalachia ist.
@@ -1598,14 +1691,14 @@ ausschließende Richtungen gehen:
   \item Frostresistenz
   \item tiefreichendes Wurzelsystem
   \item Resistenz gegenüber Schädlingen und Krankheiten
-  \item hohe natürliche Dauerhaftigkeit des Holzes
+  \item hohe natürliche Dauerhaftigkeit des Holzes insbesondere des innersten Kernholzes
   \item geringer bis kein Dornbesatz
   \item Feinastigkeit
   \item gute natürliche Astreinigung
   \item Vollholzigkeit
   \item hohe Nektarproduktion für Imkerei
   \item viel Wurzelbrutbildung für Standorte mit schwieriger generativer Verjüngung
-  \item geringe bis keine Wurzelbrut und Samen für Wälder in der Nähe von Naturschutzgebieten
+  \item geringe bis keine Wurzelbrut und wenige bis keine keimfähigen Samen für Wälder in der Nähe von Naturschutzgebieten
   \item Verbesserte Holzverarbeitbarkeit (z.\,B.\ geringer Verzug beim Trocknen)
   \item Für bestimmte Holzverwendungen geringerer Tannin-- oder Phenolgehalt 
 \end{itemize}
@@ -1660,6 +1753,31 @@ Robinienselektionen berechtigt sind, sollte man zumindest in Regionen, in denen
 die Robinie bereits verbreitet ist, die Nutzungsmöglichkeiten von hochwertigem
 Holz im Vergleich zu Brennholz gegeneinander abwägen.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.9\linewidth]{./bild/roninieLokal}
+  \caption{Relativ krumwüchsige Robinien nahe Ernstbrunn}
+  \label{fig:robLokalErnstbrunn}
+\end{figure}
+
+Auf einer zweijährigen Schlagfläche nahe Ernstbrunn hat sich auf
+ca.\ der Hälfte der Fläche mittlerweile 3--5\,m hohe Robinie
+eingefunden (Abb.~\ref{fig:ernstbrunnSchlagflaeche}). Oberflächlich
+betrachtet kann leicht der Eindruck entstehen, dass die Robinie dort
+andere Baumarten verdrängt. Für lichtbedürftige Pionierbaumarten wie
+die Birke, die im Altbestand nicht vorhanden war und daher dort fehlt,
+mag das tatsächlich zutreffen. Doch bereits Eiche oder Kiefer werden
+hier nicht durch Ausdunkelung verdrängt. Vielmehr entsteht der
+Eindruck, dass die Robinie einen natürlichen Verbissschutz für andere
+Baumarten darstellt.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.9\linewidth]{./bild/ernstbrunnSchlagflaeche}
+  \caption{3 bis 5\,m hohe Robinie mit Walnuss auf einer zweijährigen Schlagfläche nahe Ernstbrunn}
+  \label{fig:ernstbrunnSchlagflaeche}
+\end{figure}
+
 Ob Holz verwendet wird oder nicht, kann die CO$_2$--Konzentration in
 der Atmosphäre beeinflussen. Laut
 \citet{boiger2024schnittholzBrennholz} spielt es unter den derzeitigen
@@ -1680,6 +1798,10 @@ nachlässt. Bei Umtriebszeiten von etwa 50~Jahren soll der größte
 durchschnittliche Zuwachs erzielt werden.
 Für besondere Sorten (z.\,B.\ Rebpfähle) können kürzere Umtriebszeiten
 gewählt werden \citep[S.~136]{erteld1952robinieErtrag}.
+Wenn das Ziel darin besteht, qualitativ hochwertiges Schnittholz zu
+produzieren, sollte die Endnutzung erst im höheren Alter erfolgen,
+solange keine Gefahr durch Stammfäule besteht und die Qualität des
+Bestands gut ist.
 Von den in heimischen Wäldern wachsenden Baumarten liefert
 die Robinie das dauerhafteste Holz für den Einsatz im Freien ohne
 Verwendung von Holzschutzmitteln. In Bezug auf die natürliche
@@ -1688,13 +1810,6 @@ Dauerhaftigkeit wird es nur von wenigen tropischen Hölzern geringfügig
 dauerhaftem Holz mit einer regional wachsenden Baumart ergänzen,
 soweit es die Dimensionen zulassen
 \citep{benthien2020robinieTropenholz,sari2005robinienholz}.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=.9\linewidth]{./bild/roninieLokal}
-  \caption{Relativ krumwüchsige Robinien nahe Ernstbrunn}
-  \label{fig:robLokalErnstbrunn}
-\end{figure}
 
 Obwohl Reinbestände auf Versuchsflächen deutlich einfacher auszuwerten sind als Mischbestände,
 hat die Versuchsfläche Glaswein, mit ihrem überaus üppigen Unterwuchs, bei mir den Eindruck hinterlassen,
@@ -1848,6 +1963,23 @@ es bei ungleichaltrigen Mischungen mit zeitlich variierenden
 Mischungsanteilen, welche meist experimentell in Versuchsanbauten nur
 mit wenigen Varianten beispielhaft realisiert werden können.
 
+Bei geringen Bestandesdichten zeigen die verbleibenden Bäume höhere
+Durchmesserzuwächse als bei hohen Bestandesdichten. Der Höhenzuwachs
+wird in weitaus geringerem Ausmaß durch die Bestandesdichte
+beeinflusst. Aber insbesondere Laubbäume zeigen öfters bei geringen
+Bestandesdichten geringere Höhenzuwächse.
+Nach \citet[S.~55]{bluemke1955robinie} haben ganz freistehende und zu eng
+wachsende Robinien den geringsten Höhenzuwachs.
+Interessant wäre, ob
+Robiniensorten, die wenig Tendenz zeigen in Richtung Licht zu wachsen,
+auch beim Höhenzuwachs, ähnlich wie viele Nadelbaumarten, kaum auf die
+Bestandesdichte reagieren. Bei niedrigen Bestandesdichten entstehen
+starkwüchsige Einzelbäume mit großen Kronen und abholzigen Stämmen,
+was im Sägewerk, durch die Stammverjüngung, zu einer geringeren
+Ausbeute führt. Für den größten Zuwachs gib es eine, sich mit dem
+Alter verändernde, optimale Bestandesdichte, die je Standort, Baumart
+und Sorte verschieden sein wird.
+
 Um die Sorten auch auf anderen Standorten zu testen werden Baumreihen in Gärten
 in Wien--Laaerberg und am Fuß des Schneebergs angelegt. Der Standort in Wien ist
 trockener als der in Ernstbrunn, was zum einen durch den durchlässigeren Boden
@@ -1906,10 +2038,18 @@ Rückschnitt, der deutlich über dem Boden erfolgt, dürfte sich weniger
 gut auf die Qualität des zukünftigen Stammes auswirken.  Ein
 bodennaher Rückschnitt kann dies jedoch beheben. Dabei ist der
 Neuaustrieb oft über einen Meter lang und vorerst so gut wie astfrei.
-Je nachdem, wie sich der Baum entwickelt hat, erfolgt der bodennahe
-Rückschnitt entweder im Vorfrühling des Folgejahrs oder zwei Jahre
-nach der Pflanzung bzw.\ gar nicht, wenn die Qualität zufriedenstellend
-ist. Dabei muss der Einfluss einer möglicherweise
+Die Bäume, die ich beim Pflanzen bodennah zurückgeschnitten habe und
+die danach wieder ausgetrieben sind, wirken vitaler als jene, die
+nicht zurückgeschnitten wurden. Von den zurückgeschnittenen ist jedoch
+nur die Hälfte ausgetrieben, während bei den anderen fast alle
+überlebt haben. Nur bei Appalacia gab es mehr Ausfälle. Sie war beim
+Pflanzen kleiner als die übrigen und hätte besser noch ein Jahr in der
+Kämpe verbracht.
+Bei den übrigen Bäumen wird, abhängig von ihrer Entwicklung, ein
+bodennaher Rückschnitt entweder im Vorfrühling des folgenden Jahres,
+zwei Jahre nach der Pflanzung oder, wenn die Qualität bereits
+zufriedenstellend ist, gar nicht durchgeführt.
+Dabei muss der Einfluss einer möglicherweise
 vorhandenen verdämmenden Bodenvegetation berücksichtigt werden. Die
 Bäume für diesen qualitäsfördernde Rückschnitt sollten nicht zu groß
 sein, um ein Überwallen der Schnittwunde innerhalb eines Jahres zu
@@ -1918,8 +2058,15 @@ mehrerer Austriebe, die bei Energiewaldplantagen oft gewünscht sind.
 Bei der Erzeugung von Wertholz sollten diese Triebe so früh wie
 möglich während der Vegetationszeit entfernt werden, um keine neuen
 Ausschläge zu fördern und die Wuchskraft auf den verbleibenden
-Leittrieb zu lenken. Subjektiv entsteht der Eindruck, dass die neuen
+Leittrieb zu lenken.
+Im frühen Sommer, wo die Dornen noch weich sind, kann man die
+überzähligen Ausschläge mit der Hand an der Austriebsstelle
+ausbrechen.
+Subjektiv entsteht der Eindruck, dass die neuen
 Sprosse, nach dem Rückschnitt, vermehrt mit Dornen besetzt sind.
+Bei etwas älteren Bäumen konnte ich hingegen beobachten, dass zwar am
+Stamm noch deutlich die allmählich verschwindenden Dornen sichtbar
+sind, jedoch die Äste ab etwa zwei Metern Höhe waren dornenlos.
 Werden größere Robinien auf den Stock gesetzt, kann es neben
 Stockausschlag auch zur Bildung von Wurzelbrut kommen. Ein
 Wurzelrückschnitt beim Pflanzen wurde vom mir nicht vorgenommen.
@@ -1939,6 +2086,8 @@ Nordsaum als am Südsaum oder unter Schirm einleiten.
 Andererseits ist auf kühleren
 Standorten ohne Trockenstress die volle Besonnung durchwegs zu
 bevorzugen.
+Auch kann eine leichte Überschirmung vor einer Spätfrosteinwirkung
+ein wenig schützen.
 
 Eine Übersicht der verwendeten Robinien ist in
 Tabelle~\ref{tab:preisuebersicht}. Dr.~Zsolt Keserű hat mir netterweise Üllői und Vacsi geschenkt. Für beide war eine Rechnung in Forint
