@@ -63,6 +63,18 @@
 \usepackage[capitalize,nameinlink]{cleveref}
 \usepackage{booktabs}
 
+\makeatletter
+\newcommand{\summary}[1]{%
+  %\@afterheading
+  %\vspace{-.3em}
+  \par % neuer Absatz vor der Summary
+%  \noindent\textsf{\small\raisebox{0.2ex}{$\sum$} #1}\\[-0.4em]
+  \noindent\textsf{\small #1}\\[-0.4em]
+  \noindent\makebox[\linewidth]{\rule{0.33\linewidth}{0.4pt}}\\[-1.2em]
+  \@afterindentfalse\@afterheading
+}
+\makeatother
+
 \title{Schnellwüchsige, geradschaftige Robinien\\Fast-growing, straight-trunked black locust}
 \author{Georg Kindermann}
 %\date{23. Juli 2025}
@@ -73,26 +85,22 @@
 \twocolumn[
   \begin{@twocolumnfalse}
     \maketitle
-    \begin{otherlanguage}{english}
-    \begin{abstract}
-      \begin{center}
-        %\textbf{Fast-growing, straight-trunked black locust}
-        Summary
-      \end{center}
-      The black locust (Robinia) copes relatively well with dry sites. However, many varieties develop trunks of inferior quality and are therefore mostly suitable only as firewood. Since the 1930s at the latest, black locusts have been selectively bred for straight growth, rapid development, and good drought resistance. Today, there are more than ten varieties that possess these traits. However, only a few of them are available in Austria. To gain practical experience and allow a comparative assessment of the new varieties, a small-scale trial was conducted in which three varieties purchased in Austria and five in Hungary were planted at three different sites in Austria.
-    \end{abstract}
-    \end{otherlanguage}
-    \begin{abstract}
-      \begin{center}
-        Zusammenfassung
-      \end{center}
-      Die Robinie ist sehr tolerant gegenüber trockenen Standorten.
+      \begin{abstract}
+        \textsf{\small%
+          \begin{otherlanguage}{english}\\[-3em]
+            \noindent\makebox[\linewidth]{\hfill{}Summary\hfill}
+            The black locust (Robinia) copes relatively well with dry sites. However, many varieties develop trunks of inferior quality and are therefore mostly suitable only as firewood. Since the 1930s at the latest, black locusts have been selectively bred for straight growth, rapid development, and good drought resistance. Today, there are more than ten varieties that possess these traits. However, only a few of them are available in Austria. To gain practical experience and allow a comparative assessment of the new varieties, a small-scale trial was conducted in which three varieties purchased in Austria and five in Hungary were planted at three different sites in Austria.
+          \end{otherlanguage}\\[1em]
+          \noindent\makebox[\linewidth]{\hfill{}Zusammenfassung\hfill}
+          Die Robinie ist sehr tolerant gegenüber trockenen Standorten.
       Viele Sorten entwickeln jedoch einen Stamm von minderer Qualität und eignen sich daher meist nur als Brennholz.
       Spätestens seit den 1930er--Jahren werden Robinien gezielt auf geraden Wuchs, schnelles Wachstum und Trockenresistenz gezüchtet.
       Heute existieren mehr als zehn Sorten, die diese Eigenschaften erfüllen.
       In Österreich sind jedoch nur wenige davon erhältlich.
       Um praktische Erfahrungen zu sammeln und einen vergleichenden Eindruck der neuen Sorten zu ermöglichen, wurden im Rahmen eines Kleinstversuchs drei in Österreich und fünf in Ungarn gekaufte Sorten an drei Standorten
-      in Österreich gepflanzt.
+      in Österreich gepflanzt.\\[-0.4em]
+  \noindent\makebox[\linewidth]{\rule{0.33\linewidth}{0.4pt}}\\[-1.2em]
+      }
     \end{abstract}
   \end{@twocolumnfalse}
 ]
@@ -133,6 +141,10 @@ Sommertemperaturen in kontinentaleren Regionen.
 Auf Grenzstandorten mit erschwerter natürlicher Verjüngung gewinnen vegetative
 gegenüber generativen Verjüngungsformen zunehmend an Bedeutung.
 In Hochlagen kommt es bei der Fichte zu Absenkern.
+Nach \citet{boring1984robinie} sind stickstofffixierende Arten bei der
+primären Sukzession wichtig. Im alpinen Raum sind Sanddorn
+(\emph{Hippophae rhamnoides}) und Grünerle (\emph{Alnus alnobetula}
+bzw.\ \emph{Alnus viridis}) Beispiele dafür.
 In der Weichholzau bilden Pappel und Weide häufig Wurzelbrut.
 Mit zunehmender Trockenheit gestaltet sich die Verjüngung immer
 schwieriger, wodurch es zu einer Verschiebung der Betriebsart vom
@@ -184,6 +196,12 @@ hingegen kann selbst bei geringer Stammzahl im Altbestand, eine dichte
 und flächige Naturverjüngung erfolgen. Die Robinie eignet sich daher
 auch bei langen Umtriebszeiten gut für eine vegetative
 Bestandesverjüngung.
+
+Auch bei Aufforstungen kann die Wurzelbrut genutzt werden, indem die
+Ausgangsstammzahl gering gehalten wird. Dadurch ist die Aufforstung
+kostengünstig, und die anfänglich offenen Zwischenräume werden später
+durch die Bildung von Wurzelbrut geschlossen
+\citep{larsen1935robinieWurzelbrut}.
 
 Nach dem Hieb wird der Bestandesschluss im Ausschlagwald meist deutlich
 schneller wiederhergestellt als im Hochwald. Dies wird mitunter als Hinweis auf
@@ -548,7 +566,10 @@ So findet sich in \citet{hartig1798robinie}:
 In den Untersuchungen von
 \citet[S.~150--160]{scamoni1952robinieWurzeln} wird das Wachstum der
 Wurzeln von benachbarten Ahornbäumen als auch benachbarter Robinien
-durch Wurzeln anderer Robinien nicht gestört. Hingegen meiden nach
+durch Wurzeln anderer Robinien nicht gestört.
+Auch \citet{bencat1992robinie} schreibt, dass die Entwicklung des
+Wurzelsystem nicht von Nachbarbäumen beeinflusst wird.
+Hingegen meiden nach
 \citet[S.~53]{kolesnikov1971wurzeln} Wurzeln von Apfelbäumen den
 Wurzelbereich anderer Apfelbäume, breiten sich jedoch zwanglos
 zwischen Wurzeln von Kirsche und Marille aus.
@@ -560,6 +581,14 @@ und dass ein vierjähriger Robinienbestand 30\,kgN/ha/Jahr bindet.
 \citet{noh2009robinieN} beobachteten
 Fixierungsraten von 23--112\,kgN/ha/Jahr und \citet{danso1995robinieN}
 von 220\,kgN/ha/Jahr in Robinienbeständen.
+Nach \citet{boring1984robinie} nimmt die Stickstofffixierungsrate
+zunächst mit dem Alter zu, um in höherem Alter wieder abzunehmen. So
+wurden in einem 4~jährigen Robinienbestand 48\,kgN/ha/Jahr, in einem
+17~jährigen 75\,kgN/ha/Jahr und in einem 38~jährigen 33\,kgN/ha/Jahr
+fixiert. Dieses Muster der Stickstoffanreicherung ähnelt dem anderer
+holziger, stickstofffixierender Arten auf sekundären Sukzessionsflächen.
+Die höchsten Fixierungsraten treten demnach in frühen bis mittleren
+Sukzessionsstadien auf und nehmen in späteren Phasen wieder ab.
 
 Unter den Heimischen Baumarten können Erlen Stickstoff fixieren. Dort
 wird diese Eigenschaft mit Bodenverbesserung in Verbindung
@@ -724,13 +753,6 @@ wie unter der Kiefer (Tab.~\ref{tab:zuwachsUnterbau}).
   \label{tab:zuwachsUnterbau}
 \end{table}
 
-
-Schwarznuss (Juglans nigra) hatte unter 
-
-beobachteten, dass die Baumhöhen von Schwarznuss, Tulpenbaum,
-Silber-Ahorn und Milchorangenbaum unter Robinie höher als unter
-Fichtenkiefer waren.
-
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/bestandesrand}
@@ -739,6 +761,88 @@ Fichtenkiefer waren.
     \citet{ferguson1922robinie,chapman1935robinie}}
   \label{fig:bestandesrand}
 \end{figure}
+
+\citet{chapman1951robinieSchirm} untersuchten die Ausfallhäuffigkeit
+und Zuwachsleistung von Tulpenbaum, Grünesche, Kirsche sowie Rot-- und
+Weißeiche wenn diese auf einer (1) Brachfläche mit natürliche
+krautiger Vegetation, Gräsern und kleine Sträucher unter (2) Sassafras
+(Sassafras albidum), (3) Robinien oder (4) Kiefer. Dabei zeigte sich,
+dass Robinie auf die Roteiche als Lichtkonkurrent wirkt, was sich in
+erhöhter Mortalität zeigte. Vom Höhenzuwachs waren alle untersuchten
+Baumarten bis auf Grünesche unter der Robinie mindestens doppelt so
+hoch wie unter den anderen Baumarten bzw.\ der Brache
+(Tab.~\ref{tab:zuwachsUnterbau2}). Wie zu erwarten eignen sich
+Lichtbaumarten nicht zum Unterbau. Strobe (Pinus strobus) überlebte
+zwar, hatte jedoch geringe Zuwächse. Fichtenkiefer (Pinus echinata)
+und Pech-Kiefer (Pinus rigida) fielen um Unterbau, selbst bei Robinie,
+komplett aus.
+
+\begin{table}[htbp]
+  \centering
+  \resizebox{\columnwidth}{!}{
+\begin{tabular}{lccccc}
+  & \multicolumn{5}{c}{Unterpflanzte Art} \\
+  & Weißeiche & Roteiche & Kirsche & Tulpenbaum & Grünesche \\
+  Schirm & \multicolumn{5}{c}{Überlebensprozent 1940 -- 1943 / 1948} \\
+  Robinie   & 93,3 / 71,7 & 93,3 / 46,0 & 93,3 / 91,7 & 89,1 / 82,5 & 98,3 / 93,3 \\
+  Kiefer    & 93,3 / 89,2 & 95,8 / 90,8 & 95,0 / 91,7 & 72,5 / ~5,0 & 95,8 / 95,0 \\
+  Sassafras & 92,5 / 78,3 & 85,0 / 60,8 & 90,8 / 76,7 & 93,3 / 81,7 & 95,0 / 89,2 \\
+  Brache    & 74,2 / 58,3 & 73,3 / 55,8 & 81,6 / 79,1 & 31,6 / 22,5 & 98,3 / 94,8 \\[.3em]
+  & \multicolumn{5}{c}{Mittlere Höhe 1943 / 1948 [Fuß] (1 Fuß = 30,48\,cm)} \\
+  Robinie & 3,1 / 4,4 & 2,3 / 7,1 & 5,5 / 14,1 & 7,5 / 16,6 & 4,5 / 5,2 \\
+  Kiefer & 1,2 / 2,2 & 1,1 / 2,1 & 3,4 / ~6,9 & 3,8 / ~5,5 & 3,0 / 5,1 \\
+  Sassafras & 1,1 / 1,9 & 1,6 / 3,1 & 1,7 / ~2,7 & 3,0 / ~6,3 & 1,9 / 2,5 \\ 
+  Brache & 1,4 / 1,8 & 1,6 / 3,2 & 1,7 / ~2,5 & 1,9 / ~3,5 & 2,2 / 2,8 
+\end{tabular}}
+  \caption{Überlebensraten und Höhen von unterbauten Baumarten nach \citet{chapman1951robinieSchirm}}
+  \label{tab:zuwachsUnterbau2}
+\end{table}
+
+Vergleichbares beschreiben auch
+\citet{limstrom1951schuttaufforstung}. Robinie hatte bei Aufforstungen
+auf Bergbauaushub nach zwei Jahren eine Überlebensrate von 82\,\% und
+hatte damit die zweithöchste nach Esche mit 86\,\% von 18 verglichenen
+Baumarten. Die Robinie war mit 5,7~Fuß (1,74\,m) auf planierten und
+4,8~Fuß (1,46\,m) auf unplanierten Abraumflächen nach zwei Jahren
+deutlich höher als 16 mit ihr verglichene Baumarten. Die nächsthöchste
+Baumart war Pappel mit 1,7~Fuß (0,52\,m) auf planierten und 2,0~Fuß
+(0,61\,m) auf unplanierten Flächen. Auf einer Fläche wo auch Unterbau
+verglichen wurde hatte Robinie auf der Freifläche die höchste
+Überlebensrate und die deutliche höchste Höhe und steigerte die
+Überlebensrate von Schwarznuss von 67\,\% auf der Freifläche auf
+97\,\% im Unterbau von Robinie. Die Lichtbaumarten Pappel und
+Milchorangenbaum hatten unter Robinie eine Überlebensrate von 14\,\%
+(Tab.~\ref{tab:zuwachsUnterbau3}).
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lcc|cc|cc}
+   & \multicolumn{2}{c}{Brache} & \multicolumn{2}{c}{Robinie} & \multicolumn{2}{c}{Kiefer} \\
+  Baumart & \% & h & \% & h & \% & h \\
+  \hline
+Esche                    & 86 & 1,3 & 93 & 1,1 & 97 & 1,0 \\
+Robinie                  & 93 & 8,8 &  &  & 94 & 6,1 \\
+Schwarznuss              & 67 & 0,7 & 97 & 1,9 & 81 & 1,0 \\
+Schwarznuss (aus Samen)  & 66 & 0,6 & 81 & 1,8 & 56 & 0,9 \\
+Pappel                   & 52 & 3,1 & 14 & 2,3 & 35 & 1,5 \\
+Milchorangenbaum         & 67 & 1,0 & 14 & 1,5 & 59 & 1,0 \\
+Virginischer Wacholder   & 63 & 1,1 & 83 & 1,1 &  &  \\
+Amberbaum                & 73 & 1,3 & 57 & 1,8 & 73 & 1,1 \\
+Silber-Ahorn             & 39 & 1,4 & 86 & 2,5 & 71 & 1,1 \\
+Tulpenbaum               & 40 & 0,8 & 75 & 2,4 & 65 & 1,0 \\
+\end{tabular}
+\caption{Überlebensraten und durchschnittliche Gesamthöhe (in Fuß, 1 Fuß = 30,48\,cm) verschiedener Baumarten auf Brache, unter 9 jähriger Robinie oder Fichtenkiefer nach zwei Jahren \citep{limstrom1951schuttaufforstung}}
+  \label{tab:zuwachsUnterbau3}
+\end{table}
+
+Nach \citet{dickmann1985robinieMischbestand} hatte ein
+Robinienreinbestand nach 4~Jahren eine Biomassenleistung von
+4,6~t/ha/Jahr. Ein reiner Platanenbestand (Platanus occidentalis)
+zeigte die gleiche Leistung.  Ein Mischbestand aus beiden Baumarten
+erreichte jedoch nur 3,6~t/ha/Jahr. In diesem Fall wurde der Effekt
+der Stickstofffixierung der Robinie durch zweimalige Düngung von
+135~kg Ammoniumnitrat/ha, zweimalige Düngung von 900~kg und einmalig
+560~kg 10-10-10 (N-P-K)/ha anscheinend ausgeschaltet.
 
 Die Veränderungen der Artenzusammensetzung unter Robinien wird eher
 durch Veränderungen der Bodennährstoffverfügbarkeit und
@@ -757,6 +861,9 @@ verstärktem Entzug der Hauptnährstoffe Stickstoff, Phosphor und Kali
 infolge Nährstoffaufnahme des intensiven Robinienwurzelsytems zu
 rechnen. Diese \emph{vorübergehende} Festlegung von Nährstoffen hat
 der Robinie den Ruf als \enquote{Nährstoffräuber} eingetragen.
+Diese rasche Nährstoffaufnahme durch die Robinie kann dazu beitragen,
+Nährstoffverluste durch Auswaschung auf vorübergehend unbestockten
+Flächen zu minimieren \citep{boring1984robinie}.
 Nach \citet{kou2016robinieBoden} stieg nach einer Ackeraufforstung mit
 Robinien der Phosphorgehalt in den obersten 5\,cm, der
 Bodenkohlenstoffgehalt in den obersten 60\,cm und der Stickstoffgehalt
@@ -846,7 +953,11 @@ Standort für nachfolgende Pflanzen vorbereiten, von diesen aber
 schließlich selbst verdrängt werden. Bei einer Erhebung einer
 Bahnbrache von \citet{kowarik1996robinie} haben sich in fünf Jahren
 10~Eichen und fünf Ahorne im geschlossenen Robinienbestand etablieren
-können, jedoch nur eine Elche außerhalb.
+können, jedoch nur eine Eiche außerhalb.
+Nach \citet[S.~138]{krauss1986sauenerWald} wächst Fichte und Eiche
+ausgezeichnet unter Robine, Weißkiefer jedoch nicht. Auch
+\citet{kellog1934robinieMischbestand} berichtet über mit Robinie
+inkompatible Mischungen mit Kiefern-- und Lärchenarten.
 
 Die äußerst lichtbedürftige Birke (Betula pendula) dürfte eine der
 wenigen Baumarten sein, der die Robinie in Bezug auf Licht tatsächlich
@@ -887,9 +998,20 @@ der Fällung einen Einfluss auf die Bildung von Stockausschlag und
 haben wird. Da sie zu den
 Lichtbaumarten mit Pionierkarakter zählt, wird ihre Verjüngung durch
 dichten Unterwuchs oder Schattbaumarten stark
-eingeschränkt. Schalgflächen kann sie rasch wiederbestocken, ist aber
+eingeschränkt.
+\citet{baker1949schattentoleranz} stuft sie als sehr Intolerant gegenüber
+Beschattung ein.
+Schalgflächen kann sie rasch wiederbestocken, ist aber
 aufgrund ihrer lichtdurchlässigen Krone kaum in der Lage andere
 Baumarten auszudunkeln.
+
+Sogar Gras kann ein Konkurrenzfaktor beim Pflanzen von Robinien
+sein. Im Rahmen von Erosionsschutzmaßnahmen zeigte sich, dass
+Robinien, die auf ungepflügten, grasbewachsenen Flächen neben
+Erosionsrinnen gepflanzt wurden, eine höhere Sterblichkeit aufweisen
+und langsamer wachsen als solche auf weniger fruchtbaren, jedoch
+unbewachsenen Hängen der Rinnen
+\citep{meginnis1934robinie,cooper1950blacklocust}.
 
 Robinien sind für Pferde giftig \citep{grosche2008robiniePferd}. Sie
 wird aber von Hasen und Mäusen geschält bzw.\ deren Wurzeln gefressen,
@@ -927,9 +1049,9 @@ auch in diesen Regionen Trockenstress verursachen.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/map4}
-  \caption{Natürliches Verbreitungsgebiet der Robinie nach \citet{little1971treeAtlas} sowie einzelne Herkünfte}
+  \caption{Natürliches Verbreitungsgebiet der Robinie nach \citet{mcalister1971robinie,little1971treeAtlas} sowie einzelne Herkünfte}
   \footnotesize{H\dots Harrisburg (Beste Herkunft nach \citet{cobbett1825woodlands}),
-    S\dots Long Island (Erstbeschreibung Schifsmastrobinie \citet{raber1936shipmast}),
+    S\dots Long Island (Erstbeschreibung Schiffsmastrobinie \citet{raber1936shipmast}),
     X\dots Elkins (Beste Herkunft nach \citet{hopp1941robinie}) sowie Bartow und Thornwood -- Allegheny und Algonquin,
     A\dots Appalachia}
   \label{fig:verbreitungNatuerlich}
@@ -1084,6 +1206,11 @@ Bodenfeuchtigkeit in den obersten 5\,cm höher, in der Schicht von
 \section{Geschichte}
 
 \subsection{Bis zur Eiszeit}
+
+\summary{Während der Eiszeiten starben in Europa wärmeliebende Arten
+  aus, darunter auch Robinien. Die Selektion kältetoleranter Arten
+  könnte das Spektrum autochthoner Optionen für eine klimaangepasste
+  Waldbewirtschaftung verringert haben.}
 
 Im Oligozän~(33,9--23,03~mya; Million Years Ago -- vor
 Millionen Jahren) wurden Ablagerungen von zwei Robinienarten in
@@ -1316,7 +1443,8 @@ Mich.). % über Prof.\ Perkins Coville und Prof.\ B.\ A.\ Herbert.
 Dabei werden nicht nur Höhen-- und Durchmesserzuwachs, sondern auch
 Unterschiede hinsichtlich der Dornenlänge zwischen der verschiedenen
 Herkünften beobachtet.
-Nach \citet{bloes1992robinie} haben Sorten mit hohen Zuwächsen
+Nach \citet{bloes1992robinie,mebrahtu1989robinie} haben Sorten mit
+hohen Zuwächsen
 tendenziell auch größere Dornen. Durch eine kombinierte Selektion
 sollen jedoch sowohl eine hohe Zuwachsleistung als auch eine geringe
 Dornenlänge gleichzeitig realisierbar sein.
@@ -1407,6 +1535,9 @@ die Krone schmäler, die Rinde gröber, der Zuwachs größer und die
 Resistenz gegen Insekten besser sein. Sie bildet wenig Blüten, der
 Pollen keimt wenig und der Baum hat wenig bis keine Samen, sodass sie
 überwiegend vegetativ vermehrt wird.
+Nach \citet[S.~321]{usForestService1948seedManual} ist sie in den
+Zentralstaaten der dort heimischen Robinie deutlich unterlegen,
+anfälliger für den Robinienbock und bildet dort jedoch viele Samen.
 %Dies soll darauf hindeutet, dass die Schiffsmast--Robinie möglicherweise ein Hybrid oder ein steriler Klon ist.
 Nach \citet{hopp1941robinieUnterschied} hat die
 Schiffsmast--Robinie kleinere Dornen und breitere Blätter. Auf
@@ -1455,6 +1586,8 @@ welcher wie Allegheny aus Barton kommt
 Fläche mit durchschnittlich 10~Robinienbockkäfern pro Baum den
 geringsten Befall auf. Der nächstbeste Klon (Nr. 8450) hatte 22~Käfer
 pro Baum, während Appalachia mit 38~Käfern am stärksten betroffen war.
+Auch \citet{genys1990robinie,bridgen1988robinie,mebrahtu1989robinie} zeigten, dass sich Herkünfte hinsichtlich
+Zuwachsleistung und Schädlingsresistenz unterscheiden.
 Für belastbare Aussagen sind langfristige und standortsübergreifende
 Beobachtungen nötig.
 
@@ -1503,6 +1636,27 @@ und nur in Cape May waren alle 20 Klone vertreten Fünfzehn davon wurden
 1985 von Ruffner lokalisiert und gemessen \citep{bongarten1992robinie}.
 Dabei wurden die 3~Klone Appalachia, Allegheny und Algonquin ausgewählt,
 welche aus der Gruppe der 5 bereits 1950 ausgewählten Klone stammen.
+Auch in \citet{bridgen1988robinie} finden sich diese drei Klone, wobei
+auf einer Versuchsfläche Algonquin mit einer Höhe von 157\,cm nach 2~Jahren,
+gefolgt von Appalachia mit 138\,cm die beiden Herkünfte mit den größten
+Höhenzuwächsen von 26 untersuchten waren. Wobei dieser 3 Klone vegetativ
+die restlichen Herkünfte generativ über Samen vermehrt wurden. Bei dieser
+Untersuchung hatte die Herkunft aus Caryville Campbell
+(NR.\ 716, 36°18'N 84°13'W), welche
+auf anderen Probeflächen als die drei Klonen gepflanzt wurde, ebenfalls
+deutlich höhere Höhenzwächse gegenüber den anderen 55~Herkünften.
+
+\citet{bongarten1992robineSelektion} vergleicht 24 Herkünfte auf einer
+Probefläche in Georgia (33,3°N; 83,5°W; Seehöhe 130m) wobei dort
+Falilie~716 ebenfalls zu den stärkerwüchsigen zählt. Jedoch wird sie
+dort nach zwei Jahren von 5 nach 3 Jahren von 9 Familien hinsichtlich
+Biomassenzuwachs übertroffen. 716 produzierte nach 3~Jahren 10,5~t
+Biomasse/ha wohingegen die beste Familie (Nr.~704) 15,0~tBM/ha
+produzierte. Nr.~704 war schon im ersten Jahr den anderen Familien
+überlegen.  Dort wurden die Pflanzen auch nach Größe sortiert, wobei
+ein einem Jahr die größeren, im Folgejahr die kleineren Pflanzen
+größere Zuwächse hatten. Die größte Zuwachssteigerung ist durch Selektion
+einzelner Bäume mit anschließender vegetativer Vermehrung zu erwarten.
 
 \begin{description}
   \item[Appalachia:] (HC-4138; BN-4191; NA-4913; 9030613) wurde zwischen
@@ -1880,6 +2034,7 @@ ausschließende Richtungen gehen:
   \item hohe Jugendwachstumsraten
   \item geringe Abnahme der Wuchsleistung im Alter für lange Umtriebszeiten um große Dimensionen hinsichtlich Durchmesser und Höhe erzielen zu können
   \item Höhe Zuwachsleistung je verbrauchtem Liter Wasser
+  \item Für Stadtbäume: stabil, langlebig und geringe Maximalgröße 
   \item Trockenresistenz
   \item Frostresistenz
   \item tiefreichendes Wurzelsystem
@@ -1964,8 +2119,8 @@ andere Baumarten verdrängt. Für lichtbedürftige Pionierbaumarten wie
 die Birke, die im Altbestand nicht vorhanden war und daher dort fehlt,
 mag das tatsächlich zutreffen. Doch bereits Eiche oder Kiefer werden
 hier nicht durch Ausdunkelung verdrängt. Vielmehr entsteht der
-Eindruck, dass die Robinie einen natürlichen Verbissschutz für andere
-Baumarten darstellt.
+Eindruck, dass die Robinie bei größerem Wild einen natürlichen Verbissschutz
+für andere Baumarten darstellt.
 
 \begin{figure}[htbp]
   \centering
@@ -2167,10 +2322,15 @@ beeinflusst. Aber insbesondere Laubbäume zeigen öfters bei geringen
 Bestandesdichten geringere Höhenzuwächse.
 Nach \citet[S.~55]{bluemke1955robinie} haben ganz freistehende und zu eng
 wachsende Robinien den geringsten Höhenzuwachs.
+Nach \citet{roberts1939robinieHoehenzuwachs} besteht ein enger Zusammenhang
+zwischen Bodentiefe (Mächtigkeit des A-Horizonts) und Höhenzuwachs.
 Interessant wäre, ob
 Robiniensorten, die wenig Tendenz zeigen in Richtung Licht zu wachsen,
 auch beim Höhenzuwachs, ähnlich wie viele Nadelbaumarten, kaum auf die
-Bestandesdichte reagieren. Bei niedrigen Bestandesdichten entstehen
+Bestandesdichte reagieren.
+Nach \citet[S.~7]{roach1958robinie} reagiert die Robinie auf
+Freistellung mit gesteigertem Höhenzuwachs.
+Bei niedrigen Bestandesdichten entstehen
 starkwüchsige Einzelbäume mit großen Kronen und abholzigen Stämmen,
 was im Sägewerk, durch die Stammverjüngung, zu einer geringeren
 Ausbeute führt. Für den größten Zuwachs gib es eine, sich mit dem
