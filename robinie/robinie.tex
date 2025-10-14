@@ -6,7 +6,8 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 %\usepackage[ngerman]{babel}
-\usepackage[main=ngerman]{babel}
+%\usepackage[main=ngerman,english]{babel}
+\usepackage[english,ngerman]{babel}
 \usepackage{amsmath}
 
 %\usepackage{makeidx}
@@ -45,8 +46,9 @@
 
 \usepackage{caption}
 \captionsetup{margin=10pt,font=small,labelfont=bf,format=plain,indention=1.em}
+\usepackage[lang=english]{bicaption}
 
-\usepackage[pdftitle={Schnellwüchsige, geradschaftige Robinien; Fast-growing, straight-trunked black locust}
+\usepackage[pdftitle={Fast-growing, straight-trunked black locust; Schnellwüchsige, geradschaftige Robinien}
 , pdfauthor={Georg Kindermann}
 , pdfsubject={Waldbau, Waldwachstum, Robinie, geradschaftig}
 , pdfkeywords={Waldbau, Waldwachstum, Wald, Forst, Robinie, geradschaftig}
@@ -80,12 +82,23 @@
 }
 \makeatother
 
-\title{Schnellwüchsige, geradschaftige Robinien\\Fast-growing, straight-trunked black locust}
+\title{Fast-growing, straight-trunked black locust\\Schnellwüchsige, geradschaftige Robinien}
 \author{Georg Kindermann}
 %\date{23. Juli 2025}
 
+%\counterwithin{section}{part}
+%\renewcommand\thesection{\arabic{section}}
+%
+\makeatletter
+\@addtoreset{section}{part}
+\makeatother
+%\renewcommand\thesection{\arabic{section}}
+%\renewcommand{\partname}{}
+%\renewcommand{\thepart}{}
+
 \listfiles
 \begin{document}
+\selectlanguage{ngerman}
 
 \twocolumn[
   \begin{@twocolumnfalse}
@@ -122,8 +135,23 @@
   \end{@twocolumnfalse}
 ]
 
+\renewcommand{\contentsname}{Contents / Inhaltsverzeichnis}
 \tableofcontents
 
+\clearpage
+
+\selectlanguage{english}
+\part*{English}
+\addcontentsline{toc}{part}{English}
+\input{robinieEn}
+
+\clearpage
+
+\selectlanguage{ngerman}
+%\setcounter{section}{0}
+\stepcounter{part}
+\part*{Deutsch}
+\addcontentsline{toc}{part}{Deutsch}
 \section{Einleitung}
 
 Die zunehmende Klimaerwärmung stellt die Forstwirtschaft vor große
@@ -385,7 +413,7 @@ massiven Erschwerung der Verjüngung konfrontiert sein.
   \centering
   \includegraphics[height=9cm]{./bild/feldmannstreu2}
   \includegraphics[height=9cm]{./bild/robPflockNP}
-  \caption{Robinie (Bildmitte), zusammen mit eingriffeliger Weißdorn (links), Zerreiche (rechts) und Feld-Mannstreu (Hintergrund) auf einem trocken erscheinenden Standort. Die Robinie hat ihre Fiederblättchen nach oben geklappt. Rechts: Robinienpflock im Nationalpark Donau-Auen, unweit des Standorts vom linken Bild.}
+  \bicaption{Robinie (Bildmitte), zusammen mit eingriffeliger Weißdorn (links), Zerreiche (rechts) und Feld-Mannstreu (Hintergrund) auf einem trocken erscheinenden Standort. Die Robinie hat ihre Fiederblättchen nach oben geklappt. Rechts: Robinienpflock im Nationalpark Donau-Auen, unweit des Standorts vom linken Bild.}{Robinia (center), together with common hawthorn (left), Hungarian oak (right), and field eryngo (background) at an apparently dry site. The robinia has folded its leaflets upward. Right: Robinia stake in the Donau-Auen National Park, not far from the location shown in the left image.}
   \label{fig:feldmannstreu}
 \end{figure*}
 
@@ -635,15 +663,11 @@ oder die Fokussierung auf bestimmte Argumentationslinien.
 
 Eine Broschüre enthält folgende Aussage:
 
-\enquote{Auch wenn die Robinie entfernt wird,
-hat sie den Boden mit Stickstoff und giftigen Ausscheidungen aus Wurzeln und
-Laub angereichert und die Pflanzenwelt am Standort dauerhaft verändert. Von
-Wildtieren wird sie nicht verbissen (dornig und giftig). \dots Unterdrückt
-nahezu jede andere Pflanze und ist daher für die Gartengestaltung wenig
-geeignet.%
+\hypertarget{german:oebf2019aliensAusDemGarten}{\enquote{Auch wenn die Robinie entfernt wird, hat sie den Boden mit Stickstoff und giftigen Ausscheidungen aus Wurzeln und Laub angereichert und die Pflanzenwelt am Standort dauerhaft verändert. Von Wildtieren wird sie nicht verbissen (dornig und giftig). \dots
+  Unterdrückt nahezu jede andere Pflanze und ist daher für die Gartengestaltung wenig geeignet.%
 %Aufgrund zahlreicher Ausläufer schwer zu bekämpfen. Vorsicht vor
 %Verletzungen mit den giftigen Dornen!
-} \citep{oebf2019aliensAusDemGarten}.
+}} \citep{oebf2019aliensAusDemGarten}.
 
 Leider fehlen in der Broschüre Literaturangaben, die eine Überprüfung
 dieser Aussagen ermöglichen würden. Ohne die Hinweise auf
@@ -708,11 +732,7 @@ kümmert oder abstirbt.
 Die folgende Aussage dürfte nicht allgemeingültig sein. In diesem Fall
 jedoch könnte sie zutreffen.
 
-\enquote{Dort, wo in unserem Untersuchungsgebiet die Robinie im
-  Zusammenleben mit Kiefer oder Eiche auf die Entwicklung beider
-  Holzarten schädigend zu wirken schien, stellte es sich stets heraus,
-  daß der Grund dafür in der zu geringen Aufmerksamkeit des
-  Wirtschafters zu suchen war} \citep[S.~90]{erteld1952robinieErtrag}.
+\hypertarget{german:erteld1952robinieErtrag}{\enquote{Dort, wo in unserem Untersuchungsgebiet die Robinie im Zusammenleben mit Kiefer oder Eiche auf die Entwicklung beider Holzarten schädigend zu wirken schien, stellte es sich stets heraus, daß der Grund dafür in der zu geringen Aufmerksamkeit des Wirtschafters zu suchen war.}} \citep[S.~90]{erteld1952robinieErtrag}
 
 In \cite{campagnaro2018alien} findet sich:
 
@@ -775,19 +795,13 @@ diesen. Er gab von 1794 bis 1803 eine eigene Zeitschrift über die
 Robinie heraus. Dabei lässt er durchaus auch kritische Stimmen darin
 zu Wort kommen wie beispielsweise:
 
-\enquote{In dem Forst-- und Jagd-- Kalender 1796 des Herrn
-  Prof. Leonhardi steht S. 297 folgende Stelle: „Uebrigens wünsche
-  ich, und bitte Hrn. M. im Namen mehrerer Forstliebhaber, vor der
-  Hand mit dem Schreiben über den unächten Acacien-Baum zu schließen,
-  und erst nach einigen Jahren wiederum die gesamten Erfahrungen
-  mitzutheilen, weil die gute Sache sonst leicht darunter leiden
-  könnte."} \citep[Bd. 2, Nr. 2, S. 3]{medicus1794ffRobinie}
+\hypertarget{german:medicus1794ffRobinie}{\enquote{In dem Forst-- und Jagd-- Kalender 1796 des Herrn Prof. Leonhardi steht S. 297 folgende Stelle: „Uebrigens wünsche ich, und bitte Hrn. M. im Namen mehrerer Forstliebhaber, vor der Hand mit dem Schreiben über den unächten Acacien-Baum zu schließen, und erst nach einigen Jahren wiederum die gesamten Erfahrungen mitzutheilen, weil die gute Sache sonst leicht darunter leiden könnte."}} \citep[Bd. 2, Nr. 2, S. 3]{medicus1794ffRobinie}
 
 In seiner Zeitschrift vertritt er die Meinung, dass:
 
-\enquote{\dots durch den allgemeinen Anbau des unächten Acacien-Baumes
+\hypertarget{german:medicus1794ffRobinieB}{\enquote{\dots durch den allgemeinen Anbau des unächten Acacien-Baumes
   nicht allein dem künftigen Brennholzmangel vorgebeugt werde, sondern
-  auch schon jetzt die Gemüther von der Furcht befreyt werden,\dots}
+  auch schon jetzt die Gemüther von der Furcht befreyt werden,\dots}}
 \citep[Bd. 1, Nr. 3, S. 186]{medicus1794ffRobinie}.
 
 \citet{hartig1798robinie}, der durchaus positiv gegenüber der Robinie
@@ -797,34 +811,34 @@ werden kann, und stellt eine entsprechende Ofenkonstruktion vor.
 
 So findet sich in \citet{hartig1798robinie}:
 
-\enquote{Viele Abhandlungen sind zum Lob dieser allerdings schätzbaren
-  Holzart geschrieben worden,\dots} (S. 12),
+\hypertarget{german:hartig1798robinieA}{\enquote{Viele Abhandlungen sind zum Lob dieser allerdings schätzbaren
+  Holzart geschrieben worden,\dots}} (S. 12),
 
-\enquote{Wenn ich aber auch aus wirklicher Ueberzeugung zugebe, daß
+\hypertarget{german:hartig1798robinieB}{\enquote{Wenn ich aber auch aus wirklicher Ueberzeugung zugebe, daß
   der Wuchs der Acacie sehr stark sey, und alle unsere zu Brennholz
-  gute Laubholzarten übertreffe, \dots} (S. 27),
+  gute Laubholzarten übertreffe, \dots}} (S. 27),
 
-\enquote{Man glaube indessen ja nicht, daß mir die Vortheile unbekannt
+\hypertarget{german:hartig1798robinieC}{\enquote{Man glaube indessen ja nicht, daß mir die Vortheile unbekannt
   oder gleichgültig seyen, welche die Acacie gewährt, oder daß ich der
   Anzucht dieser nütlichen Holzart entgegen arbeiten wolle.  Nein,
   ganz und gar nicht! -- Im Gegentheil pflanze ich sie hier und da
-  selbst an, und empfehle ihre Anzucht allgemein,\dots} (S. 35--36),
+  selbst an, und empfehle ihre Anzucht allgemein,\dots}} (S. 35--36),
 
-\enquote{Uebrigens protestire ich nochmals auf das feyerlichste gegen
+\hypertarget{german:hartig1798robinieD}{\enquote{Uebrigens protestire ich nochmals auf das feyerlichste gegen
   die Beschuldigung, als ob ich der Anzucht der Acacie
   entgegenarbeiten wolte: denn dies ist warlich meine Absicht ganz und
   gar nicht. Im Gegentheil empfehle ich diese nützliche Holzart
   überall sehr angelegentlich; aber nicht, um den gegenwärtigen oder
   nahe bevorstehenden Brennholzmangel damit zu tilgen; sondern um die
-  Zahl unserer sehr nützlichen Holzarten dadurch zu vermehren.}
+  Zahl unserer sehr nützlichen Holzarten dadurch zu vermehren.}}
 (S. 83).
 
-\enquote{Es ist anzunehmen, daß von der wertvollen Schrift Hartigs
+\hypertarget{german:erteld1952robinieErtragB}{\enquote{Es ist anzunehmen, daß von der wertvollen Schrift Hartigs
   immer nur der Titel gelesen und beachtet worden ist und die hohe
   Autorität des Verfassers genügt hat, aus der Verneinung der
   Möglichkeit, die Robinie könne den Brennholzbedarf decken, ihre
   allgemeine Ablehnung zu folgern. In der Folgezeit war die Robinie
-  dem Interesse der Fachleute zunächst entschwunden.}
+  dem Interesse der Fachleute zunächst entschwunden.}}
 \citep{erteld1952robinieErtrag}.
 
 
@@ -901,7 +915,7 @@ Abb.~\ref{fig:glaswein}).
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/GlasweinRobinie2023a}
-  \caption{Robinienversuchsfläche in Glaswein mit üppigem Unterwuchs}
+  \bicaption{Robinienversuchsfläche in Glaswein mit üppigem Unterwuchs.}{Experimental plot of Robinia in Glaswein with dense undergrowth.}
   \label{fig:glaswein}
 \end{figure}
 
@@ -1039,16 +1053,14 @@ wie unter der Kiefer (Tab.~\ref{tab:zuwachsUnterbau}).
     Esche (Fraxinus spp.)                &  3 &  8 & 2 & 7 \\
     Bestandeshöhe (ca.)                  & 22 & 47 & 6 & 33 \\
   \end{tabular}%}
-  \caption{Baumhöhen [Fuß] (1 Fuß = 30,48\,cm) unter Robinie und Fichtenkiefer im Alter 4 und 16~Jahre nach \citet{ashby1986robinieWuchssteigerung}}
+  \bicaption{Baumhöhen [Fuß] (1 Fuß = 30,48\,cm) unter Robinie und Fichtenkiefer im Alter 4 und 16~Jahre nach \citet{ashby1986robinieWuchssteigerung}.}{Tree heights [feet] (1 foot = 30.48 cm) under black locust according to \citet{ashby1986robinieWuchssteigerung}.}
   \label{tab:zuwachsUnterbau}
 \end{table}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/bestandesrand}
-  \caption{Zuwachssteigerung eines Trompetenbaumbestandes an einem
-    Robinenbestandesrand nach
-    \citet{ferguson1922robinie,chapman1935robinie}}
+  \bicaption{Zuwachssteigerung eines Trompetenbaumbestandes an einem Robinenbestandesrand nach \citet{ferguson1922robinie,chapman1935robinie}.}{Increase in growth of a trumpet tree stand at the edge of a Robinia stand according to \citet{ferguson1922robinie,chapman1935robinie}.}
   \label{fig:bestandesrand}
 \end{figure}
 
@@ -1084,7 +1096,7 @@ im Unterbau, selbst bei Robinie, komplett aus.
   Sassafras & 1,1 / 1,9 & 1,6 / 3,1 & 1,7 / ~2,7 & 3,0 / ~6,3 & 1,9 / 2,5 \\ 
   Brache & 1,4 / 1,8 & 1,6 / 3,2 & 1,7 / ~2,5 & 1,9 / ~3,5 & 2,2 / 2,8 
 \end{tabular}}
-  \caption{Überlebensraten und Höhen von unterbauten Baumarten nach \citet{chapman1951robinieSchirm}}
+  \bicaption{Überlebensraten und Höhen von unterbauten Baumarten nach \citet{chapman1951robinieSchirm}.}{Survival rates and heights of underplanted tree species according to \citet{chapman1951robinieSchirm}.}
   \label{tab:zuwachsUnterbau2}
 \end{table}
 
@@ -1121,7 +1133,7 @@ Amberbaum                & 73 & 1,3 & 57 & 1,8 & 73 & 1,1 \\
 Silber-Ahorn             & 39 & 1,4 & 86 & 2,5 & 71 & 1,1 \\
 Tulpenbaum               & 40 & 0,8 & 75 & 2,4 & 65 & 1,0 \\
 \end{tabular}
-\caption{Überlebensraten und durchschnittliche Gesamthöhe (in Fuß, 1 Fuß = 30,48\,cm) verschiedener Baumarten auf Brache, unter 9 jähriger Robinie oder Fichtenkiefer nach zwei Jahren \citep{limstrom1951schuttaufforstung}}
+\bicaption{Überlebensraten und durchschnittliche Gesamthöhe (in Fuß, 1 Fuß = 30,48\,cm) verschiedener Baumarten auf Brache, unter 9 jähriger Robinie oder Fichtenkiefer nach zwei Jahren \citep{limstrom1951schuttaufforstung}.}{Survival rates and average total height (in feet, 1 foot = 30.48\,cm) of various tree species on abandoned land, under 9-year-old Robinia or Scots pine, after two years \citep{limstrom1951schuttaufforstung}.}
   \label{tab:zuwachsUnterbau3}
 \end{table}
 
@@ -1170,8 +1182,7 @@ Ja           &      3 & 12 &   & 5,4 & \\
 Nein         &      9 & 31 & 3,4 & 16 & 1,4 \\
 Ja           &      9 & -- & --  & 24 & 2,5 \\
 \end{tabular}
-\caption{Wuchsreaktion des Tulpenbaumes wenn dieser im Alter von 3~Jahren von Robinien freigestellt wird \citep{beck1974robinieTulpenbaum}.
-  h\dots Höhe [Fuß], d\dots Durchmesser [Zoll]}
+\bicaption{Wuchsreaktion des Tulpenbaumes wenn dieser im Alter von 3~Jahren von Robinien freigestellt wird \citep{beck1974robinieTulpenbaum}.\\h\dots Höhe [Fuß], d\dots Durchmesser [Zoll]}{Growth response of tulip tree when released from Robinia competition at the age of 3 years \citep{beck1974robinieTulpenbaum}.\\h~\dots~height [feet], d~\dots~diameter [inches]}
   \label{tab:tulpenbaumRobinie}
 \end{table}
 
@@ -1231,7 +1242,7 @@ Die Robinie führte nicht zu einer signifikanten Anreicherung von stabilem stick
 
 Stickstofffixierung durch Bäume ist selten anzutreffen. Die Deposition kompensiert bzw.\ übersteigt leicht die Austräge bei der Ernte. Bei stickstoffgesättigten Böden ist damit zu rechnen, dass es zu Auswaschungen kommt, was insbesondere in Quellschutzgebieten zu vermeiden ist. An Standorten, an denen der Zuwachs der Bäume durch Stickstoffgaben gesteigert werden kann, was beispielsweise in ehemals streugenutzten Wäldern der Fall sein könnte, sollten stickstofffixierende Pflanzen in der Regel willkommen sein. So empfiehlt beispielsweise \citet{wiedemann1951ertragskunde} den Anbau von Dauerlupine, um den Standort zu verbessern und die Wuchsleistung zu steigern. Die Menge an Stickstoff, die die Robinie fixiert, entspricht in ihrer Größenordnung etwa der von anderen Leguminosen wie Lupine oder Klee, welche im Ökolandbau eingesetzt werden.
 
-Unter den heimischen Baumarten können Erlen Stickstoff fixieren. Dort wird diese Eigenschaft mit Bodenverbesserung in Verbindung gebracht. \enquote{Grundlage für die immer wieder betonte bodenverbessernde Wirkung der Grauerle bildet ihre Fähigkeit zur Bindung von Luftstickstoff mittels einer Actinorhiza} \citep{schuett2014alnusIncarna}.
+Unter den heimischen Baumarten können Erlen Stickstoff fixieren. Dort wird diese Eigenschaft mit Bodenverbesserung in Verbindung gebracht. \hypertarget{german:schuett2014alnusIncarna}{\enquote{Grundlage für die immer wieder betonte bodenverbessernde Wirkung der Grauerle bildet ihre Fähigkeit zur Bindung von Luftstickstoff mittels einer Actinorhiza}} \citep{schuett2014alnusIncarna}.
 \citet{schuett2014alnusIncarna} geben auch einen aus der Literatur gesammelten Überblick der Stickstofffixierungsraten von Grauerle mit 43--72\,kgN/ha/Jahr.
 \citet{cleve1971grauerle} geben für Grauerle eine durchschnittliche Stickstofffixierungsrate eines 20~jährigen Bestandes von 156\,kgN/ha/Jahr an, wobei im Alter 0 bis 5~Jahre 362\,kgN/ha/Jahr gebunden wurden.
 Von den Straucharten können z.\,B.\ Goldregen oder Sanddorn Stickstoff binden.
@@ -1272,7 +1283,7 @@ Nach \citet{lee2010robinie} erhöht die schnelle Zersetzung von Robinien-Blüten
  5.\,Unter Rob. & 888 & 120 & 150  & 30   & 5.6 \\
  5.\,Außerhalb  & 340 & 140 & 100  & Spuren & 5.0 \\
   \end{tabular}
-  \caption{Leicht extrahierbare Mineralnährstoffe im Boden unter dem Einfluss von Robinienlaub [Pfund pro 2 Millionen Pfund Trockenerde] nach \citet{garman1938robinie}}
+  \bicaption{Leicht extrahierbare Mineralnährstoffe im Boden unter dem Einfluss von Robinienlaub [Pfund pro 2 Millionen Pfund Trockenerde] nach \citet{garman1938robinie}.}{Easily extractable mineral nutrients in the soil under the influence of Robinia leaf litter [pounds per 2 million pounds of dry soil] according to \citet{garman1938robinie}.}
   \label{tab:naehrstoffeUnterRob}
 \end{table}
 
@@ -1326,7 +1337,7 @@ Nach \citet{albert1926robinieBodenlockerheit,penschuck1931robinieBodenphysik} be
     Weißkiefer & 53,59 & 23,22 & 30,37 \\
     Bestandeslücke & 39,58 & 26,26 & 13,32 \\
   \end{tabular}}
-  \caption{Bodenpoprosität, Wasser-- und Luftkapazität in \% von Waldböden unter verschiedenen Baumarten nach \citet{nemec1925waldboden}}
+  \bicaption{Bodenpoprosität, Wasser-- und Luftkapazität in \% von Waldböden unter verschiedenen Baumarten nach \citet{nemec1925waldboden}.}{Soil porosity, water and air capacity (in \%) of forest soils under different tree species according to \citet{nemec1925waldboden}.}
   \label{tab:bodenPorositaet}
 \end{table}
 
@@ -1378,19 +1389,24 @@ Ihr natürliches Verbreitungsgebiet befindet sich im mittleren östlichen Nordam
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/map4}
-  \caption{Natürliches Verbreitungsgebiet der Robinie nach \citet{mcalister1971robinie,little1971treeAtlas} sowie einzelne Herkünfte}
+  \bicaption{Natürliches Verbreitungsgebiet der Robinie nach \citet{mcalister1971robinie,little1971treeAtlas} sowie einzelne Herkünfte.}{Natural distribution range of Robinia according to \citet{mcalister1971robinie,little1971treeAtlas}, including individual provenances.}
   \footnotesize{H\dots Harrisburg (Beste Herkunft nach \citet{cobbett1825woodlands}),
     S\dots Long Island (Erstbeschreibung Schiffsmastrobinie \citet{raber1936shipmast}),
     X\dots Elkins (Beste Herkunft nach \citet{hopp1941robinie}) sowie Bartow und Thornwood -- Allegheny und Algonquin,
-    A\dots Appalachia}
+    A\dots Appalachia\\
+    H~\dots~Harrisburg (best provenance according to \citet{cobbett1825woodlands}),
+    S~\dots~Long Island (first description of ship mast Robinia \citep{raber1936shipmast}),
+    X~\dots~Elkins (best provenance according to \citet{hopp1941robinie}) as well as Bartow and Thornwood -- Allegheny and Algonquin,
+    A~\dots~Appalachia
+  }
   \label{fig:verbreitungNatuerlich}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/wetter}
-  \caption{Temperatur und Niederschlag dreier Herkünfte sowie von Wien für den
-  Zeitraum 1970--2000 abgefraht aus globalen Karten von \citet{worldclim2017}}
+  \bicaption{Temperatur und Niederschlag dreier Herkünfte sowie von Wien für den
+  Zeitraum 1970--2000 abgefraht aus globalen Karten von \citet{worldclim2017}.}{Temperature and precipitation of three provenances as well as Vienna for the period 1970--2000 extracted from global maps by \citet{worldclim2017}.}
   \label{fig:wetter}
 \end{figure}
 
@@ -1399,14 +1415,14 @@ Im Laufe der Zeit wurde die Robinie in neue Regionen gebracht und ist in Europa 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/verbreitungRobGlob}
-  \caption{Verbreitung der 385\,746 Beobachtugnen von Robinie nach \citet{gbifRob}}
+  \bicaption{Verbreitung der 385\,746 Beobachtugnen von Robinie nach \citet{gbifRob}.}{Distribution of 385\,746 Robinia observations based on \citet{gbifRob}.}
   \label{fig:verbreitungGlob}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/verbreitungEuropa}
-  \caption{Derzeitige Verbreitung der Robinie in der Europäischen Union nach \citet{jrc2016treeAtlas}}
+  \bicaption{Derzeitige Verbreitung der Robinie in der Europäischen Union nach \citet{jrc2016treeAtlas}.}{Current distribution of Robinia in the European Union according to \citet{jrc2016treeAtlas}.}
   \label{fig:verbreitungEuJetzt}
 \end{figure}
 
@@ -1417,21 +1433,21 @@ Abbildung~\ref{fig:verbreitungEuPot} zeigt die derzeitige standörtliche Eignung
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/potentialEuropaAtlas}
-  \caption{Derzeitige standörtliche Tauglichkeit für die Robinie in der Europäischen Union nach \citet{jrc2016treeAtlas}}
+  \bicaption{Derzeitige standörtliche Tauglichkeit für die Robinie in der Europäischen Union nach \citet{jrc2016treeAtlas}.}{Current site suitability for Robinia in the European Union according to \citet{jrc2016treeAtlas}.}
   \label{fig:verbreitungEuPot}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/verbreitungRobEur}
-  \caption{Lage der Beobachtungen von Robinie in Europa nach \citet{gbifRob}}
+  \bicaption{Lage der Beobachtungen von Robinie in Europa nach \citet{gbifRob}.}{Location of Robinia observations in Europe according to \citet{gbifRob}.}
   \label{fig:verbreitungEur}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/potentialEuropaZukunft85}
-  \caption{Potentielle standörtliche Tauglichkeit der Robinie im Jahr 2095 bei einer Klimaentwicklung nach RCP8.5 nach \citet{mauri2022baumartenZukunft}}
+  \bicaption{Potentielle standörtliche Tauglichkeit der Robinie im Jahr 2095 bei einer Klimaentwicklung nach RCP8.5 nach \citet{mauri2022baumartenZukunft}.}{Potential site suitability of Robinia in 2095 under climate scenario RCP8.5 according to \citet{mauri2022baumartenZukunft}.}
   \label{fig:verbreitungEuPotZukunft}
 \end{figure}
 
@@ -1468,10 +1484,7 @@ Klone mit hoher WUE sollen zumindest auf wasserlimitierten Standorten höhere Zu
     iD Mai--Aug 2022 & {---} & 1.873 & 1.997 & 2.376 & 2.135\\[.3em]
     Überlebensrate & 0.84 & 0.52 & 0.64 & 0.72 & 0.70
   \end{tabular}
-  \caption{Wassernutzungseffiziennz [g/L] (WUE), Höhenzuwachs [m] (iH) und
-    Durchmesserzuwachs [cm] (iD) und Überlebensrate von 2020 bis 2022 verschiedener Robinienklonen die im
-    Frühling 2020 gepflanzt wurden
-  \citep{abri2022robinieTrokenresistenz,abri2023robiieWasser,abri2023robinieDroughtTolerance}}
+  \bicaption{Wassernutzungseffiziennz [g/L] (WUE), Höhenzuwachs [m] (iH) und Durchmesserzuwachs [cm] (iD) und Überlebensrate von 2020 bis 2022 verschiedener Robinienklonen die im Frühling 2020 gepflanzt wurden \citep{abri2022robinieTrokenresistenz,abri2023robiieWasser,abri2023robinieDroughtTolerance}.}{Water use efficiency [g/L] (WUE), height growth [m] (iH), diameter growth [cm] (iD), and survival rate from 2020 to 2022 of various Robinia clones planted in spring 2020 \citep{abri2022robinieTrokenresistenz,abri2023robiieWasser,abri2023robinieDroughtTolerance}.}
   \label{tab:WUErobinie}
 \end{table}
 
@@ -1529,7 +1542,7 @@ Solange Wasser nicht limitierend ist, bestimmt die Effizienz der CO\textsubscrip
                                              & 90°        & 12.48 & 8.73 & 8.01 & 4.47 & 1.02 \\
 \bottomrule
 \end{tabular}}
-    \caption{CO\textsubscript{2}-Mengen (in cm\textsuperscript{3}), die von 1\,g Blättern bei verschiedenen Temperaturen und Winkeln zur Sonne innerhalb einer Stunde aufgenommen werden \citep{lubimenko1906npp}.}
+    \bicaption{CO\textsubscript{2}-Mengen (in cm\textsuperscript{3}), die von 1\,g Blättern bei verschiedenen Temperaturen und Winkeln zur Sonne innerhalb einer Stunde aufgenommen werden \citep{lubimenko1906npp}.}{Volumes of CO\textsubscript{2} (in cm\textsuperscript{3}) absorbed by 1\,g of leaves at various temperatures and solar angles within one hour \citep{lubimenko1906npp}.}
     \label{tab:nppTempWinkel}
 \end{table}
 
@@ -1672,8 +1685,8 @@ Robinie in Österreich.
 
 Über 100~Jahre später schreibt
 \citet[S.~339]{Feistmantel1835dieForstwissenschaft} über die Robinie:
-\enquote{Obschon sie bereits, allenthalben in Oesterreich verbreitet
-  ist, so sieht man sie doch keine eigentlichen Waldbestände bilden.}
+\hypertarget{german:Feistmantel1835dieForstwissenschaft}{\enquote{Obschon sie bereits, allenthalben in Oesterreich verbreitet
+  ist, so sieht man sie doch keine eigentlichen Waldbestände bilden.}}
 \citet{hofmann1851baumloseEbenen} empfiehlt neben vielen anderen
 Baumarten auch die Robinie, bei der Anlage von Windschutzhecken zu
 verwenden wie dies damals bereits in Schönau in Niederösterreich und
@@ -1683,9 +1696,9 @@ dass mit wenigen Ausnahmen, Niemand seiner Empfehlung nachgekommen ist
 und daher das Marchfeld durch Stürme schwere Verluste erlitten hat.
 Auffällig ist, dass 10~Jahre später wesentlich weniger Baumarten
 empfohlen werden, nämlich Robinie, Götterbaum, Balsampappel, Eiche,
-Schwarz- und Weißkiefer mit der Bemerkung: \enquote{Im Marchfelde ist
+Schwarz- und Weißkiefer mit der Bemerkung: \hypertarget{german:hofmann1861waldbaumCulturWarchfelde}{\enquote{Im Marchfelde ist
   Alles werthvoll und mit Vortheil benutzbar, was da nur immer
-  wächst}.
+  wächst}}.
 Laut Angaben der österreichischen Waldinventur
 \citep{bfw2025waldinventurWeb} liegt der Vorratsanteil der Robinie in
 der Beziksforstinspektion Gänserndorf und Mistelbach derzeit bei
@@ -1698,7 +1711,7 @@ Zeitraum   & Robinie  & Ertragswald \\
 2000--2002  & 855\,000 $\pm$ 247\,000 & 6\,285\,000 $\pm$ 1\,240\,000 \\
 2018--2023  & 950\,000 $\pm$ 328\,000 & 7\,825\,000 $\pm$ 1\,368\,000 
   \end{tabular}
-  \caption{Vorrat [Vfm] laut österreichischer Waldinventur \citep{bfw2025waldinventurWeb} in der Bezirksforstinspektion Gänserndorf und Mistelbach}
+  \bicaption{Vorrat [Vfm] laut österreichischer Waldinventur \citep{bfw2025waldinventurWeb} in der Bezirksforstinspektion Gänserndorf und Mistelbach.}{Stock volume [m³ solid wood] according to the Austrian Forest Inventory \citep{bfw2025waldinventurWeb} in the district forest inspectorates of Gänserndorf and Mistelbach.}
   \label{tab:waldinventur}
 \end{table}
 
@@ -1843,7 +1856,7 @@ Sonnenblume   &  13 &  140    & Löwenzahn    &  25 & 1000 \\
 Weißklee      &  16 &  200    & Robinie      &  48 & 1600 \\
 \bottomrule
 \end{tabular}
-\caption{Vergleich der Honigerträge ausgewählter Trachtpflanzen [kg/ha] nach \citet{crane1951honey,crane1951honig,crane1985honig,crane1986honey}}
+\bicaption{Vergleich der Honigerträge ausgewählter Trachtpflanzen [kg/ha] nach \citet{crane1951honey,crane1951honig,crane1985honig,crane1986honey}.}{Comparison of honey yields from selected nectar plants [kg/ha] based on \citet{crane1951honey,crane1951honig,crane1985honig,crane1986honey}.}
 \label{tab:honigertraege}
 \end{table}
 
@@ -1925,17 +1938,17 @@ vermutlich schon um 1850 gepflanzt wurden. Auch
 wachsen.
 
 \citet[S.~67]{wangenheim1781nordamericanischeHolzarten}, der ab 1777
-in Nordamerika war, schreibt über die Robinie: \enquote{Dieser Baum
+in Nordamerika war, schreibt über die Robinie: \hypertarget{german:wangenheim1781nordamericanischeHolzartenA}{\enquote{Dieser Baum
   erwächst ziemlich geschwind, \emph{sehr lang und gerade}, und erhält
   auch eine ansehnliche Dicke. \dots Es wird daher lediglich zu Nuzholze
-  verwandt.}
+  verwandt.}}
 \citet[S.~22--23]{wangenheim1781nordamericanischeHolzarten} berichtet
-aber auch: \enquote{Diese bekam die Saamen durch gewisse Personen in
+aber auch: \hypertarget{german:wangenheim1781nordamericanischeHolzartenB}{\enquote{Diese bekam die Saamen durch gewisse Personen in
   America übermacht, die nicht die geringste Kenntniß von der Wahl und
   Zeitigung derselben hatten, und dieses Gewerbe blos des Gewinstes
   halber trieben. \dots Teutschland ist bis jezt mehrentheils mit
   solchen ausgearteten, in den englischen Schulen Gärtnermässig
-  erzeugten Stämmen verlegt worden.}
+  erzeugten Stämmen verlegt worden.}}
 
 \citet[S.~249]{Michaux1813arbres} unterscheidet
 zwischen Robinie deren Kern rot (beste Qualität), grün (mittelmäßig)
@@ -2271,7 +2284,7 @@ Pénzesdombi       & 90.0 & Nyirségi   & 82.5 \\
 Appalachia        & 86.0 & HC--4146   & 82.0 \\
 \bottomrule
 \end{tabular}
-\caption{Ausgewählte Robinienherkünfte mit sehr hohem Schnittholzanteil [\%]}
+\bicaption{Ausgewählte Robinienherkünfte mit sehr hohem Schnittholzanteil [\%].}{Selected Robinia provenances with a very high percentage of sawn timber [\%].}
 \label{tab:robinienherkuenfte}
 \end{table}
 
@@ -2289,7 +2302,7 @@ Appalachia        & 86.0 & HC--4146   & 82.0 \\
 Rectissima         & 50.0  & HC--4148 & 42.5 \\
 \bottomrule
 \end{tabular}
-\caption{Weitere Robinienherkünfte mit geringerem Schnittholzanteil [\%]}
+\bicaption{Weitere Robinienherkünfte mit geringerem Schnittholzanteil [\%].}{Additional Robinia provenances with a lower percentage of sawn timber [\%].}
 \label{tab:robinienherkuenfte2}
 \end{table}
 
@@ -2476,7 +2489,7 @@ wurde dabei nicht untersucht. Auch in Deutschland wurde die Robinie
 beim Vergleich fremdländischer Baumarten nicht untersucht
 \citep{schwappach1901fremdlaendischeHolzarten}.
 
-\enquote{Auf Grund der guten Erfahrungen, die bisher mit in heimischen
+\hypertarget{german:rannert1979fremdlaendischeBaumarten}{\enquote{Auf Grund der guten Erfahrungen, die bisher mit in heimischen
   Wäldern angebauten Weymouthskiefern, Robinien, der amerikanischen
   Schwarznuß und Roteiche sowie Douglasien gemacht worden sind,
   spricht sich Cieslar für die Durchführung von Anbauversuchen mit
@@ -2484,7 +2497,7 @@ beim Vergleich fremdländischer Baumarten nicht untersucht
   Exotenkulturversuche an. \dots Von der Exoten-Inventur
   ausgeschlossen waren die Robinie und die verschiedenen Pappelarten,
   da diese wegen ihrer weiten Verbreitung im östlichen Österreich
-  schon als "heimisch"\ betrachtet werden konnten}
+  schon als "heimisch"\ betrachtet werden konnten}}
 \citep{rannert1979fremdlaendischeBaumarten}.
 
 Solange es darum geht, zu prüfen, ob eine Baumart in einer neuen
@@ -2504,7 +2517,8 @@ Auch \citet[S.~253]{carlowitz1713sylvicultura} zog in Erwägung
 fremdländische Baumarten zu verwenden wenn diese gute Eigenschaften
 hatten:
 
-\enquote{\dots und daß das Europäische, jenen an der Güte nicht gleichet / und also ein mehrerer Nutzen / vielleicht durch Fortpflantzung derer frembden wilden Bäume / als durch zarte ausländische Gewächse / entstehen könte / auch das wilde Holtz / weil es dauerhaffter  und stärckerer Natur ist / desto eher als jene / zumahl durch den Saamen fortbracht werden möchte.  \dots  das uns nutzbare Indianische oder andere frembde Holtz / auch in Europa aufbringen zu lassen.}
+\hypertarget{german:carlowitz1713sylvicultura}{\enquote{\dots und daß das Europäische, jenen an der Güte nicht gleichet / und also ein mehrerer Nutzen / vielleicht durch Fortpflantzung derer frembden wilden Bäume / als durch zarte ausländische Gewächse / entstehen könte / auch das wilde Holtz / weil es dauerhaffter  und stärckerer Natur ist / desto eher als jene / zumahl durch den Saamen fortbracht werden möchte.  \dots  das uns nutzbare Indianische oder andere frembde Holtz / auch in Europa aufbringen zu lassen.}}\\
+(\dots und dass das europäische Holz an Qualität nicht mit jenem [=dem nicht-europäischen] vergleichbar ist; und dass daher ein größerer Nutzen vielleicht eher durch die Anpflanzung fremder Wildbäume als durch empfindliche ausländische Ziergewächse entstehen könnte. Auch das wilde Holz – weil es von dauerhafterer und robusterer Natur ist – ließe sich eher als jene [=Ziergewächse], insbesondere durch Samen, fortpflanzen. \dots um das für uns nützliche indianische oder andere fremde Holz auch in Europa heimisch werden zu lassen.)
 
 \subsubsection{Österreich}
 
@@ -2517,7 +2531,7 @@ Mehrklonsorte zu schaffen, die aus etwa 30~Klonen zusammengesetzt ist
 und bezieht sich dabei auf \citet{huehn1986klonanazahl} der je nach
 erwarteter Ansteckungsgefahr 20--40 Komponenten empfiehlt.
 
-\enquote{Derzeit wird angestrebt, die bisher zehn wüchsigsten Klone in
+\hypertarget{german:mueller1999robinie}{\enquote{Derzeit wird angestrebt, die bisher zehn wüchsigsten Klone in
   einer größeren Zahl für breiter gestreute Anbauversuche zu vermehren
   und weitere Klone zur Erhöhung der Klonzahl auszuwählen. Erst wenn
   30 auf mehreren Standorten geprüfte Klone zur Verfügung stehen, wird
@@ -2526,7 +2540,7 @@ erwarteter Ansteckungsgefahr 20--40 Komponenten empfiehlt.
   Ausscheiden weniger geeigneter Klone zugunsten von
   leistungsfähigeren Auslesen eine Variation der
   Genotypenzusammensetzung künftiger Kurzumtriebsplantagen
-  gewährleisten.} \citep{mueller1999robinie}.
+  gewährleisten.}} \citep{mueller1999robinie}.
 
 Vergleichsanbauten wurden 1982 in Karlwald bei Halbturn und Rüsterwald
 bei Neusiedel, 1985 in St.~Margarethen und 1988 in Riedenthal bei
@@ -2593,7 +2607,7 @@ war, diese jedoch bis zum Alter von 25~Jahren nahezu wieder einholte.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/GlasweinRobinie2023b}
-  \caption{Robinienversuchsfläche in Glaswein mit geradwüchsiger Sorte Appalachia}
+  \bicaption{Robinienversuchsfläche in Glaswein mit geradwüchsiger Sorte Appalachia.}{Robinia experimental plot in Glaswein with the straight-growing variety Appalachia.}
   \label{fig:glaswein2}
 \end{figure}
 
@@ -2620,7 +2634,7 @@ Oberhöhe von 31\,m und einen mittleren BHD von 43\,cm.
   \centering
   \includegraphics[width=.45\linewidth]{./bild/HerzogenburgRobinie2023a}
   \includegraphics[width=.45\linewidth]{./bild/HerzogenburgRobinie2023b}
-  \caption{Robinien bei Oberwinden}
+  \bicaption{Robinien bei Oberwinden.}{Robinia near Oberwinden.}
   \label{fig:hezogenburg}
 \end{figure}
 
@@ -2817,7 +2831,7 @@ diese, insbesondere an Waldrändern, eine geringe Schaftqualität
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/roninieLokal}
-  \caption{Relativ krumwüchsige Robinien nahe Ernstbrunn}
+  \bicaption{Relativ krumwüchsige Robinien nahe Ernstbrunn.}{Relatively crooked-growing Robinia near Ernstbrunn.}
   \label{fig:robLokalErnstbrunn}
 \end{figure}
 
@@ -2834,7 +2848,7 @@ eingefunden (Abb.~\ref{fig:ernstbrunnSchlagflaeche}).
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/ernstbrunnSchlagflaeche}
-  \caption{3 bis 5\,m hohe Robinie mit Walnuss auf einer zweijährigen Schlagfläche nahe Ernstbrunn}
+  \bicaption{3 bis 5\,m hohe Robinie mit Walnuss auf einer zweijährigen Schlagfläche nahe Ernstbrunn.}{Robinia, 3 to 5 meters tall, growing with walnut on a two-year-old logging site near Ernstbrunn.}
   \label{fig:ernstbrunnSchlagflaeche}
 \end{figure}
 
@@ -2926,10 +2940,10 @@ bodenverbessernden Eigenschaften der Robinie zurück.
 fremdländischen Baumarten sehr skeptisch gegenüber stand, und ihre
 positive Beschreibung den Interessen der Samenhändler zuschreibt, geht
 lediglich auf die Beschreibung der Robinie und der Strobe (Pinus
-strobus) ein. \enquote{Von allen übrigen zahlreichen fremden
+strobus) ein. \hypertarget{german:pfeil1860holzzucht}{\enquote{Von allen übrigen zahlreichen fremden
   Holzarten, welche in den Plantagen erzogen und verkauft werden,
   eignet sich keine einzige weiter zum Anbaue in unseren deutschen
-  Wäldern} \citep{pfeil1860holzzucht}.
+  Wäldern}} \citep{pfeil1860holzzucht}.
 
 \citet{pfeil1850robinie} empfiehlt die Robinie in Mischung mit der
 Birke zu pflanzen um bessere Stammqualitäten zu erzielen.
@@ -3003,7 +3017,7 @@ P .. Püspökladányi PL251 (2026)  z .. Zypresse (2025)
 V .. Vacsi (2026)
 U .. Üllői (2026)                . .. Noch frei
 \end{Verbatim}
-\caption{Schema der Vergleichspflanzung}
+\bicaption{Schema der Vergleichspflanzung.}{Layout of the comparative planting.}
 \label{fig:versuchsflaeche}
 \end{figure*}
 
@@ -3037,24 +3051,24 @@ hätte, wobei selbst dort schon einige ausgefallen sind.
   \begin{subfigure}[t]{0.4\linewidth}
     \centering
     \includegraphics[height=7cm]{./bild/wurzelRoteiche}
-    \caption{Roteiche}
+    \bicaption{Roteiche}{Northern red oak}
   \end{subfigure}%
   \begin{subfigure}[t]{0.55\linewidth}
     \centering
     \includegraphics[height=7cm]{./bild/wurzelStieleiche}
-    \caption{Stieleiche}
+    \bicaption{Stieleiche}{Pedunculate oak}
   \end{subfigure}
   \begin{subfigure}[t]{0.95\linewidth}
     \centering
     \includegraphics[width=\linewidth]{./bild/wurzelTraubeneiche}
-    \caption{Traubeneiche}
+    \bicaption{Traubeneiche}{Sessile oak}
   \end{subfigure}
   \begin{subfigure}[t]{0.95\linewidth}
     \centering
     \includegraphics[width=\linewidth]{./bild/wurzelUlme}
-    \caption{Feldulme}
+    \bicaption{Feldulme}{Field elm}
   \end{subfigure}
-  \caption{Wurzeln vor dem Pflanzen}
+  \bicaption{Wurzeln vor dem Pflanzen.}{Roots before planting.}
   \label{fig:wurzelAndere}
 \end{figure}
 
@@ -3161,7 +3175,7 @@ wie in Abbildung~\ref{fig:wurzelRobinie} gezeigt.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/wurzelRobinie}
-  \caption{Gut entwickelte Wurzeln der Robinie (Ramocsaháza) vor dem Pflanzen}
+  \bicaption{Gut entwickelte Wurzeln der Robinie (Ramocsaháza) vor dem Pflanzen.}{Well-developed roots of Robinia (Ramocsaháza) before planting.}
   \label{fig:wurzelRobinie}
 \end{figure}
 
@@ -3349,7 +3363,7 @@ Tabelle~\ref{tab:preisuebersicht}.
 2024/25 & Napkori - NK2 (Hu/RoPs-36-519012) & 1,20 & 27 & 1,524 & 12 & ? & Ja & Ungarn & Ungarn\\
 2024/25 & Püspökladányi - PL251 (Hu/RoPs-36-519012) & 1,20 & 27 & 1,524 & 12 & ? & Ja & Ungarn & Ungarn
   \end{tabular}}
-  \caption{Übersicht über die verwendeten Robinien}
+  \bicaption{Übersicht über die verwendeten Robinien.}{Overview of the Robinia used.}
   \label{tab:preisuebersicht}
 \end{table*}
 
@@ -3405,7 +3419,7 @@ Die Bäume wurden mittels Malerkrepp gegen Verbiss geschützt,
 verschiedene Herkünfte wurden mit kurzen Streifen verschiedenfarbigem
 Isolierband markiert.
 
-\subsection{Pflanzdurchführung}
+\subsection{Durchführung der Pflanzung}
 
 \citet{ciuvat2022robinieRumaenien} geben eine Grubentiefe von 40\,cm
 an. \citet[S.~164--165, 173]{vadas1911robinie} empfiehlt die Bäume so
@@ -3436,10 +3450,12 @@ Höhe von ca.~1,0--1,2\,m, einzelne sogar 1,5\,m erreicht
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/robinieEinJahr}
-  \caption{Robinie nach einem Jahr in der Kämpe.\\
+  \bicaption{Robinie nach einem Jahr in der Kämpe.\\
   Ausgangshöhe über dem Boden war im Frühling in etwa 25\,cm.
   Bis Ende August hatten die
-  Robinien eine Höhen von ca.\ 1,0--1,2\,m, einzelne sogar 1,5\,m erreicht.}
+  Robinien eine Höhen von ca.\ 1,0--1,2\,m, einzelne sogar 1,5\,m erreicht.}{Robinia after one year on a forest acclimatization site.\\
+Initial height above ground was approximately 25\,cm in spring.
+By the end of August, the Robinia had reached heights of about 1.0--1.2\,m, with some even reaching 1.5\,m.}
   \label{fig:robinieEinJahr}
 \end{figure}
 
@@ -3449,7 +3465,7 @@ Der Pflanzentransport erfolge mittels Bahn, Bus und Fahrrad
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.9\linewidth]{./bild/fahrradPflanzung}
-  \caption{Klimaschonende Anfahrt zur Pflanzung}
+  \bicaption{Klimaschonende Anfahrt zur Pflanzung.}{Climate-friendly arrival for the planting.}
   \label{fig:fahrradPflanzung}
 \end{figure}
 
@@ -3459,7 +3475,8 @@ gesetzt. Freischneiden der Jungpflanzen wird bei Bedarf mittels Sichel
 durchgeführt, wobei der Verbissschutz aus Malerkrepp beim Auffinden
 der Pflanzen hilfreich ist.
 
-\subsection{Dank und Ausblick}
+\section*{Dank und Ausblick}
+\addcontentsline{toc}{section}{Dank und Ausblick}
 
 Es wurde überwiegend frei zugängliche Literatur verwendet. Dazu möchte
 ich den Bibliotheken, Instituten, Verlagen, Autoren und Sponsoren
@@ -3469,7 +3486,8 @@ digitalisiert und frei zur Verfügung gestellt haben.
 Viele von mir zitierte Arbeiten wurden in Sprachen verfasst, mit denen
 ich nicht vertraut bin. Dabei haben frei zugängliche
 Online-Übersetzungshilfen geholfen, um auch diese Quellen zu
-erschließen.
+erschließen. Vor allem wurde die englische Übersetzung dieses Textes
+größtenteils mithilfe maschineller Übersetzungsdienste erstellt.
 
 Zur Erstellung dieser Arbeit wurden unzählige weitere Hilfen in Form
 von Texteditoren, Textsatzsystem, Literaturverwaltung, Literatursuche,
@@ -3486,14 +3504,17 @@ Dr.~Attila Borovics und Dr.~Attila Benke bedanken.
 Wenn jemand Interesse an der Anlage von Vergleichspflanzungen mit
 Robinien oder anderen Baumarten hat oder selbst bereits solche
 durchgeführt hat, würde ich mich über einen Austausch freuen.
-
+Denn:
+\begin{center}
+\scalebox{1.17}{B}äume \scalebox{1.17}{F}ormen \scalebox{1.17}{W}älder --- Gemeinsam wächst Wissen
+\end{center}
 
 %\addcontentsline{toc}{section}{Stichwortverzeichnis}
 %\printindex
 
-\addcontentsline{toc}{section}{Literatur}
+\addcontentsline{toc}{section}{Literatur / Literature}
 %\bibliography{literatur}
-\printbibliography
+\printbibliography[title={Literatur / Literature}]
 
 %Autor: Georg Kindermann
 
