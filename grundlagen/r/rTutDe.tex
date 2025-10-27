@@ -1,0 +1,678 @@
+\documentclass[10pt,twocolumn]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+
+\usepackage{textcomp}
+\usepackage{newpxtext}
+\usepackage{newpxmath}
+\usepackage[scaled=0.75]{beramono}
+
+\usepackage{xpatch}
+\usepackage{xcolor}
+\usepackage{realboxes}
+\definecolor{mygray}{rgb}{0.9,0.9,0.9}
+
+\usepackage{listings}
+%\lstdefinelanguage{commentonly}{
+%  morecomment=[l]{\#},
+%  sensitive=true,
+%}
+\lstset{literate=%
+{Ö}{{\"O}}1
+{Ä}{{\"A}}1
+{Ü}{{\"U}}1
+{ß}{{\ss}}1
+{ü}{{\"u}}1
+{ä}{{\"a}}1
+{ö}{{\"o}}1
+{²}{{$^2$}}1
+{├}{{|}}1
+{─}{{-}}1
+{└}{{L}}1
+{│}{{|}}1
+,basicstyle=\ttfamily%\small
+,backgroundcolor=\color{mygray}
+,commentstyle=\emph
+%,language=commentonly
+,language=R
+,stringstyle=\emph %\color{red!50!black}
+,upquote=true
+,aboveskip=0pt
+,belowskip=0pt
+}
+\makeatletter
+\xpretocmd\lstinline
+  {%
+   \bgroup\fboxsep=1.5pt
+   \Colorbox{mygray}\bgroup\kern-\fboxsep\vphantom{\ttfamily\char`\\y}%
+   \appto\lst@DeInit{\kern-\fboxsep\egroup\egroup}%
+  }{}{}
+\makeatother
+
+\usepackage{enumitem}
+\setlist{nosep}
+
+\usepackage{adjustbox}
+\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+
+\usepackage[pdftitle={Grundlagen der Statistiksprache R}
+, pdfauthor={Georg Kindermann}
+, pdfsubject={R}
+, pdfkeywords={R, Lang, Progammiersprache, Tutorial, Einführung, German,
+               Deutsch}
+, pdflang={de-AT-1996}
+, colorlinks=true
+, linkcolor=blue
+, urlcolor=blue
+, pdfpagemode=UseNone]{hyperref}
+
+\nonfrenchspacing
+\sloppy
+
+\title{Grundlagen der Statistiksprache R}
+\author{Georg Kindermann}
+%\date{19. Juni 2023}
+
+\begin{document}
+
+\maketitle
+
+%\begin{abstract}
+%  Eine kurze Einführung in die Sprache Julia.
+%\end{abstract}
+
+\tableofcontents
+\smallskip
+%\hrule
+\noindent
+\href{https://www.r-project.org/}{R} kann vorkompiliert vom
+\href{https://cran.r-project.org/}{CRAN} (The Comprehensive R Archive
+Network) als \href{https://cran.r-project.org/bin/}{Binärdatei} für das
+entsprechende Betriebssystem heruntergeladen werden. Alternativ kann
+auch der \href{https://cran.r-project.org/src/base/R-4/}{Quellcode}
+heruntergeladen werden und lokal kompiliert werden. Unter Linux
+könnte dies so geschehen:
+
+\begin{lstlisting}[language=sh]
+wget https://cran.r-project.org/src/base/R-latest.tar.xz
+mkdir R-latest
+tar -xf R-latest.tar.xz -C R-latest --strip-components=1
+cd R-latest
+./configure --enable-memory-profiling
+make
+sudo make install
+cd ..
+#rm R-latest.tar.xz
+#rm -r R-latest/
+\end{lstlisting}
+
+Nach dem Start kann R interaktiv verwendet werden. Alternativ lässt
+sich R auch über verschiedene IDEs (integrierte Entwicklungsumgebung)
+oder Texteditoren nutzen. Die gezeigten Codeabschnitte wurden mit R
+Version 4.5.1 (2025-06-13) getestet.
+
+Wenn man R startet, kommt man in den interaktiven Modus.
+Deren wichtigste Tastenkombinationen sind:
+\begin{description}[style=multiline,leftmargin=2cm,nolistsep]
+  \item[CTRL+d] Beendet R (EOF) (Linux/Mac)
+  \item[CTRL+z] Beendet R (EOF) (Windows)
+  \item[CTRL+c] Bricht laufende Berechnungen oder Eingaben ab
+  \item[CTRL+l] Löscht die Konsole (nur in manchen Umgebungen)
+  \item[Pfeil ↑ / ↓] Navigiert im Befehlverlauf (History)
+  \item[CTRL+r] Rückwärtssuche im Befehlverlauf
+  \item[Tab] Auto-Vervollständigung
+\end{description}
+
+Beim Beenden von R besteht die Möglichkeit, den Arbeitsbereich (Workspace-Image) zu speichern. Dabei werden ausschließlich die Objekte im globalen Environment, also die im Arbeitsspeicher befindlichen R-Objekte, gesichert, nicht jedoch geladene Pakete. Die vorhandenen Objekte kann man mit \lstinline|ls()| oder \lstinline|objects()| auflisten. Wird R in einem Verzeichnis gestartet, in dem eine gespeicherte Arbeitsumgebung (Datei \lstinline|.RData|) vorhanden ist, wird diese beim Start automatisch geladen. So kann man die Arbeit, nach erneutem Laden der benötigten Pakete, an dem Punkt fortsetzen, an dem man aufgehört hat.
+
+Den Arbeitsbereich kann man jederzeit mit \lstinline|save.image()| speichern. Dabei wird standardmäßig die Datei \lstinline|.RData| erstellt, die beim nächsten Start von R im selben Verzeichnis wieder geladen wird. Alternativ kann man auch einen Dateinamen angeben, z.\,B.\ \lstinline|save.image("WSI.RData")| bzw.\ \lstinline|save.image(file = "WSI.RData")|. Diese Datei kann später mit \lstinline|load("WSI.RData")| bzw.\ \lstinline|load(file = "WSI.RData")| geladen werden. Dabei werden existierende Objekte mit gleichem Namen im aktuellen Environment überschrieben.
+
+Für reproduzierbare Analysen empfiehlt sich der Start von R mit der Option \lstinline|--vanilla| (\lstinline|R --vanilla|). In diesem Fall werden weder Konfigurationsdateien (\lstinline|.Rprofile|, \lstinline|.Renviron| etc.) noch ein gespeichertes Workspace-Image geladen, und beim Beenden wird kein neues gespeichert.
+
+Befehle, die in einer Datei gespeichert sind, lassen sich mit \lstinline|R -f FILE| ausführen. Ein einzelner Ausdruck kann mit \lstinline|R -e EXPR| ausgeführt werden, wobei R danach sofort beendet wird, z.,B.\ \lstinline|R -e "summary(iris)"|. In beiden Fällen wird der Arbeitsbereich beim Beenden standardmäßig nicht gespeichert. Möchte man ihn speichern, muss dies mit der Option \lstinline|--save| explizit angegeben werden, z.,B.\ \lstinline|R --save -f FILE| oder \lstinline|R --save -e "x=5"|.
+
+Bei Verwendung von \lstinline|R -f FILE| oder \lstinline|R -e EXPR| werden standardmäßig ebenfalls Konfigurationsdateien sowie ein eventuell vorhandenes Workspace-Image geladen. Wie bereits beschrieben, kann dies durch \lstinline|--vanilla| unterdrückt werden (\lstinline|R --vanilla -f FILE|, \lstinline|R --vanilla -e EXPR|).
+
+
+Einige wichtige Funktionen:
+
+\begin{lstlisting}
+q()                   # Beendet R (mit Rückfrage)
+#                     # Kommentar bis Zeilenende
+help()                # Hilfe starten
+help(q)               # Hilfe zu Befehl q
+?q                    # Hilfe zu Befehl q
+#?for                 ## funktioniert nicht
+?"for"                # Hilfe zur for-Schleife
+#help(for)            ## erzeugt Fehler
+help("for")           # Hilfe zur for-Schleife
+??reg                 # Sucht nach "reg" in allen Hilfetexten
+help.search("reg")    # Wie ??reg, aber als Funktion
+help.start()          # Öffnet HTML-Hilfesystem
+library(help = "stats")  # Hilfeübersicht zum Paket "stats"
+args(lm)              # Argumente der Funktion lm
+methods("plot")       # Methoden für generische Funktion plot
+methods(class = "lm") # Methoden für Objekte der Klasse "lm"
+getAnywhere("simpleLoess")#Zeigt auch nicht exportierte Funktion
+example(lm)           # Führt Beispiele zu lm aus
+demo()                # Zeigt verfügbare Demos
+demo(lm)              # Demo zur linearen Regression
+
+install.packages("lme4") # Installiert das Paket
+update.packages()    # Aktualisiert Pakete
+remove.packages()    # Entfernt Paket
+installed.packages() # Zeigt alle installierten Pakete
+library(lme4)        # Paket laden
+require(lme4)        # Alternative, gibt bei Fehler FALSE zurück
+search()             # Zeigt geladene Pakete und Umgebungen
+vignette()           # Verfügbare Vignetten anzeigen
+vignette("lmer")     # Einführung zu lmer öffnen
+
+version              # R-Version anzeigen
+sessionInfo()        # Infos zu Umgebung und geladenen Paketen
+x = 1                # Der Variablen x den Wert 1 zuweisen
+x <- 1               # Der Variablen x den Wert 1 zuweisen
+1 -> x               # Der Variablen x den Wert 1 zuweisen
+x <<- 1              # Zuweisung in der Elternumgebung
+str(x)               # Struktur von x
+dput(x)              # Zeigt wie Objekt erzeugt werden kann
+assign("x", 1)       # Der Variablen x den Wert 1 zuweisen
+ls()                 # Liste Objekte im aktuellen Environment
+rm(x)                # Objekt x entfernen
+rm(list = ls())      # Alle Objekte entfernen (Workspace leeren)
+
+getwd()              # Aktuelles Arbeitsverzeichnis anzeigen
+setwd("D:/")         # Arbeitsverzeichnis setzen
+source("file.R")     # R-Skript ausführen
+\end{lstlisting}
+
+
+\section{Grundtypen}
+
+Mit \lstinline|typeof(x)| kann der Typ von \lstinline|x| in R bestimmt werden.
+R verwendet dynamische Typisierung, d.\,h. der Typ wird zur Laufzeit zugewiesen.
+R kennt keinen eigenen Zeichentyp (char); einzelne Zeichen werden als Zeichenketten (Strings) der Länge 1 behandelt.
+
+\begin{lstlisting}[language=R]
+1              # Double
+1L             # Integer (standardmäßig 32 Bit)
+1.0            # Double
+0x2a           # 42, Double (hexadezimal)
+0x2aL          # 42, Integer (hexadezimal)
+TRUE           # Boolean
+FALSE          # Boolean
+'abc'          # String
+"abc"          # String
+as.raw(97)     # Raw (Byte)
+as.raw(0x61)   # Raw
+charToRaw("a") # 61; Raw
+\end{lstlisting}
+
+Mit \lstinline|as.T(x)| wird ein Wert \lstinline|x| in den Typ \lstinline|T| konvertiert. R prüft dabei nicht streng auf Genauigkeit, sondern führt die Konvertierung stillschweigend durch.
+
+\begin{lstlisting}[language=R]
+as.integer(1)     # Wandelt Double in Integer
+as.integer(1.0)   # Wandelt Double in Integer
+as.integer(1.8)   # wird abgeschnitten => 1
+floor(1.3)        # Abrunden  => 1 Double
+ceiling(1.3)      # Aufrunden => 2 Double
+round(1.3)        # Runden    => 1 Double
+\end{lstlisting}
+
+R kennt spezielle Werte für fehlende, ungültige oder unendliche Zahlen. Sie sind typabhängig und verhalten sich in Berechnungen wie reguläre Werte ihres jeweiligen Typs.
+
+\begin{lstlisting}[language=R]
+NA                        # Fehlender Wert vom Typ logical
+NA_integer_               # Integer NA
+NA_real_                  # Double NA
+NA_character_             # Character NA
+
+typeof(1L + NA)           # integer
+typeof(1L + NA_real_)     # double
+
+NaN                       # Not a Number (z.B. 0/0)
+Inf                       # Unendlich (z.B. 1/0)
+-Inf                      # Negativ unendlich (z.B. -1/0)
+\end{lstlisting}
+
+R unterstützt auch komplexe Zahlen. Zur exakten Berechnung mit sehr großen Zahlen oder Brüchen lassen sich externe Pakete wie \texttt{gmp} (ganze und rationale Zahlen) oder \texttt{Rmpfr} (Gleitkommazahlen) verwenden.
+
+\begin{lstlisting}
+-4+0i                            # Komplexe Zahl
+#sqrt(-4)                        ## NaN; Warnung
+sqrt(-4+0i)                      # 0+2i
+
+2147483647L                      # Größte Integerzahl
+2147483647L + 1L                 # NA; Ganzzahlüberlauf
+2147483648L                      # Warnung Umwandlung in Double
+as.character(2^53)               # 9007199254740992
+as.character(2^53 - 1)           # 9007199254740991
+as.character(2^53 + 1)           # 9007199254740992 !
+as.character(2^53 + 2)           # 9007199254740994
+
+library(gmp)
+as.bigz("2147483648")            #  2147483648 als Ganzzahl
+#as.bigz(9007199254740993)       ## 9007199254740992
+as.bigz("9007199254740993")      #  9007199254740993
+
+as.bigq(1L, 3L)                  #  exakter Bruch 1/3
+as.bigq(2L, 4L)   # 1 / 2
+as.bigq(0.5, 1)   # 1 / 2
+
+library(Rmpfr)
+mpfr("9007199254740992.5", 55L)  # 9007199254740992.5
+mpfr("9007199254740992.75", 55L) # 9007199254740993
+mpfr("9007199254740992.75", 56L) # 9007199254740992.75
+
+format(1/3, digits=20)           # 0.33333333333333331483
+mpfr(as.bigq(1L, 3L), 64)        # 0.333333333333333333342
+\end{lstlisting}
+
+\subsection{Vector}
+
+Ein Vektor ist eindimensional, enthält Elemente des gleichen Typs und kann beliebig lang sein. Mit \lstinline|c| werden mehrere Werte zu einem Vektor oder einer Liste zusammengefügt.
+
+\begin{lstlisting}[language=R]
+1                 # numerischer Vektor mit Länge 1
+c(1, 2, 3)        # numerischer Vektor mit Länge 3
+c("a", "b", "c")  # Zeichen-Vektor (String)
+c(1, 2, "x")      # Zahlen werden in String umgewandelt
+
+x = c(a=1, "b b"=2, a=3)   # Elemente bekommen einen Namen
+names(x)                   # "a" "b b" "a"
+x["a"]                     # 1; gibt ersten Treffer zurück
+make.names(names(x), TRUE) # "a" "b.b" "a.1"
+make.unique(names(x))      # "a" "b b" "a.1"
+length(x)                  # 3
+\end{lstlisting}
+
+\subsection{Matrix, Array}
+
+Array ist eine ein bis mehrdimensionale Strukturen die Elemente des gleichen Typs enthält. Eine Matrix ist ein zweidimensionales Array.
+
+\begin{lstlisting}[language=R]
+array(1:3, dim=3)                # 1D-Array
+x <- matrix(1:6, nrow=2, ncol=3) # 2x3 Matrix
+rownames(x)                      # Zeilennamen
+colnames(x)                      # Spaltennamen
+nrow(x)                          # 2
+ncol(x)                          # 2
+a <- array(1:8, dim=c(2,2,2))    # 3D-Array 2x2x2
+dimnames(a)                      # Dimensionsnamen
+dim(a)                           # 2 2 2
+\end{lstlisting}
+
+\subsection{List}
+
+Eine Liste ist ein Vektor für Objekte beliebiger Typen und Längen.
+
+\begin{lstlisting}[language=R]
+list(1, "a", TRUE, c(1,2))  # Liste mit verschiedenen Typen
+c("a", list(2, 3))          # c fügt Listen zusammen
+\end{lstlisting}
+
+\subsection{Data.frame}
+
+Ein data.frame ist eine tabellarische Datenstruktur in R, die als Liste gleich langer Spalten organisiert ist. Die Spalten sind in der Regel Vektoren, können aber auch komplexere Objekte enthalten, solange alle Spalten die gleiche Länge haben.
+
+\begin{lstlisting}[language=R]
+x = data.frame(Name=c("Anna", "Max"), Alter=c(25, 30))
+x$l = list(3:2, "a")                   # list als Spalte
+x$m = matrix(1:6, 2)                   # matrix als Spalte
+x$d = data.frame(a=c("c", "d"), b=2:1) # data.frame als Spalte
+names(x)                               # Spaltennamen
+length(x)                              # Anzahl Spalten
+ncol(x)                                # Anzahl Spalten
+nrow(x)                                # Anzahl Zeilen
+row.names(x)                           # Zeilennamen
+head(x)                                # Anfang
+tail(x)                                # Ende
+summary(x)                             # Datenüberblick
+str(x)                                 # Daten Struktur
+\end{lstlisting}
+
+\subsection{Factor}
+
+Ein factor repräsentiert kategoriale Daten. Intern werden diese als Ganzzahlen mit zugehörigen Namen (Levels) gespeichert.
+
+\begin{lstlisting}[language=R]
+f <- factor(c("rot", "blau", "rot")) # Faktor erstellen
+levels(f)        # "blau" "rot"
+nlevels(f)       # 2
+unclass(f)       # 2 1 2; interne Ganzzahl-Repräsentation
+f <- relevel(f, "rot")  # "rot" wird erster Level
+
+levels(f)[levels(f) == "rot"] <- "grün" # Einen Level umbenennen
+
+local({    # Mehrere Levels umbenennen
+  s <- c(gelb = "blau", grau = "grün")
+  i <- match(s, levels(f), 0)
+  levels(f)[i != 0] <<- names(s)[i]
+})
+
+# Geordneter Faktor (ordinal)
+f <- ordered(c("wenig", "mittel", "viel"),
+             levels = c("wenig", "mittel", "viel"))
+
+# Faktor mit systematisch generierten Levels
+gl(3, 2)  # 1 1 2 2 3 3; erzeugt Faktor mit 3 Levels
+\end{lstlisting}
+
+\subsection{Datum und Zeit}
+
+R kennt mehrere Klassen für Zeitangaben:
+\lstinline|Date| für reine Datumsangaben sowie
+\lstinline|POSIXct| und \lstinline|POSIXlt| für kombinierte Datums- und Zeitangaben.
+Zeitdifferenzen werden mit \lstinline|difftime| dargestellt.
+
+\begin{lstlisting}[language=R]
+Sys.Date()                # "2025-10-24"; Aktuelles Datum
+as.Date("2025-10-24")     # Standardformat: "%Y-%m-%d"
+as.Date("24.10.2025", format = "%d.%m.%Y")
+  
+Sys.time()                # "2025-10-24 08:16:44 CEST"
+Sys.timezone()            # "Europe/Vienna"; Lokale Zeitzone
+ct <- as.POSIXct("2025-10-24 08:16:44")
+# "2025-10-24 08:16:44 CEST"
+as.POSIXct("2025-10-24 08:16:44", "UTC")
+# "2025-10-24 08:16:44 UTC"
+ISOdatetime(2025, 10, 24, 8, 16, 44)
+# "2025-10-24 08:16:44 CEST"
+ISOdate(2025, 10, 24)
+# "2025-10-24 12:00:00 GMT"
+unclass(ct)               # 1761286604; Sekunden seit 1970-01-01
+lt <- as.POSIXlt("2025-10-24 08:16:44") #Liste mit Jahr, Monat..
+lt$hour                   # 8
+
+as.Date("2024-3-1") - as.Date("2024-2-1") # 29 days
+a <- ISOdate(2025, 10, 1, 8, 0, 0)
+e <- ISOdate(2025, 10, 1, 9, 10, 30)
+e - a                                     # 1.175 hours
+difftime(e, a, units = "mins")            # 70.5 mins
+
+seq(as.Date("2025-10-01"), as.Date("2025-10-25"), "1 week")
+# "2025-10-01" "2025-10-08" "2025-10-15" "2025-10-22"
+seq(as.Date("1582-10-4"), as.Date("1582-10-15"), "1 day") # !
+# "1582-10-04" "1582-10-05", ..., "1582-10-14" "1582-10-15"
+
+.leap.seconds  # Zeigt Schaltsekunden
+seq(ISOdate(2016,12,31,23,59,59), by="1 sec", length.out = 3)
+# "2016-12-31 23:59:59 GMT" "2017-01-01 00:00:00 GMT"
+# "2017-01-01 00:00:01 GMT"
+ISOdate(2016, 12, 31, 23, 59, 60)   #  "2017-01-01 GMT"
+as.POSIXlt("2016-12-31 23:59:60", tz = "UTC")
+# "2016-12-31 23:59:60 UTC"
+\end{lstlisting}
+
+\subsection{NULL}
+
+\lstinline|NULL| repräsentiert ein Objekt ohne Wert oder Inhalt. 
+Es ist ein spezieller Typ, der häufig für leere Rückgaben, Platzhalter oder gelöschte Einträge verwendet wird.
+Vektoren können \lstinline|NULL| nicht enthalten, da alle Elemente eines Vektors denselben Typ besitzen müssen.
+
+\begin{lstlisting}[language=R]
+x <- NULL
+is.null(x)            # TRUE
+length(x)             # 0
+
+x <- c(1, NULL, 3, 4) # 1 3 4; NULL Verschwindet
+#x[2] <- NULL         ## Fehler
+x[2] <- list(NULL)    # Wandelt Vector a in Liste um
+
+x <- list(1, NULL, 3) # [[1]] 1  [[2]] NULL  [[3]] 3
+x[[3]] <- NULL        # Löscht drittes Element
+x[2] <- NULL          # Löscht zweites Element
+x[1] <- list(NULL)    # Fügt NULL ein
+
+x <- data.frame(a=1:2, b=3:4)
+x$c <- list(NULL, 2)  # Fügt neue Liste ein
+x$b <- NULL           # Löscht Spalte b
+\end{lstlisting}
+
+\subsection{Funktionen und Closure}
+
+In R sind Funktionen sogenannte Closures: Objekte, die aus einem Funktionskörper und einem enclosing environment bestehen.
+Variablen, die nicht als Funktionsargumente übergeben werden, sucht R zuerst im enclosing environment der Funktion und dann in den übergeordneten Environments.
+Im Environment können Variablen gespeichert werden.
+Bei Funktionen wird der letzte Ausdruck zurückgegeben.
+Zusätzlich gibt es noch \lstinline|return|.
+
+\begin{lstlisting}[language=R]
+f <- function(x) x+1
+f(3)           # 4
+
+f2 <- \() {x}
+#f2()          ## Fehler, x nicht gefunden
+x <- 1
+f2()           # 1; greift jetzt auf globales x zu
+
+f3 <- \() {x <- 2; x}
+f3()           # 2; greift auf lokales x zu
+
+f4 <- local(\() x)
+f4()           # 1; greift auf globales x zu
+environment(f4)$x <- 4
+f4()           # 4; greift auf lokales x zu
+x              # 1
+
+f5 <- local({n=0L; \() {n <<- n+1L; n}})
+f5()           # 1
+f5()           # 2
+environment(f5)$n <- 8
+f5()           # 9
+
+f6 <- (\(n){\() {n <<- n+1L; n}})(7L)
+f6()           # 8
+f6()           # 9
+ls(environment(f6))      # n
+as.list(environment(f6)) # n 9
+
+f7 <- \() {x <<- 2; invisible()}
+f7()           # Gibt nichts in der Konsole aus
+\end{lstlisting}
+
+\lstinline|local()| erzeugt ein Environment, in dem Objekte (z. B. Zähler oder Parameter) dauerhaft für die zurückgegebene Funktion gebunden bleiben.
+
+\subsection{Environment (Umgebung)}
+
+Eine Datenstruktur, die Namen (Variablen) mit Werten (Objekten) verknüpft.
+Environments bilden eine hierarchische Kette, in der jedes Environment auf ein Eltern-Environment verweist, 
+an deren Ende das leere Environment (\lstinline|emptyenv()|) steht.
+Bei der Namenssuche geht R schrittweise entlang dieser Kette nach oben.
+Innerhalb eines Environments kann die Namenssuche mittels Hash-Lookup erfolgen.
+Mit Environments wird bestimmt, wo Variablen beim Auswerten von Funktionen gesucht werden.
+
+Abweichend davon kann man auch im dynamischen Aufrufer-Environment suchen, z.B. mit \lstinline|dynGet|. Beim Einsatz von dynGet in verschachtelten Funktionsaufrufen können Konflikte mit der Lazy Evaluation (Promises) entstehen. Alternativ können Variablen als Funktionsargument übergeben werden, was ich empfehle, da dies explizit, robust und leicht nachvollziehbar ist.
+
+\lstinline|<<-| sucht in den Eltern-Environments nach einer bestehenden Bindung und ändert deren Wert. Existiert keine Bindung, wird sie im nächsthöheren Environment erzeugt.
+
+Im Gegensatz zu einer Liste ist ein Environment referenzbasiert (kein copy-on-modify), 
+besitzt keine feste Ordnung seiner Elemente und verfügt stets über ein Eltern-Environment.
+
+\begin{lstlisting}[language=R]
+e1 <- new.env()
+e1$a <- 1
+e2 <- e1      # e2 zeigt auf e1
+e2$a <- 2     #  ohne copy on modify
+e1$a          # 2
+e1[["a"]]     # 2
+
+x <- list(a = 1)
+y <- x        # y zeigt auf x
+y$a <- 2      #  mit copy on modify
+x$a           # 1
+
+e1 <- new.env()
+e1$x <- 1
+e2 <- new.env(parent = e1)
+e2$f1 <- \() x            # enclosing environment: GlobalEnv
+environment(e2$f1)        # R_GlobalEnv
+#e2$f1()                  ## Fehler, 'x' nicht gefunden
+environment(e2$f1) <- e2  # setzt e2 als enclosing environment
+e2$f1()                   # 1
+e2$f2 <- with(e2, \() x)  # enclosing environment: e2
+e2$f2()                   # 1
+e2$x                      # NULL; keine Suche im Parent
+get("x", envir = e2)      # 1; Suche im Parent
+#get("x", envir = e2, inherits = FALSE) ## Fehler
+
+x <- 1
+f1 <- \() x <- 2
+f1()          # f1 verändert sein lokales x
+x             # 1
+f2 <- \() x <<- 2
+f2()          # f2 verändert Eltern x
+x             # 2
+#z            ## Fehler 'z' nicht gefunden
+f3 <- \() z <<- 3
+environment(f3) # R_GlobalEnv
+f3()          # f3 legt z im Eltern-Environment an
+z             # 3
+
+x <- -1
+f1 <- \() {x <- 1; f3(x)}
+f2 <- \() {x <- 2; f3(x)}
+f3 <- \(y=3) f4(y)
+f4 <- \(y=4) list(y,
+  x,                     # Suche im enclosing environment
+  dynGet("x", 0),        # Suche im Aufruf-Stack
+# Suche im Aufruf-Stack mit Vererbung
+  dynGet("x", 0, inherits = TRUE),
+  get0("x", envir = parent.frame()), # Suche im Aufrufer-Frame
+# Suche nur im Parent-Frame
+  get0("x", envir = parent.frame(), inherits = FALSE)
+)
+f1()                     #  1, -1, 1, -1, -1, NULL
+f2()                     #  2, -1, 2, -1, -1, NULL
+f3()                     #  3, -1, 0, -1, -1, NULL
+f4(x)                    # -1, -1, 0, -1, -1, -1
+f4()                     #  4, -1, 0, -1, -1, -1
+with(list(x = 5), f4(x)) #  5, -1, 5, -1,  5,  5
+#dput(f3()) ## Fehler rekursive Referenz
+\end{lstlisting}
+
+
+\section{Subsetting (Teilmengen)}
+
+In R werden Elemente von Datenstrukturen mit Hilfe von Subsetting ausgewählt. Die gebräuchlichsten Subsetting-Operatoren sind \lstinline|[ ]|, \lstinline|[[ ]]| und \lstinline|$|. Subsetting kann mit numerischen Indizes, logischen Vektoren oder Namen erfolgen.
+
+\lstinline|[ ]| gibt immer ein Objekt des gleichen Typs zurück (z.\,B. Liste, data.frame), sofern \lstinline|drop=FALSE| gesetzt ist, \lstinline|[[ ]]| extrahiert ein einzelnes Element.
+
+\begin{lstlisting}[language=R]
+v <- c(a=10, b=20, c=30, d=40, e=50)
+v[2]             # 20; Element an Position 2
+v[[2]]           # 20
+v[1:3]           # 10 20 30; Element 1 bis 3
+v[c(1,3,5)]      # 10 30 50; Mehrere Elemente
+v[-c(2,4)]       # 10 30 50; Alle außer Position 2 und 4: 
+v["c"]           # 30; Über Namen
+#v$c             ## Fehler
+v[c(TRUE,FALSE,TRUE,FALSE,TRUE)] # 10 30 50; Logisch
+v[c(TRUE,FALSE)] # 10 30 50; Wird automatisch wiederholt
+v[v>30]          # 40 50; Logisch
+v[!v>30]         # 10 20 30; ! (not)
+v[which(v>30)]   # 40 50; Über Position
+v[-which(v>30)]  # 10 20 30
+v[-which(v>50)]  # Nichts!
+v                # Ganzer Vektor
+v[]              # Ganzer Vektor
+v[0]             # Nichts
+v[-0]            # Nichts
+v[NULL]          # Nichts
+v[integer(0)]    # Nichts
+
+m <- matrix(1:6, 2, dimnames=list(c("a","b")))
+m[2, 3]         # 6; Zeile 2, Spalte 3
+m[1, ]          # 1 3 5; Vektor, Ganze 1. Zeile
+m["a", ]        # 1 3 5; Vektor, Zeile a
+m[1, , drop=FALSE]  # 1 3 5; Matrix
+m[, 2]          # 3 4; Ganze Spalte 2
+m[-1, -3]       # Ohne Zeile 1 und Spalte 3
+m[2, 2:3]       # Zeile 2, Spalte 2 bis 3
+m[4]            # 4; Kann wie Vektor verwendet werden
+
+l <- list(a=1, b=2:4, c="Hallo")
+l[2]            # 2 3 4; Liste mit zweitem Element
+l[[2]]          # 2 3 4; Zweites Element
+l[[2]][[1]]     # 2; Zweites Element, erster Eintrag
+l[[c(2, 1)]]    # 2; Zweites Element, erster Eintrag
+l$b             # 2 3 4; Element b
+l["b"]          # 2 3 4; Liste mit Element b
+l[["b"]]        # 2 3 4; Element b
+l[1:2]          # Liste mit Element 1 und 2
+l[c("a","c")]   # Liste mit Element a und c
+l[-2]           # Liste ohne zweites Element
+l[c(TRUE, FALSE)] # Liste jedes zweites Element
+
+d <- data.frame(a=c("d","e"), b=2:1)
+d[1, ]          # d 2; data.frame, Erste Zeile
+d[, 2]          # 2 1; Vektor, Zweite Spalte
+d[[2]]          # 2 1; Vektor, Zweite Spalte
+d[2]            # 2 1; data.frame, Zweite Spalte
+d[, 2, drop=FALSE] # 2 1; data.frame, Zweite Spalte
+d[, "b"]        # 2 1; Vektor
+d$b             # 2 1; Vektor
+d[-1, ]         # data.frame ohne erste Zeile
+d[, -1]         # Da nur eine Spalte => Vektor
+d[, 1:2]        # Spalten 1 bis 2
+d[c(TRUE, FALSE),] # Jede zweite Zeile
+d[0]            # data.frame mit 0 Spalten
+d[0,]           # data.frame mit 0 Zeilen
+d[d$a == "d", ] # Zeilen, bei denen a == "d"
+d[d$b > 1, "a"] # Spalte a, Zeilen mit b > 1
+d[d$a == "d" & d$b > 1, ] # d 2
+
+e <- new.env()
+e$a <- 1
+assign("b", 2, envir = e)
+e$a                  # 1
+e$b                  # 2
+e[["a"]]             # 1
+#e[[1]]              ## Fehler
+#e["a"]              ## Fehler
+get("a", envir = e)  # 1
+rm(b, envir = e)     # Löscht Element b
+ls(e)                # "a"; Listet Elemente von e
+\end{lstlisting}
+
+\section{Datenmanipulation}
+
+% Aggregate
+% Auch grep sub split
+% sweep  x[col(m)]
+
+\section{Programmierung}
+
+% Auch try catch
+
+%\section{Steuerung von Programmfluss}
+
+
+\section{Datenimport und -export}
+
+\section{Zufallszahlen}
+
+
+\section*{Statistische Modellierung und Regression}
+
+\section{Zeichnen -- Plot}
+
+\section*{Visualisierung in R}
+
+\section*{Rechenzeit und Speicherverbrauch in R}
+
+\section*{Paralleles Rechnen in R}
+
+\section*{Paketentwicklung in R}
+
+\section*{Pipes in R}
+
+\subsection*{Rcpp:}
+
+%%% Lazy evaluation, onExit
+
+\end{document}
+
+
