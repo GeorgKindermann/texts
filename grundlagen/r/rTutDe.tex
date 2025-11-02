@@ -186,6 +186,23 @@ rm(list = ls())      # Alle Objekte entfernen (Workspace leeren)
 getwd()              # Aktuelles Arbeitsverzeichnis anzeigen
 setwd("D:/")         # Arbeitsverzeichnis setzen
 source("file.R")     # R-Skript ausführen
+
+x <- 1:3             # 1 2 3; Erzeugt eine Integer Sequenz
+3:1                  # 3 2 1
+seq(1, 3)            # 1 2 3; Erzeugt eine Integer Sequenz
+seq(1, 6, 2)         # 1 3 5
+seq(3, by=2, length.out=4) # 3 5 7 9
+seq(0, by=3, along.with=x) # 0 3 6; so lange wie x
+seq_along(x)         # 1 2 3
+x <- integer(0)      # Vektor mit Länge 0
+seq_along(x)         # integer(0)
+n <- 3
+seq_len(n)           # 1 2 3
+n <- 0
+seq_len(n)           # integer(0)
+1:n                  # 1 0
+rep(1:3, 2)          # 1 2 3 1 2 3
+rep(1:3, each=2)     # 1 1 2 2 3 3
 \end{lstlisting}
 
 
@@ -228,6 +245,8 @@ NA                        # Fehlender Wert vom Typ logical
 NA_integer_               # Integer NA
 NA_real_                  # Double NA
 NA_character_             # Character NA
+is.na(1)                  # FALSE
+is.na(NA)                 # TRUE
 
 typeof(1L + NA)           # integer
 typeof(1L + NA_real_)     # double
@@ -286,22 +305,45 @@ x["a"]                     # 1; gibt ersten Treffer zurück
 make.names(names(x), TRUE) # "a" "b.b" "a.1"
 make.unique(names(x))      # "a" "b b" "a.1"
 length(x)                  # 3
+x[3]                       # 3; Inhalt drittes Element
+x[4]                       # NA
+
+vector("integer", 3)       # 0 0 0; Erzeugt int Vektor
+integer(3)                 # 0 0 0; Erzeugt int Vektor
+
+x <- Matrix::sparseVector(c(3,5,7), c(1,10,90), 100)
+# Erzeugt wenig besetzten Vektor
+x[1]                       # 3
+x[2]                       # .
+x[101]                     # NA
 \end{lstlisting}
 
 \subsection{Matrix, Array}
 
 Array ist eine ein bis mehrdimensionale Strukturen die Elemente des gleichen Typs enthält. Eine Matrix ist ein zweidimensionales Array.
 
+Operationen sind meist schneller, wenn sie der Anordnung der Elemente im Speicher folgen. In R werden Matrizen und mehrdimensionale Arrays spaltenweise (d.\,h.\ in der Reihenfolge der ersten Dimension) im Speicher abgelegt, weshalb spaltenorientierte Berechnungen meist effizienter sind als zeilenorientierte.
+
 \begin{lstlisting}[language=R]
 array(1:3, dim=3)                # 1D-Array
 x <- matrix(1:6, nrow=2, ncol=3) # 2x3 Matrix
+matrix(1:6, 2, 3, byrow=TRUE)    # Füllt zeilenweise
 rownames(x)                      # Zeilennamen
 colnames(x)                      # Spaltennamen
+length(x)                        # 6
 nrow(x)                          # 2
 ncol(x)                          # 2
 a <- array(1:8, dim=c(2,2,2))    # 3D-Array 2x2x2
 dimnames(a)                      # Dimensionsnamen
 dim(a)                           # 2 2 2
+is.matrix(a)                     # FALSE
+is.array(a)                      # TRUE
+
+x <- Matrix::sparseMatrix(c(1,100), c(1,100), x=c(2,3),
+                          dims=c(100,100))
+# Erzeugt wenig besetzte Matrix
+x[1,1]                           # 2
+x[5,5]                           # 0
 \end{lstlisting}
 
 \subsection{List}
@@ -311,6 +353,7 @@ Eine Liste ist ein Vektor für Objekte beliebiger Typen und Längen.
 \begin{lstlisting}[language=R]
 list(1, "a", TRUE, c(1,2))  # Liste mit verschiedenen Typen
 c("a", list(2, 3))          # c fügt Listen zusammen
+vector("list", 3)           # Erzeugt Lite mit 3 Elementen
 \end{lstlisting}
 
 \subsection{Data.frame}
@@ -342,15 +385,6 @@ f <- factor(c("rot", "blau", "rot")) # Faktor erstellen
 levels(f)        # "blau" "rot"
 nlevels(f)       # 2
 unclass(f)       # 2 1 2; interne Ganzzahl-Repräsentation
-f <- relevel(f, "rot")  # "rot" wird erster Level
-
-levels(f)[levels(f) == "rot"] <- "grün" # Einen Level umbenennen
-
-local({    # Mehrere Levels umbenennen
-  s <- c(gelb = "blau", grau = "grün")
-  i <- match(s, levels(f), 0)
-  levels(f)[i != 0] <<- names(s)[i]
-})
 
 # Geordneter Faktor (ordinal)
 f <- ordered(c("wenig", "mittel", "viel"),
@@ -565,10 +599,13 @@ v <- c(a=10, b=20, c=30, d=40, e=50)
 v[2]             # 20; Element an Position 2
 v[[2]]           # 20
 v[1:3]           # 10 20 30; Element 1 bis 3
+v[3:1]           # 30 20 10; Element 3 bis 1
 v[c(1,3,5)]      # 10 30 50; Mehrere Elemente
 v[-c(2,4)]       # 10 30 50; Alle außer Position 2 und 4: 
 v["c"]           # 30; Über Namen
 #v$c             ## Fehler
+v[6]             # NA
+#v[[6]]          ## Fehler, Indizierung außerhalb
 v[c(TRUE,FALSE,TRUE,FALSE,TRUE)] # 10 30 50; Logisch
 v[c(TRUE,FALSE)] # 10 30 50; Wird automatisch wiederholt
 v[v>30]          # 40 50; Logisch
@@ -585,19 +622,32 @@ v[integer(0)]    # Nichts
 
 m <- matrix(1:6, 2, dimnames=list(c("a","b")))
 m[2, 3]         # 6; Zeile 2, Spalte 3
+m[[2, 3]]       # 6
+#m[[c(3, 2)]]   ## Fehler
+#m[1, 4]        ## Fehler, Indizierung außerhalb
+#m[[1, 4]]      ## Fehler, Indizierung außerhalb
 m[1, ]          # 1 3 5; Vektor, Ganze 1. Zeile
+#m[[1, ]]       ##Fehler,  missing subscript
 m["a", ]        # 1 3 5; Vektor, Zeile a
 m[1, , drop=FALSE]  # 1 3 5; Matrix
 m[, 2]          # 3 4; Ganze Spalte 2
 m[-1, -3]       # Ohne Zeile 1 und Spalte 3
 m[2, 2:3]       # Zeile 2, Spalte 2 bis 3
 m[4]            # 4; Kann wie Vektor verwendet werden
+m[[4]]          # 4
+m[7]            # NA
+#m[[7]]         ## Fehler, Indizierung außerhalb
+m[m>3]          # 4 5 6
+a <- array(1:8, dim=c(2,2,2))
+a[ , , 1]       # Erste Schicht
 
-l <- list(a=1, b=2:4, c="Hallo")
+l <- list(a=1, b=c(a=2,b=3,c=4), c="Hallo")
 l[2]            # 2 3 4; Liste mit zweitem Element
 l[[2]]          # 2 3 4; Zweites Element
 l[[2]][[1]]     # 2; Zweites Element, erster Eintrag
 l[[c(2, 1)]]    # 2; Zweites Element, erster Eintrag
+l[[c("b", "a")]]# 2; Element b, Eintrag a
+#l[[1,2]]       ## Fehler, falsche Anzahl Subscripts
 l$b             # 2 3 4; Element b
 l["b"]          # 2 3 4; Liste mit Element b
 l[["b"]]        # 2 3 4; Element b
@@ -605,6 +655,10 @@ l[1:2]          # Liste mit Element 1 und 2
 l[c("a","c")]   # Liste mit Element a und c
 l[-2]           # Liste ohne zweites Element
 l[c(TRUE, FALSE)] # Liste jedes zweites Element
+l[4]            # NULL
+#l[[4]]         ## Fehler, Indizierung außerhalb
+l <- list(x = 1, y = list(z = 2, w = 3))
+l$y$z           # 2; verschachtelter Zugriff
 
 d <- data.frame(a=c("d","e"), b=2:1)
 d[1, ]          # d 2; data.frame, Erste Zeile
@@ -614,6 +668,14 @@ d[2]            # 2 1; data.frame, Zweite Spalte
 d[, 2, drop=FALSE] # 2 1; data.frame, Zweite Spalte
 d[, "b"]        # 2 1; Vektor
 d$b             # 2 1; Vektor
+d$b[1]          # 2; Erstes Element von Spalte b
+d[1, "b"]       # 2; Erstes Element von Spalte b
+d[1, 2]         # 2; Erstes Element von Spalte 2
+d[[2]][1]       # 2; Erstes Element von Spalte 2
+d[[2]][[1]]     # 2; Erstes Element von Spalte 2
+d[[1, 2]]       # 2; Erstes Element von Spalte 2
+d[[c(2, 1)]]    # 2; Erstes Element von Spalte 2
+d[[1, "b"]]     # 2; Erstes Element von Spalte b
 d[-1, ]         # data.frame ohne erste Zeile
 d[, -1]         # Da nur eine Spalte => Vektor
 d[, 1:2]        # Spalten 1 bis 2
@@ -623,6 +685,9 @@ d[0,]           # data.frame mit 0 Zeilen
 d[d$a == "d", ] # Zeilen, bei denen a == "d"
 d[d$b > 1, "a"] # Spalte a, Zeilen mit b > 1
 d[d$a == "d" & d$b > 1, ] # d 2
+#d[3]           ## Fehler, nicht definierte Spalte
+#d[[3]]         ## Fehler, Indizierung außerhalb
+d$b[3]          # NA
 
 e <- new.env()
 e$a <- 1
@@ -632,46 +697,496 @@ e$b                  # 2
 e[["a"]]             # 1
 #e[[1]]              ## Fehler
 #e["a"]              ## Fehler
-get("a", envir = e)  # 1
+e[["c"]]             # NULL
+get("a", envir = e)  # 1; Sucht auch in Parrent
 rm(b, envir = e)     # Löscht Element b
 ls(e)                # "a"; Listet Elemente von e
 \end{lstlisting}
 
 \section{Datenmanipulation}
 
-% Aggregate
-% Auch grep sub split
-% sweep  x[col(m)]
+\subsection{Operatoren}
 
-\section{Programmierung}
+Dieses Beispiel zeigt die wichtigsten arithmetischen, Vergleichs- und
+logischen Operatoren.
 
-% Auch try catch
+\begin{lstlisting}
+x <- 1:3
+y <- c(2, 4, 6)
+x + y     # 3 6 9; Elementweise Addition
+x - y     # -1 -2 -3; Subtraktion
+x * y     # 2 8 18; Multiplikation
+y / x     # 2 2 2; Division
+x^2       # 1 4 9; Potenzierung
+x %% 2    # 1 0 1; Rest der Division (Modulo)
+x %/% 2   # 0 1 1; Ganzzahldivision
+1 + 2 * 3    # 7; Multiplikation vor Addition
+(1 + 2) * 3  # 9; Klammern ändern Reihenfolge
 
-%\section{Steuerung von Programmfluss}
+x < 2           # TRUE  FALSE FALSE
+x > 2           # FALSE FALSE TRUE
+x <= 2          # TRUE  TRUE  FALSE
+x >= 2          # FALSE TRUE  TRUE
+x == 2          # FALSE TRUE  FALSE
+x != 2          # TRUE  FALSE TRUE
+x > 1 & x < 3   # FALSE TRUE  FALSE; UND (elementweise)
+x > 1 | x < 3   # TRUE  TRUE  TRUE;  ODER (elementweise)
+xor(x>1, x<3)   # TRUE  FALSE TRUE
+!(x > 1)        # TRUE  FALSE FALSE; Negation
 
+FALSE && TRUE          # FALSE
+TRUE  || FALSE         # TRUE
+l <- TRUE
+FALSE && (l <- FALSE)  # Auswertung bis Ergebnis klar
+l                      # TRUE
+TRUE && (l <- FALSE)
+l                      # FALSE
+NA && TRUE             # NA
+NA || TRUE             # TRUE
 
-\section{Datenimport und -export}
+sum(x > 1)        # 2; Anzahl der Elemente > 1
+any(x > 2)        # TRUE; Mindestens ein TRUE?
+all(x > 0)        # TRUE; Alle TRUE?
+which(x > 1)      # 2 3
 
-\section{Zufallszahlen}
+1 == 1L           # TRUE
+identical(1, 1L)  # FALSE; Typ unterschiedlich
+\end{lstlisting}
 
+\subsection{String}
 
-\section*{Statistische Modellierung und Regression}
+Das folgende Beispiel zeigt typische Operationen zur Verarbeitung von
+Zeichenketten in R, einschließlich Zählen, Suchen, Ersetzen, Aufteilen
+und Vergleichen von Strings.
 
-\section{Zeichnen -- Plot}
+\begin{lstlisting}
+s <- c("Mehr", "Licht")
+nchar(s)                  # 4 5; Anzahl Zeichen
+nchar(c("a", "ä"), "bytes") # 1 2
+nzchar(s)                 # TRUE TRUE; Länge > 0
+toupper(s)                # "MEHR" "LICHT"
+tolower(s)                # "mehr" "licht"
+chartr("hi", "Xy", s)     # "MeXr" "LycXt"; Zeichen austauschen
 
-\section*{Visualisierung in R}
+grepl("c.", s)            # FALSE TRUE ; enthält Regex "c."
+grepl("c.", s, fixed=TRUE)# FALSE FALSE; enthält "c."
+grep("ch", s)             # 2; Index des Treffers
+grep("ch", s, value=TRUE) # "Licht"
 
-\section*{Rechenzeit und Speicherverbrauch in R}
+agrep("Meer", s)          # 1; Ungefähre Treffer
+adist("Meer", s)          # 1 5; String Abstände
 
-\section*{Paralleles Rechnen in R}
+i <- regexpr("[eih]", s)  # Erster Treffer von e, i, oder h
+regmatches(s, i)          # "e" "i"; Treffer Ausgeben
+i <- gregexpr("[eih]", s) # Alle Treffer von e, i, oder h
+regmatches(s, i)          # "e" "h", "i" "h"
+s1 <- lapply(regmatches(s, i), \(x) paste0("<", x, ">"))
+regmatches(s, i) <- s1    # Treffer überschreiben
+s                         # "M<e><h>r"  "L<i>c<h>t"
 
-\section*{Paketentwicklung in R}
+s <- c("abcd", "dcba")    # Mehrere ersetzen
+r <- c(ef="a", gh="c")    # a=>ef, c=>gh
+i <- gregexpr(paste(r, collapse="|"), s)
+s1 <- lapply(regmatches(s, i), \(x) names(r)[match(x, r)])
+regmatches(s, i) <- s1
+s                         # "efbghd" "dghbef"
 
-\section*{Pipes in R}
+sub("a", "xz", "aba")     # "xzba"; erstes Vorkommen ersetzen
+gsub("a", "xz", "aba")    # "xzbxz"; alle ersetzen
+gsub("([ac])", "<\\1>", "abc") # "<a>b<c>"; Treffer verwenden
+gsub("\\s+", " ", "a  b") # "a b"; Mehrfachleerzeichen=> " "
+trimws("  Text  ")        # "Text"; Umgebende " " entfernen
 
-\subsection*{Rcpp:}
+s <- c("Mehr", "Licht")
+toString(s)               # "Mehr, Licht";Fügt mit ", " zusammen
+s <- paste(s[1], s[2])    # "Mehr Licht"; Fügt mit " " zusammen
+strsplit(s, " ", TRUE)    # Liste: "Mehr" "Licht"; Trennt String
+paste(c("A","B","C"), collapse=", ") # "A, B, C"
+paste("A", 1:3, sep="-")  # "A-1" "A-2" "A-3"
+paste0("A", 1:3)          # "A1" "A2" "A3"
+sprintf("Pi: %0.2f", pi)  # "Pi: 3.14"; formatiertes Einfügen
 
-%%% Lazy evaluation, onExit
+substr(s, 1, 4)           # "Mehr"; Teilstring
+substr(s, 1, 4) <- "Weniger"  # "Weni Licht"; Nur Teil ersetzt !
+strtrim(s, 3)             # "Wen"; auf Länge 3 kürzen
+
+startsWith(s, "Wen")      # TRUE; beginnt mit "Wen"
+endsWith(s, "ht")         # TRUE; endet mit "ht"
+
+charToRaw("ä")            # c3 a4; Bytes anzeigen
+s <- "\u00e4"             # "ä"
+iconv("Müller", "UTF-8", "latin1")  # Encoding ändern
+utf8ToInt("ä")            # 228
+intToUtf8(228)            # "ä"
+
+s <- noquote(c("Ab", "C"))# Ausgabe ohne Anführungszeichen
+s                         # Ab C
+
+s <- c("Ab", NA, "C")
+paste("x", s, sep="-")   # "x-Ab" "x-NA" "x-C"; NA wird String !
+
+s <- c("ä", "a", "b")
+Sys.setlocale("LC_COLLATE", "C")  # ASCII-Reihenfolge
+sort(s)                  # "a" "b" "ä"
+"ä" < "z"                # FALSE
+Sys.setlocale("LC_COLLATE", "de_AT.UTF-8")
+sort(s)                  # "a" "ä" "b"
+"ä" < "z"                # TRUE
+\end{lstlisting}
+
+\subsection{Factor}
+
+Faktoren werden zur Darstellung kategorialer Daten verwendet.
+Im Folgenden einige kurze Beispiele zur Manipulation von Faktoren.
+
+\begin{lstlisting}
+f <- factor(c("rot", "blau", "rot"))
+f <- relevel(f, "rot")  # "rot" wird erster Level
+
+# Reihenfolge der Levels festlegen
+f <- factor(c("rot", "blau", "rot"), c("rot", "blau"))
+#f < "blau"             ##Warning: < nicht sinnvoll
+f <- ordered(c("rot", "blau", "rot"), c("rot", "blau"))
+f < "blau"              # TRUE FALSE  TRUE
+
+levels(f)[levels(f) == "rot"] <- "grün" # "rot" wird "grün"
+
+# Mehrere Levels umbenennen, zusammenfassen
+f <- factor(c("j","n","ja","X","ja","nein","X"))
+levels(f)                # "j" "ja" "n" "nein" "X"
+levels(f)[match(c("j","n"), levels(f))] <- c("ja","nein")
+levels(f)                # ja nein X
+#
+f <- factor(c("j","n","ja","X","ja","nein","X"))
+levels(f) <- list(ja=c("ja","j"), nein=c("nein","n"), X="X")
+#
+f <- factor(c("j","n","ja","X","ja","nein","X"))
+local({
+  s <- c(ja="j", nein="n", m="u")
+  i <- match(levels(f), s, 0)
+  levels(f)[i != 0] <<- names(s)[i]
+})
+
+f <- factor(c("A","B"), levels = c("A","B","C"))
+levels(f)                # "A" "B" "C"
+f <- droplevels(f)       # Entfernt unbenutzte Levels
+levels(f)                # "A" "B"
+#f[3] <- "C"             ##Warning => NA
+levels(f) <- c(levels(f), "C") 
+f[3] <- "C"
+
+f <- factor(c(2,1,3,2,1), c(2,3,1))
+unclass(f)               # 1 3 2 1 3; Interner Repräsentant
+as.integer(f)            # 1 3 2 1 3
+as.numeric(levels(f))[f] # 2 1 3 2 1
+as.character(f)          # "2" "1" "3" "2" "1"
+
+f <- factor(c("b","a","b","c","a"))
+x <- table(f)            # a b c; Häufigkeiten pro Level
+                         # 2 2 1
+summary(f)               # 2 2 1
+addmargins(x)            # 2 2 1 5
+proportions(x)           # 0.4 0.4 0.2
+
+f1 <- factor(c("A","A","B","B"))
+f2 <- factor(c("X","Y","X","X"))
+f12 <- interaction(f1, f2) # Kombinieren
+f12                      # A.X A.Y B.X B.X
+levels(f12)              # "A.X" "B.X" "A.Y" "B.Y"
+f12 <- interaction(f1, f2, drop=TRUE) # Nur vorhandene Kombis
+levels(f12)              # "A.X" "B.X" "A.Y"
+f <- c(f1, f2)           # Faktoren zusammen hängen
+f3 <- factor(c("1","1","2","2"))
+table(f1, f2, f3)        # 3D Tabelle
+ftable(f1, f2, f3)       # 2D Tabelle
+x <- c(1.3, 2.4, 0.2, 1.1)
+xtabs(x ~ f1 + f2, data.frame(x, f1, f2)) # Summiert x je Gruppe
+\end{lstlisting}
+
+\subsection{Vektor}
+
+Das folgende Beispiel zeigt grundlegende Operationen mit Vektoren in
+R, einschließlich Erstellen, Indexieren, Sortieren, Gruppieren und
+Mengenoperationen.
+
+\begin{lstlisting}
+x <- 1:3          # 1 2 3; Integer
+x[2] <- 4         # 1 4 3; zweites Element ändern, Int->Numeric
+x[2:3] <- 5:6     # 1 5 6
+x[x>1] <- 2       # 1 2 2; Alle >1 auf 2 ändern
+x[5] <- 5         # 1 2 2 NA 5; Element hinterm Ende einfügen
+x <- c(x, 6)      # 1 2 2 NA 5 6; Element anhängen
+append(x, 7, 3)   # 1 2 2 7 NA 5 6; nach Position 3 einfügen
+x <- tail(x, 4)   # 2 NA 5 6; Letzten 4 Elemente behalten
+x <- head(x, 3)   # 2 NA 5; Ersten 3 Elemente behalten
+x <- x[-2]        # 2 5; entfernt zweites Element
+x <- rev(x)       # 5 2; Reihung umkehren
+i <- order(x)     # 2 1; Index mit dem x sortiert ist
+order(c(1,2,1))   # 1 3 2
+rank(c(1,2,1))    # 1.5 3.0 1.5
+x[i]              # 2 5
+is.unsorted(x)    # TRUE
+is.unsorted(x[i]) # FALSE
+x <- sort(x)      # 2 5
+x <- x + 1        # 3 6; Alle um 1 erhöhen
+x[2] <- "a"       # "3" "a"; Umwandlung in Char
+as.numeric(c("1", "2")) # 1 2; explizite Umwandlung
+
+x <- c(2, 2, 1, 1, 3)
+unique(x)         # 2 1 3
+duplicated(x)     # FALSE TRUE FALSE TRUE FALSE
+table(x)          # 1 2 3; Anzahlen
+                  # 2 2 1
+stem(x)           # stem-and-leaf plot
+summary(x)        # Min. 1st Qu. Median Mean 3rd Qu. Max.
+range(x)          # 1 3; kleinster und größter Wert
+length(x)         # 5; Anzahl Elemente
+which.max(x)      # 5; Index des ersten größten Wertes
+which.min(x)      # 3; Index des ersten kleinsten Wertes
+rle(x)            # lengths: int [1:3] 2 2 1;Run Length Encoding
+                  # values : num [1:3] 2 1 3
+g <- c("A", "A", "C", "B", "B")
+ave(x, g)         # Gruppenmittel für jedes Element
+tapply(x, g, mean) # Mittel je Gruppe
+s <- split(x, g)  # Teil x in Liste grupiert mit g
+lapply(s, mean)   # Mittel je Gruppe
+match(x, c(3,1,3))# NA NA  2  2  1; Position erster Treffer
+x %in% 1:2        # TRUE  TRUE  TRUE  TRUE FALSE
+findInterval(x, c(0,2)) # 2 2 1 1 2;
+pmin(x, 2)        # 2 2 1 1 2
+pmin(x, 0:4)      # 0 1 1 1 3
+pmax(x, 0:4)      # 2 2 2 3 4
+
+x <- c(1,2,3,4)
+y <- c(3,4,5,6)
+union(x, y)       # 1 2 3 4 5 6; Vereinigung
+intersect(x, y)   # 3 4;         Schnittmenge
+setdiff(x, y)     # 1 2; Elemente in x, aber nicht in y
+setdiff(y, x)     # 5 6; Elemente in y, aber nicht in x
+setequal(x, y)    # FALSE; # Mengen gleich?
+setequal(x, 4:1)  # TRUE
+\end{lstlisting}
+
+\subsection{Matrix und Array}
+
+\begin{lstlisting}
+m <- matrix(1:6, 2)  # 2x3 Matrix
+as.vector(m)         # Matrix in Vektor
+as.data.frame(m)     # Matrix in Data Frame
+as.matrix(1:4)       # Vektor in Matrix
+rownames(m) <- c("A","B")
+colnames(m) <- c("x","y","z")
+dimnames(m)          # Dimensionsnamen
+t(m)                 # Transponieren
+dim(m) <- c(3,2)     # Neue Dimensionen setzen
+aperm(m, c(2,1))     # Dimensionen vertauschen
+
+m <- matrix(1:4, 2)
+v <- 1:2
+m + 1                # Elementweise Rechenoperationen
+m + m
+m + v                # Spaltenweises Recycling von v
+m + v[col(m)]        # Zeilenweise Addition
+sweep(m, 1, v, `+`)  # Spaltenweise Addition
+sweep(m, 2, v, `+`)  # Zeilenweise Addition
+outer(v, 1:3)        # Kreuzweise Kombination zweier Vektoren
+outer(v, 1:3, `+`)
+outer(v, 1:3, \(x, y) x+y)
+row(m)               # Zeilenindex
+col(m)               # Spaltenindex
+slice.index(m, 1)    # Zeilenindex
+slice.index(m, 1:2)  # Vektorindex
+
+m %*% m              # Matrixprodukt
+matrix(c(sum(m[1,] * m[,1]), sum(m[2,] * m[,1]),
+         sum(m[1,] * m[,2]), sum(m[2,] * m[,2])), 2)
+m %*% v              # 7 10
+crossprod(m, v)      # t(m) %*% v
+tcrossprod(v, m)     # v %*% t(m)
+kronecker(diag(1, 2), m) # Kronecker produkt
+diag(2)              # Einheitsmatrix
+diag(m)              # Diagonale extrahieren
+diag(m) <- 0         # Diagonale ändern
+
+m <- matrix(1:6, 2)
+rowSums(m)           # 9 12
+colSums(m)           # 3 7 11
+addmargins(m)        # Zeilen und Spaltensummen
+rowMeans(m)          # 3 4
+colMeans(m)          # 1.5 3.5 5.5
+apply(m, 1, mean)    # 3 4; Margin 1..Zeile
+apply(m, 2, sum)     # 3 7 11; Margin 2..Spalte
+apply(m, 1, sd)      # 2 2; Standard Deviation
+max.col(m)           # 3 3; Splalte mit größtem Wert
+apply(m, 1, which.max)# 3 3; Splalte mit größtem Wert
+
+y <- scale(m)        # Zentriert und skaliert Spalten
+x <- sweep(m, 2, colMeans(m))
+x <- sweep(x, 2, apply(x, 2, sd), `/`)
+all(x == y)          # TRUE
+
+proportions(m)       # Gesamte Matrix Summe = 1
+proportions(m, 1)    # Zeilenweise
+proportions(m, 2)    # Spaltenweise
+
+m <- matrix(1:12, 4)
+g <- c("A","B","A","B")
+rowsum(m, g)         # Gruppierte Zeilensummen
+
+rbind(m, m)          # Zeilen anhängen
+n <- m
+colnames(m) <- 1:3
+colnames(n) <- 3:1
+rbind(m, n)          # Namen werden nicht berücksichtigt
+cbind(m, m)          # Spalten anfügen
+simplify2array(list(m, m)) # Array aus Matrix
+replicate(2, m)      # Array aus Matrix
+abind::abind(m, m, along=3) # Beliebig stapeln
+
+split(m, col(m))     # Spaltenweise Aufteilung als Liste
+split(m, row(m))     # Zeilenweise Aufteilung
+
+a <- array(1:24, dim=c(2,3,4))
+apply(a, 1, sum)     # 144 156; Summe je Zeile
+apply(a, 3, sum)     # 21 57 93 129; Summe je Schicht
+apply(a, c(1,3), sum)# Summe je Zeile und Schicht
+aperm(a, c(2,1,3))   # Dimensionen vertauschen
+b <- a[1,,,drop=FALSE]
+drop(b)              # Entfernt 1 Element Dimensionen
+i <- which(a > 20)   # Vektor index
+which(a > 20, arr.ind=TRUE) # Indizes als Matrix
+arrayInd(i, dim(a))  # Wandelt in Matrix Index
+\end{lstlisting}
+
+Lineare Algebra
+
+\begin{lstlisting}
+A <- matrix(c(2,1,1,3), 2)
+b <- c(1,4)
+
+solve(A, b)     # Löst A x = b
+solve(A)        # Inverse Matrix
+det(A)          # Determinante
+eigen(A)        # Eigenwerte/-vektoren
+svd(A)          # Singulärwertzerlegung
+qr(A)           # QR-Zerlegung
+chol(A)         # Cholesky-Zerlegung (symm. positiv)
+\end{lstlisting}
+
+\subsection{List und data.frame}
+
+\begin{lstlisting}
+l <- list(a = 1:3, b = c("x", "y"), c = TRUE)
+lengths(l)      # 3 2 1; Länge der Elemente
+
+l$d <- 99       # Neues Element
+l$a <- list(10,20) # Bestehendes Element ersetzen
+l$c <- NULL     # Element entfernen
+l["c"] <- list(NULL) # NULL einfügen
+unlist(l)       # "10" "20" "x" "y" "99"; List in Vektor ohne NULL
+unlist(l, FALSE) # Nicht rekursiv, bleibt hier Liste
+
+l2 <- list(a=1, b=2)
+c(l, l2)        # Listen zusammenfügen
+
+list(1:3)       # [[1]] 1 2 3
+as.list(1:3)    # [[1]] 1 [[2]] 2 [[3]] 3
+as.list(iris)   # data.frame => list, Eintrag je Spalte
+
+l <- list(a=1:2, b=list(1, 1:2))
+data.frame(l)   # Wandelt b in 2 Vektorspalten um
+as.data.frame(l)# Wandelt b in 2 Vektorspalten um
+d <- list2DF(l) # b bleibt Liste
+d$c <- matrix(1:4, 2) # Matrix als Spalte
+d$d <- array(1:8, c(2,2,2)) # Array als Spalte
+d[1,]           # Funktioniert bei Array nicht wie erwartet
+tibble::tibble(d)[1,] # Hier wie erwartet
+#as.matrix(d)         ##Error
+as.matrix(d[c(1,2)])  # Geht
+as.matrix(d[c(1,3)])  # Geht
+#as.matrix(d[c(2,3)]) ##Error
+
+l <- list(a=2, b=3:5, c=5:9)
+x <- lapply(l, mean) # [[1]] 2 [[2]] 4 [[3]] 7; Liste
+simplify2array(x)    # 2 4 7; Vereinfacht Liste
+sapply(l, mean)      # 2 4 7; In einem Schritt
+vapply(x, mean, numeric(1)) # 2 4 7; Angabe der Rückgabe
+
+l <- list(a=1:3, b=list(c=3:5, d=5:9))
+rapply(l, mean,)     # 2 4 7; rekursiv in Liste anwenden
+
+l1 <- list(1,c(2,3))
+l2 <- list(10,c(20,30))
+mapply(sum, l1, l2)  # 11 55; mehere Listen gemeinsam
+Map(sum, l1, l2)     # Ausgabe als Liste
+mapply(sum, l1, l2, SIMPLIFY = FALSE) # Ausgabe als Liste
+
+replicate(2, 1:3, simplify=FALSE) # n mal wiederholen
+
+l <- list(a=1, b=2:3)
+do.call(paste, l)             # "1 2" "1 3"
+  # Ruft Funktion mit Argumenten aus Liste auf
+paste(1, 2:3)                 # "1 2" "1 3"
+do.call(paste, c(l, sep="-")) # "1-2" "1-3"
+l <- list(a=1, b=2:3, sep="-")
+do.call(paste, l)             # "1-2" "1-3"
+paste(1, 2:3, sep="-")        # "1-2" "1-3"
+
+l <- list(a=2, b=3:5, c=5:9)
+Reduce(\(x, y) x * sum(y), l) # 840; Kumulatives Anwenden
+Reduce(\(x, y) x * sum(y), l, 2) # 1680; Mit Startwert
+Reduce(\(x, y) x * sum(y), l, 2, accumulate = TRUE)
+  # 2 4 48 1680; Jeden Zwischenschritt ausgeben
+
+l <- list(c=1:3, b="x", a=4)
+Filter(is.numeric, l)   # Nur numerische Elemente
+l[order(names(l))]      # Nach Namen Sortieren
+names(l) <- toupper(names(l)) # Namen ändern
+\end{lstlisting}
+
+\begin{lstlisting}
+d <- data.frame(a=1:4, b=c("x","y"), c=TRUE)
+  # b und c werden automatisch wiederholt
+dim(d)        # 4 3; Zeilen Spalten
+length(d)     # 3; Anzahl Spalten
+ncol(d)       # 3; Anzahl Spalten
+nrow(d)       # 4; Anzahl Zeilen
+names(d)      # Spaltennamen
+row.names(d)  # Zeilennamen
+
+#d$d <- 1:3   ## Fehler der Länge
+#d$d <- 1:5   ## Fehler der Länge
+d$d <- 1:4
+d$e <- 1:2    # Wird zu 1 2 1 2
+d$f <- 1      # Wird zu 1 1 1 1
+
+d <- data.frame(a=1:2, b=c("x","y"))
+d2<- data.frame(b=c("a","b"), a=4:3)
+d <- rbind(d, d2) # Zeilen anfügen über Spaltennamen
+d3<- data.frame(d=5:6, e=c("f","g"))
+#rbind(d, d3)     ## Error, Namen passen nicht
+rbind(d, setNames(d3, names(d))) # Spalten umbenenne
+
+d <- data.frame(a=1:2, b=c("x","y"))
+d2<- data.frame(a=2:3, c=c(TRUE, FALSE))
+cbind(d, d2)      # Spalten anhängen
+merge(d, d2)      # Spalten über gemeinsame Spalte a anhängen
+merge(d, d2, all=TRUE)   # Alle Daten erhalten
+merge(d, d2, all.x=TRUE) # Alle Daten von d  erhalten
+merge(d, d2, all.y=TRUE) # Alle Daten von d2 erhalten
+d3<- data.frame(a=1, c=c(TRUE, FALSE))
+merge(d, d3)      # Zeile 1 von d wird wiederholt
+d4<- data.frame(a=1, b=c("x","y"))
+merge(d4, d3)      # Alle Kombinationen werden generiert
+
+d <- data.frame(a=1:4, b=c("x","y"))
+d$a <- 4:1              # Inhalt von Spalte ändern
+d[2,] <- list(5L, "z")  # Inhalt von Zeile ändern
+d[2:3,] <- list(7:8, "X")  # Inhalt von Zeilen ändern
+d$a <- NULL             # Löscht Spalte a
+#d[2,] <- NULL          ## Error
+d <- d[-2,,drop=FALSE]  # Löscht Zeile 2
+\end{lstlisting}
 
 \end{document}
 
