@@ -1,5 +1,7 @@
 \documentclass[10pt,twocolumn]{scrartcl}
 
+\usepackage{microtype}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
@@ -80,7 +82,7 @@
 \maketitle
 
 %\begin{abstract}
-%  Eine kurze Einführung in die Sprache Julia.
+%  Eine kurze Beispielorientierte Einführung in die Statistiksprache R.
 %\end{abstract}
 
 \tableofcontents
@@ -89,19 +91,32 @@
 \noindent
 \href{https://www.r-project.org/}{R} kann vorkompiliert vom
 \href{https://cran.r-project.org/}{CRAN} (The Comprehensive R Archive
-Network) als \href{https://cran.r-project.org/bin/}{Binärdatei} für das
-entsprechende Betriebssystem heruntergeladen werden. Alternativ kann
-auch der \href{https://cran.r-project.org/src/base/R-4/}{Quellcode}
-heruntergeladen werden und lokal kompiliert werden. Unter Linux
-könnte dies so geschehen:
+Network) als \href{https://cran.r-project.org/bin/}{Binärdatei} für
+das entsprechende Betriebssystem heruntergeladen werden.
+
+Alternativ kann der
+\href{https://cran.r-project.org/src/base/R-4/}{Quellcode}
+heruntergeladen und lokal kompiliert werden. Unter Linux kann dies
+z.B. so erfolgen, wobei die \lstinline|export|-Zeilen und
+\lstinline|./configure|-Flags optional sind. Sie dienen der
+Geschwindigkeit und besseren Debug-Möglichkeiten:
 
 \begin{lstlisting}[language=sh]
 wget https://cran.r-project.org/src/base/R-latest.tar.xz
 mkdir R-latest
 tar -xf R-latest.tar.xz -C R-latest --strip-components=1
 cd R-latest
-./configure --enable-memory-profiling
-make
+export CFLAGS="-O3 -march=native -mtune=native -pipe \
+ -flto=auto -fwrapv"
+export CXXFLAGS="$CFLAGS"
+export FFLAGS="-O3 -march=native -mtune=native -pipe \
+ -flto=auto -fallow-argument-mismatch"
+export FCFLAGS="$FFLAGS"
+export LDFLAGS="-flto=auto -Wl,-O2,--as-needed"
+./configure --enable-R-shlib --with-blas --with-lapack \
+ --enable-memory-profiling
+# --disable-memory-profiling --disable-R-profiling # Schneller
+make -j$(nproc)
 sudo make install
 cd ..
 #rm R-latest.tar.xz
@@ -111,7 +126,7 @@ cd ..
 Nach dem Start kann R interaktiv verwendet werden. Alternativ lässt
 sich R auch über verschiedene IDEs (integrierte Entwicklungsumgebung)
 oder Texteditoren nutzen. Die gezeigten Codeabschnitte wurden mit R
-Version 4.5.1 (2025-06-13) getestet.
+Version 4.5.2 (2025-10-31) getestet.
 
 Wenn man R startet, kommt man in den interaktiven Modus.
 Deren wichtigste Tastenkombinationen sind:
@@ -135,8 +150,605 @@ Befehle, die in einer Datei gespeichert sind, lassen sich mit \lstinline|R -f FI
 
 Bei Verwendung von \lstinline|R -f FILE| oder \lstinline|R -e EXPR| werden standardmäßig ebenfalls Konfigurationsdateien sowie ein eventuell vorhandenes Workspace-Image geladen. Wie bereits beschrieben, kann dies durch \lstinline|--vanilla| unterdrückt werden (\lstinline|R --vanilla -f FILE|, \lstinline|R --vanilla -e EXPR|).
 
+Einige Funktionen die teilweise beim Starten von R kurz vorgestellt werden:
 
-Einige wichtige Funktionen:
+\begin{lstlisting}
+q()                   # Beendet R (mit Rückfrage)
+help()                # Hilfe starten
+help.start()          # Öffnet HTML-Hilfesystem
+help(q)               # Hilfe zu Befehl q
+?q                    # Hilfe zu Befehl q
+demo()                # Zeigt verfügbare Demos
+demo(lm)              # Demo zur linearen Regression
+version               # R-Version anzeigen
+sessionInfo()         # Infos zu Umgebung und geladenen Paketen
+citation()            # Wie man R zitiert
+\end{lstlisting}
+
+\section{Grundlagen}
+
+\subsection{Objekte und Namen}
+
+In R gibt es:
+\begin{description}
+\item[Objekte] die eigentlichen Daten, die Platz im Arbeitsspeicher belegen.
+\item[Namen] (auch \emph{Bindings}, \emph{Symbole} oder umgangssprachlich \emph{Variablen} genannt), die auf Objekte verweisen.
+\end{description}
+In R wird ein Name verwendet, um auf ein Objekt im Speicher zu verweisen. Diese Bindungen (Name–Objekt-Zuordnungen) werden in Umgebungen (\emph{Environments}) gespeichert. Ein Name ist nicht das Objekt selbst, sondern stellt lediglich die Verbindung zu ihm her und ermöglicht so dessen Verwendung. Mehrere Namen können gleichzeitig auf \emph{dasselbe} Objekt verweisen.
+
+Wird ein durch mehrere Namen referenziertes Objekt über einen dieser Namen modifiziert, legt R in der Regel \emph{vor} der Modifikation eine Kopie an und lässt den modifizierenden Namen anschließend auf diese Kopie zeigen (\emph{Copy-on-Modify}-Semantik).
+Sehr kleine Objekte wie \lstinline|1| werden von R intern als unveränderliche (immutable) Konstanten behandelt. Bei Bedarf wird einfach ein neues Objekt erzeugt, statt eine Kopie zu erstellen.
+
+Ein Name kann jederzeit durch eine neue Zuweisung auf ein anderes Objekt umgebunden werden (\emph{Rebinding}).
+
+Mit \lstinline|rm()| wird ein Name aus der aktuellen Umgebung entfernt. Objekte ohne verbleibende Referenzen werden automatisch vom \emph{Garbage Collector} gelöscht. Der Garbage Collector kann manuell mit \lstinline|gc()| aktiviert werden.
+
+\begin{lstlisting}
+1                     # Ein Objekt mit dem Wert 1
+x <- 1                # Name x zeigt auf Objekt mit Inhalt 1
+x                     # Zeigt den Inhalt des Objekts
+get("x")              # 1; Standardweg für dynamische Namen
+s <- "x"
+get(s)                # 1
+tracemem(x)           # Zeigt Speicher auf den x zeigt
+y <- x                # y zeigt auf das gleiche Objekt wie x
+tracemem(x) == tracemem(y) # TRUE
+y <- 2                # y erhält ein neues Objekt mit Wert 2
+tracemem(x) == tracemem(y) # FALSE
+
+a <- 1:3                    # Zahlen 1, 2, 3
+b <- a
+tracemem(a) == tracemem(b)   # TRUE
+b[1] <- 0L                   # jetzt wird eine Kopie angelegt
+                             # Erstem Element 0 zuweisen
+tracemem(a) == tracemem(b)   # FALSE
+identical(a, b)              # FALSE; Inhalt unterschiedlich
+a[1] <- 0L
+identical(a, b)              # TRUE; Inhalte jetzt wieder gleich
+tracemem(a) == tracemem(b)   # FALSE; aber verschiedene Objekte
+b <- a                       # Zeigen wieder auf gleiches Objekt
+tracemem(a) == tracemem(b)   # TRUE
+ # Objekt auf das b zeigte wird automatisch gelöscht
+\end{lstlisting}
+
+\lstinline|tracemem()| zeigt die Speicheradresse an und meldet jedes Mal, wenn ein Objekt kopiert wird. Dies funktioniert nur, wenn R mit aktiviertem Memory-Profiling kompiliert wurde (überprüfbar mit \lstinline|capabilities("profmem")|). \lstinline|untracemem()| deaktiviert die Meldung bei Objektkopien.
+
+Die interne Funktion \lstinline|.Internal(inspect(x))| zeigt ebenfalls die Speicheradresse sowie weitere interne Informationen, darunter die Anzahl der Namen (REF-Wert), die auf das Objekt zeigen. Sie benötigt kein Memory-Profiling.
+
+\begin{lstlisting}
+x <- 1
+.Internal(inspect(x))
+# @5577ec525cf8 14 REALSXP g0c1 [REF(2)] (len=1, tl=0) 1
+y <- x
+.Internal(inspect(x))
+# @5577ec525cf8 14 REALSXP g0c1 [REF(3)] (len=1, tl=0) 1
+rm(x)          # Löscht nur den Namen x, nicht das Objekt
+.Internal(inspect(y))
+# @5577ec525cf8 14 REALSXP g0c1 [REF(2)] (len=1, tl=0) 1
+rm(y)          # Keine Referenz mehr auf Objekt
+gc()           # Löst Garbage Collector per Hand aus
+\end{lstlisting}
+
+Reguläre Sequenzen (z.\,B.\ \lstinline|1:10000|) werden als \emph{Alternate Representation} (ALTREP) platzsparend gespeichert. Sie belegen erst dann den vollen Speicher, wenn sie verändert werden (Materialisierung).
+
+\lstinline|object.size()| zeigt stets die Größe eines vollständig materialisierten Vektors, während \lstinline|lobstr::obj_size()| die tatsächliche, oft deutlich geringere Speicherbelegung ermittelt. Dazu muss jedoch erst das Paket \lstinline|lobstr| in R mit \lstinline|install.packages("lobstr")| installiert werden, wobei hier meist noch nach einem zu verwendenden Server gefragt wird.
+
+\begin{lstlisting}
+x <- 1:10000
+object.size(x)       # 40048 bytes
+lobstr::obj_size(x)  # 680 B
+x[1] <- 0L           # Vector wird wirklich erzeugt
+object.size(x)       # 40048 bytes
+lobstr::obj_size(x)  # 40.05 kB
+\end{lstlisting}
+
+\lstinline|str()| zeigt einen kompakten Überblick über die Struktur eines Objekts.
+\lstinline|dput()| erzeugt Code, mit dem man das Objekt rekonstruieren kann.
+
+\begin{lstlisting}
+x <- 1:3
+str(x)     # int [1:3] 1 2 3
+dput(x)    # 1:3
+x[1] <- 0L
+str(x)     # int [1:3] 0 2 3
+dput(x)    # c(0L, 2L, 3L)
+\end{lstlisting}
+
+Namen werden aus Buchstaben, Ziffern, \lstinline|.| (Punkt) und \lstinline|_| (Unterstrich) gebildet. Sie sollten weder mit \_ noch mit einer Zahl anfangen und nicht zu den reservierten Wörtern gehören, die man mit \lstinline|?Reserved| ansehen kann. Namen, die nicht diesen Regeln folgen oder syntaktisch zweideutig sind, müssen mit Backticks geschrieben werden (z.\,B.\ \lstinline|`_`| oder \lstinline|`in`|).
+
+\begin{lstlisting}
+x <- 1
+#_x <- 1   ## Error, unerwartetes Symbol
+#1x <- 1   ## Error, unerwartetes Symbol
+#in <- 1   ## Error, Unerwartete(s) 'in'
+.x <- 1
+#.1 <- 1   ## Error, ungültige linke Seite
+`_` <- 1
+`_`        # 1
+"_" <- 2
+`_`        # 2
+'_' <- 3
+`_`        # 3
+`2` <- 1
+`2`        # 1
+`in` <- 1
+`in`       # 1
+`.1` <- 1
+`.1`       # 1
+\end{lstlisting}
+
+
+\subsection{Zuweisungen}
+
+Eine Zuweisung bindet einen Namen an ein Objekt oder ändert eine bestehende Bindung.
+
+R kennt mehrere Syntaxvarianten:
+
+\begin{lstlisting}
+x <- 1          # Häufig verwendete Form
+2 -> x          # Äquivalent zu <-
+x = 3           # Ebenfalls möglich
+`<-`(x, 4)      # Funktionale Form
+
+assign("x", 5)  # Standardweg für dynamische Namen
+s <- "x"
+assign(s,   6)  # Bindet an Name der in s steht
+
+eval(parse(text = paste(s, "<- 7"))) # Alternative
+\end{lstlisting}
+
+Der Operator \lstinline|=| wird außerdem verwendet, um Argumente oder Elemente zu benennen:
+
+\begin{lstlisting}
+c(x = 0)        # Erstes Element hat den Namen x
+c(x <- 9)       # Zuweisung! Element hat KEINEN Namen
+x               # 9
+\end{lstlisting}
+
+In R wird die Zuweisung eines Objekts zu einem Namen üblicherweise mit \lstinline|<-| vorgenommen, während für die Übergabe benannter Argumente an Funktionen immer \lstinline|=| verwendet werden muss. Der Name verweist dabei auf das Objekt, ist aber nicht das Objekt selbst. Durch die Verwendung von \lstinline|<-| wird  diese Bindung deutlich dargestellt.
+
+Bei jedem Funktionsaufruf entsteht ein eigenes, temporäres Ausführungs-Environment, dessen Elternumgebung das Environment ist, in dem die Funktion definiert wurde.
+
+Normale Zuweisungen mit \lstinline|<-| oder \lstinline|=| erzeugen Bindings ausschließlich im lokalen Ausführungs-Environment und verändern äußere Umgebungen nicht.
+
+Der Super-Assignment-Operator \lstinline|<<-| (bzw.\ \lstinline|->>|) durchsucht die Elternumgebungen nach einem bestehenden Binding. 
+Existiert der Name in einer dieser Umgebungen, wird das Binding dort geändert. 
+Wird der Name nicht gefunden, wird er im \lstinline|.GlobalEnv| angelegt oder eine dort bereits bestehende Bindung aktualisiert, unabhängig davon, ob das \lstinline|.GlobalEnv| auf dem Suchpfad der aktuellen Umgebung liegt.
+Im lokalen Ausführungs-Environment wird dabei nie eine vorhandene Bindung verändert und auch keine neue angelegt.
+
+\begin{lstlisting}
+i <- 1
+j <- 2
+f <- function() {    # Erzeugt eine Funktion
+  i <-  30    # Neues lokales i (verdeckt in f globales)
+  j <-  0
+  j <<- 40    # Findet und überschreibt das globale
+  cat(j)
+  k <-  50    # Nur lokal
+  l <<- 60 }  # Wird global angelegt
+f()           # 0; Ruft Funktion auf
+i   # 1
+j   # 40
+#k  ## Error, nicht gefunden
+l   # 60
+\end{lstlisting}
+
+Bindungen können mit \lstinline|lockBinding()| gesperrt und mit \lstinline|unlockBinding()| wieder entsperrt werden.
+
+\begin{lstlisting}
+x <- 0
+lockBinding("x", globalenv())  # Sperren
+#x <- 1                        ## Error, gesperrt
+unlockBinding("x", globalenv())
+x <- 2
+lockBinding("x", globalenv())
+rm(x)                          # Geht
+\end{lstlisting}
+
+
+\subsection{Environment (Umgebung)}
+
+Ein Environment kann man sich wie ein Blatt Papier vorstellen, auf dem Name--Adresse--Paare stehen.
+Das Environment selbst ist ebenfalls ein Objekt und kann über einen Namen referenziert werden. Jedes Environment enthält (als Speicheradresse) einen Verweis auf das nächste Blatt (\emph{Parent Environment}), in dem weitergesucht wird, falls ein Name auf diesem Blatt nicht gefunden wird (\emph{Lexical Scoping}).
+Jedes Environment hat genau ein Parent. R erzwingt strikt, dass diese Parent-Kette hierarchisch und nicht zyklisch ist. Es kann jedoch mehrere voneinander unabhängige Parent-Ketten geben.
+Das Parent eines Environments kann, mit Ausnahme des leeren Environments, auf ein anderes Environment gesetzt werden, solange dadurch keine zyklische Struktur entsteht.
+Jede Parent-Kette endet im leeren Environment (\lstinline|emptyenv()|).
+\lstinline|environment()| gibt das aktuelle Environment zurück (in interaktiven Sitzungen meist das GlobalEnv, in Funktionen das Funktionsenvironment).
+\lstinline|new.env()| erzeugt ein neues Environment,
+\lstinline|parent.env()| zeigt das Elternenvironment.
+
+\begin{lstlisting}
+environment()     # <environment: R_GlobalEnv>
+e <- new.env()    # Erzeugt neues Environment und bindet es an e
+e                 # <environment: 0x55b8959188f8>; Adresse
+parent.env(e)     # <environment: R_GlobalEnv>;Elternenvironment
+#get("x", e)      ## Error, x nicht gefunden
+exists("x", e)    # FALSE
+x <- 0
+get("x", e)       # 0; findet x im globalEnv
+#get("x", e, inherits = FALSE) ## Error, x nicht gefunden
+get0("x", e, inherits = FALSE) # NULL; NULL weil nicht gefunden
+exists("x", e, inherits = FALSE) # FALSE
+e[["x"]]          # NULL; Sucht x nur in e
+e$x               # NULL; Sucht x nur in e
+e$x <- 1          # e enthält nun x
+#assign("x", 1, e) # Alternative
+get("x", e)       # 1; findet x in e
+e[["x"]]          # 1
+e$x               # 1
+y <- 0
+get("y", e)       # 0; findet y im globalEnv
+parent.env(e) <- emptyenv() # Neues Parent Environment
+#get("y", e)      ## Error, y nicht gefunden
+#parent.env(e) <- e  ## Error, zyklisch Kette
+ls(e)             # "x"; Zeigt Namen in e
+
+e <- new.env(parent = emptyenv()) # Parent angegeben
+e$x               # NULL
+
+e <- emptyenv()
+e                 # <environment: R_EmptyEnv>
+#parent.env(e)    ## Error, hat keinen Parent
+#parent.env(e) <- emptyenv() ## Error, emptyEnv hat kein Parent
+e$x               # NULL
+e$x <- 2          # Error, leere Umgebung
+\end{lstlisting}
+
+Ein Environment kann Namen enthalten, die auf andere Environments zeigen.
+Namen innerhalb eines Environments können auch wieder auf dasselbe Environment verweisen und dadurch zyklische Referenzen bilden.
+
+\begin{lstlisting}
+e <- new.env()
+e$x <- 1          # e enthält nun x  
+e$e <- e          # e zeigt auf sich selbst
+e$e$x             # 1
+e$e$e$x           # 1
+e$e$e$e$x         # 1
+e$eb <- e         # e zeigt mit weiteren Namen auf sich selbst
+e$eb$x            # 1
+e$eb$e$eb$x       # 1
+e$x <- 2
+e$eb$e$eb$x       # 2
+\end{lstlisting}
+
+Innerhalb eines Environments kann die Namenssuche mittels Hash-Lookup erfolgen, also über einen schnellen Schlüsselindex.
+
+\begin{lstlisting}
+e1 <- new.env()
+e2 <- new.env(hash = FALSE) # Nicht mit Hash suchen
+env.profile(e1)             # Info zur Hash Suche
+env.profile(e2)             # NULL; keine Hash Suche
+lobstr::obj_size(e1)        # 336 B
+lobstr::obj_size(e2)        #  56 B
+\end{lstlisting}
+
+Funktionen suchen Namen weder entlang der Environment-Kette ihres Aufrufortes noch entlang der Environment-Kette, in der der Funktionsname gebunden ist, sondern entlang der Environment-Kette ihres \emph{Enclosing Environments}.
+
+\begin{lstlisting}
+e1 <- new.env()
+e1$x <- 1
+e2 <- new.env(parent = e1)
+# Funktionen können mit function() oder \() erzeugt werden
+e2$f1 <- \() x            # enclosing environment: GlobalEnv
+environment(e2$f1)        # R_GlobalEnv
+#e2$f1()                  ## Fehler, 'x' nicht gefunden
+environment(e2$f1) <- e1  # setzt e1 als enclosing environment
+e2$f1()                   # 1
+e2$f2 <- with(e2, \() x)  # enclosing environment: e2
+e2$f2()                   # 1
+e2$x <- 2
+e2$f1()                   # 1; Beginnt suche in e1
+e2$f2()                   # 2; Beginnt suche in e2
+
+x <- 1
+f1 <- \() x <- 2
+f1()          # f1 verändert sein lokales x
+x             # 1
+f2 <- \() x <<- 2
+f2()          # f2 verändert Eltern x
+x             # 2
+#z            ## Fehler 'z' nicht gefunden
+f3 <- \() z <<- 3
+environment(f3) <- baseenv()
+parent.env(environment(f3)) # <environment: R_EmptyEnv>
+f3()          # f3 legt z im Global-Environment an
+z             # 3
+
+f <- \() x <- 0
+environment(f) <- emptyenv()
+#f()          ## Fehler Funkion "<-" nicht gefunden
+\end{lstlisting}
+
+Das Enclosing Environment einer Funktion aus einem Package ist ein \emph{Namespace-Environment}. Dieses Environment und seine Bindungen sind unveränderlich. Wenn man versucht, das Enclosing Environment einer Paketfunktion zu ändern, wird nicht das Original verändert, sondern es wird eine Kopie der Funktion im aufrufenden Environment angelegt, solange dieses modifizierbar ist.
+
+\begin{lstlisting}
+environment(sd)    # <environment: namespace:stats>
+e1 <- new.env()
+e2 <- new.env()
+with(e1, environment(sd) <- e2)
+environment(sd)    # <environment: namespace:stats>
+environment(e1$sd) # <environment: 0x55a8d83c7308>
+e2                 # <environment: 0x55a8d83c7308>
+#with(baseenv(), environment(sd) <- baseenv()) ## Error
+e1$sd(1:3)         # 1
+environment(e1$sd) <- emptyenv()
+#e1$sd(1:3)        ## Error, findet sqrt nicht
+\end{lstlisting}
+
+Bei Funktionen kann man folgende Environments unterscheiden:
+
+\begin{description}
+  \item[Binding Environment:] Das Environment, in dem der Funktionsname gebunden ist (wo der Name gefunden wird). Ein Funktionsobjekt kann unter mehreren Namen in verschiedenen Environments gebunden sein. Das Binding Environment spielt für die spätere Namenssuche innerhalb der Funktion keine Rolle.
+  \item[Enclosing Environment:] Das Environment, in dem das Funktionsobjekt ursprünglich erzeugt wurde, welches jedoch nachträglich geändert werden kann. Dieses Environment bestimmt die Environment-Kette, entlang der die Funktion nach Namen sucht. 
+  \item[Local Environment (Execution Environment):] Das bei jedem Funktionsaufruf neu erzeugte Environment, in dem lokale Variablen entstehen.
+  \item[Calling Environment (Parent Frame):] Das Environment, aus dem die Funktion aufgerufen wurde. R sucht dort die Werte der Objekte, die als Argumente an die Funktion übergeben werden. Bevor die Ausführung der Funktion beginnt, werden die Argumente (sofern nicht lazy) im Calling Environment ausgewertet und die resultierenden Werte im Local Environment den formalen Parametern zugewiesen.
+\end{description}
+
+Abweichend von der standardmäßigen lexikalischen Namenssuche kann man auch im dynamischen Aufrufer-Environment (Call-Stack) nach Variablen suchen, z.\,B.\ mit \lstinline|dynGet|. 
+Beim Einsatz von \lstinline|dynGet| in verschachtelten Funktionsaufrufen können jedoch Konflikte mit der Lazy Evaluation (Promises) auftreten. 
+Alternativ empfiehlt es sich, Variablen explizit als Funktionsargumente zu übergeben, da dies robust, nachvollziehbar und klar ist.
+
+\begin{lstlisting}
+x <- -1
+f1 <- \() {x <- 1; f3(x)}
+f2 <- \() {x <- 2; f3(x)}
+f3 <- \(y=3) f4(y)
+f4 <- \(y=4) list(y,
+  x,                     # Suche im enclosing environment
+  dynGet("x", 0),        # Suche im Aufruf-Stack
+# Suche im Aufruf-Stack mit Vererbung
+  dynGet("x", 0, inherits = TRUE),
+  get0("x", envir = parent.frame()), # Suche im Aufrufer-Frame
+# Suche nur im Parent-Frame
+  get0("x", envir = parent.frame(), inherits = FALSE)
+)
+f1()                     #  1, -1, 1, -1, -1, NULL
+f2()                     #  2, -1, 2, -1, -1, NULL
+f3()                     #  3, -1, 0, -1, -1, NULL
+f4(x)                    # -1, -1, 0, -1, -1, -1
+f4()                     #  4, -1, 0, -1, -1, -1
+with(list(x = 5), f4(x)) #  5, -1, 5, -1,  5,  5
+\end{lstlisting}
+
+Im Gegensatz zu einer Liste ist ein Environment referenzbasiert (Environments werden gewöhnlich nicht kopiert), besitzt keine feste Reihenfolge seiner Elemente und verfügt stets über ein Parent-Environment. Mit \lstinline|rlang::env_clone()| kann man ein Environment kopieren.
+
+\begin{lstlisting}[language=R]
+e1 <- new.env()
+e1$a <- 1
+e2 <- e1      # e2 zeigt auf e1
+e2$a <- 2     # ohne copy on modify
+e1$a          # 2
+e1[["a"]]     # 2
+
+e3 <- rlang::env_clone(e1, parent.env(e1))
+e3$a          # 2
+e3$a <- 3
+e3$a          # 3
+e1$a          # 2
+
+# Geht nicht für unevaluated promises
+e4 <- as.environment(as.list(e1, all.names=TRUE))
+e4$a          # 2
+e4$a <- 3
+e4$a          # 3
+e1$a          # 2
+
+x <- list(a = 1)
+y <- x        # y zeigt auf x
+y$a <- 2      #  mit copy on modify
+x$a           # 1
+\end{lstlisting}
+
+Mann kann Environments mit \lstinline|lockEnvironment()| gegen Änderungen sperren. Diese Sperre kann nicht deaktiviert werden. Es können auch die Bindungen gesperrt werden, welche wieder entsperrt werden können.
+
+\begin{lstlisting}
+e <- new.env()
+e$x <- 0
+lockEnvironment(e)
+#e$y <- 1    ## Error, nicht hinzufügbar
+e$x <- 2     # Jedoch Bindung veränderbar
+lockEnvironment(e, TRUE)  # Sperrt auch Bindungen
+#e$x <- 3    ## Error, nicht änderbar
+unlockBinding("x", e)
+e$x <- 4
+\end{lstlisting}
+
+Bei Start von R gibt es folgende Environments:
+
+\begin{lstlisting}
+search()
+# ".GlobalEnv"        "package:stats"     "package:graphics" 
+# "package:grDevices" "package:utils"     "package:datasets" 
+# "package:methods"   "Autoloads"         "package:base"     
+\end{lstlisting}
+
+Wenn ein Paket mit \lstinline|library| oder \lstinline|require| geladen wird, erscheint es standardmäßig direkt hinter \lstinline|.GlobalEnv| im Suchpfad, sofern es nicht bereits geladen ist. 
+\lstinline|require| gibt \lstinline|FALSE| zurück, wenn das Paket fehlt, während \lstinline|library| einen Fehler auslöst.
+
+Mit \lstinline|library(pkg, pos = ...)| lässt sich die Einfügeposition gezielt steuern. 
+Ein Paket kann dabei weder vor \lstinline|.GlobalEnv| noch hinter \lstinline|package:base| platziert werden. 
+Die Position im Suchpfad ist entscheidend, da Variablen und Funktionen in dieser Reihenfolge durchsucht werden. 
+Dies ist relevant, wenn mehrere Pakete Objekte mit demselben Namen bereitstellen. Es wird stets das zuerst gefundene Objekt verwendet.
+
+\begin{lstlisting}
+library(compiler)
+search() # ".GlobalEnv" "package:compiler" "package:stats"
+library(tools)
+search() # ".GlobalEnv" "package:tools" "package:compiler"
+library(compiler)
+search() # ".GlobalEnv" "package:tools" "package:compiler"
+unloadNamespace("compiler")  # Entlädt Paket
+#detach("package:compiler", unload = TRUE) # Alternative
+library(compiler)
+search() # ".GlobalEnv" "package:compiler" "package:tools"
+unloadNamespace("compiler")
+library(compiler, pos = length(search())) # vor base
+search() # ".GlobalEnv" ... "package:compiler" "package:base"
+\end{lstlisting}
+
+Mir \lstinline|attach()| kann man auch eigene Environments in diesen Suchpfad bringen und mit \lstinline|detach()| wieder entfernen.
+
+\begin{lstlisting}
+e <- new.env()
+e$x <- 0
+#x              ## Error, nicht gefunden
+attach(e, name = "meinEnv")
+x               # 0
+search()        # ".GlobalEnv" "meinEnv" ...
+detach("meinEnv")
+attach(e, pos = length(search()), name = "meinEnv")
+search() # ".GlobalEnv" ... "meinEnv" "package:base"
+
+as.environment("meinEnv")$x  # 0; Zugriff über Namen
+\end{lstlisting}
+
+
+%%% NEU %%%
+
+\subsection{Funktionen: Closures aus Code und Environment}
+
+
+\subsection{Pakete -- Libraries}
+
+\begin{lstlisting}
+base::
+base:::
+ ls(getNamespace("stats"), all.names = TRUE)
+\end{lstlisting}
+
+\begin{lstlisting}
+# Temporäres Package-Verzeichnis anlegen
+pkg_dir <- tempfile("meinPkg")
+dir.create(file.path(pkg_dir, "R"), recursive = TRUE)
+
+# Eine minimale DESCRIPTION und NAMESPACE-Datei
+writeLines('Package: meinPkg
+Version: 0.0.1
+Title: Test
+Description: Nur zum Testen
+License: GPL-3
+LazyData: true', file.path(pkg_dir, "DESCRIPTION"))
+
+writeLines('export(x)', file.path(pkg_dir, "NAMESPACE"))
+
+# Eine R-Datei mit Inhalt
+writeLines('x <- 42
+.mein_intern <- 100', file.path(pkg_dir, "R", "stuff.R"))
+
+# Package bauen und laden
+devtools::install(pkg_dir, quiet = TRUE, upgrade = "never")
+# oder: pkgbuild::build(pkg_dir); install.packages(...)
+
+library(meinPkg)
+
+meinPkg::x      # exportiert 42
+meinPkg:::x     # auch 42
+meinPkg:::.mein_intern  # nicht exportiert 100 (funktioniert!)
+\end{lstlisting}
+
+
+\subsection{Funktionen: Closures aus Code und Environment}
+
+x <- 0
+f1 <- function(x = x) x
+f2 <- function(x. = x) x.
+%#f1()     ## Error, rekursiv
+%f2()      # 0
+%f1(x)     # 0
+%f2(x)     # 0
+%https://stackoverflow.com/questions/4357101
+%The reason you can't use x=x in the formal arguments of a function definition is that it first looks up the default argument within the function itself so using that form is telling it to use itself as the default but it has not been defined so that makes no sense and we get an error.)
+
+%makeActiveBinding("rnd", \(n=1) cat(runif(n)), globalenv())
+%rnd
+%rnd <- 3
+
+
+
+
+Eine Funktion in R besteht aus drei Teilen:
+\begin{itemize}
+\item dem formalen Argument-Objekt
+\item dem Funktionskörper (body)
+\item dem Environment, in dem die Funktion erzeugt wurde
+\end{itemize}
+
+\begin{lstlisting}[language=R]
+f <- function(x) x + y     # y wird erst beim Aufruf gesucht
+
+y <- 100
+f(10)                      # 110  (findet y im globalen Environment)
+
+g <- function() {
+  y <- 1
+  f(10)                    # immer noch 110! (f schaut ins Erzeugungs-Environment)
+}
+
+environment(f)             # <environment: R_GlobalEnv>
+\end{lstlisting}
+
+Jeder Funktionsaufruf erzeugt ein neues, temporäres Environment als Kind des Erzeugungs-Environments der Funktion.
+
+Deshalb:
+\begin{itemize}
+\item \lstinline|x <- x + 1| in einer Schleife verändert nie das äußere x
+\item \lstinline|<<-| sucht nach oben bis ins Parent-Environment der Funktion
+\item Funktionen merken sich die Werte ihrer freien Variablen (Closure!)
+\end{itemize}
+
+\subsection{Call-by-Promise (Lazy Evaluation)}
+
+Argumente einer Funktion werden nicht sofort ausgewertet, sondern als Promise-Objekte gespeichert (bestehend aus Ausdruck + Environment).
+
+\begin{lstlisting}[language=R]
+f <- function(x) { print("wird erst später ausgewertet") ; x }
+f( { Sys.sleep(5) ; 1:1000000 } )   # keine 5 Sekunden Wartezeit!
+# "wird erst später ausgewertet"
+# erst jetzt wird der Ausdruck ausgewertet
+\end{lstlisting}
+
+Folgen:
+- Default-Argumente sehen das Environment der Funktion, nicht das des Aufrufs
+- Seiteneffekte in Argumenten passieren erst, wenn das Argument benutzt wird
+- \lstinline|missing(x)| funktioniert
+
+\subsection{Maskierung (Shadowing)}
+
+Ein Name im lokalen Environment verdeckt gleichnamige Namen weiter oben in der Kette.
+
+\begin{lstlisting}[language=R]
+x <- 1
+g <- function() { x <- 20 ; x }   # lokale 20 maskiert globale 1
+g()                               # 20
+x                                 # noch immer 1
+\end{lstlisting}
+
+\subsection{Lexical Scoping}
+
+Die Suche nach freien Variablen erfolgt im Environment, in dem die Funktion definiert wurde – nicht dort, wo sie aufgerufen wird.
+
+\begin{lstlisting}[language=R]
+make_adder <- function(n) {
+  function(x) x + n               # n ist frei => wird im Erzeugungs-Env gesucht
+}
+
+add5  <- make_adder(5)
+add10 <- make_adder(10)
+
+add5(3)   # 8
+add10(3)  # 13
+
+# <<- sucht ab dem Parent-Environment der Funktion nach oben
+counter <- function() {
+  if (!exists("i")) i <- 0
+  i <<- i + 1
+  i
+}
+counter()   # 1
+counter()   # 2
+\end{lstlisting}
+
+%%% NEU %%%
 
 \begin{lstlisting}
 q()                   # Beendet R (mit Rückfrage)
@@ -172,13 +784,14 @@ vignette("lmer")     # Einführung zu lmer öffnen
 
 version              # R-Version anzeigen
 sessionInfo()        # Infos zu Umgebung und geladenen Paketen
+citation()           # Wie man R zitiert
 x = 1                # Der Variablen x den Wert 1 zuweisen
 x <- 1               # Der Variablen x den Wert 1 zuweisen
 1 -> x               # Der Variablen x den Wert 1 zuweisen
+assign("x", 1)       # Der Variablen x den Wert 1 zuweisen
 x <<- 1              # Zuweisung in der Elternumgebung
 str(x)               # Struktur von x
 dput(x)              # Zeigt wie Objekt erzeugt werden kann
-assign("x", 1)       # Der Variablen x den Wert 1 zuweisen
 ls()                 # Liste Objekte im aktuellen Environment
 rm(x)                # Objekt x entfernen
 rm(list = ls())      # Alle Objekte entfernen (Workspace leeren)
@@ -201,10 +814,17 @@ seq_len(n)           # 1 2 3
 n <- 0
 seq_len(n)           # integer(0)
 1:n                  # 1 0
-rep(1:3, 2)          # 1 2 3 1 2 3
+rep(1:3, 2)          # 1 2 3 1 2 3; Objekt wiederholen
 rep(1:3, each=2)     # 1 1 2 2 3 3
+rep(1:3, 3:1)        # 1 1 1 2 2 3
+1:4 + 1:2 + 1        # 3 5 5 7; Auto Wiederholung
+1:4 + 1:3            # 2 4 6 5; Warnung Länge
+1:3 + 1:4            # 2 4 6 5; Warnung Länge
 \end{lstlisting}
 
+%%% Einarbeiten %%%
+
+%%% Copy-on-Modify für Listen %%%
 
 \section{Grundtypen}
 
@@ -270,6 +890,8 @@ as.character(2^53)               # 9007199254740992
 as.character(2^53 - 1)           # 9007199254740991
 as.character(2^53 + 1)           # 9007199254740992 !
 as.character(2^53 + 2)           # 9007199254740994
+0.1 + 0.2 == 0.3                 # FALSE; Rundungsfehler
+all.equal(0.1 + 0.2, 0.3)        # TRUE; Einstellbare Toleranz
 
 library(gmp)
 as.bigz("2147483648")            #  2147483648 als Ganzzahl
@@ -467,6 +1089,25 @@ x$b <- NULL           # Löscht Spalte b
 
 \subsection{Funktionen und Closure}
 
+Beim Aufruf von Funktionen werden Argumente nach folgender Priorität zugeordnet:
+\begin{enumerate}
+  \item exakter Name  
+  \item partieller Name  
+  \item Position  
+\end{enumerate}
+Dadurch können Argumente frei kombiniert positional und per Name übergeben werden.
+
+\begin{lstlisting}
+f <- function(x, xa, ya, yb, za) cat(x, xa, ya, yb, za)
+f(1, 2, 3, 4, 5)         # 1 2 3 4 5; Position
+f(1, 2, 3, 4, x=5)       # 5 1 2 3 4; exakter Name + Position
+f(1, 2, 3, 4, xa=5)      # 1 5 2 3 4; exakter Name + Position
+#f(1, 2, 3, x=4, x=5)    ## Error, x passt zu mehreren
+#f(1, 2, 3, 4, y=5)      ## Error, y mehrdeutig ya oder yb
+f(z=1, 2, 3, 4, 5)       # 2 3 4 5 1; Partieller Name und Position
+#f(zak=1, 2, 3, 4, 5)    ## Error, unbenutztes Argument zak
+\end{lstlisting}
+
 In R sind Funktionen sogenannte Closures: Objekte, die aus einem Funktionskörper und einem enclosing environment bestehen.
 Variablen, die nicht als Funktionsargumente übergeben werden, sucht R zuerst im enclosing environment der Funktion und dann in den übergeordneten Environments.
 Im Environment können Variablen gespeichert werden.
@@ -477,7 +1118,7 @@ Zusätzlich gibt es noch \lstinline|return|.
 f <- function(x) x+1
 f(3)           # 4
 
-f2 <- \() {x}
+f2 <- \() {x}  # \() Kurzschreibweise
 #f2()          ## Fehler, x nicht gefunden
 x <- 1
 f2()           # 1; greift jetzt auf globales x zu
@@ -497,94 +1138,103 @@ f5()           # 2
 environment(f5)$n <- 8
 f5()           # 9
 
-f6 <- (\(n){\() {n <<- n+1L; n}})(7L)
+f6f <- \(n){\() {n <<- n+1L; n}} # Function factory
+f6 <- f6f(7L)  # Gibt Funktion zurück
 f6()           # 8
 f6()           # 9
 ls(environment(f6))      # n
 as.list(environment(f6)) # n 9
 
-f7 <- \() {x <<- 2; invisible()}
-f7()           # Gibt nichts in der Konsole aus
+f7 <- \(a, b) a(b) # Argument ist eine Funktion
+f7(mean, 1:3)  # 2
+f7(sum , 1:3)  # 6
+
+f8 <- \() {x <<- 2; invisible(x)}
+f8()           # Gibt nichts in der Konsole aus
+cat(f8())      # 2; Gibt aber dennoch Wert zurück
+
+f9 <- \(n) if (n > 0) n + f9(n-1) else n
+f9(3)          # 6; Rekursiv
 \end{lstlisting}
 
 \lstinline|local()| erzeugt ein Environment, in dem Objekte (z. B. Zähler oder Parameter) dauerhaft für die zurückgegebene Funktion gebunden bleiben.
 
-\subsection{Environment (Umgebung)}
+Die Ellipsis \lstinline|...| fängt alle nicht explizit definierten Argumente auf und ermöglicht deren unveränderte Weitergabe an andere Funktionen.
 
-Eine Datenstruktur, die Namen (Variablen) mit Werten (Objekten) verknüpft.
-Environments bilden eine hierarchische Kette, in der jedes Environment auf ein Eltern-Environment verweist, 
-an deren Ende das leere Environment (\lstinline|emptyenv()|) steht.
-Bei der Namenssuche geht R schrittweise entlang dieser Kette nach oben.
-Innerhalb eines Environments kann die Namenssuche mittels Hash-Lookup erfolgen.
-Mit Environments wird bestimmt, wo Variablen beim Auswerten von Funktionen gesucht werden.
+\begin{lstlisting}
+fx <- \(x) x
+fx(1)           # 1
+fx(x=1)         # 1
+#fx(y=1)        ## Error, unbenutztes Argument
+#fx(1, 2)       ## Error, unbenutztes Argument
+#fx()           ## Error, Argument x fehlt
+f <- \(...) fx(...)
+f(1)            # 1
+f(x=1)          # 1
+#f(y=1)         ## Error, unbenutztes Argument
+#f(1, 2)        ## Error, unbenutztes Argument
 
-Abweichend davon kann man auch im dynamischen Aufrufer-Environment suchen, z.B. mit \lstinline|dynGet|. Beim Einsatz von dynGet in verschachtelten Funktionsaufrufen können Konflikte mit der Lazy Evaluation (Promises) entstehen. Alternativ können Variablen als Funktionsargument übergeben werden, was ich empfehle, da dies explizit, robust und leicht nachvollziehbar ist.
+fx <- \(x, y=0) x + y  # Defaultwert für y
+fx(1)           # 1
+#fx(y=1)        ## Error, kein x
+fx(1, 2)        # 3
+fx(1, 2, 3)     ## Error, unbenutztes Argument
 
-\lstinline|<<-| sucht in den Eltern-Environments nach einer bestehenden Bindung und ändert deren Wert. Existiert keine Bindung, wird sie im nächsthöheren Environment erzeugt.
+fx <- \(x, ...) x
+#fx(y=1)        ## Error, Argument x fehlt
+fx(1, 2)        # 1
+f <- \(x, ...) fx(...) # Vermeiden da x nur unbenannt an fx geht
+#f(1)           ## Error, Argument x fehlt für fx
+f(1, 2)         # 2
+f(x=1, 2)       # 2; 
+#f(x=1, x=2)    ## Error, x passt zu mehreren Argumenten
+f(x=1, y=2)     ## Error, Argument x fehlt für fx
+f <- \(y, ...) fx(...)
+f(1, 2)         # 2
+f(x=1, 2)       # 1
+f(x=1, y=2)     # 1
 
-Im Gegensatz zu einer Liste ist ein Environment referenzbasiert (kein copy-on-modify), 
-besitzt keine feste Ordnung seiner Elemente und verfügt stets über ein Eltern-Environment.
+f <- \(x, ...) ..2  # zweites Element von ...
+f(1, 2, 3, 4)   # 3
+f(1, 2, 3, x=4) # 2
+f(1, 2, 3, y=4) # 3
+#f()            ## Error, ..2 nicht vorhanden
 
-\begin{lstlisting}[language=R]
-e1 <- new.env()
-e1$a <- 1
-e2 <- e1      # e2 zeigt auf e1
-e2$a <- 2     #  ohne copy on modify
-e1$a          # 2
-e1[["a"]]     # 2
+f <- \(x, ...) ...elt(2)  # zweites Element von ...
+f(1, 2, 3, 4)   # 3
 
-x <- list(a = 1)
-y <- x        # y zeigt auf x
-y$a <- 2      #  mit copy on modify
-x$a           # 1
+f <- \(x, ...) ...length()  # Länge von ...
+f()             # 0
+f(1, 2, 3)      # 2, weil x=1 nicht in ... ist
+f(1, cat("a"))  # 1; Wertet Argumente nicht aus
 
-e1 <- new.env()
-e1$x <- 1
-e2 <- new.env(parent = e1)
-e2$f1 <- \() x            # enclosing environment: GlobalEnv
-environment(e2$f1)        # R_GlobalEnv
-#e2$f1()                  ## Fehler, 'x' nicht gefunden
-environment(e2$f1) <- e2  # setzt e2 als enclosing environment
-e2$f1()                   # 1
-e2$f2 <- with(e2, \() x)  # enclosing environment: e2
-e2$f2()                   # 1
-e2$x                      # NULL; keine Suche im Parent
-get("x", envir = e2)      # 1; Suche im Parent
-#get("x", envir = e2, inherits = FALSE) ## Fehler
+f <- \(x, ...) length(list(...))  # Länge von ...
+f(1, cat("a"))  # 1; list wertet Argumente aus
 
-x <- 1
-f1 <- \() x <- 2
-f1()          # f1 verändert sein lokales x
-x             # 1
-f2 <- \() x <<- 2
-f2()          # f2 verändert Eltern x
-x             # 2
-#z            ## Fehler 'z' nicht gefunden
-f3 <- \() z <<- 3
-environment(f3) # R_GlobalEnv
-f3()          # f3 legt z im Eltern-Environment an
-z             # 3
+f <- \(...) ...names()  # Namen von ...
+f(1, 2)         # NULL
+f(1, a=2)       # "" "a"
+\end{lstlisting}
 
-x <- -1
-f1 <- \() {x <- 1; f3(x)}
-f2 <- \() {x <- 2; f3(x)}
-f3 <- \(y=3) f4(y)
-f4 <- \(y=4) list(y,
-  x,                     # Suche im enclosing environment
-  dynGet("x", 0),        # Suche im Aufruf-Stack
-# Suche im Aufruf-Stack mit Vererbung
-  dynGet("x", 0, inherits = TRUE),
-  get0("x", envir = parent.frame()), # Suche im Aufrufer-Frame
-# Suche nur im Parent-Frame
-  get0("x", envir = parent.frame(), inherits = FALSE)
-)
-f1()                     #  1, -1, 1, -1, -1, NULL
-f2()                     #  2, -1, 2, -1, -1, NULL
-f3()                     #  3, -1, 0, -1, -1, NULL
-f4(x)                    # -1, -1, 0, -1, -1, -1
-f4()                     #  4, -1, 0, -1, -1, -1
-with(list(x = 5), f4(x)) #  5, -1, 5, -1,  5,  5
-#dput(f3()) ## Fehler rekursive Referenz
+Man kann auch eigene Infix Operatoren definieren. Jeder Operator, dessen Name mit \lstinline|%| beginnt und endet (z.~B. \lstinline|%myop%|), wird als Infix-Operator behandelt und hat in der Regel zwei Argumente. Er hat die gleiche Priorität wie der Operator \lstinline|+| und wird von links nach rechts ausgewertet.
+
+\begin{lstlisting}
+1 + 1      # 2; + ist Infix Operatoren
+`+`(1,1)   # 2; Aufruf als Funktion
+`%A%` <- \(l,r) l + r
+1 %A% 1    # 2
+`%A%`(1,1) # 2
+
+`%+%` <- \(l,r) l + r
+`%*%` <- \(l,r) l * r  # Überdeckt Matrixprodukt %*% !!
+1 + 2 * 3      # 7
+1 %+% 2 %*% 3  # 9; Wird von links nach recht ausgewertet
+
+`%^%` <- \(l,r) l^r  # Ausnutzung der Operatorpriorität
+`:=` <- \(l,r) l * r
+`?` <- \(l,r) l + r  # Überdeckt ? (help) !
+2 + 3 * 4^2          # 50
+2 ? 3 := 4%^%2       # 50
 \end{lstlisting}
 
 
@@ -601,6 +1251,7 @@ v[[2]]           # 20
 v[1:3]           # 10 20 30; Element 1 bis 3
 v[3:1]           # 30 20 10; Element 3 bis 1
 v[c(1,3,5)]      # 10 30 50; Mehrere Elemente
+v[c(1,1)]        # 10 10; Mehrfach gleiches Element
 v[-c(2,4)]       # 10 30 50; Alle außer Position 2 und 4: 
 v["c"]           # 30; Über Namen
 #v$c             ## Fehler
@@ -627,7 +1278,7 @@ m[[2, 3]]       # 6
 #m[1, 4]        ## Fehler, Indizierung außerhalb
 #m[[1, 4]]      ## Fehler, Indizierung außerhalb
 m[1, ]          # 1 3 5; Vektor, Ganze 1. Zeile
-#m[[1, ]]       ##Fehler,  missing subscript
+#m[[1, ]]       ## Fehler,  missing subscript
 m["a", ]        # 1 3 5; Vektor, Zeile a
 m[1, , drop=FALSE]  # 1 3 5; Matrix
 m[, 2]          # 3 4; Ganze Spalte 2
@@ -660,6 +1311,13 @@ l[4]            # NULL
 l <- list(x = 1, y = list(z = 2, w = 3))
 l$y$z           # 2; verschachtelter Zugriff
 
+Ich habe in R ein data.frame d und möchte dort vom Spalte 2 die Elemente 2 und 1 abfragen, was mit "d[[2]][2:1]" geht. Warum geht "d[[2:1, 2]]" nicht?
+
+d <- data.frame(a=c("d","e"), b=2:1)
+d[[2]][2:1]
+d[[2:1, 2]]  # Fehler
+
+
 d <- data.frame(a=c("d","e"), b=2:1)
 d[1, ]          # d 2; data.frame, Erste Zeile
 d[, 2]          # 2 1; Vektor, Zweite Spalte
@@ -669,13 +1327,20 @@ d[, 2, drop=FALSE] # 2 1; data.frame, Zweite Spalte
 d[, "b"]        # 2 1; Vektor
 d$b             # 2 1; Vektor
 d$b[1]          # 2; Erstes Element von Spalte b
-d[1, "b"]       # 2; Erstes Element von Spalte b
-d[1, 2]         # 2; Erstes Element von Spalte 2
-d[[2]][1]       # 2; Erstes Element von Spalte 2
-d[[2]][[1]]     # 2; Erstes Element von Spalte 2
-d[[1, 2]]       # 2; Erstes Element von Spalte 2
-d[[c(2, 1)]]    # 2; Erstes Element von Spalte 2
-d[[1, "b"]]     # 2; Erstes Element von Spalte b
+d[1, "b"]       # 2; Variante
+d[1, 2]         # 2; Variante
+d[[2]][1]       # 2; Variante
+d[[2]][[1]]     # 2; Variante
+d[[1, 2]]       # 2; Variante
+d[[c(2, 1)]]    # 2; Variante
+d[[1, "b"]]     # 2; Variante
+d$b[2:1]        # 1 2; Element 2, 1 von Spalte b
+d[2:1, "b"]     # 1 2; Variante
+d[2:1, 2]       # 1 2; Variante
+d[[2]][2:1]     # 1 2; Variante
+#d[[2]][[2:1]]  ## Error; [[ geht nur für ein Element
+#d[[2:1, 2]]    ## Error; [[ geht nur für ein Element
+d[2:1, 2:1]     # Reihenfolge von Zeilen und Spalten ändern
 d[-1, ]         # data.frame ohne erste Zeile
 d[, -1]         # Da nur eine Spalte => Vektor
 d[, 1:2]        # Spalten 1 bis 2
@@ -843,9 +1508,12 @@ Im Folgenden einige kurze Beispiele zur Manipulation von Faktoren.
 f <- factor(c("rot", "blau", "rot"))
 f <- relevel(f, "rot")  # "rot" wird erster Level
 
+n <- c(3, 2, 2)
+reorder(f, n)           # sortiert Levels
+
 # Reihenfolge der Levels festlegen
 f <- factor(c("rot", "blau", "rot"), c("rot", "blau"))
-#f < "blau"             ##Warning: < nicht sinnvoll
+#f < "blau"             ## Warning: < nicht sinnvoll
 f <- ordered(c("rot", "blau", "rot"), c("rot", "blau"))
 f < "blau"              # TRUE FALSE  TRUE
 
@@ -869,9 +1537,11 @@ local({
 
 f <- factor(c("A","B"), levels = c("A","B","C"))
 levels(f)                # "A" "B" "C"
+f[2:1]                   # Behällt alle Levels
+f[2:1, drop=TRUE]        # Nur die vorhandenen Levels
 f <- droplevels(f)       # Entfernt unbenutzte Levels
 levels(f)                # "A" "B"
-#f[3] <- "C"             ##Warning => NA
+#f[3] <- "C"             ## Warning => NA
 levels(f) <- c(levels(f), "C") 
 f[3] <- "C"
 
@@ -1051,6 +1721,7 @@ apply(a, 1, sum)     # 144 156; Summe je Zeile
 apply(a, 3, sum)     # 21 57 93 129; Summe je Schicht
 apply(a, c(1,3), sum)# Summe je Zeile und Schicht
 aperm(a, c(2,1,3))   # Dimensionen vertauschen
+ftable(a)            # macht 2D Tabelle daraus
 b <- a[1,,,drop=FALSE]
 drop(b)              # Entfernt 1 Element Dimensionen
 i <- which(a > 20)   # Vektor index
@@ -1083,7 +1754,7 @@ l$d <- 99       # Neues Element
 l$a <- list(10,20) # Bestehendes Element ersetzen
 l$c <- NULL     # Element entfernen
 l["c"] <- list(NULL) # NULL einfügen
-unlist(l)       # "10" "20" "x" "y" "99"; List in Vektor ohne NULL
+unlist(l)       # "10" "20" "x" "y" "99"; List2Vektor ohne NULL
 unlist(l, FALSE) # Nicht rekursiv, bleibt hier Liste
 
 l2 <- list(a=1, b=2)
@@ -1101,10 +1772,14 @@ d$c <- matrix(1:4, 2) # Matrix als Spalte
 d$d <- array(1:8, c(2,2,2)) # Array als Spalte
 d[1,]           # Funktioniert bei Array nicht wie erwartet
 tibble::tibble(d)[1,] # Hier wie erwartet
-#as.matrix(d)         ##Error
+#as.matrix(d)         ## Error
 as.matrix(d[c(1,2)])  # Geht
 as.matrix(d[c(1,3)])  # Geht
-#as.matrix(d[c(2,3)]) ##Error
+#as.matrix(d[c(2,3)]) ## Error
+
+d <- data.frame(a=1:3, row.names = 3:1)
+ti <- tibble::as_tibble(d) # Verliert row.names
+as.data.frame(ti)
 
 l <- list(a=2, b=3:5, c=5:9)
 x <- lapply(l, mean) # [[1]] 2 [[2]] 4 [[3]] 7; Liste
@@ -1186,6 +1861,424 @@ d[2:3,] <- list(7:8, "X")  # Inhalt von Zeilen ändern
 d$a <- NULL             # Löscht Spalte a
 #d[2,] <- NULL          ## Error
 d <- d[-2,,drop=FALSE]  # Löscht Zeile 2
+
+d <- data.frame(a=1:4, b=4:1, g=c("x","y"),h=c("k","k","k","l"))
+aggregate(a ~ g, d, mean) # x 2, y 3;Funktion je Gruppe anwenden
+aggregate(a ~ g, d, sum)  # x 4, y 6
+rowsum(d$a, d$g)          # x 4, y 6; Bei Summierung schneller
+tapply(d$a, d$g, sum)     # x 4, y 6; Für einzelne Spalten
+xtabs(a ~ g, d)           # x 4, y 6; Alternative
+aggregate(a ~ g + h, d, sum) #   g h a; Mehrere Gruppen
+                             # 1 x k 4; Als Tabelle
+                             # 2 y k 2
+                             # 3 y l 4
+xtabs(a ~ g + h, d)          #   k l; Mehrere Gruppen
+                             # x 4 0; Als Matrix
+                             # y 2 4
+aggregate(. ~ g, d, sum)  #   g a b; Mehrere Spalten
+                          # 1 x 4 6
+                          # 2 y 6 4
+aggregate(d[1:2], d[3], sum) # Alternativer Aufruf
+rowsum(d[1:2], d[,3])     # Schnelle Alternative für Summen
+sapply(split(d[1:2], d[3]), colSums) # Alternative
+
+d <- data.frame(a=1:2, b=2:1)
+transform(d, a=b, b=a, x=a-b) # a b  x; Zuweisung erst danach
+                              # 2 1 -1
+                              # 1 2  1
+#transform(d, x=a+b, y=x)     ##Error, x nicht gefunden
+within(d, {a<-b; b<-a; x<-a-b}) # a b x; Zuordnung sofort
+                                # 2 2 0
+                                # 1 1 0
+within(d, {x<-a+b; y<-x})       # Geht
+with(d, a+b)                    # 3 3
+attach(d)                       # Zum Suchpfad
+a+b                             # 3 3
+detach(d)                       # Aus dem Suchpfad
+
+d <- data.frame(x=1:4, g=c("x","y"), t=c(1,1,2,2))
+w <- reshape(d, idvar="g", timevar="t", direction="wide")
+# g x.1 x.2
+# x   1   3
+# y   2   4
+reshape(w, idvar="g", direction="long")
+#     g t x.1
+# x.1 x 1   1
+# y.1 y 1   2
+# x.2 x 2   3
+# y.2 y 2   4
+\end{lstlisting}
+
+
+\section{Programmierung}
+
+Es werden Kontrollstrukturen (wenn dann, if), Wiederholungen
+bzw.\ Schleifen, Fehlerbehandlung und Funktionen kurz gezeigt.
+
+\subsection{if, else und switch}
+
+\lstinline|if|, \lstinline|else| und \lstinline|switch| zählen zu den
+Kontrollstrukturen. \lstinline|if| und \lstinline|else| zählen zu den
+Keywords, \lstinline|switch| ist eine Funktion.
+
+\begin{lstlisting}
+x <- 5
+if (x > 0) {         print("+")
+} else if (x == 0) { print("0")
+} else               print("-")
+
+if (x > 0) print("+")
+if (x > 0) {print("+")}
+#else print("!+")    ## Fehler, kein Bezug zu vorigem if
+if (x > 0) print("+") else print("!+")
+if (x > 0) {print("+")
+} else print("!+")
+
+x <- 1:2
+#if (x > 0) print("+") ## Fehler, Länge muss 1 sein
+x <- NA
+#if (x > 0) print("+") ## Fehler, braucht TRUE oder FALSE
+x <- NULL
+#if (x > 0) print("+") ## Fehler, Länge ist 0
+x <- numeric()
+#if (x > 0) print("+") ## Fehler, Länge ist 0
+\end{lstlisting}
+
+\begin{lstlisting}
+x <- c(9,0,2,1,3)
+s <- "Mittel"
+switch (s,
+        Median = median(x),
+        Mittel =,            # Geht zur nächsten Zeile
+        avg    = mean(x))    # 3
+switch (s, sum = sum(x))     # NULL; kein Treffer
+switch (s, sum = sum(x), -1) # -1; Angabe für kein Treffer
+#switch (1:2, a = 0)         ## Fehler, Länge muss 1 sein
+\end{lstlisting}
+
+Daneben gibt es noch \lstinline|ifelse(test, yes, no)|. Sie ist
+besonders praktisch für einfache bedingte Ersetzungen, hat jedoch zwei
+wesentliche Nachteile:
+\begin{itemize}
+\item Beide Alternativen \lstinline|yes| und \lstinline|no| werden
+  vollständig ausgewertet (auch wenn nur eine benötigt wird).
+\item Attribute (z.~B. \lstinline|class|, Datumseigenschaften) gehen
+  häufig verloren.
+\end{itemize}
+
+\begin{lstlisting}
+x <- c(-1:1)
+sqrt(x)                      # NaN 0 1; Warung
+sqrt(ifelse(x >= 0, x, NaN)) # NaN 0 1; Ohne Warnung
+ifelse(x >= 0, sqrt(x), NaN) # NaN 0 1; Warung
+sqrt(`[<-`(x, x<0, NaN))     # NaN 0 1; sqrt gibt bei NaN NaN
+
+y <- rep(NaN, length(x))
+i <- x >= 0
+#i <- which(x >= 0)          # Variante bei wenig TRUE
+y[i] <- sqrt(x[i])
+
+x <- seq(as.Date("2000-02-29"), as.Date("2004-10-04"), by = "1 year")
+y <- ifelse(as.POSIXlt(x)$mday == 29, x, NA)
+y   # 11016    NA    NA    NA 12477; Verliert Attribute
+class(y) <- class(x)
+y   # "2000-02-29" NA NA NA "2004-02-29"
+y2 <- x
+y2[as.POSIXlt(x)$mday != 29] <- NA # Effizienter
+\end{lstlisting}
+
+
+\subsection{for, while und repeat}
+
+Mit \lstinline|for|, \lstinline|while| oder \lstinline|repeat| kann man Wiederholungen bzw.\ Schleifen erzeugen.
+
+\begin{lstlisting}
+for (i in 1:5) cat(i)  # 12345
+i                      # 5; For hat keine eigene Umgebung
+for (i in 1:5) {cat(i); i<-i*2} # 12345
+i                               # 10
+for (i in 1:5) {if (i==3) next; cat(i)} # 1245; Überspringen
+for (i in 1:5) {if (i>2) break; cat(i)} # 12; Abbruch
+
+x <- c(3,5,1)
+for (y in x) cat(y)               # 351; Direkt
+for (i in seq_along(x)) cat(x[i]) # 351; Über Index
+cat(x, sep="")                    # 351; Ohne Schleife
+
+x <- 1:1e6
+system.time(for (y in x) cat(y))               # 2.756 Sek.
+system.time(for (i in seq_along(x)) cat(x[i])) # 3.026 Sek.
+system.time(cat(x, sep=""))                    # 0.621 Sek.
+
+i <- 1
+while (i <= 5) {
+  cat(i)
+  i <- i + 1
+}                      # 12345
+
+i <- 1
+repeat{
+  cat(i)
+  i <- i + 1
+  if(i > 5) break
+}                      # 12345
+\end{lstlisting}
+
+\subsection{Fehlerbehandlung: try, tryCatch, stop, warning, message}
+
+Fehler können im Program mit \lstinline|try| oder \lstinline|tryCatch| behandelt werden.
+
+\begin{lstlisting}
+f1 <- \(x) {
+  ret <- NA_real_
+  ret <- log(x)
+  ret
+}
+x <- f1("a")
+#x                ## Fehler, x nicht gefunden
+f1(-1)            # NaN
+
+f2 <- \(x) {
+  ret <- NA_real_
+  try(ret <- log(x)) # Kein Abbruch
+  ret
+}
+f2("a")           # NA
+f2(-1)            # NaN
+
+f3 <- \(x) {
+  tryCatch(log(x),
+    warning = \(s) {message("Warnung: ", s); NULL},
+    error = \(s) {message("Fehler: ", s);  NA_real_},
+    finally = {message("Ende")} )
+}
+x <- f3("a")      # Fehler, Ende
+x                 # NA
+x <- f3(-1)       # Warnung, Ende
+x                 # NULL
+
+f4 <- \(x) {
+  tryCatch(log(x),
+    error = \(s) {message("Fehler");  NA_real_} )
+}
+f4("a")           # NA, Fehler
+f4(-1)            # NaN, Warnmeldung
+
+f5 <- \(x) {
+  tryCatch(withCallingHandlers(log(x),
+    warning = \(s) {
+      message("Warnung")
+      invokeRestart("muffleWarning")} ),
+    error = \(s) {message("Fehler");  NA_real_} )
+}
+f5("a")           # NA, Fehler
+f5(-1)            # NaN, Warnung
+
+f6 <- \() {
+  stop("Abbruch") # erzeugt Fehler
+  42
+}
+y <- f6()
+#y                ## y nicht gefunden
+
+f7 <- \() {
+  warning("Achtung") # Warnung, Programm läuft weiter
+  42
+}
+f7()              # 42, Warnmeldung
+
+f8 <- \() {
+  message("Info") # Informative Meldung
+  42
+}
+f8()              # 42, Info
+
+f9 <- \(x) { stopifnot(x >= 0); log(x) } # Beenden wenn nicht
+f9(0)     # -Inf
+f9(-1)    # Fehler in f9(-1) : x >= 0 ist nicht TRUE
+\end{lstlisting}
+
+
+\subsection{Fehlersuche und Debugging}
+
+Mit \lstinline|traceback()| wird der Aufrufstack (die Kette von
+Funktionen, die sich gegenseitig aufrufen) zum Zeitpunkt des Fehlers
+angezeigt.
+
+Mit \lstinline|debug(fun)| wird eine Funktion dauerhaft, mit
+\lstinline|debugonce(fun)| nur beim nächsten Aufruf für interaktives
+Debugging markiert.
+
+Mit \lstinline|browser()| kann an beliebiger Stelle gezielt in den
+Debugger gesprungen werden.
+
+Im interaktiven Debugger stehen u.\,a. folgende Befehle zur Verfügung:
+
+\begin{description}
+  \item[\texttt{n\dots next}:] nächste Anweisung ausführen („step over“)
+  \item[\texttt{s\dots step into}:] in den aufgerufenen Funktionsaufruf hineingehen
+  \item[\texttt{f\dots finish}:] aktuelle Funktion bis zum Ende ausführen
+  \item[\texttt{c\dots continue}:] weiterlaufen bis zum nächsten Breakpoint oder Ende
+  \item[\texttt{Q\dots Quit}:] Debugger verlassen und Ausführung abbrechen
+  \item[\texttt{where}:] aktuellen Call-Stack anzeigen (äquivalent zu \texttt{traceback()})
+  \item[\texttt{beliebiger R-Ausdruck}:] wird direkt im aktuellen Environment ausgewertet, z.\,B. \lstinline|ls()|, \lstinline|x|, \lstinline|head(x)|
+\end{description}
+
+\begin{lstlisting}
+f <- \(x) g(x)
+g <- \(x) {
+  h(x) }
+h <- \(x) stop("Testfehler")
+f(0)        # Fehler in h(x) : Testfehler
+traceback() # 4: stop("Testfehler") at #1
+            # 3: h(x) at #2; Callstack 3, h(x) in Zeile 2 von g
+            # 2: g(x) at #1; Callstack 2, g(x) in Zeile 1 von f
+            # 1: f(0)
+
+trace("g", quote(browser()), at=2) # Fügt browser() in g ein
+f(0)        # Geht jetzt in Debugging Modus => Interaktiv
+body(g)     # Gibt funktion mit eingefügtem tracing code aus
+untrace("g")
+
+trace(sum)  # Zeigt an wenn Funktion sum aufgerufen wird
+hist(rnorm(100)) # Wird 3-4 mal aufgerufen
+untrace(sum)
+
+debug(g)    # Debugging für Funktion g aktivieren
+f(0)        # Interaktiv: Q, n, s, c, ... verwenden
+undebug(g)  # Debugging wieder ausschalten
+
+debugonce(g) # Debugging einmal aktivieren
+f(0)
+
+f <- \(x) {
+  browser()   # Ausführung hier anhalten und in Debugger gehen
+  x <- x + 1
+  x * 2
+}
+f(0)        # Interaktiv: Q, n, s, c, ... verwenden
+\end{lstlisting}
+
+
+\subsection{Lazy Evaluation}
+
+Funktionsargumente werden erst ausgewertet wenn sie verwendet werden.
+Mit \lstinline|delayedAssign| können Zuweisungen auf den Zeitpunkt
+ihrer esten Verwendung verschoben werden.
+
+\begin{lstlisting}
+f1 <- \(x, y=x) c(x <- x+1, y)
+f1(0)                 # 1 1
+f2 <- \(x, y=x) c(y, x <- x+1)
+f2(0)                 # 0 1
+
+f <- \(x, y=x) print(substitute(y))  # Zeigt unausgewerteten Ausdruck
+f(0)                  # x
+f(0, 1)               # 1
+
+#y <- x               # Error, x nicht gefunden
+delayedAssign("y", x + 1)
+# y                   # Error, x nicht gefunden
+x <- 0
+y                     # 1
+x <- 42
+y                     # 1
+\end{lstlisting}
+
+\subsection{on.exit: Aufruf bei Funktionende}
+
+Mit \lstinline|on.exit| können in einer Funktion Aktionen registriert
+werden, die beim Verlassen der Funktion garantiert ausgeführt werden,
+unabhängig davon, ob sie regulär endet oder durch einen Fehler
+abgebrochen wird.
+
+\begin{lstlisting}
+f <- \(x) {
+  on.exit(cat("EXIT: "))
+  if (x < 0) stop("Error")
+  x + 1
+}
+f(0)       # EXIT: [1] 1
+f(-1)      # Fehler in f(-1) : Error, EXIT:
+\end{lstlisting}
+
+
+\subsection{Pipes}
+
+Der native Pipe-Operator \lstinline!|>! ist reiner syntaktischer Zucker 
+und \emph{keine} schrittweise Links-nach-Rechts-Ausführung. 
+
+Ein Ausdruck wie \lstinline!x |> f() |> g() |> h()!
+wird vor der Auswertung zu \lstinline|h(g(f(x)))| umgeschrieben 
+und anschließend nach den üblichen R-Regeln ausgewertet
+(insbesondere mit Lazy Evaluation der Funktionsargumente).
+
+Jeder Pipe-Ausdruck lässt sich ersetzen durch:
+\begin{itemize}
+  \item verschachtelte Funktionsaufrufe: \lstinline!h(g(f(x)))! oder
+  \item explizite Zwischenspeicherung:
+\begin{lstlisting}
+tmp <- f(x)
+tmp <- g(tmp)
+h(tmp)
+\end{lstlisting}
+\end{itemize}
+
+Die Pipe ändert weder Semantik noch Auswertungsreihenfolge.
+Sie bietet lediglich eine für manche
+lesbarere Schreibweise verschachtelter Funktionsaufrufe.
+
+\begin{lstlisting}
+1:3 |> sum()           # 6
+#1:3 |> sum            ## Error, braucht function call
+sum(1:3)               # 6; Äquivalent
+quote( 1:3 |> sum() )  # sum(1:3); Syntax transformation
+
+. <- 1:3               # Zwischenwerte explizit speichern
+sum(.)                 # 6
+
+1:3 -> .               # Zwischenwerte explizit speichern
+sum(.)                 # 6
+
+1:3 ->.; sum(.)        # 6; Bizarro pipe
+
+#1:3 |> `+`(4)         ## Error, nicht unterstützt
+1:3 |> (`+`)(4)        # 5 6 7
+1:3 |> base::`+`(4)    # 5 6 7
+1:3 |>  `+`(4, e2 = _) # 5 6 7
+
+1 |> seq(3)            # 1 2 3; Einfügen erster freier Platz
+3 |> seq(from=1)       # 1 2 3
+1 |> seq(to=3)         # 1 2 3
+
+3 |> seq(1, to=_)      # 1 2 3; _ ... Platzhalter
+#3 |> seq(1, _)        ## Error, _ braucht Namen
+"b" |>  paste("a", . = _, "c") # "a b c"; Auch ... benötigt Name 
+3 |> (\(.) seq(1, .))() # 1 2 3; Über Funktion
+#3 |> rep(x=_, times=_)## Error, _ darf nur einmal vorkommen
+3 |> (\(.) rep(., .))() # 3 3 3; Über Funktion
+
+#1:3 |> sum(sqrt(x=_)) ## Error, _ nicht in nested calls
+1:3 |> (\(.) sum(sqrt(x=.)))() # 4.146; Über Funktion
+#1:3 |> sum(sqrt())    ## Error, kein Argument an sqrt
+1:3  |> sum(sqrt(1))   # 7; sum(1:3, sqrt(1))
+
+mtcars |> _$cyl        # 6 6 4 ...; Extraction call
+mtcars |> _$cyl[3]     # 4
+
+"x" |> assign(1)       # Kein zusätzliches Environment
+x                      # 1
+"x" |> (\(.) assign(., 2))() # Im Funktionsenvironment
+x                      # 1
+
+f1 <- \(x) { message("f1"); x }
+f2 <- \(x) { message("f2"); x }
+. <- 0
+. <- f1(.)             # f1; Auswertung je Zeile
+f2(.)                  # f2 0
+0 |> f1() |> f2()      # f2 f1 0; Lazy evaluation
+quote(0 |> f1() |> f2()) # f2(f1(0))
+f2(f1(0))              # f2 f1 0
 \end{lstlisting}
 
 \end{document}
