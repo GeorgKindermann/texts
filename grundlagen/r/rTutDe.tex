@@ -1,5 +1,8 @@
 \documentclass[10pt,twocolumn]{scrartcl}
 
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+
 \usepackage{microtype}
 
 \usepackage[utf8]{inputenc}
@@ -165,6 +168,7 @@ sessionInfo()         # Infos zu Umgebung und geladenen Paketen
 citation()            # Wie man R zitiert
 \end{lstlisting}
 
+
 \section{Grundlagen}
 
 \subsection{Objekte und Namen}
@@ -177,7 +181,7 @@ In R gibt es:
 In R wird ein Name verwendet, um auf ein Objekt im Speicher zu verweisen. Diese Bindungen (Name–Objekt-Zuordnungen) werden in Umgebungen (\emph{Environments}) gespeichert. Ein Name ist nicht das Objekt selbst, sondern stellt lediglich die Verbindung zu ihm her und ermöglicht so dessen Verwendung. Mehrere Namen können gleichzeitig auf \emph{dasselbe} Objekt verweisen.
 
 Wird ein durch mehrere Namen referenziertes Objekt über einen dieser Namen modifiziert, legt R in der Regel \emph{vor} der Modifikation eine Kopie an und lässt den modifizierenden Namen anschließend auf diese Kopie zeigen (\emph{Copy-on-Modify}-Semantik).
-Sehr kleine Objekte wie \lstinline|1| werden von R intern als unveränderliche (immutable) Konstanten behandelt. Bei Bedarf wird einfach ein neues Objekt erzeugt, statt eine Kopie zu erstellen.
+Bei sehr kleinen Objekte wie \lstinline|1| wird einfach ein neues Objekt erzeugt, statt zuerst eine Kopie zu erstellen.
 
 Ein Name kann jederzeit durch eine neue Zuweisung auf ein anderes Objekt umgebunden werden (\emph{Rebinding}).
 
@@ -314,7 +318,7 @@ Normale Zuweisungen mit \lstinline|<-| oder \lstinline|=| erzeugen Bindings auss
 Der Super-Assignment-Operator \lstinline|<<-| (bzw.\ \lstinline|->>|) durchsucht die Elternumgebungen nach einem bestehenden Binding. 
 Existiert der Name in einer dieser Umgebungen, wird das Binding dort geändert. 
 Wird der Name nicht gefunden, wird er im \lstinline|.GlobalEnv| angelegt oder eine dort bereits bestehende Bindung aktualisiert, unabhängig davon, ob das \lstinline|.GlobalEnv| auf dem Suchpfad der aktuellen Umgebung liegt.
-Im lokalen Ausführungs-Environment wird dabei nie eine vorhandene Bindung verändert und auch keine neue angelegt.
+Im lokalen Ausführungs-Environment wird dabei nie eine vorhandene Bindung verändert und auch keine neue angelegt, ausser man befindet sich im GlobalEnv.
 
 \begin{lstlisting}
 i <- 1
@@ -343,6 +347,19 @@ unlockBinding("x", globalenv())
 x <- 2
 lockBinding("x", globalenv())
 rm(x)                          # Geht
+\end{lstlisting}
+
+Mit \lstinline|delayedAssign| können Zuweisungen auf den Zeitpunkt
+ihrer esten Verwendung verschoben werden.
+
+\begin{lstlisting}
+#y <- x               # Error, x nicht gefunden
+delayedAssign("y", x + 1)
+# y                   # Error, x nicht gefunden
+x <- 0
+y                     # 1
+x <- 42
+y                     # 1
 \end{lstlisting}
 
 
@@ -422,94 +439,6 @@ lobstr::obj_size(e1)        # 336 B
 lobstr::obj_size(e2)        #  56 B
 \end{lstlisting}
 
-Funktionen suchen Namen weder entlang der Environment-Kette ihres Aufrufortes noch entlang der Environment-Kette, in der der Funktionsname gebunden ist, sondern entlang der Environment-Kette ihres \emph{Enclosing Environments}.
-
-\begin{lstlisting}
-e1 <- new.env()
-e1$x <- 1
-e2 <- new.env(parent = e1)
-# Funktionen können mit function() oder \() erzeugt werden
-e2$f1 <- \() x            # enclosing environment: GlobalEnv
-environment(e2$f1)        # R_GlobalEnv
-#e2$f1()                  ## Fehler, 'x' nicht gefunden
-environment(e2$f1) <- e1  # setzt e1 als enclosing environment
-e2$f1()                   # 1
-e2$f2 <- with(e2, \() x)  # enclosing environment: e2
-e2$f2()                   # 1
-e2$x <- 2
-e2$f1()                   # 1; Beginnt suche in e1
-e2$f2()                   # 2; Beginnt suche in e2
-
-x <- 1
-f1 <- \() x <- 2
-f1()          # f1 verändert sein lokales x
-x             # 1
-f2 <- \() x <<- 2
-f2()          # f2 verändert Eltern x
-x             # 2
-#z            ## Fehler 'z' nicht gefunden
-f3 <- \() z <<- 3
-environment(f3) <- baseenv()
-parent.env(environment(f3)) # <environment: R_EmptyEnv>
-f3()          # f3 legt z im Global-Environment an
-z             # 3
-
-f <- \() x <- 0
-environment(f) <- emptyenv()
-#f()          ## Fehler Funkion "<-" nicht gefunden
-\end{lstlisting}
-
-Das Enclosing Environment einer Funktion aus einem Package ist ein \emph{Namespace-Environment}. Dieses Environment und seine Bindungen sind unveränderlich. Wenn man versucht, das Enclosing Environment einer Paketfunktion zu ändern, wird nicht das Original verändert, sondern es wird eine Kopie der Funktion im aufrufenden Environment angelegt, solange dieses modifizierbar ist.
-
-\begin{lstlisting}
-environment(sd)    # <environment: namespace:stats>
-e1 <- new.env()
-e2 <- new.env()
-with(e1, environment(sd) <- e2)
-environment(sd)    # <environment: namespace:stats>
-environment(e1$sd) # <environment: 0x55a8d83c7308>
-e2                 # <environment: 0x55a8d83c7308>
-#with(baseenv(), environment(sd) <- baseenv()) ## Error
-e1$sd(1:3)         # 1
-environment(e1$sd) <- emptyenv()
-#e1$sd(1:3)        ## Error, findet sqrt nicht
-\end{lstlisting}
-
-Bei Funktionen kann man folgende Environments unterscheiden:
-
-\begin{description}
-  \item[Binding Environment:] Das Environment, in dem der Funktionsname gebunden ist (wo der Name gefunden wird). Ein Funktionsobjekt kann unter mehreren Namen in verschiedenen Environments gebunden sein. Das Binding Environment spielt für die spätere Namenssuche innerhalb der Funktion keine Rolle.
-  \item[Enclosing Environment:] Das Environment, in dem das Funktionsobjekt ursprünglich erzeugt wurde, welches jedoch nachträglich geändert werden kann. Dieses Environment bestimmt die Environment-Kette, entlang der die Funktion nach Namen sucht. 
-  \item[Local Environment (Execution Environment):] Das bei jedem Funktionsaufruf neu erzeugte Environment, in dem lokale Variablen entstehen.
-  \item[Calling Environment (Parent Frame):] Das Environment, aus dem die Funktion aufgerufen wurde. R sucht dort die Werte der Objekte, die als Argumente an die Funktion übergeben werden. Bevor die Ausführung der Funktion beginnt, werden die Argumente (sofern nicht lazy) im Calling Environment ausgewertet und die resultierenden Werte im Local Environment den formalen Parametern zugewiesen.
-\end{description}
-
-Abweichend von der standardmäßigen lexikalischen Namenssuche kann man auch im dynamischen Aufrufer-Environment (Call-Stack) nach Variablen suchen, z.\,B.\ mit \lstinline|dynGet|. 
-Beim Einsatz von \lstinline|dynGet| in verschachtelten Funktionsaufrufen können jedoch Konflikte mit der Lazy Evaluation (Promises) auftreten. 
-Alternativ empfiehlt es sich, Variablen explizit als Funktionsargumente zu übergeben, da dies robust, nachvollziehbar und klar ist.
-
-\begin{lstlisting}
-x <- -1
-f1 <- \() {x <- 1; f3(x)}
-f2 <- \() {x <- 2; f3(x)}
-f3 <- \(y=3) f4(y)
-f4 <- \(y=4) list(y,
-  x,                     # Suche im enclosing environment
-  dynGet("x", 0),        # Suche im Aufruf-Stack
-# Suche im Aufruf-Stack mit Vererbung
-  dynGet("x", 0, inherits = TRUE),
-  get0("x", envir = parent.frame()), # Suche im Aufrufer-Frame
-# Suche nur im Parent-Frame
-  get0("x", envir = parent.frame(), inherits = FALSE)
-)
-f1()                     #  1, -1, 1, -1, -1, NULL
-f2()                     #  2, -1, 2, -1, -1, NULL
-f3()                     #  3, -1, 0, -1, -1, NULL
-f4(x)                    # -1, -1, 0, -1, -1, -1
-f4()                     #  4, -1, 0, -1, -1, -1
-with(list(x = 5), f4(x)) #  5, -1, 5, -1,  5,  5
-\end{lstlisting}
-
 Im Gegensatz zu einer Liste ist ein Environment referenzbasiert (Environments werden gewöhnlich nicht kopiert), besitzt keine feste Reihenfolge seiner Elemente und verfügt stets über ein Parent-Environment. Mit \lstinline|rlang::env_clone()| kann man ein Environment kopieren.
 
 \begin{lstlisting}[language=R]
@@ -527,10 +456,18 @@ e3$a          # 3
 e1$a          # 2
 
 # Geht nicht für unevaluated promises
-e4 <- as.environment(as.list(e1, all.names=TRUE))
+e4 <- list2env(as.list(e1, all.names=TRUE), parent=parent.env(e1))
 e4$a          # 2
 e4$a <- 3
 e4$a          # 3
+e1$a          # 2
+
+e5 <- attach(e1)
+parent.env(e5) <- parent.env(e1)
+detach()
+e5$a          # 2
+e5$a <- 3
+e5$a          # 3
 e1$a          # 2
 
 x <- list(a = 1)
@@ -539,7 +476,7 @@ y$a <- 2      #  mit copy on modify
 x$a           # 1
 \end{lstlisting}
 
-Mann kann Environments mit \lstinline|lockEnvironment()| gegen Änderungen sperren. Diese Sperre kann nicht deaktiviert werden. Es können auch die Bindungen gesperrt werden, welche wieder entsperrt werden können.
+Man kann Environments mit \lstinline|lockEnvironment()| gegen Änderungen sperren. Die Sperre eines Environments kann nicht deaktiviert werden. Es können auch die Bindungen gesperrt werden, welche wieder entsperrt werden können.
 
 \begin{lstlisting}
 e <- new.env()
@@ -553,257 +490,1870 @@ unlockBinding("x", e)
 e$x <- 4
 \end{lstlisting}
 
-Bei Start von R gibt es folgende Environments:
+
+\subsection{Funktionen}
+
+Funktionen sind wiederverwendbare Codebausteine, mit denen sich Programme in übersichtliche Module mit klar definierten Schnittstellen und Aufgaben gliedern lassen.
+
+Funktionen werden mit \lstinline|function()| oder mit \lstinline|\()| erzeugt. \lstinline|function()| und \lstinline|\()| sind vollständig äquivalent.
+
+
+\subsubsection{Body -- Funktionskörper}
+
+Der \emph{Funktionskörper} (Body), also der beim Funktionsaufruf auszuführende Code, kann mit \lstinline|body()| angezeigt und auch verändert werden.
+
+\begin{lstlisting}
+f <- function() 0  # Erzeugt Funktion f
+#f <- \() 0        # Alternative
+f                  # function() 0; Gibt Funktion zurück
+f()                # 0; Ruft Funktion auf
+
+body(f)            # 0; Funktionskörper
+body(f) <- 1       # Ändert Funktionskörper
+f()                # 1
+
+g <- \(x) x * 2
+g(1)               # 2
+body(g) <- quote(x * 3)
+g(1)               # 3
+\end{lstlisting}
+
+\lstinline|quote()| gibt seine Argumente unausgewertet (not evaluated) zurück
+
+Besteht der \emph{Funktionskörper} aus mehr als einem Element werden diese in geschweiften Klammern \lstinline|{}| geschrieben.
+
+\begin{lstlisting}
+f <- \() {x <- sum(1:3); x / 2} # kompakte Schreibweise
+g <- \() {                      # explizit bzw. formatiert
+  x <- sum(1:3)
+  x / 2
+}
+\end{lstlisting}
+
+Funktionen geben ihren letzten evaluierten Ausdruck zurück.
+Zusätzlich gibt es noch den Befehl \lstinline|return()| welcher die Funktion beendet und ebenfalls einen evaluierten Ausdruck oder \lstinline|NULL| zurück gibt.
+\lstinline|return()| ist optional und dient vor allem der frühen Rückgabe oder zur besseren Lesbarkeit.
+
+\begin{lstlisting}
+f <- \() {
+  4
+  2
+}
+f()       # 2
+g <- \() {
+  return(4)
+  2
+}
+g()       # 4
+\end{lstlisting}
+
+Funktionen liefern immer einen Rückgabewert, solange sie nicht durch einen Fehler abgebrochen werden. Mit \lstinline|invisible()| lässt sich jedoch verhindern, dass dieser Wert auf der Konsole ausgegeben wird.
+
+\begin{lstlisting}
+f <- \() invisible()
+f()                  # Auf der Konsole erscheint nichts
+x <- f()
+x                    # NULL
+
+g <- \() invisible(1)
+g()                  # Auf der Konsole erscheint nichts
+x <- g()
+x                    # 1
+
+h <- \() stop()      # stop löst einen Fehler aus
+#y <- h()            ## Error; Funktion wird abgebrochen
+#y                   ## Fehler, y nicht gefunden
+\end{lstlisting}
+
+Funktionen können sich selber aufrufen (\emph{rekursiv}). Dabei muss darauf geachtet werden, dass die Rekursion irgendwann terminiert. Die maximale Anzahl gleichzeitig ausgewerteter verschachtelter Ausdrücke kann mit \lstinline|options("expressions")| eingestellt werden.
+
+\begin{lstlisting}
+f <- \(n) if (n > 0) n + f(n-1) else n
+f(3)          # 6; Rekursiv
+
+options("expressions")        # 5000
+g <- \(n) {n <<- n; g(n+1L)}
+g(1L)                         ## Löst Fehler aus
+n                             # 4997
+options(expressions = 1000)
+g(1L)                         ## Löst Fehler aus
+n                             # 998
+
+options(expressions = 25)
+h <- \(x) x + 1
+h(h(h(h(h(h(h(h(0))))))))     # 8
+#h(h(h(h(h(h(h(h(h(0))))))))) ## Error, zu tief verschachtelt
+\end{lstlisting}
+
+\subsubsection{Formals -- Funktionsparameter}
+
+An Funktionen können \emph{Argumente} übergeben werden. Dazu werden bei der Funktionserstellung \emph{Parameter} (\emph{Formals} bzw. \emph{Formal Arguments}) in der runden Klammer angegeben, welche die Funktion bei ihrem Aufruf erwartet. Mit dem Befehl \lstinline|formals()| können diese angezeigt und auch verändert werden.
+
+\begin{lstlisting}
+f <- \(x) x   # x .. Parameter
+f(4)          # 4; 4 .. übergebenes Argument
+f(2)          # 2
+#f()          ## Error, Argument x fehlt
+
+g <- \(x) 0
+g()           # 0; Geht da x nie verwendet wird
+g(1)          # 0
+#g(1, 2)      ## Error, unbenutztes Argument
+
+formals(f)    # $x;  Zeigt Funktionsparameter
+\end{lstlisting}
+
+Mit \lstinline|missing()| kann getestet werden ob Argument übergeben wurde.
+
+\begin{lstlisting}
+f <- \(x) missing(x)
+f()                  # TRUE
+f(1)                 # FALSE
+x <- 0
+f()                  # TRUE; x wird auch hier nicht übergeben
+\end{lstlisting}
+
+Die Parameterliste legt Namen, Reihenfolge und Default-Werte der zu übergebenden Argumente fest.
+
+\begin{lstlisting}
+f <- \(x, y = 0) x - y # y hat Defaultwert
+f(3, 1)                # 2; 3 wird x, 1 wird y .. 3 - 1
+f(3)                   # 3; y erhält Defaultwert 0 .. 3 - 0
+
+formals(f)             # $x $y 0
+formals(f)$y <- 1      # Setzt Defaultwert von y auf 1
+f(3)                   # 2
+formals(f) <- alist(y = , x = 3) # Setzt neue formals
+f(1)                   # 2
+
+g <- f
+formals(f)$x <- 2      # Ändert formals mit Copy on Modify
+f(1)                   # 1; f wurde geändert und dabei kopiert
+g(1)                   # 2; g bleibt wie es ist
+
+h <- \(x=0) missing(x)
+h()   # TRUE; x hat zwar Defaultwert, wurde aber nicht übergeben
+\end{lstlisting}
+
+Explizit \emph{übergebene Argumente} werden im \emph{Calling
+Environment} ausgewertet. \emph{Default-Argumente} werden im
+\emph{Enclosing Environment} ausgewertet.
+
+\begin{lstlisting}
+e <- new.env()
+e$x <- 1
+f <- with(e, \(y = x) y)
+f()             # 1; aus Enclosing Environment e
+x <- 2
+f(x)            # 2; aus Calling Environment
+\end{lstlisting}
+
+Ein Defaultwert kann nicht denselben Namen wie der Parameter haben, weil in diesem Fall der Defaultwert auf das Promise des Parameters verweist und sich somit beim Auswerten selbst referenziert, obwohl er noch keinen Wert hat.
+
+\begin{lstlisting}
+f <- \(x = x) x
+#f()                 ## Error, rekursive Referenz
+\end{lstlisting}
+
+Es können auch Funktionen übergeben werden.
+
+\begin{lstlisting}
+f7 <- \(a, b) a(b) # Argument a ist eine Funktion
+f7(mean, 1:3)  # 2
+f7(sum , 1:3)  # 6
+\end{lstlisting}
+
+
+\paragraph{Argument Matching}
+
+Beim Funktionsaufruf kann der Name der Argumente angegeben werden.
+
+\begin{lstlisting}
+f <- \(x, y = 0) x - y
+f(y = 1, x = 3)        # 2
+\end{lstlisting}
+
+Bei einem Funktionsaufruf werden die übergebenen \emph{Argumente} den formalen \emph{Parametern} gemäß folgender Priorität zugeordnet:
+
+\begin{enumerate}
+  \item Exakter Name  
+  \item Partieller Name (eindeutiger Präfix eines formalen Arguments)
+  \item Position  
+\end{enumerate}
+
+Dadurch können Argumente frei kombiniert (positional und per Name) übergeben werden.
+
+\begin{lstlisting}
+f <- function(x, xa, ya, yb, za) cat(x, xa, ya, yb, za)
+f(1, 2, 3, 4, 5)         # 1 2 3 4 5; Position
+f(1, 2, 3, 4, x=5)       # 5 1 2 3 4; exakter Name + Position
+f(1, 2, 3, 4, xa=5)      # 1 5 2 3 4; exakter Name + Position
+#f(1, 2, 3, x=4, x=5)    ## Error, x passt zu mehreren
+#f(1, 2, 3, 4, y=5)      ## Error, y mehrdeutig ya oder yb
+f(z=1, 2, 3, 4, 5)     # 2 3 4 5 1; Partieller Name und Position
+#f(zak=1, 2, 3, 4, 5)    ## Error, unbenutztes Argument zak
+\end{lstlisting}
+
+Auch wenn Funktionsaufrufe mittels Position oder partiellem Matching kompakter sind, ist der Aufruf mittels Exakter Namen meist nachvollziehbarer. Mit \lstinline|options(warnPartialMatchArgs = TRUE)| wird bei jedem partiellem Matching eine Warnmeldung angezeigt.
+
+\paragraph{Ellipsis (...)}
+
+Die Ellipsis \lstinline|...| fängt alle nicht explizit definierten Argumente auf und ermöglicht deren unveränderte Weitergabe an andere Funktionen.
+
+Die einfachste Nutzung besteht darin, \lstinline|...| an eine andere Funktion
+durchzureichen. Dadurch kann eine Funktion zusätzliche Argumente akzeptieren,
+ohne sie selbst zu kennen oder auszuwerten.
+
+\begin{lstlisting}
+fx <- \(x) x
+fx(1)           # 1
+fx(x=1)         # 1
+#fx(y=1)        ## Error, unbenutztes Argument
+#fx(1, 2)       ## Error, unbenutztes Argument
+#fx()           ## Error, Argument x fehlt
+#
+f <- \(...) fx(...) # Weitergabe von ... an fx
+f(1)            # 1
+f(x=1)          # 1
+#f(y=1)         ## Error, unbenutztes Argument
+#f(1, 2)        ## Error, unbenutztes Argument
+\end{lstlisting}
+
+Beim Matching von Argumenten können Konflikte entstehen, wenn benannte
+Argumente in \lstinline|...| auf Funktionsparameter einer Ziel-Funktion passen.
+Dies betrifft sowohl fehlende als auch mehrdeutige Zuordnungen.
+
+\begin{lstlisting}
+fx <- \(x, y=0) x + y  # Defaultwert für y
+fx(1)           # 1
+#fx(y=1)        ## Error, kein x
+fx(1, 2)        # 3
+fx(1, 2, 3)     ## Error, unbenutztes Argument
+
+fx <- \(x, ...) x
+#fx(y=1)        ## Error, Argument x fehlt
+fx(1, 2)        # 1
+fx(1, a=1, a=2) # 1; 2 mal a! ... wird nicht ausgewertet
+#
+f <- \(x, ...) fx(...) # Vermeiden da x nur unbenannt an fx geht
+#f(1)           ## Error, Argument x fehlt für fx
+f(1, 2)         # 2
+f(x=1, 2)       # 2; 
+#f(x=1, x=2)    ## Error, x passt zu mehreren Argumenten
+f(x=1, y=2)     ## Error, Argument x fehlt für fx
+#
+f <- \(y, ...) fx(...)
+f(1, 2)         # 2
+f(x=1, 2)       # 1
+f(x=1, y=2)     # 1
+\end{lstlisting}
+
+R stellt Funktionen bereit, um direkt auf einzelne Elemente der
+Ellipsis zuzugreifen ohne diese auszuwerten. Der Zugriff kann über \lstinline|..1| für das erste, \lstinline|..2| zweite \dots Element erfolgen.
+
+\begin{lstlisting}
+f <- \(x, ...) ..2  # zweites Element von ...
+f(1, 2, 3, 4)   # 3
+f(1, 2, 3, x=4) # 2
+f(1, 2, 3, y=4) # 3
+#f()            ## Error, ..2 nicht vorhanden
+\end{lstlisting}
+
+Alternativ kann auch \lstinline|...elt(1)|, \lstinline|...elt(2)|, \dots verwendet werden.
+
+\begin{lstlisting}
+f <- \(x, ...) ...elt(2)  # zweites Element von ...
+f(1, 2, 3, 4)   # 3
+\end{lstlisting}
+
+\lstinline|...length()| zeigt die Länge der Ellipsis und wertet die Argumente nicht aus.
+
+\begin{lstlisting}
+f <- \(x, ...) ...length()  # Länge von ...
+f()             # 0
+f(1, 2, 3)      # 2, weil x=1 nicht in ... ist
+f(1, cat("a"))  # 1; Wertet Argumente nicht aus
+\end{lstlisting}
+
+\lstinline|...names()| zeigt die Namen der Ellipsis und wertet die Argumente nicht aus.
+
+\begin{lstlisting}
+f <- \(...) ...names()  # Namen von ...
+f(1, 2)         # NULL
+f(1, a=1, a=2)  # "" "a" "a"
+f(1, cat("a"))  # NULL; Wertet Argumente nicht aus
+\end{lstlisting}
+
+Alternativ kann \lstinline|...| auch in eine Liste umgewandelt werden, wobei die Argumente ausgewertet werden.
+
+\begin{lstlisting}
+f1 <- \(x, ...) list(...)[[2]]     # Zweites Element
+f1(1, cat("Z"), 3, 4)   # Z 3; list wertet Argumente aus
+
+f2 <- \(x, ...) length(list(...))  # Länge von ...
+f2(1, cat("a"), 3)    # a 2
+
+f3 <- \(...) names(list(...))      # Namen von ...
+f3(1, a=1, a=2)       # "" "a" "a"
+f3(a=1, b=cat("Z"))   # Z "a" "b"
+\end{lstlisting}
+
+\paragraph{Lazy Evaluation}
+
+Funktionsargumente werden erst bei ihrer ersten Verwendung ausgewertet (\emph{Lazy Evaluation}). Bis dahin liegen sie als sogenannte \emph{Promises} vor, unevaluierte Ausdrücke mit zugehörigem Environment. Dies gilt auch für Defaultargumente, die ebenfalls erst beim ersten Zugriff berechnet werden und daher von der Umgebung zum Zeitpunkt ihrer Auswertung abhängen können.
+Explizit \emph{übergebene Argumente} werden im \emph{Calling Environment}, \emph{Default-Argumente} im \emph{Enclosing Environment} der Funktion ausgewertet. Wird ein Promise zum ersten Mal benötigt, wird es einmalig ausgewertet. Der resultierende Wert wird im Promise selbst gespeichert, das im Execution Environment der Funktion liegt. Weitere Zugriffe verwenden dann diesen zwischengespeicherten Wert. Der Parameternamen kann jedoch später im Execution Environment neu gebunden werden (z.,B.\ mittels \lstinline|<-|).
+
+Wird ein Promise zum ersten Mal benötigt, wird es einmalig ausgewertet und der resultierende Wert für alle weiteren Zugriffe im selben Funktionsaufruf zwischengespeichert.
+
+Eine Auswertung kann mittels \lstinline|force()| oder einfach anführen des Namens erfolgen.
+
+\begin{lstlisting}
+f1 <- \(x, y=x) c(x <- x+1, y)
+f1(0)                 # 1 1
+
+f2 <- \(x, y=x) c(y, x <- x+1)
+f2(0)                 # 0 1
+
+f3 <- \(x, y=x) {force(y); c(x <- x+1, y)}
+f3(0)                 # 0 1
+
+f4 <- \(x, y=x) {y; c(x <- x+1, y)}
+f4(0)                 # 0 1
+\end{lstlisting}
+
+Da Argumente vor ihrer ersten Verwendung reine Ausdrücke sind, kann dies mit
+\lstinline{substitute()} sichtbar gemacht werden.
+
+\begin{lstlisting}
+f <- \(x, y=x) print(substitute(y))  # Zeigt unausgewerteten Ausdruck
+f(0)                  # zeigt den Ausdruck: x
+f(0, 1)               #     zeigt den Wert: 1
+f(0, xyz)             # zeigt den Ausdruck: xyz
+\end{lstlisting}
+
+Die Funktion \lstinline|substitute()| gibt den übergebenen Ausdruck in
+\emph{nicht ausgewerteter Form} zurück. Das heißt, sie liefert den
+syntaktischen Ausdruck (eine sogenannte Language- oder Symbol-Struktur),
+den R an dieser Stelle erhalten hat, ohne ihn zu evaluieren.
+
+
+\subsubsection{Environment -- Funktionsumgebungen}
+
+Bei einem Funktionsaufruf erzeugt R ein temporäres \emph{Execution Environment} (auch \emph{Evaluation Environment genannt},  Ausführungsumgebung), dessen Parent das \emph{Enclosing Environment} der Funktion ist. In diesem Execution Environment befinden sich während der Ausführung die Parameter sowie alle lokal erzeugten Namen.
+
+Das Execution Environment ist temporär und wird nach dem Funktionsaufruf verworfen. Es sei denn,
+\begin{itemize}
+\item es wird an einen Namen in einem dauerhaften Environment gebunden, oder
+\item es wird direkt von der Funktion zurückgegeben, oder
+\item es bleibt als Enclosing Environment einer neu erzeugten Funktion erhalten, die entweder zurückgegeben oder in einem dauerhaften Environment gebunden wird.
+\end{itemize}
+
+Funktionen, die andere Funktionen zurückgeben, heißen \emph{function factories}.
+Die zurückgegebene Funktion ist eine Closure und behält ihr enclosing environment.
+Dadurch bleiben alle in diesem Environment gebundenen Objekte erhalten.
+Dies ermöglicht z.\,B.\ die Speicherung von Zustand zwischen Aufrufen (Zähler, Zwischenergebnisse, Parameter).
+Um unnötige Speicherbelegung zu vermeiden, sollten nicht benötigte Objekte vor der Rückgabe des Closure mit \lstinline|rm()| entfernt werden.
+
+\begin{lstlisting}
+f1 <- \() {x <- 1; ef1 <<- environment()}
+f1()           # bindet sein Execution Environment an ef1
+ef1$x          # 1; Execution Environment von f1
+
+f2 <- \() {x <- 2; environment()}
+ef2 <- f2()    # gibt Execution Environment zurück
+ef2$x          # 2
+
+f3 <- \() {x <- 3; f4 <<- \() x}
+f3()           # Bindet erzeugte Funktion an f4
+f4()           # 3
+environment(f4)$x # 3
+environment(f4)$x <- 4
+f4()           # 4
+
+f5 <- \() {x <- 5; \() x}
+f6 <- f5()     # Gibt Funktion zurück
+f6()           # 5
+environment(f6)$x <- 6
+f6()           # 6
+\end{lstlisting}
+
+Bei Funktionen kann man folgende Environments unterscheiden:
+
+\begin{description}
+  \item[Binding Environment:] Das Environment, in dem der Funktionsname gebunden ist (wo der Name gefunden wird). Ein Funktionsobjekt kann unter mehreren Namen in verschiedenen Environments gebunden sein. Das Binding Environment spielt für die spätere Namenssuche innerhalb der Funktion keine Rolle.
+  \item[Enclosing Environment:] Das Environment, in dem das Funktionsobjekt ursprünglich erzeugt wurde, welches jedoch nachträglich geändert werden kann. Dieses Environment bestimmt die Environment-Kette, entlang der die Funktion nach Namen sucht. 
+  \item[Execution Environment:] Das bei jedem Funktionsaufruf neu erzeugte Environment, in dem lokale Variablen entstehen.
+  \item[Calling Environment:] Das Environment, aus dem die Funktion aufgerufen wurde. In den meisten Fällen ist es das Environment des \emph{Parent-Frames} (vgl.\ \lstinline|parent.frame()|). Bevor die Ausführung der Funktion beginnt, werden die Ausdrücke der Argumente im Calling Environment lokalisert und als \emph{Promises} im Execution Environment den formalen Parametern zugewiesen. Die Auswertung (force) der Promises erfolgt erst beim ersten Zugriff innerhalb der Funktion (lazy evaluation).
+\end{description}
+
+Funktionen suchen Namen weder entlang der Environment-Kette ihres Aufrufortes (Calling Environment) noch entlang der Environment-Kette, in der der Funktionsname gefunden wurde (Binding Environment), sondern entlang der Environment-Kette ihres \emph{Enclosing Environments}.
+Die Namenssuche beginnt im Execution Environment. Wenn ein Name dort nicht gefunden wird, sucht R im Enclosing Environment der Funktion und dann in der übergeordneten Environment-Kette.
+
+Mehrere Funktionen können dasselbe Environment nutzen. Das Enclosing Environment ist ein dauerhaftes Environment, in dem Variablen gespeichert werden können.
+
+\begin{lstlisting}
+f1 <- \() x
+#f()           ## Fehler, x nicht gefunden
+x <- 1
+f1()           # 1; greift jetzt auf globales x zu
+
+f2 <- \() {x <- 2; x} # Erzeugt lokales x
+f2()           # 2; greift auf lokales x zu
+
+f3 <- \() {x <<- 3; x} # Verändert x in Parent
+f3()           # 3
+f1()           # 3
+
+f4 <- local(\() x)
+f4()           # 3; greift auf globales x zu
+environment(f4)$x <- 4
+f4()           # 4; greift auf lokales x zu
+x              # 3
+
+f5 <- local({n=0L; \() {n <<- n+1L; n}})
+f5()           # 1
+f5()           # 2
+environment(f5)$n <- 8
+f5()           # 9
+\end{lstlisting}
+
+\lstinline|local()| erzeugt ein Environment, in dem Objekte (z. B. Zähler oder Parameter) dauerhaft für die zurückgegebene Funktion gebunden bleiben.
+
+\begin{lstlisting}
+e1 <- new.env()
+e1$x <- 1
+e2 <- new.env(parent = e1)
+e2$f1 <- \() x            # enclosing environment: GlobalEnv
+environment(e2$f1)        # R_GlobalEnv
+#e2$f1()                  ## Fehler, 'x' nicht gefunden
+environment(e2$f1) <- e1  # setzt e1 als enclosing environment
+e2$f1()                   # 1
+
+e2$f2 <- with(e2, \() x)  # enclosing environment: e2
+e2$f2()                   # 1
+e2$x <- 2
+e2$f1()                   # 1; Beginnt Suche in e1
+e2$f2()                   # 2; Beginnt Suche in e2
+
+e2$f3 <- with(e2, \() x <- 3)
+e2$f3()                   # Lokales x
+e2$x                      # 2
+
+e2$f4 <- with(e2, \() x <<- 4)
+e2$f4()                   # Parent x
+e2$x                      # 4
+e1$x                      # 1; Nicht geändert
+
+e1$y <- 0
+e2$f5 <- with(e2, \() y <<- 5)
+e2$f5()                   # Parent y
+e2$y                      # NULL
+e1$y                      # 5
+
+e2$f6 <- with(baseenv(), \() z <<- 6)
+e2$f6()                   # z Nicht gefunden => globalEnv
+z                         # 6
+
+f7 <- \() x <- 0
+environment(f7) <- emptyenv()
+#f7()                     ## Fehler Funkion "<-" nicht gefunden
+\end{lstlisting}
+
+Mit \lstinline|with()| kann ein Ausdruck (Expression) in einem bestimmten Environment ausgeführt werden, womit es zum Enclosing Environment einer erzeugten Funktion wird.
+
+\lstinline|environment(f) <- env| ändert das Enclosing Environment einer Funktion. Das Enclosing Environment einer Funktion aus einem Package ist in der Regel ein \emph{Namespace-Environment}. Dieses Environment und seine Bindungen sind unveränderlich (locked bindings). Wenn man versucht, das Enclosing Environment einer Paketfunktion zu ändern, wird nicht das Original verändert, sondern es wird eine Kopie der Funktion im aufrufenden Environment angelegt, solange dieses modifizierbar ist.
+
+\begin{lstlisting}
+environment(sd)    # <environment: namespace:stats>
+e1 <- new.env()
+e2 <- new.env()
+with(e1, environment(sd) <- e2)
+environment(sd)    # <environment: namespace:stats>
+environment(e1$sd) # <environment: 0x55a8d83c7308>
+e2                 # <environment: 0x55a8d83c7308>
+#with(baseenv(), environment(sd) <- baseenv()) ## Error
+e1$sd(1:3)         # 1
+environment(e1$sd) <- emptyenv()
+#e1$sd(1:3)        ## Error, findet sqrt nicht
+\end{lstlisting}
+
+
+\subsubsection{Closure}
+
+Eine Funktion in R setzt sich aus drei Komponenten zusammen:
+
+\begin{description}
+\item[Formals (Parameterliste):] Liste der formalen Argumente (formal arguments), die die Funktion erwartet. Sie legen Namen, Reihenfolge, Default-Werte und ggf.\ \lstinline|...| fest. Die Liste kann leer sein (Funktion ohne Parameter).
+\item[Body (Funktionskörper):] Der eigentliche auszuführende R-Code.
+\item[Enclosing Environment:] Es bestimmt, wo nach nicht-lokalen Variablen gesucht wird, falls sie nicht im \emph{execution environment} gefunden werden. Die Suche läuft dann die Elternkette des Enclosing Environments hinauf.
+\end{description}
+
+Die Kombination aus \lstinline|formals()|, \lstinline|body()| und \lstinline|environment()| bildet das, was man in R als \emph{Closure} (oder genauer: Funktions-Closure, first-class function) bezeichnet.
+Alle nicht-primitiven Funktionen in R sind Closures. Primitive Funktionen (z.~B. \lstinline|+|) existieren nicht als R-Closures und haben daher kein R-Environment. \lstinline|environment(+)| gibt aus diesem Grund \lstinline|NULL| zurück.
+
+\lstinline|formals()| und \lstinline|body()| unterliegen der \emph{Copy-on-Modify}-Semantik. Zeigen zwei verschiedene Funktionsnamen auf dasselbe Closure, wird bei einer Änderung des Formals ausschließlich eine Kopie des Formals gemacht. Eine Änderung des Bodys führt hingegen derzeit zu einer Kopie des Bodys als auch des Formals.
+
+Environments sind \emph{referenzielle} Objekte und werden nicht kopiert.
+Daher können zwei verschiedene Funktionsnamen auf dasselbe Closure verweisen und ihr Enclosing Environment unabhängig voneinander verändern, ohne dass Formals oder Body dupliziert werden.
+
+\begin{itemize}
+\item \lstinline|environment(f) <-| nur Environment wird geändert, \emph{keine Kopien}
+\item \lstinline|formals(f) <-| oder \lstinline|formals(f)$x <-| \emph{nur Formals} werden kopiert
+\item \lstinline|body(f) <-| \emph{sowohl Formals als auch Body} werden kopiert
+\end{itemize}
+
+\begin{lstlisting}
+x <- 1
+g <- \(y=0) x + y  # Enclosing environment ist globalEnv
+f <- g
+f()          # 1; zeigt x vom globalEnv
+g()          # 1; zeigt x vom globalEnv
+
+e <- new.env()
+e$x <- 2
+environment(f) <- e  # Ändert Enclosing Environment
+f()          # 2; zeigt x von e
+g()          # 1; zeigt x vom globalEnv
+tracemem(formals(f)) == tracemem(formals(g)) # TRUE
+tracemem(body(f)) == tracemem(body(g))       # TRUE
+identical(environment(f), environment(g))    # FALSE
+
+f <- g
+formals(f) <- alist(y = 1)  # Ändert Formals
+f()          # 2
+g()          # 1
+tracemem(formals(f)) == tracemem(formals(g)) # FALSE
+tracemem(body(f)) == tracemem(body(g))       # TRUE
+identical(environment(f), environment(g))    # TRUE
+
+f <- g
+body(f) <- quote(x + 1) # Ändert Body
+f()          # 2
+g()          # 1
+tracemem(formals(f)) == tracemem(formals(g)) # FALSE
+tracemem(body(f)) == tracemem(body(g))       # FALSE
+identical(environment(f), environment(g))    # TRUE
+\end{lstlisting}
+
+
+\subsubsection{Frames}
+
+Neben den Environments gibt es \emph{Frames} (Rahmen, auch \emph{Evaluation Frame} oder \emph{Call Frame} genannt).
+
+Beim Aufruf einer Funktion wird ein neuer Frame erzeugt und mit einem neuen Execution Environment verknüpft.
+
+Das Parent Environment des Execution Environment ist das mit der aufgerufenen Funktion gebundene Enclosing Environment. Und entlang dieser Kette, startend mit dem Execution Environment über das Enclosing Environment und dessen Parent Environments, werden Namen gesucht.
+
+Der Parent Frame (auch calling frame) des neu erzeugten Frames ist das Frame, in dem der aktuelle Funktionsaufruf stattgefunden hat, also das Frame des Aufrufers.  Damit entsteht eine Kette von Frames die der Kette von Funktionen die Funktionen aufrufen entspricht (\emph{Call-Stack} bzw.\ Aufrufkette).
+
+\lstinline|parent.frame()| liefert das \emph{Execution Environment} des aufrufenden Frames.
+
+\begin{lstlisting}
+f <- \(n) {
+  if (n > 0) {
+    f(n-1)
+    e <- environment()  # Execution Environment
+    cat("n:", n, " Exec -Env: ", format(e), "\n")
+    cat("n:", n, " Par  -Env: ", format(parent.env(e)), "\n")
+    cat("n:", n, " Par-Frame: ", format(parent.frame()), "\n")
+  }
+}
+f(2)
+# n: 1  Exec -Env:  <environment: 0x55d87016d880> 
+# n: 1  Par  -Env:  <environment: R_GlobalEnv> 
+# n: 1  Par-Frame:  <environment: 0x55d87016da08> 
+# n: 2  Exec -Env:  <environment: 0x55d87016da08> 
+# n: 2  Par  -Env:  <environment: R_GlobalEnv> 
+# n: 2  Par-Frame:  <environment: R_GlobalEnv> 
+\end{lstlisting}
+
+Damit ist es möglich abweichend von der üblichen \emph{lexikalischen}
+Namenssuche \emph{dynamisch} entlang der Aufrufkette (Call-Stack)
+also den Frames und ihren zugehörigen Execution Environments nach Namen
+zu suchen.
+
+Die Funktion \lstinline|dynGet()| sucht dynamisch entlang der Aufruferkette
+
+\begin{lstlisting}
+f <- \() {x <- 1; g()}
+g <- \() {y <- 2; h()}
+h <- \() {
+# cat(x)      ## Error, x nicht gefunden
+# cat(y)      ## Error, y nicht gefunden
+  cat("x:", dynGet("x"))
+  cat("  y:", dynGet("y"))
+}
+f()           # x: 1  y: 2
+\end{lstlisting}
+
+Dynamische Suche entlang des Call-Stacks (\lstinline|dynGet()|, \lstinline|parent.frame()|) sollte nach Möglichkeit vermieden werden.
+In der Dokumentation (\lstinline|?dynGet|) gibt es die Warung: \emph{Mit Vorsicht verwenden} (Use with caution).
+
+Alternativ empfiehlt es sich, benötigte Variablen aus höheren Scopes
+explizit als Funktionsargumente zu übergeben, da dies robust,
+nachvollziehbar und klar ist.
+
+\begin{lstlisting}
+f <- \() {x <- 1; g(x)}
+g <- \(x) {y <- 2; h(x, y)}
+h <- \(x, y) {
+  cat("x:", x)
+  cat("  y:", y)
+}
+f()           # x: 1  y: 2
+\end{lstlisting}
+
+
+\subsubsection{Infix Operator}
+
+Man kann auch eigene Infix Operatoren definieren. Jeder Operator, dessen Name mit \lstinline|%| beginnt und endet (z.~B. \lstinline|%myop%|), wird als Infix-Operator behandelt und hat in der Regel zwei Argumente.
+Benutzerdefinierte Infix-Operatoren der Form \lstinline|%myop%| haben dieselbe Priorität und Assoziativität (links nach rechts) wie die speziellen built-in Operatoren \lstinline|%%|, \lstinline|%/%| oder \lstinline|%in%|. Sie liegen in der Operator-Hierarchie über \lstinline|*| und \lstinline|/|, aber unter dem Sequence-Operator \lstinline|:| (siehe ?Syntax).
+
+\begin{lstlisting}
+1 + 1      # 2; + ist Infix Operatoren
+`+`(1,1)   # 2; Aufruf als Funktion
+`%A%` <- \(l,r) l + r
+1 %A% 1    # 2
+`%A%`(1,1) # 2
+
+`%M%` <- \(l,r) l * r
+1 + 2 * 3      # 7
+1 %A% 2 %M% 3  # 9; Wird von links nach recht ausgewertet
+
+4 / 1 %A% 1    # 2; Priorität über /
+1 %A% 2^2      # 5; Priorität unter ^
+\end{lstlisting}
+
+Durch maskieren von bereits vorhandenen Operatoren kann deren Operatorpriorität verwendet werden.
+
+\begin{lstlisting}
+`%E%` <- \(l,r) l^r  # Ausnutzung der Operatorpriorität
+`:=` <- \(l,r) l * r  # Priorität: ? < := < %myop%
+`?` <- \(l,r) l + r  # Überdeckt ? (help) !
+2 + 3 * 4^2          # 50
+2 ? 3 := 4%E%2       # 50
+rm("?")              # ? (help) nicht mehr überdeckt
+\end{lstlisting}
+
+
+\subsubsection{Active Binding}
+
+Man kann mit der Funktion \lstinline|makeActiveBinding()| sogenannte \emph{active bindings} erzeugen. Dabei wird ein Name in einem Environment mit einer Funktion verknüpft, die bei jedem \emph{Lesezugriff} auf das Symbol aufgerufen wird.
+
+\begin{lstlisting}
+makeActiveBinding("rnd", \() runif(1), globalenv())
+set.seed(0)
+rnd              # 0.8966972
+rnd              # 0.2655087
+#rnd <- 0        ## Error, unbenutztes Argument
+\end{lstlisting}
+
+Hat die zugrunde liegende Funktion \emph{keinen} Parameter, schlägt eine Zuweisung mit \lstinline|<-| oder \lstinline|<<-| fehl.
+Der Schreibzugriff versucht nämlich, die Funktion mit dem zugewiesenen Wert als Argument aufzurufen, was zu einem Fehler führt.
+
+Besitzt die Funktion hingegen mindestens einen Parameter, wird dieser beim Schreibzugriff mit dem zugewiesenen Ausdruck belegt. Eine Zuweisung ruft die Binding-Funktion also mit dem zugewiesenen Ausdruck als Argument auf.
+
+\begin{lstlisting}
+makeActiveBinding("rnd", \(n=1) cat(runif(n)), globalenv())
+set.seed(0)
+rnd           # 0.8966972
+rnd <- 3      # 0.2655087 0.3721239 0.5728534
+
+e <- new.env()
+e$N <- 1
+with(e, f <- \(n=1) {
+    if (missing(n)) runif(N)
+    else N <<- n
+})
+makeActiveBinding("rnd2", e$f, globalenv())
+set.seed(0)
+rnd2          # 0.8966972
+rnd2 <- 3
+rnd2          # 0.2655087 0.3721239 0.5728534
+\end{lstlisting}
+
+
+\subsubsection{on.exit: Aufruf bei Funktionende}
+
+Mit \lstinline|on.exit| können in einer Funktion Aktionen registriert
+werden, die beim Verlassen der Funktion garantiert ausgeführt werden,
+unabhängig davon, ob sie regulär endet oder durch einen Fehler
+abgebrochen wird. Der Code in \lstinline|on.exit()| wird ausgeführt,
+bevor die Funktion verlassen wird. Also vor der Rückgabe des
+Ergebnisses an den Aufrufer und vor der Anzeige des Rückgabewerts in
+der interaktiven Konsole.
+
+\begin{lstlisting}
+f <- \(x) {
+  on.exit(cat("EXIT: "))
+  if (x < 0) stop("Error")
+  x + 1
+}
+f(0)       # EXIT: [1] 1
+f(-1)      # Fehler in f(-1) : Error, EXIT:
+
+g <- \() {
+  on.exit(cat(" E0"))
+  on.exit(cat(" E1"))  # Ersetzt vorheriges
+}
+g()        # E1
+
+h <- \() {
+  on.exit(cat(" E0"))
+  on.exit(cat(" E1"), add = TRUE)
+  on.exit(cat(" E2"), add = TRUE, after = FALSE)
+}
+h()        # E2 E0 E1
+
+F <- \() {on.exit({stop("Error in Exit"); cat("Ende")}); 0}
+F()        # Fehler in F() : Error in Exit
+\end{lstlisting}
+
+
+\subsection{Organisation von Environments zur Namensauflösung}
+
+Namen werden zunächst im aktuellen Auswertungs-Environment (Execution Environment) gesucht. Werden sie dort nicht gefunden, wird die Suche im Parent Environment fortgesetzt, anschließend im Parent des Parent Environments usw. Die Namenssuche endet entweder mit dem Auffinden des Namens oder beim Erreichen des leeren Environments (\lstinline|emptyenv()|).
+
+Man kann die Suche auch explizit in einem bestimmten Environment starten (z.\,B. mit \lstinline|get()| oder \lstinline|assign()|), allerdings muss das Environment-Objekt selbst zuvor über die normale Namenssuche verfügbar sein.
+
+Ähnlich ist es beim Aufruf einer Funktion. Dabei muss zunächst deren Name gefunden werden. Beim Start der Funktion wird ein temporäres Auswertungs-Environment (Execution Environment) erzeugt in dem die, in der Funktion verwendeten, Namen gesucht werden. Die Suche wird anschließend im Parent dieses Environments fortgesetzt, dem sogenannten Enclosing Environment der Funktion, und danach in dessen Parent-Environments.
+
+Bei interaktiver Arbeit in der Konsole sowie beim Start eines Skripts beginnt die Namensauflösung im globalen Environment (\lstinline|.GlobalEnv|). Ist der Name dort nicht vorhanden, wird die Suche in der dem \lstinline|.GlobalEnv| folgende Environmentkette fortgesetzt, welche mit \lstinline|search()| (Suchpfad) angezeigt werden kann.
+
+Zusätzlich besitzen Packages eigene Namespaces. Exportierte Namen können über \lstinline|::| (z.\,B. \lstinline|stats::sd|) direkt aus dem Namespace referenziert werden, ohne den Suchpfad zu durchlaufen.
+
+Namespaces existieren unabhängig vom Suchpfad. Der Suchpfad baut auf Namespaces auf und macht deren Objekte über seine Namenssuche zugänglich.
+
+
+\subsubsection{Namespace (Namensraum)}
+
+Ein Namespace dient in R dazu, die Umgebung eines Pakets klar von anderen Paketen und vom globalen Arbeitsbereich zu trennen. Er definiert, welche Objekte eines Pakets nach außen sichtbar exportiert werden und welche intern bleiben, schützt vor Namenskonflikten zwischen gleichlautenden Funktionen verschiedener Pakete und legt fest, welche Funktionen aus anderen Paketen importiert werden. Darüber hinaus ist der Namespace üblicherweise das Enclosing Environment für die Paketfunktionen, wodurch diese auf interne Objekte des Pakets zugreifen können.
+
+Üblicherweise ist hier die Environment-Kette so aufgebaut:
+\lstinline|namespace:env| =>
+\lstinline|imports:env| =>
+\lstinline|namespace:base| =>
+\lstinline|R_GlobalEnv|, \dots
+
+Wichtige Funktionen sind:
+
+\begin{itemize}
+\item \lstinline|loadedNamespaces()|: zeigt alle geladenen Namespaces.
+\item \lstinline|loadNamespace("pkg")| bzw.\ \lstinline|requireNamespace("pkg")|: lädt den Namespace.
+\item \lstinline|getNamespace("pkg")| und \lstinline|asNamespace("pkg")|: liefert das Namespace-Environment (lädt es bei Bedarf).
+\item \lstinline|unloadNamespace("pkg")|: Entfernt den Namespace solange er nicht noch von anderen geladenen Namespaces importiert wurde.
+\item \lstinline|getNamespaceUsers("pkg")| Zeigt Pakete die pkg importiert haben
+\item \lstinline|getNamespaceImports("pkg")| Zeigt welche Pakete pkg importiert
+\item \lstinline|ls(getNamespace("pkg"), all.names = TRUE)| zeigt alle und \lstinline|getNamespaceExports("pkg")| die exportierten Namen eines Namespaces.
+\end{itemize}
+
+\lstinline|requireNamespace()| gibt TRUE/FALSE zurück und bricht nicht ab, wenn das Paket fehlt, während \lstinline|loadNamespace()| das Namespace-Objekt zurückgibt und mit einem Fehler abbricht, wenn das Paket nicht gefunden wird.
+
+Nach dem Laden eines Namespace steht das \emph{Namespace-Environment (namespace:pkg)} zur Verfügung. Es enthält \emph{alle} Funktionen und Variablen des Pakets, auch interne, nicht-exportierte. Es ist das Enclosing Environment fast aller exportierten Funktionen.
+
+Auf Namen dieser Environments kann man mit \lstinline|::| bzw.\ \lstinline|:::| zugreifen.
+
+\begin{itemize}
+\item \lstinline|pkg::name|: Greift auf \emph{exportierte} Objekte im Namespace zu.
+\item \lstinline|pkg:::name|: Greift auf \emph{alle} Objekte im Namespace zu, auch interne.
+\end{itemize}
+
+Beide Operatoren laden den Namespace automatisch, falls dieser noch nicht geladen wurde und suchen nur im Namespace des angegebenen Pakets. Sie folgen \emph{keiner} Environment-Kette.
+
+\begin{lstlisting}
+loadedNamespaces()  # Bei Start von R automatisch geladene Pakete
+# compiler graphics utils grDevices stats datasets methods base
+
+loadNamespace("splines")     # Lädt splines
+requireNamespace("splines")  # Alternative
+"splines" %in% loadedNamespaces()  # TRUE
+unloadNamespace("splines")   # Entfernt splines
+"splines" %in% loadedNamespaces()  # FALSE
+
+splines::bs     # Lädt Namespace automatisch
+"splines" %in% loadedNamespaces()  # TRUE
+#bs             ## Error, nicht gefunden
+
+getNamespaceExports("splines")  # Zeigt exportierte Namen
+ls(getNamespace("splines"), all.names = TRUE) # Zeigt alle
+
+stats:::sd(1:3)                    # 1
+getNamespace("stats")$sd(1:3)      # 1; Ähnlich wie :::
+asNamespace("stats")$sd(1:3)       # 1; Ähnlich wie :::
+
+#unloadNamespace("stats")  ## Error, auch von splines importiert
+getNamespaceUsers("stats") # splines
+unloadNamespace("splines")
+unloadNamespace("stats")
+#unloadNamespace("base")   ## Error, bei base nicht erlaubt
+\end{lstlisting}
+
+Funktionen beginnen ihre Namenssuche \emph{immer} im Execution Environment, gefolgt von deren Enclosing Environment und dessen Parent Kette. Das Enclosing Environment einer Paket Funktion ist in der Regel der Namespace des Pakets.
+
+\begin{lstlisting}
+environment(stats::sd)  # <environment: namespace:stats>
+getNamespace("stats")   # <environment: namespace:stats>
+\end{lstlisting}
+
+Um Funktionen anderer Pakete im eigenen Paket verwenden zu können, wird der Namespace dieser Pakete im eigenen Paket importiert.
+
+\begin{lstlisting}
+names(getNamespaceImports("stats"))
+# base graphics grDevices utils
+\end{lstlisting}
+
+Das Environment in dem die NamespaceImports eingetragen sind ist das Parent Environment des Paket Namespace.
+
+\begin{lstlisting}
+(e <- getNamespace("stats"))  # namespace:stats
+(e <- parent.env(e))          # imports:stats
+\end{lstlisting}
+
+In diesem \lstinline|imports| Environment sind alle Funktionen fremder Pakete eingetragen.
+
+\begin{lstlisting}
+getNamespaceImports("stats")  # Zeigt alle importierten Funktionen
+nn <- unlist(getNamespaceImports("stats")[-1])
+e <- parent.env(getNamespace("stats")) # imports:stats
+ne <- ls(e, all.names = TRUE) # Alle Namen in e
+setdiff(ne, nn)               # character(0)
+setdiff(nn, ne)               # character(0)
+\end{lstlisting}
+
+Darauf folgt \lstinline|namespace:base|, anschließend \lstinline|R_GlobalEnv|, und die Parent-Kette setzt sich bis \lstinline|base| fort, bevor sie im \lstinline|R_EmptyEnv| endet.
+
+\begin{lstlisting}
+(e <- getNamespace("stats")) # namespace:stats
+(e <- parent.env(e))         # imports:stats
+(e <- parent.env(e))         # namespace:base
+(e <- parent.env(e))         # R_GlobalEnv
+(e <- parent.env(e))         # package:stats
+# ...
+(e <- parent.env(e))         # base
+(e <- parent.env(e))         # R_EmptyEnv
+\end{lstlisting}
+
+
+\subsubsection{Suchpfad}
+
+Während Namespaces die interne Organisation und Kapselung von Paketobjekten regeln, beschreibt der Suchpfad die externe Reihenfolge der Environments, die R bei der Namensauflösung berücksichtigt. Er bestimmt somit, welche Objekte für den Benutzer direkt sichtbar und referenzierbar sind.
+
+Die dem \lstinline|.GlobalEnv| folgende Parent-Environmentkette wird als Suchpfad (search path) bezeichnet. Er umfasst typischerweise die Environments der geladenen und angehängten Pakete (attached packages) welche mit (\lstinline|package:base|) abgeschlossen wird.
+
+Bis auf das \lstinline|.GlobalEnv| dienen alle folgenden Parent-Environments dieser Environment-Kette der Namenssuche, sind also im Gegensatz zu einem Namespace-Environment üblicherweise kein Enclosing-Environment von Funktionen. Eine Veränderung des Parent-Environments dient dazu ihre Position im Suchpfad und damit ihre Sichtbarkeit gegenüber anderen Environments zu verändern.
+
+Um die Eigenschaften eines vorhandenen Environments nicht zu verändern, also dessen Parent-Environment und der damit verbundenen Namenssuche sowie die darin enthaltenen Namen und Bindungen, sind Environments im Suchpfad entweder Kopien (Lists, Dataframes, Environments) oder dedizierte Package-Environments (\lstinline|package:env|), die die exportierten Bindings des zugehörigen Namespace-Environments enthalten.
+
+Es werden also die Bindungen (Namen und Verweise auf die Objekte) aus dem Original übernommen. Dieses neue Environment wird dann in den Suchpfad eingefügt. Die Werte der Objekte werden dabei referenziert (nicht kopiert), sodass zunächst auf dieselben Daten zugegriffen wird. Nachträgliche Änderungen am Original-Environment haben \emph{keinen} Effekt auf das attached Environment und umgekehrt sondern lösen ein Copy on Modify aus.
+
+Mit \lstinline|search()| wird der Suchpfad angezeigt. Mit \lstinline|searchpaths()| erhält man die vollständigen Dateipfade zu den geladenen Paketen. Beim Start von R werden einige Standardpakete bzw.\ Libraries automatisch geladen. Dadurch stehen deren Funktionen und Daten zur Verfügung. Folgende Pakete stehen bei einem Neustart von R zur Verfügung:
 
 \begin{lstlisting}
 search()
-# ".GlobalEnv"        "package:stats"     "package:graphics" 
-# "package:grDevices" "package:utils"     "package:datasets" 
-# "package:methods"   "Autoloads"         "package:base"     
+# ".GlobalEnv"        "package:stats"     "package:graphics"
+# "package:grDevices" "package:utils"     "package:datasets"
+# "package:methods"   "Autoloads"         "package:base"
+
+searchpaths()
+# ".GlobalEnv" "/usr/local/lib/R/library/stats" ...
 \end{lstlisting}
 
-Wenn ein Paket mit \lstinline|library| oder \lstinline|require| geladen wird, erscheint es standardmäßig direkt hinter \lstinline|.GlobalEnv| im Suchpfad, sofern es nicht bereits geladen ist. 
-\lstinline|require| gibt \lstinline|FALSE| zurück, wenn das Paket fehlt, während \lstinline|library| einen Fehler auslöst.
+Deren Reihenfolge ist entscheidend. Die Suche erfolgt strikt von vorne nach hinten, d.\,h.\ ein Name in einem Environment maskiert gleiche Namen in nachfolgenden Environments. Dieser Mechanismus ermöglicht eine einfache Nutzung von Funktionen und Daten, birgt jedoch das Risiko von Namenskonflikten (masking), welches bei Verwendung von \lstinline|paket::funktion()| über den Namespace von Paketen umgangen werden kann. Mit \lstinline|as.environment()| kann man auch über den im Suchpfad angegeben Environmennamen auf dieses direkt zugreifen ohne den Suchpfad zu durchwandern.
 
-Mit \lstinline|library(pkg, pos = ...)| lässt sich die Einfügeposition gezielt steuern. 
-Ein Paket kann dabei weder vor \lstinline|.GlobalEnv| noch hinter \lstinline|package:base| platziert werden. 
-Die Position im Suchpfad ist entscheidend, da Variablen und Funktionen in dieser Reihenfolge durchsucht werden. 
-Dies ist relevant, wenn mehrere Pakete Objekte mit demselben Namen bereitstellen. Es wird stets das zuerst gefundene Objekt verwendet.
+Dabei geht es zunächst einmal darum welcher Name gefunden wird. Wenn es sich um Daten handelt werden diese zurückgeliefert. Ist es hingegen eine \emph{Funktion}, ist diese mit einem \emph{Enclosing Environment} verbunden und bestimmt damit selbst wo sie, nachdem sie aufgerufen wurde, ihre Namen (Daten und weitere Funktionen) sucht.
+
+Beispielsweise verwendet die Funktion \lstinline|sd| die Funktion \lstinline|sqrt|. Wenn sich der Name \lstinline|sqrt| im \lstinline|.GlobalEnv| befindet wird dieser von der Konsole aus gefunden. Die Funktionalität von \lstinline|sd| wird dadurch jedoch nicht beeinflusst, da \lstinline|sd| die Namenssuche nicht im \lstinline|.GlobalEnv| beginnt.
+
+\begin{lstlisting}
+sqrt(4)         # 2
+find("sqrt")    # package:base
+sd(1:3)         # 1
+sqrt <- \(x) 0  # Eigene Funktion mit Namen sqrt
+find("sqrt")    # .GlobalEnv, package:base
+sqrt(4)         # 0
+sd(1:3)         # 1
+find("sd")      # package:stats
+sd <- sd        # legt weitere Bindung im .GlobalEnv an
+find("sd")      # .GlobalEnv package:stats
+environment(sd) # <environment: namespace:stats>
+environment(sd) <- globalenv() # Ändert Enclosing Environment
+sd(1:3)         # 0; Dieses sd findet eigene sqrt Funktion
+stats::sd(1:3)  # 1; Verwendet Namespace
+as.environment("package:stats")$sd(1:3) # 1; über Suchpfadnamen
+rm(sqrt)        # Entfernt sqrt aus .GlobalEnv
+find("sqrt")    # package:base
+sd(1:3)         # 1; Verwendet sqrt in base
+\end{lstlisting}
+
+
+\paragraph{Suchpfadmodifikation}
+
+\subparagraph{Paket}
+
+\lstinline|library("pkg")| bzw.\ \lstinline|require("pkg")| lädt den Namespace (namespace:pkg) und hängt das Package-Environment (package:pkg) mit den exportierten Objekten in den Suchpfad.
+\lstinline|require()| gibt TRUE/FALSE zurück und bricht nicht ab, während \lstinline|library()| mit einem Fehler abbricht, wenn das Paket nicht gefunden wird.
+
+Wenn ein Paket mit \lstinline|library()| oder \lstinline|require()| geladen wird, erscheint es standardmäßig direkt hinter \lstinline|.GlobalEnv| im Suchpfad, sofern es nicht bereits geladen ist.
+Mit \lstinline|library(PKG, pos = POSITION)| lässt sich die Einfügeposition gezielt steuern. 
+Ein Paket kann dabei weder vor \lstinline|.GlobalEnv| noch hinter \lstinline|package:base| platziert werden.
+
+\lstinline|unloadNamespace()| bzw.\ \lstinline|detach("package:pkg", unload = TRUE)| entlädt das ganze Paket sowohl aus dem Suchpfad als auch aus dem Namespace während \lstinline|detach("package:pkg")| nur das Environment aus dem Suchpfad entfernt wohin es mit \lstinline|attachNamespace()| wieder gebracht werden kann.
 
 \begin{lstlisting}
 library(compiler)
 search() # ".GlobalEnv" "package:compiler" "package:stats"
 library(tools)
 search() # ".GlobalEnv" "package:tools" "package:compiler"
-library(compiler)
+library(compiler)            # Bleibt an Position
 search() # ".GlobalEnv" "package:tools" "package:compiler"
 unloadNamespace("compiler")  # Entlädt Paket
 #detach("package:compiler", unload = TRUE) # Alternative
-library(compiler)
+library(compiler)            # Jetzt ganz vorne
 search() # ".GlobalEnv" "package:compiler" "package:tools"
 unloadNamespace("compiler")
 library(compiler, pos = length(search())) # vor base
 search() # ".GlobalEnv" ... "package:compiler" "package:base"
+
+detach("package:compiler")   # Entfernt nur aus Suchpfad
+loadedNamespaces()           # compiler enthalten
+search()                     # ohne package:compiler
+attachNamespace("compiler")
+search()                     # mit package:compiler
 \end{lstlisting}
 
-Mir \lstinline|attach()| kann man auch eigene Environments in diesen Suchpfad bringen und mit \lstinline|detach()| wieder entfernen.
+
+\subparagraph{Environment und Liste}
+
+Mit \lstinline|attach()| kann man \emph{Kopien} von eigene Environments, Listen oder Dataframes in den Suchpfad bringen und mit \lstinline|detach()| wieder entfernen. Änderungen mit \lstinline|<<-| betreffen die Kopie und nicht das Original.
 
 \begin{lstlisting}
 e <- new.env()
 e$x <- 0
-#x              ## Error, nicht gefunden
+#x                        ## Error, nicht gefunden
 attach(e, name = "meinEnv")
-x               # 0
+x                         # 0
+
+e                         # <environment: 0x559e3925da70>
+as.environment("meinEnv") # <environment: 0x559e3925cd18>
+parent.env(e)             # <environment: R_GlobalEnv>
+parent.env(as.environment("meinEnv")) # package:stats
+tracemem(x)               # <0x559e39218608>
+tracemem(e$x)             # <0x559e39218608>
+tracemem(as.environment("meinEnv")$x)
+                          # <0x559e39218608>
+x <- 1                    # Erzeugt x im .GlobalEnv
+x                         # 1
+e$x                       # 0
+as.environment("meinEnv")$x # 0
+rm(x)           # Entfernt x aus .GlobalEnv
+x <<- 1                     # findet x in meinEnv
+x                           # 1
+as.environment("meinEnv")$x # 1
+e$x                         # 0
+e$x <- 2
+x                           # 1
+as.environment("meinEnv")$x # 1
+
 search()        # ".GlobalEnv" "meinEnv" ...
 detach("meinEnv")
 attach(e, pos = length(search()), name = "meinEnv")
 search() # ".GlobalEnv" ... "meinEnv" "package:base"
 
-as.environment("meinEnv")$x  # 0; Zugriff über Namen
+detach("package:stats")   # Kann auch ausgehängt werden
+#detach(".GlobalEnv")     ## Error
+#detach("package:base")   ## Error
 \end{lstlisting}
-
-
-%%% NEU %%%
-
-\subsection{Funktionen: Closures aus Code und Environment}
 
 
 \subsection{Pakete -- Libraries}
 
+Pakete enthalten Funktionen und Daten und können damit die Funktionalität von R erweitern. Pakete werden meist mit \lstinline|library()| oder \lstinline|require()| geladen.
+
+Beim Laden eines Pakets wird dessen Namespace geladen, der ein eigenes
+Namespace--Environment besitzt. Dessen Parent ist das Imports--Environment,
+welches die importierten Bindungen aus anderen Paketen enthält. Zusätzlich
+wird ein Package--Environment erzeugt, das die exportierten Namen enthält und
+in den Namenssuchpfad eingehängt wird.
+
+Im Package--Environment befinden sich ausschließlich die exportierten Namen,
+während im Namespace--Environment alle Namen des Pakets enthalten sind.
+
+Im Imports--Environment befinden sich Namensbindungen zu Funktionen und Daten
+anderer Pakete, die über \lstinline|Imports| oder \lstinline|import()| im
+\lstinline|NAMESPACE| eingebunden wurden und im Paket ohne explizite Verwendung
+von \lstinline|::| genutzt werden können.
+
+Auf exportierte Namen in Paketen kann man mit \lstinline|::| zugreifen unabhängig davon ob sie im Suchpfad eingetragen sind. Der Zugriff erfolgt über das Namespace--Environment des Pakets, welches, falls es noch nicht geladen wurde, mit \lstinline|::| geladen wird. Mit \lstinline|:::| kann man auf alle, also auch die nicht exportierten Namen eines Paketes zugreifen.
+
 \begin{lstlisting}
-base::
-base:::
- ls(getNamespace("stats"), all.names = TRUE)
+compiler::cmpfun(sum)  # Zugriff auf exportierte Funktion 
+compiler:::asm         # Zugriff auf interne Funktion 
 \end{lstlisting}
+
+\lstinline|library()| bzw.\ \lstinline|installed.packages()| listet alle installierten Pakete auf.
+Pakete mit Priority = \lstinline|base| oder \lstinline|recommended| werden bei jeder R-Installation standardmäßig mitgeliefert.
+Base-Pakete gehören zum R-Core und haben stets dieselbe Versionsnummer wie die R-Installation selbst.
+Recommended-Pakete sind nicht Teil des Core und können unabhängig von der R-Version aktualisiert, entfernt oder neu installiert werden.
+
+\begin{lstlisting}
+names(which(installed.packages()[,"Priority"]=="base"))
+# base      compiler  datasets  graphics  grDevices grid     
+# methods   parallel  splines   stats     stats4    tcltk    
+# tools     utils    
+
+names(which(installed.packages()[,"Priority"]=="recommended"))
+# boot       class      cluster    codetools  foreign   
+# KernSmooth lattice    MASS       Matrix     mgcv      
+# nlme       nnet       rpart      spatial    survival  
+\end{lstlisting}
+
+Pakete kann man mit \lstinline|update.packages()| aktualisieren, mit
+\lstinline|install.packages()| neu installieren, mit
+\lstinline|remove.packages()| entfernen und mit
+\lstinline|find.package()| suchen.
+Alle bereits installierten Pakete können erneut installieren mit:
+\begin{lstlisting}
+. <- installed.packages()[,"Priority"]
+install.packages(names(.[is.na(.) | . != "base"]))
+\end{lstlisting}
+
+Pakete auf GitHub können mit \lstinline|remotes::install_github("USER/REPO")|, bestimmte Branches, Tags oder Commits mit \lstinline|remotes::install_github("USER/REPO@BRANCH")| installiert werden.
+
+Die Hilfe zu einem Paket erhält man mit \lstinline|library(help = "pkg")| und alle exportierten Funktionen mit \lstinline|getNamespaceExports("pkg")|.
+
+Ein einfaches R-Paket lässt sich nach folgendem Muster erstellen.
+Das Beispiel demonstriert den minimal notwendigen Paketaufbau mit
+\lstinline|DESCRIPTION| und \lstinline|NAMESPACE|, den Umgang mit
+exportierten und nicht exportierten Objekten im Namespace, die Einbindung
+von Abhängigkeiten sowie die Erstellung von Dokumentation und Datensätzen.
+Abschließend wird der Build-- und Installationsprozess über
+\lstinline|R CMD build| und \lstinline|R CMD INSTALL| gezeigt.
 
 \begin{lstlisting}
 # Temporäres Package-Verzeichnis anlegen
-pkg_dir <- tempfile("meinPkg")
-dir.create(file.path(pkg_dir, "R"), recursive = TRUE)
+pkgDir <- tempfile("meinPkg")
+dir.create(file.path(pkgDir, "R"), recursive = TRUE)
 
 # Eine minimale DESCRIPTION und NAMESPACE-Datei
 writeLines('Package: meinPkg
 Version: 0.0.1
 Title: Test
 Description: Nur zum Testen
+Encoding: UTF-8
+Authors@R: c( person("Ich", "Nachname",
+   email = "ich@home.at", role = c("aut", "cre")),
+ person("Du", "Nachname", role = "ctb") )
+URL: https://github.com/ich/meinPkg
+BugReports: https://github.com/ich/meinPkg/issues
 License: GPL-3
-LazyData: true', file.path(pkg_dir, "DESCRIPTION"))
+Imports: stats
+Depends: R (>= 4.1.0)
+LazyData: true', file.path(pkgDir, "DESCRIPTION"))
 
-writeLines('export(x)', file.path(pkg_dir, "NAMESPACE"))
+writeLines('export(x, f, g)
+importFrom(stats, rnorm)', file.path(pkgDir, "NAMESPACE"))
 
 # Eine R-Datei mit Inhalt
-writeLines('x <- 42
-.mein_intern <- 100', file.path(pkg_dir, "R", "stuff.R"))
+writeLines(r"(x <- 1
+y <- 2
+f <- \(n=1) rnorm(n)
+g <- \(n=1) stats::runif(n)  # explizit ohne Import
+)", file.path(pkgDir, "R", "xyz.R"))
 
-# Package bauen und laden
-devtools::install(pkg_dir, quiet = TRUE, upgrade = "never")
-# oder: pkgbuild::build(pkg_dir); install.packages(...)
+# Dokumentation
+dir.create(file.path(pkgDir, "man"), recursive = TRUE)
+writeLines(r"(
+\name{f}
+\alias{f}
+\title{Zufallszahlen erzeugen}
+\description{
+Die Funktion \code{f} erzeugt normalverteilte Zufallszahlen
+unter Verwendung von \code{stats::rnorm}.
+}
+\usage{
+f(n = 1)
+}
+\arguments{
+  \item{n}{Anzahl der Zufallszahlen.}
+}
+\value{
+Ein numerischer Vektor der Länge \code{n}.
+}
+\examples{
+f()
+f(5)
+}
+)", file.path(pkgDir, "man", "f.Rd"))
+
+# Daten
+dat <- data.frame(id = 1:3, value = 3:1)
+dir.create(file.path(pkgDir, "data"), recursive = TRUE)
+save(dat, file = file.path(pkgDir, "data", "dat.rda"),
+  compress = "xz" )
+rm(dat)
+  
+writeLines(r"(
+\name{dat}
+\alias{dat}
+\docType{data}
+\title{Beispieldatensatz}
+\description{
+Ein kleiner Beispieldatensatz mit IDs und Zahlen.
+}
+\format{
+Ein data.frame mit 3 Zeilen und 2 Variablen:
+\describe{
+  \item{id}{Ganzzahlige ID.}
+  \item{value}{Zahlen.}
+}
+}
+\usage{
+dat
+}
+)", file.path(pkgDir, "man", "dat.Rd"))
+
+# Package Installieren
+system2( file.path(R.home("bin"), "R"),
+  c("CMD", "INSTALL", shQuote(pkgDir)) )
 
 library(meinPkg)
 
-meinPkg::x      # exportiert 42
-meinPkg:::x     # auch 42
-meinPkg:::.mein_intern  # nicht exportiert 100 (funktioniert!)
+x               # 1
+meinPkg::x      # 1
+meinPkg:::x     # 1
+#y              ## y nicht gefunden
+#meinPkg::y     ## Error nicht exportiert
+meinPkg:::y     # 2
+set.seed(0)
+f()             # 1.262954
+g()             # 0.3721239
+?f              # Zeigt Hilfe an
+?meinPkg::f     # Zeigt Hilfe an
+dat             # direkt verfügbar (LazyData: true)
+data(dat, package = "meinPkg") # Ohne LazyData
+?dat            # Hilfe zu daten
+
+# Tar Datei des Pakets erzeugen
+# R CMD build [Verzeichnis]
+## R CMD check [Verzeichnis] # Zeigt eventuelle Fehler
+system2(
+  file.path(R.home("bin"), "R"),
+  c("CMD", "build", shQuote(pkgDir)) )
+# tar kann in der Shel mit: R CMD INSTALL [PAKET.tar.gz]
+# oder in R mit: install.packages("[PAKET.tar.gz]", repos =NULL)
+# Installiert werden
+install.packages("meinPkg_0.0.1.tar.gz", repos = NULL)
 \end{lstlisting}
 
 
-\subsection{Funktionen: Closures aus Code und Environment}
+\subsection{Objektorientierung}
 
-x <- 0
-f1 <- function(x = x) x
-f2 <- function(x. = x) x.
-%#f1()     ## Error, rekursiv
-%f2()      # 0
-%f1(x)     # 0
-%f2(x)     # 0
-%https://stackoverflow.com/questions/4357101
-%The reason you can't use x=x in the formal arguments of a function definition is that it first looks up the default argument within the function itself so using that form is telling it to use itself as the default but it has not been defined so that makes no sense and we get an error.)
-
-%makeActiveBinding("rnd", \(n=1) cat(runif(n)), globalenv())
-%rnd
-%rnd <- 3
+In R können Funktionen abhängig von der Klasse ihrer Argumente unterschiedliches Verhalten zeigen.
 
 
+\subsubsection{S3-Klassen}
 
+Ein S3-Objekt ist ein beliebiges R-Objekt (z.\,B. Vektor oder Liste), dem ein Klassenattribut zugewiesen wird.  Methoden werden durch Funktionsnamen mit Punktnotation definiert, wobei es hiervon Ausnahmen gibt (\lstinline|t.test|, \lstinline|data.frame|), bei denen dies keine Methoden für die Klasse \lstinline|test| oder \lstinline|frame| sind.  In S3 gibt es keine explizite Klassendefinition.  Eine Klasse entsteht allein durch das Setzen des \lstinline|class|-Attributs.
 
-Eine Funktion in R besteht aus drei Teilen:
-\begin{itemize}
-\item dem formalen Argument-Objekt
-\item dem Funktionskörper (body)
-\item dem Environment, in dem die Funktion erzeugt wurde
-\end{itemize}
+Beim Aufruf einer generischen Funktion bestimmt R anhand des \lstinline|class|-Attributs üblicherweise des ersten Arguments, welche Methode (\lstinline|generic.classname|) aufgerufen wird. Existiert keine passende Methode, wird \lstinline|generic.default| verwendet.
 
-\begin{lstlisting}[language=R]
-f <- function(x) x + y     # y wird erst beim Aufruf gesucht
+Mit \lstinline|inherits()| kann man prüfen ob eine Klasse enthalten ist.
 
-y <- 100
-f(10)                      # 110  (findet y im globalen Environment)
+Bei der Funktionsauswahl findet keine Typprüfung statt. Objekte unterschiedlichen Basis-Typs (z.\,B.\ \lstinline|character| und \lstinline|numeric|) können dieselbe Klasse zugewiesen bekommen und verzweigen aufgrund der Klasse zur selben Funktion. Diese Typprüfung könnte bei der Erzeugung der Klasse, durch eine selbst geschriebene Funktion, erfolgen.
 
-g <- function() {
-  y <- 1
-  f(10)                    # immer noch 110! (f schaut ins Erzeugungs-Environment)
-}
-
-environment(f)             # <environment: R_GlobalEnv>
-\end{lstlisting}
-
-Jeder Funktionsaufruf erzeugt ein neues, temporäres Environment als Kind des Erzeugungs-Environments der Funktion.
-
-Deshalb:
-\begin{itemize}
-\item \lstinline|x <- x + 1| in einer Schleife verändert nie das äußere x
-\item \lstinline|<<-| sucht nach oben bis ins Parent-Environment der Funktion
-\item Funktionen merken sich die Werte ihrer freien Variablen (Closure!)
-\end{itemize}
-
-\subsection{Call-by-Promise (Lazy Evaluation)}
-
-Argumente einer Funktion werden nicht sofort ausgewertet, sondern als Promise-Objekte gespeichert (bestehend aus Ausdruck + Environment).
-
-\begin{lstlisting}[language=R]
-f <- function(x) { print("wird erst später ausgewertet") ; x }
-f( { Sys.sleep(5) ; 1:1000000 } )   # keine 5 Sekunden Wartezeit!
-# "wird erst später ausgewertet"
-# erst jetzt wird der Ausdruck ausgewertet
-\end{lstlisting}
-
-Folgen:
-- Default-Argumente sehen das Environment der Funktion, nicht das des Aufrufs
-- Seiteneffekte in Argumenten passieren erst, wenn das Argument benutzt wird
-- \lstinline|missing(x)| funktioniert
-
-\subsection{Maskierung (Shadowing)}
-
-Ein Name im lokalen Environment verdeckt gleichnamige Namen weiter oben in der Kette.
-
-\begin{lstlisting}[language=R]
-x <- 1
-g <- function() { x <- 20 ; x }   # lokale 20 maskiert globale 1
-g()                               # 20
-x                                 # noch immer 1
-\end{lstlisting}
-
-\subsection{Lexical Scoping}
-
-Die Suche nach freien Variablen erfolgt im Environment, in dem die Funktion definiert wurde – nicht dort, wo sie aufgerufen wird.
-
-\begin{lstlisting}[language=R]
-make_adder <- function(n) {
-  function(x) x + n               # n ist frei => wird im Erzeugungs-Env gesucht
-}
-
-add5  <- make_adder(5)
-add10 <- make_adder(10)
-
-add5(3)   # 8
-add10(3)  # 13
-
-# <<- sucht ab dem Parent-Environment der Funktion nach oben
-counter <- function() {
-  if (!exists("i")) i <- 0
-  i <<- i + 1
-  i
-}
-counter()   # 1
-counter()   # 2
-\end{lstlisting}
-
-%%% NEU %%%
+\lstinline|methods(generic)| zeigt, für welche Klassen Methoden im Suchpfad verfügbar sind. \lstinline|methods(class = "classname")| zeigt welche spezialisierten Funktionen für eine Klasse existieren.
 
 \begin{lstlisting}
-q()                   # Beendet R (mit Rückfrage)
-#                     # Kommentar bis Zeilenende
-help()                # Hilfe starten
-help(q)               # Hilfe zu Befehl q
-?q                    # Hilfe zu Befehl q
-#?for                 ## funktioniert nicht
-?"for"                # Hilfe zur for-Schleife
-#help(for)            ## erzeugt Fehler
-help("for")           # Hilfe zur for-Schleife
-??reg                 # Sucht nach "reg" in allen Hilfetexten
-help.search("reg")    # Wie ??reg, aber als Funktion
-help.start()          # Öffnet HTML-Hilfesystem
-library(help = "stats")  # Hilfeübersicht zum Paket "stats"
-args(lm)              # Argumente der Funktion lm
-methods("plot")       # Methoden für generische Funktion plot
-methods(class = "lm") # Methoden für Objekte der Klasse "lm"
-getAnywhere("simpleLoess")#Zeigt auch nicht exportierte Funktion
-example(lm)           # Führt Beispiele zu lm aus
-demo()                # Zeigt verfügbare Demos
-demo(lm)              # Demo zur linearen Regression
+f <- \(x) UseMethod("f")  # generische Funktion definieren
+f.a <- \(x) "A"           # Methode für Klasse a
+f.b <- \(x) "B"           # Methode für Klasse b
+f.default <- \(x) "Def"   # Alle anderen Klassen
+methods(f)                # f.a f.b f.default
+methods(class = "a")      # f
 
-install.packages("lme4") # Installiert das Paket
-update.packages()    # Aktualisiert Pakete
-remove.packages()    # Entfernt Paket
-installed.packages() # Zeigt alle installierten Pakete
-library(lme4)        # Paket laden
-require(lme4)        # Alternative, gibt bei Fehler FALSE zurück
-search()             # Zeigt geladene Pakete und Umgebungen
-vignette()           # Verfügbare Vignetten anzeigen
-vignette("lmer")     # Einführung zu lmer öffnen
+x <- 0
+f(x)                      # Def
+class(x) <- "a"
+f(x)                      # A
+class(x) <- "b"
+f(x)                      # B
+class(x) <- "x"
+f(x)                      # Def
 
-version              # R-Version anzeigen
-sessionInfo()        # Infos zu Umgebung und geladenen Paketen
-citation()           # Wie man R zitiert
-x = 1                # Der Variablen x den Wert 1 zuweisen
-x <- 1               # Der Variablen x den Wert 1 zuweisen
-1 -> x               # Der Variablen x den Wert 1 zuweisen
-assign("x", 1)       # Der Variablen x den Wert 1 zuweisen
-x <<- 1              # Zuweisung in der Elternumgebung
-str(x)               # Struktur von x
-dput(x)              # Zeigt wie Objekt erzeugt werden kann
-ls()                 # Liste Objekte im aktuellen Environment
-rm(x)                # Objekt x entfernen
-rm(list = ls())      # Alle Objekte entfernen (Workspace leeren)
+class(x) <- c("a", "b")
+f(x)                      # A
+class(x) <- c("b", "a")
+f(x)                      # B
+class(x) <- c("x", "a")
+f(x)                      # A
+inherits(x, "a")          # TRUE
+inherits(x, "b")          # FALSE
 
-getwd()              # Aktuelles Arbeitsverzeichnis anzeigen
-setwd("D:/")         # Arbeitsverzeichnis setzen
-source("file.R")     # R-Skript ausführen
+newA <- \(x) structure(x, class="a")  # Konstruktor
+newB <- \(x) structure(x, class="b")
+x <- newA(1)
+f(x)                      # A
+f(newB(2))                # B
 
+f <- \(x, y) UseMethod("f", y)  # Auswahl anhand des zweiten
+f.a <- \(x, y) "A"
+f.default <- \(x, y) "Def"
+x <- structure(0, class="a")
+f(x, 0)                   # Def
+f(0, x)                   # A
+
+g <- \(x, y) {            # Auswahl über beide
+  ux <- unique(class(x))  #  Manual Double Dispatch
+  ux <- setNames(seq_along(ux), ux)
+  uy <- unique(class(y))
+  uy <- setNames(seq_along(uy), uy)
+  . <- expand.grid(ux[class(x)], uy[class(y)])
+  . <- .[order(pmax(.[,1], .[,2]), .[,1], .[,2]),]
+  . <- paste(names(ux)[.[,1]], names(uy)[.[,2]], sep="_")
+  class(x) <- unique(c(., class(x), class(y)))
+  UseMethod("g", x) }
+g.a_b <- \(x, y) c(x, y, "AB")
+g.default <- \(x, y) "Def"
+x <- structure(0, class="a")
+y <- structure(1, class="b")
+g(x, y)                   # 0 1 AB
+g(x, x)                   # Def
+g(y, y)                   # Def
+x <- structure(0, class=c("x", "a"))
+y <- structure(1, class=c("y", "b"))
+g(x, y)                   # 0 1 AB
+\end{lstlisting}
+
+Die Klassenreihenfolge in \lstinline|class(x)| entspricht einer einfachen Form von Vererbung. Mit \lstinline|NextMethod()| kann innerhalb einer S3-Methode die nächste passende Methode gemäß der Klassenreihenfolge aufgerufen werden, wodurch spezialisiertes Verhalten schrittweise erweitert werden kann. \lstinline|NextMethod()| kann nur innerhalb einer S3-Methode verwendet werden und ruft keine rekursive Methode, sondern die nächste Klasse in der Klassen-Reihenfolge auf.
+
+\begin{lstlisting}
+f <- \(x) UseMethod("f")
+f.a <- \(x) {x <- x+1; c("A", x, NextMethod())}
+f.b <- \(x) {x <- x-1; c("B", x, NextMethod())}
+f.default <- \(x) c("Def", x)
+
+x <- 0
+class(x) <- "a"
+f(x)                     # A 1 Def 1
+class(x) <- c("b", "a", "b")
+f(x)                     # B -1 A 0 B -1 Def -1
+\end{lstlisting}
+
+In eigenen Paketen sollten Klassen mit Präfix (z.\,B.\ mypkg\_myclass) benannt werden, um Kollisionen zu vermeiden.
+
+
+\subsubsection{S4-Klassen}
+
+In S4 werden Klassen explizit definiert, der Typ (\lstinline|character|, \lstinline|numeric|, \dots) wird überprüft und die Funktionsauswahl kann über mehrere Argumente erfolgen.
+
+Eine S4-Klasse wird mit \lstinline|setClass| definiert. Dabei werden die enthaltenen Slots (Attribute) sowie deren Typen explizit angegeben. Objekte einer S4-Klasse werden mit \lstinline|new| erzeugt.
+
+Es ist nicht möglich, beliebige Attribute hinzuzufügen oder inkonsistente Objekte zu erzeugen. S4 erzwingt die Einhaltung der definierten Klassenstruktur.
+
+Ein direkter Slot-Zugriff ist mit \lstinline|@| möglich, sollte jedoch nach Möglichkeit mittels selbst geschriebene Zugriffsfunktionen erfolgen.
+
+\lstinline|showClass| gibt eine kompakte, menschenlesbare Übersicht einer Klassendefinition aus.
+\lstinline|getClass| liefert die vollständige Klassendefinition als Objekt der Klasse \lstinline|formalClass| und eignet sich für programmatische Auswertung.
+\lstinline|getClassDef| verhält sich ähnlich wie \lstinline|getClass|, gibt jedoch \lstinline|NULL| zurück, falls die Klasse nicht existiert.
+
+\begin{lstlisting}
+setClass("A", slots = list(x = "numeric"))
+showClass("A")            # Info zur Klasse
+x <- new("A", x = 1)
+x@x                       # 1
+#x <- new("A", 1)         ## Error, kein Name
+#x <- new("A", y=1)       ## Error, unzulässiger Name
+#x <- new("A", x = "a")   ## Error, falscher Typ
+x <- new("A")
+x@x                       # numeric(0)
+\end{lstlisting}
+
+Man kann auch die Slot Inhalte mit \lstinline|validity| überprüfen und Default-Werte mit \lstinline|prototype| vergeben. Validiert wird nur bei \lstinline|new()| oder explizitem Aufruf von \lstinline|validObject()|. Also z.\,B.\ nicht bei \lstinline|@<-|.
+
+\begin{lstlisting}
+setClass("A", slots = list(x = "numeric", y = "numeric"),
+  validity = \(object)
+    if (object@x > 0 && object@y > 0) TRUE else "Nicht > 0")
+x <- new("A", x = 1, y = 1)
+#y <- new("A", x = 1, y = 0)  ## Error, Nicht > 0
+
+setClass("B", slots = list(x = "numeric"),
+  prototype = list(x = 42) )
+y <- new("B")
+y@x                           # 42
+\end{lstlisting}
+
+S4 verwendet generische Funktionen mit expliziter Methodendeklaration. Eine generische Funktion wird mit \lstinline|setGeneric| definiert, wobei die Signatur festlegt, über welche Argumente die Funktionsauswahl erfolgt.
+
+Methoden werden mit \lstinline|setMethod| für konkrete Klassenkombinationen definiert.
+
+Die Methodenauswahl erfolgt anhand der Klassen aller in der Signatur angegebenen Argumente. Existiert keine passende Methode, wird ein Fehler ausgelöst. Eine Default-Methode kann mittels Typ \lstinline|ANY| definiert werden.
+
+Mit \lstinline|showMethods()| kann man alle Methoden einer Funktion anzeigen. \lstinline|getMethod()| zeigt eine konkrete Methode mit den entsprechenden Argumenten.
+
+\begin{lstlisting}
+setClass("A", slots = list(x = "integer"))
+
+setGeneric("f", \(x, y) standardGeneric("f"))
+
+setMethod("f",
+  signature(x = "A", y = "numeric"),
+  \(x, y) {x@x - y} )
+
+a <- new("A", x = 2L)
+f(a, 1)              # 1
+#f(2L, 1)            ## Error, keine Methode gefunden
+
+setMethod("f",
+  signature(x = "ANY", y = "numeric"),
+  \(x, y) c(x,  y) )
+f(2L, 1)             # 2 1
+f("x", 1)            # x 1
+
+setMethod("f",
+  signature(x = "missing", y = "numeric"),
+  \(x, y) y * 2 )
+f(y=3)
+
+setMethod("f",
+  signature(x = "missing", y = "missing"),
+  \() 7  # wird in eine Funktion mit x und y eingefügt
+# \(x, y) 7  # Besser explizit
+)
+getMethod("f", signature(x = "missing", y = "missing"))
+# function (x, y) { .local <- \() 7; .local() }
+# Statt: function (x, y) 7
+
+setMethod("f",
+  signature(),  # ANY wird automatisch eingefügt
+# signature(x = "ANY", y = "ANY"), # Besser explizit
+  \(x, y) c(x, y)
+)
+getMethod("f", signature(x = "ANY", y = "ANY"))
+# function (x, y) c(x, y)
+
+setGeneric("getX", function(x) standardGeneric("getX"))
+setMethod("getX", "A", \(x) x@x) # Accessor-Funktion
+getX(a)              # 2
+
+setGeneric("setX<-",
+           function(x, value) standardGeneric("setX<-"))
+setMethod("setX<-", "A", \(x, value) {
+  x@x <- value
+  validObject(x)
+  x
+})
+setX(a) <- 3L
+
+showMethods("f")    # Zeigt alle Methoden von f
+\end{lstlisting}
+
+S4 unterstützt Vererbung durch das Argument \lstinline|contains| bei der Klassendefinition. Abgeleitete Klassen erben Slots und Methoden ihrer Basisklassen.
+
+Slots können selbst S4-Klassen sein, was komplexe, geschachtelte Datenstrukturen ermöglicht (Komposition). Im Gegensatz dazu definiert \lstinline|contains| eine \textit{is-a}-Beziehung (Vererbung).
+
+Mit \lstinline|is()| kann man prüfen ob ein Objekt einer Klasse angehört. Mit \lstinline|as()| kann man in eine andere Klasse umwandeln.
+
+Methoden für Basisklassen sind automatisch auch für abgeleitete Klassen gültig, sofern keine speziellere Methode existiert.
+
+\lstinline|callNextMethod()| ruft die nächstweniger spezifische Methode in der Methodenhierarchie auf.
+
+\begin{lstlisting}
+setClass("A", slots = list(x = "integer"))
+setClass("B", contains = "A", slots = list(y = "numeric"))
+setClass("C", contains = c("A", "B"))  # Mehrfachvererbung
+
+setGeneric("f", \(x) standardGeneric("f"))
+setMethod("f", signature(x = "A"), \(x) x@x)
+
+a <- new("A", x = 1L)
+b <- new("B", x = 2L, y = 3)
+
+is(a, "A")        # TRUE
+is(b, "A")        # TRUE
+is(a, "B")        # FALSE
+is(b, "B")        # TRUE
+
+as(b, "A")        # Wandelt in Klasse A um
+
+f(a)              # 1
+f(b)              # 2; Methode der Basisklasse
+
+setMethod("f", signature(x = "B"), \(x) x@x + 1)
+f(b)              # 3; Methode der eigenen Klasse
+
+setMethod("f", signature(x = "B"), \(x) callNextMethod() + 2)
+f(b)              # 4; Methode für B ruft Methode für A auf
+\end{lstlisting}
+
+S3-Klassen kann man mit \lstinline|setOldClass()| nach S4 übernehmen. Für Basisobjekte wie \lstinline|data.frame| ist \lstinline|setOldClass()| in der Regel bereits durchgeführt.
+
+Virtuelle Klassen dienen als abstrakte Basisklassen, von denen keine Instanzen erzeugt werden.
+
+\begin{lstlisting}
+setGeneric("f", \(x) standardGeneric("f"))
+#setMethod("f", "myS3", \(x) x$a) ## Error myS3 nicht definiert
+setOldClass("myS3")
+setMethod("f", "myS3", \(x) x$a)
+x <- structure(list(a = 1), class = "myS3")
+f(x)                 # 1
+
+setClass("A", contains = "VIRTUAL", slots = list(x = "numeric"))
+setClass("B", contains = "A", slots = list(y = "numeric"))
+#a <- new("A", x = 1)      ## Error, virtuelle Klasse
+b <- new("B", x = 2L, y = 3)
+\end{lstlisting}
+
+%Aufgrund der komplexen Methodensuche (Dispatch) und der formalen Prüfungen ist S4 rechenintensiver als S3. In performance-kritischen Schleifen sollte der direkte Zugriff auf Slots oder der Einsatz von S3 erwogen werden.
+
+%Bei der Entwicklung von Paketen müssen S4-Klassen und -Methoden explizit im \texttt{NAMESPACE} exportiert werden (\lstinline|exportClasses(A)|, \lstinline|exportMethods(f)|).
+
+
+\subsubsection{S7-Klassen}
+
+S7 (Paket: \lstinline|S7|, Version 0.2.1, 2025-11-14) kombiniert die Einfachheit von S3 mit der formalen Strenge von S4 und unterstützt Klassen, generische Funktionen und Funktionsauswahl über die Klassen mehrerer Argumente.
+
+Eine S7-Klasse wird mit \lstinline|new_class()| definiert. Dabei werden Eigenschaften (Properties) mit zugehörigen Typen festgelegt. Die Typen der Properties sind selbst S7-Klassen (z.\,B.\ \lstinline|class_integer| oder benutzerdefinierte Klassen). Base-Typen beginnen mit \lstinline|class_|. Der Zugriff auf die Elemente erfolgt mit \lstinline|@|.
+
+Die Typen der Properties werden beim Erzeugen und Ändern eines Objekts geprüft. Zusätzliche, nicht deklarierte Properties sind nicht erlaubt.
+
+Informationen zu einem S7 Objekt erhält man mit \lstinline|S7_class()| und auch für S3 mit \lstinline|class()|.
+
+\begin{lstlisting}
+library(S7)
+
+A <- new_class("A", properties = list(x = class_integer))
+x <- A(x = 42L)     # Erzeugt S7 Objekt
+x@x                 # 42
+x@x <- 0L
+x@x                 # 0
+#x@x <- "a"         ## Error, falscher Typ
+#x@y <- 0           ## Error, gibt kein y
+S7_class(x)         # <A> class
+                    # @ parent     : <S7_object>
+                    # @ constructor: function(x) {...}
+                    # @ validator  : <NULL>
+                    # @ properties :
+                    #  $ x: <integer>
+class(x)            # "A" "S7_object"
+\end{lstlisting}
+
+Mit dem Argument \lstinline|constructor| kann das Standardverhalten beim Erstellen eines Objekts angepasst werden (z.\,B.\ zur Vorverarbeitung von Werten) und auch Default-Werte vorgeben. Der \lstinline|validator| prüft die Konsistenz des Objekts nach der Erstellung oder Änderung, wenn einfache Typprüfungen der Properties nicht ausreichen. Der \lstinline|validator| wird sowohl beim Erzeugen eines Objekts als auch bei jeder Änderung einer Property ausgeführt. Bei der Definition in Paketen sollte das Argument \lstinline|package| gesetzt werden, um Namenskonflikte zu vermeiden.
+
+\begin{lstlisting}
+A <- new_class("A", properties = list(x = class_integer),
+  constructor = \(x=10L) new_object(S7_object(), x = x - 1L),
+  validator = \(self) {if (self@x < 0) "x < 0"},
+  package = "meinpaket")
+x <- A()
+x@x                # 9; durch Constructor
+x <- A(x = 2L)
+x@x                # 1
+x@x <- 2L          # Ohne Constructor
+x@x                # 2
+#x <- A(x = 0L)    ## Error, x < 0
+#x@x <- -1L        ## Error, x < 0; Validator auch hier
+\end{lstlisting}
+
+In S7 können Union Types (Klassenvereinigungen) genutzt werden, um für eine Eigenschaft (Property) oder eine Methode mehrere verschiedene Klassentypen zuzulassen. Man definiert sie entweder mit der Funktion \lstinline|new_union()| oder mit \lstinline{|}.
+
+\begin{lstlisting}
+A <- new_class("A", properties = list(x = class_integer | NULL))
+x <- A(x = 42L)
+x <- A(x = NULL)
+
+B <- new_class("B", properties =
+       list(x = new_union(class_integer, class_character)))
+x <- B(x = 42L)
+x <- B(x = "z")
+\end{lstlisting}
+
+S7 bietet Computed Properties (berechnete Eigenschaften), welche bei jedem Zugriff neu berechnet werden. Es können auch Defaultwerte über Properties vergeben werden.
+
+\begin{lstlisting}
+B <- new_class("B", properties = list(
+  x = class_numeric,
+  x_sq = new_property(getter = \(self) self@x^2) 
+))
+b <- B(x=2)
+b@x_sq              # 4
+#b@x_sq  <- 2       ## Error, Read only
+b@x  <- 3
+b@x_sq              # 9
+
+E <- new_class("E", properties = list(x =
+      new_property(class_integer, default = 4L)))
+e <- E()
+e@x                 # 4
+\end{lstlisting}
+
+S7 verwendet generische Funktionen. Eine generische Funktion wird mit \lstinline|new_generic()| definiert. Die Signatur legt fest, über welche Argumente die Funktionsauswahl (method dispatch) erfolgt. Die Methoden werden mit \lstinline|method()| definiert.
+
+\begin{lstlisting}
+f <- new_generic("f", c("x", "y"))  # Auswahl über x und y
+
+method(f, list(x=class_integer,y=class_integer)) <- \(x, y) "ii"
+method(f, list(x=class_double, y=class_double)) <- \(x, y) "dd"
+#method(f, list(x=class_integer)) <- \(x, y) "i" ## Error
+method(f, list(x=class_integer, y=class_any)) <- \(x, y) "ia"
+
+f(0L, 0L)                          # ii
+f(0, 0)                            # dd
+f(0L, "a")                         # ia
+#f(0 , "a")                     ## Error, keine passende Methode
+
+f                                  # Zeigt alle Methoden von f
+\end{lstlisting}
+
+S7 unterstützt Vererbung über das Argument \lstinline|parent|. Abgeleitete Klassen erben Properties und Methoden. Abgeleitete Klassen können Properties erweitern, aber nicht entfernen oder umdefinieren. S7 erlaubt die Definition abstrakter Klassen, von denen keine Instanzen erzeugt werden können. Mit \lstinline|super(from, to)| kann man zur nächsten Klasse weiterreichen.
+
+\begin{lstlisting}
+A <- new_class("A", abstract = TRUE,
+  properties = list(x = class_numeric))
+B <- new_class("B", parent = A, properties =
+                         list(y = class_numeric))
+
+# a <- A(x = 0)     ## Error, a ist Abstract
+b <- B(x = 0, y = 1)
+
+f <- new_generic("f", "x")
+method(f, A) <- \(x) "A"
+f(b)                  # A; Über Parent Methode
+method(f, B) <- \(x) "B"
+f(b)                  # B; Jetzt über eigene Methode
+method(f, B) <- \(x) c("B",  f(super(x, A)))
+f(b)                  # B A
+
+E <- new_class("E")
+e <- E()
+#f(e)                 ## Error, Keine passende Methode
+method(f, S7_object) <- \(x) "Def"  # Für alle S7
+f(e)                  # Def
+#f()                  ## Error, Keine passende Methode
+method(f, class_missing) <- \(x) "Missing"
+f()                   # Missing
+#f(0)                 ## Error, Keine passende Methode
+method(f, class_any) <- \(x) "Any"  # Für alle
+f(0)                  # Any
+\end{lstlisting}
+
+S7 ist vollständig mit dem bestehenden S3-System interoperabel. S7-Objekte besitzen immer auch eine S3-Klasse, sodass sie nahtlos mit bestehenden S3-Generics und Methoden verwendet werden können.
+
+\begin{lstlisting}
+A <- new_class("A", properties = list(x = class_integer))
+x <- A(x = 42L)     # Erzeugt S7 Objekt
+print(x)   # <A>, @ x: int 42
+#print.A <- \(x, ...) print(x@x, ...) # Nicht empfohlen
+method(print, A) <- \(x, ...) print(x@x, ...) # empfohlen
+print(x)   # 42
+\end{lstlisting}
+
+In S7 müssen S3-Klassen explizit mit \lstinline|new_S3_class()| deklariert werden, bevor sie als Typen für Properties oder in Methodensignaturen verwendet werden können. Während Basis-S3-Klassen wie \lstinline|data.frame| bereits vordefiniert sind, ist \lstinline|new_S3_class()| für alle anderen S3-Klassen, z.\,B.\ aus eigenen Klassen zwingend erforderlich.
+
+\begin{lstlisting}
+S3 <- list(x = 10)
+class(S3) <- "S3"
+# A <- new_class("A", properties = list(y = S3)) ## Error
+class_S3 <- new_S3_class("S3")
+A <- new_class("A", properties = list(y = class_S3))
+a <- A(y = S3)
+\end{lstlisting}
+
+
+\subsubsection{Reference-Klassen}
+
+Reference Classes (auch \emph{RC} genannt) stellen in R ein objektorientiertes System mit Referenzsemantik bereit. Im Gegensatz zu S3 und S4 werden Objekte nicht kopiert, sondern in-place verändert. Wird ein Reference-Class-Objekt an eine Funktion übergeben, arbeiten alle Variablen, die darauf verweisen, auf demselben Objekt.
+
+Reference Classes werden mit \lstinline|setRefClass| definiert. Dabei werden Felder (Attribute) und Methoden explizit angegeben. Objekte werden durch den Aufruf des Klassennamens erzeugt.
+
+Innerhalb von RefClass-Methoden kann der Zugriff auf Felder entweder direkt über den Operator \lstinline|<<-| oder explizit über \lstinline|.self$feldname| erfolgen. Empfohlen wird die Verwendung von \lstinline|.self$feldname|, um Namenskollisionen mit lokalen Variablen zu vermeiden.
+
+Der Zugriff auf Felder und Methoden erfolgt über den Operator \lstinline|$|.
+
+Reference Classes unterstützen Vererbung über das Argument \lstinline|contains| bei der Klassendefinition. Abgeleitete Klassen erben Felder und Methoden der Basisklasse.
+
+\begin{lstlisting}
+A <- setRefClass("A",
+  fields = list(x = "numeric"),
+  methods = list( inc = \() { .self$x <- .self$x + 1 } ))
+
+a <- A$new()
+a$x               # numeric(0)
+a <- A$new(x = 1)
+a$x               # 1
+a$inc()
+a$x               # 2
+
+z <- a
+z$inc()
+a$x               # 3
+
+f <- \(obj) obj$inc()
+f(a)
+a$x               # 4
+
+a$x <- 7
+#a$x <- "a"       ## Error, falsche Klasse
+
+B <- setRefClass("B",
+  contains = "A",           # .self wäre besser als <<-
+  methods = list( dec = \() { x <<- x - 1 } ))
+
+b <- B$new(x = 10)
+b$x               # 10
+b$inc()
+b$x               # 11
+b$dec()
+b$x               # 10
+\end{lstlisting}
+
+Mit \lstinline|$copy(TRUE)| kann man eine flache Kopie (\emph{shallow copy}) eines Reference-Class-Objekts erzeugen. Referenzfelder, wie andere Reference-Class-Objekte oder Environments, werden dabei nicht kopiert. Mit \lstinline|$copy()| kann eine tiefe Kopie (\emph{deep copy}) erstellt werden, bei der auch referenzierte Objekte rekursiv kopiert werden.
+
+\begin{lstlisting}
+A <- setRefClass("A", fields = list(x = "numeric"))
+B <- setRefClass("B", fields = list(x = "A", y = "numeric"))
+a <- A$new(x = 0)
+b <- B$new(x = a, y = 0)
+
+c <- b$copy()     # Deep Copy
+c$x$x <- 1
+c$y <- 1
+a$x           # 0
+b$x$x         # 0
+b$y           # 0
+
+c <- b$copy(TRUE) # Shallow copy
+c$x$x <- 2
+c$y <- 2
+a$x           # 2
+b$x$x         # 2
+b$y           # 0
+
+c <- b            # Referenz
+c$x$x <- 3
+c$y <- 3
+a$x           # 3
+b$x$x         # 3
+b$y           # 3
+\end{lstlisting}
+
+Im Gegensatz zu S3 und S4 erfolgt der Methodenaufruf bei Reference Classes nicht über generische Funktionen und Funktionsauswahl, sondern über direkte Methodenbindung an das Objekt. Polymorphes Verhalten wird durch Vererbung und Überschreiben von Methoden realisiert.
+
+Man kann auch eine eigene \lstinline|initialize|-Methode definieren. \lstinline|callSuper()| ruft die gleichnamige Methode der Basisklasse auf. Die Funktion \lstinline|callSuper(...)| sollte in der Regel am \emph{Anfang} der \lstinline|initialize|-Methode aufgerufen werden. Dadurch werden die Felder zuerst mit den übergebenen Argumenten initialisiert, woraufhin die spezifische Logik der Subklasse diese Werte validieren oder modifizieren kann. Würde \lstinline|callSuper()| am Ende stehen, könnten manuelle Zuweisungen innerhalb der Methode durch die Standard-Initialisierung der Basisklasse überschrieben werden. Am Ende der \lstinline|initialize|-Methode sollte \lstinline|.self| stehen. Wenn keine eigene initialize-Methode geschrieben wird, nutzt RC eine Standardmethode, die benannte Argumente den Feldern zuweist.
+
+\begin{lstlisting}
+A <- setRefClass("A",
+  fields = list(x = "numeric"),
+  methods = list( inc = \() { .self$x <- .self$x + 1 },
+    initialize = \(x = 0, ...) {
+      callSuper(...)  # für den Fall weiterer Basisklassen
+      .self$x <- x
+      .self } ))
+a <- A$new()
+a$x                # 0
+a <- A$new(x=1)
+a$x                # 1
+
+B <- setRefClass("B",
+  contains = "A",
+  methods = list(
+    inc = \() {
+      callSuper()  # ruft inc() von A auf
+      .self$x <- .self$x + 10 } ))
+b <- B$new(x = 1)
+b$inc()
+b$x                # 12
+\end{lstlisting}
+
+
+\iffalse
+\subsubsection{R6-Klassen}
+
+R6 ist ein modernes objektorientiertes System für R mit Referenzsemantik, das viele Konzepte von Reference Classes (RC) übernimmt, jedoch kompakter und effizienter umgesetzt ist.  
+Wie bei RC werden Objekte in-place verändert und Methoden sind direkt an das Objekt gebunden. R6-Objekte sind \emph{mutable}: Änderungen wirken auf alle Variablen, die auf dasselbe Objekt verweisen.
+
+R6-Klassen werden mit \lstinline|R6Class()| definiert. Dabei werden \emph{public} Felder (Attributes) und Methoden explizit angegeben. Objekte werden mit \lstinline|$new()| erzeugt. Der Zugriff auf Felder und Methoden erfolgt über den Operator \lstinline|$|.
+
+\begin{lstlisting}
+library(R6)
+
+A <- R6Class("A",
+  public = list(
+    x = NULL,
+    initialize = function(x = 0) { self$x <- x },
+    inc = function() { self$x <- self$x + 1 }
+  )
+)
+
+a <- A$new()
+a$x               # 0
+a$inc()
+a$x               # 1
+
+z <- a
+z$inc()
+a$x               # 2
+
+f <- function(obj) obj$inc()
+f(a)
+a$x               # 3
+
+a$x <- 7
+#a$x <- "a"       ## Error, falscher Typ nicht automatisch geprüft
+\end{lstlisting}
+
+---
+
+R6 unterstützt Vererbung über das Argument \lstinline|inherit|. Abgeleitete Klassen erben Felder und Methoden der Basisklasse. Methoden können überschrieben werden, wobei auf die Basisklassenmethode mit \lstinline|super$method()| zugegriffen werden kann.
+
+\begin{lstlisting}
+B <- R6Class("B",
+  inherit = A,
+  public = list(
+    dec = function() { self$x <- self$x - 1 },
+    inc = function() {
+      super$inc()    # ruft inc() von A auf
+      self$x <- self$x + 10 }
+  )
+)
+
+b <- B$new(x = 1)
+b$inc()
+b$x               # 12
+b$dec()
+b$x               # 11
+\end{lstlisting}
+
+---
+
+R6-Objekte können \emph{kopiert} werden, wobei standardmäßig eine flache Kopie erstellt wird. Für eine tiefe Kopie kann \lstinline|clone(deep = TRUE)| verwendet werden, ähnlich wie bei Reference Classes.
+
+\begin{lstlisting}
+A <- R6Class("A", public = list(x = 0))
+B <- R6Class("B", inherit = A, public = list(y = NULL))
+
+a <- A$new()
+b <- B$new()
+b$x <- a$x
+b$y <- a
+
+c <- b$clone(deep = TRUE)  # Deep copy
+c$y$x <- 1
+a$x               # 0
+b$y$x             # 0
+
+d <- b$clone()     # Shallow copy
+d$y$x <- 2
+a$x               # 2
+b$y$x             # 2
+\end{lstlisting}
+
+---
+
+Im Gegensatz zu S3, S4 oder S7 erfolgt der Methodenaufruf nicht über generische Funktionen, sondern direkt über das Objekt. Polymorphismus wird durch Vererbung und Überschreiben von Methoden realisiert, nicht durch Dispatch auf Klassen.
+
+\begin{lstlisting}
+# R6-Polymorphismus-Beispiel
+C <- R6Class("C",
+  inherit = A,
+  public = list(
+    inc = function() { self$x <- self$x + 100 }
+  )
+)
+
+c <- C$new(x = 1)
+c$inc()
+c$x               # 101
+\end{lstlisting}
+
+---
+
+R6 ist besonders geeignet für:
+
+- mutable Objekte, die in Simulationen, GUIs oder iterativen Algorithmen benötigt werden,
+- klare Kapselung von Daten und Methoden,
+- kompakte, moderne Syntax im Vergleich zu Reference Classes.
+
+Im Vergleich zu RC bietet R6:
+
+- **leichtere Syntax** (kein \lstinline|<<-| notwendig),
+- **schnellere Implementierung**, da kein S4-Metaclass-System beteiligt ist,
+- klarere Trennung zwischen public, private und active fields.
+
+R6 ergänzt damit das Spektrum objektorientierter Systeme in R und bildet die moderne Variante referenzbasierter Klassen.
+
+\fi
+
+
+\section{Typen}
+
+Alle Objekte haben einen bestimmten Typ. Dieser Typ bestimmt, welche Werte bzw.\ Daten ein Objekt enthalten kann und welche Operationen darauf zulässig sind. Neben dem Typ bestimmt die Objektklasse, wie Operatoren und Funktionen auf ein Objekt angewendet werden.
+
+R ist dynamisch typisiert, d.\,h.\ der Typ ist an das Objekt gebunden und wird zur Laufzeit festgelegt. Mit \lstinline|typeof()| kann der interne Typ eines Objekts bestimmt werden.
+
+Ob ein Objekt zu einem bestimmten Typ gehört, lässt sich mit Funktionen der Form
+\lstinline|is.TYP()|, z.\,B.\ \lstinline|is.numeric()|, prüfen. Ob es zu einer bestimmten Klasse gehört kann mit \lstinline|is()| geprüft werden.
+
+\begin{lstlisting}
+x <- 1
+typeof(x)        # double;  interner Typ
+class(x)         # numeric; Klasse(n)
+is.double(x)     # TRUE
+is.numeric(x)    # TRUE
+is.character(x)  # FALSE
+is(x, "double")  # FALSE; ist Typ nicht Klasse
+is(x, "numeric") # TRUE
+\end{lstlisting}
+
+Mit \lstinline|as.TYP()| wird in den Typ, mit \lstinline|as()| in die Klasse konvertiert. R prüft dabei nicht streng auf Genauigkeit, sondern führt die Konvertierung stillschweigend durch. Mit \lstinline|canCoerce()| kann geprüft werden ob ein Objekt in eine andere Klasse konvertiert werden kann.
+
+\begin{lstlisting}[language=R]
+as.integer(1)     # Wandelt Double in Integer
+as.integer(1.0)   # Wandelt Double in Integer
+as.integer(1.8)   # wird abgeschnitten => 1
+as.integer("a")   # NA; Warnung
+floor(1.3)        # Abrunden  => 1 Double
+ceiling(1.3)      # Aufrunden => 2 Double
+round(1.3)        # Runden    => 1 Double
+x <- "1.5"
+canCoerce(x, "numeric")  # TRUE
+as(x, "numeric")         # 1.5
+\end{lstlisting}
+
+
+\subsection{Vektor}
+
+In R ist selbst ein einzelnes Element bereits ein Vektor. Vektoren zählen zu den atomaren Objekten, welche nur Werte eines einzigen elementaren Typs enthalten können. \lstinline|is.atomic()| prüft, ob ein Objekt atomar ist. \lstinline|is.vector()| ist nur dann \lstinline|TRUE|, wenn das Objekt atomar ist und außer \lstinline|names()| keine weiteren Attribute besitzt.
+
+\begin{lstlisting}
+x <- 1
+is.atomic(x)     # TRUE
+is.vector(x)     # TRUE
+\end{lstlisting}
+
+
+\subsubsection{Erzeugen von Vektoren}
+
+Ein Vektor kann mit \lstinline|vector()| erzeugt werden.
+Mehrere Elemente können mit \lstinline|c()| zusammengefasst werden.
+
+\begin{lstlisting}
+x <- vector("logical", 3)  # Vektor mit 3 Logical Elementen
+x <- logical(3)            # Vektor mit 3 Logical Elementen
+x <- c(10, 20, 30, 40)     # Vektor mit den angegebenen Elementen
+numeric(0)                 # Leerer Vektor
+\end{lstlisting}
+
+Auch mit \lstinline|rep()| (wiederholen) und \lstinline|seq()| bzw.\ \lstinline|:| (Sequenz) lassen sich Vektoren erzeugen. Der Operator \lstinline|:| erzeugt immer eine Ganzzahlsequenz.
+
+Die Schreibweise \lstinline|1:n| ergibt bei \lstinline|n = 0| \lstinline|1 0|, was beim Iterieren über einzelne Elemente meist nicht beabsichtigt ist. Daher sollten dafür \lstinline|seq_len()| oder \lstinline|seq_along()| bevorzugt werden.
+
+\begin{lstlisting}
 x <- 1:3             # 1 2 3; Erzeugt eine Integer Sequenz
 3:1                  # 3 2 1
 seq(1, 3)            # 1 2 3; Erzeugt eine Integer Sequenz
-seq(1, 6, 2)         # 1 3 5
+seq(1, 6, 2)         # 1 3 5; double Sequenz
+seq(1L, 6L, 2L)      # 1 3 5; Integer Sequenz
 seq(3, by=2, length.out=4) # 3 5 7 9
 seq(0, by=3, along.with=x) # 0 3 6; so lange wie x
 seq_along(x)         # 1 2 3
@@ -814,23 +2364,397 @@ seq_len(n)           # 1 2 3
 n <- 0
 seq_len(n)           # integer(0)
 1:n                  # 1 0
+
 rep(1:3, 2)          # 1 2 3 1 2 3; Objekt wiederholen
 rep(1:3, each=2)     # 1 1 2 2 3 3
 rep(1:3, 3:1)        # 1 1 1 2 2 3
+\end{lstlisting}
+
+Unterschiedliche Typen werden automatisch zum höheren Typ konvertiert (logical < integer < double < character).
+
+\begin{lstlisting}
+c(1, "a")            # Wird character-Vektor
+\end{lstlisting}
+
+Die Länge eines Vektors kann mit \lstinline|length()| abgefragt werden
+
+\begin{lstlisting}
+x <- c(1, 3, 2)
+length(x)            # 3
+length(x) <- 4
+x                    # 1 3 2 NA; Auffüllen mit NA
+length(x) <- 2
+x                    # 1 3; verkürzt Vektor
+\end{lstlisting}
+
+
+\subsubsection{Recycling-Regel}
+
+R verwendet bei Vektoroperationen die sogenannte \emph{Recycling-Regel}. Kürzere Vektoren werden automatisch wiederholt. Ist die Länge kein ganzzahliges Vielfaches, gibt R eine Warnung aus. Ein Skalar (einzelne Zahl) ist in R ein Vektor der Länge 1 und wird bei Operationen mit längeren Vektoren auf deren Länge erweitert.
+
+\begin{lstlisting}
 1:4 + 1:2 + 1        # 3 5 5 7; Auto Wiederholung
 1:4 + 1:3            # 2 4 6 5; Warnung Länge
 1:3 + 1:4            # 2 4 6 5; Warnung Länge
 \end{lstlisting}
 
-%%% Einarbeiten %%%
 
-%%% Copy-on-Modify für Listen %%%
+\subsubsection{Zugriff auf Vektorelemente}
 
-\section{Grundtypen}
+Auf einzelne Elemente in einem Vektor kann mit \lstinline|[INDEX]| zugegriffen werden. Der Index selbst ist dabei wiederum ein Vektor. Bei \lstinline|[]| bleiben Namen erhalten. \lstinline|[[INDEX]]| liefert ausschließlich das Element wobei der index nur ein Element haben darf.
 
-Mit \lstinline|typeof(x)| kann der Typ von \lstinline|x| in R bestimmt werden.
-R verwendet dynamische Typisierung, d.\,h. der Typ wird zur Laufzeit zugewiesen.
-R kennt keinen eigenen Zeichentyp (char); einzelne Zeichen werden als Zeichenketten (Strings) der Länge 1 behandelt.
+\begin{lstlisting}
+10[c(1,1)]       # 10 10
+
+x <- c(10, 20, 30, 40)
+x                # ganzer Vektor
+x[]              # ganzer Vektor
+x[0]             # leerer Vektor
+x[-0]            # leerer Vektor
+x[NULL]          # leerer Vektor
+x[integer(0)]    # leerer Vektor
+x[-integer(0)]   # leerer Vektor
+\end{lstlisting}
+
+
+\paragraph{Positionsbasierte Indizierung}
+
+Bei der positionsbasierten Indizierung werden Elemente über ihre numerische Position im Vektor ausgewählt.
+
+\begin{lstlisting}
+x <- c(10, 20, 30, 40)
+x[2]             # 20; Element an Position 2
+x[2:3]           # 20 30; Element 2 bis 3
+x[3:2]           # 30 20; Element 3 bis 2
+x[c(1,3,2)]      # 10 30 20; Mehrere Elemente
+i <- c(1,3,2)
+x[i]             # 10 30 20
+x[c(1,1)]        # 10 10; Mehrfach gleiches Element
+
+x[5]             # NA
+
+which(x > 20)    # 3 4; which gibt TRUE Positionen
+x[which(x > 20)] # 30 40; Über Position
+\end{lstlisting}
+
+
+\paragraph{Negative Indizes}
+
+Negative Indizes schließen die angegebenen Positionen aus dem Ergebnis aus. Positive und negative Indizes dürfen nicht gemischt werden.
+
+\begin{lstlisting}
+x <- c(10, 20, 30, 40)
+x[-c(1,3)]       # 20 40; Alle außer Position 1 und 3
+
+x[-which(x>20)]  # 10 20
+x[-which(x>50)]  # leerer Vektor
+
+#x[c(-1,3)]      ## Error, positiv und negativ
+\end{lstlisting}
+
+
+\paragraph{Logische Indizierung}
+
+Bei der logischen Indizierung wird ein logischer Vektor verwendet, um Elemente
+auszuwählen. Der logische Index wird bei Bedarf automatisch wiederholt.
+
+\begin{lstlisting}
+x <- c(10, 20, 30, 40)
+x[c(TRUE,FALSE,FALSE,TRUE)] # 10 40
+x[c(TRUE,FALSE)] # 10 30; Wird automatisch wiederholt
+
+x > 20           # FALSE FALSE TRUE TRUE
+x[x > 20]        # 30 40
+x[!(x > 20)]     # 10 20; ! (not)
+x[! x > 20]      # 10 20; Das gleiche
+x[!(x > 50)]     # 10 20 30 40
+\end{lstlisting}
+
+
+\subsubsection{Benannte Vektoren}
+
+Elemente können auch Namen haben, über die auf sie zugegriffen werden kann.
+Mit \lstinline|names()| können Namen abgefragt oder gesetzt werden.
+Namen können bei bestehenden Vektoren mit \lstinline|setNames()| gesetzt werden.
+Mit \lstinline|unname()| können Namen entfernt werden.
+
+\begin{lstlisting}
+x <- c("3"=10, b=20, c=30, d=40)
+x["c"]           # 30; behält Namen
+x[["c"]]         # 30; Nur Wert, ohne Namen
+x[c("c", "d")]   # 30 40
+#x[[c("c", "d")]]## Error, geht nur für ein Element
+#x$c             ## Error, $ nicht bei Vektor
+x[3]             # 30; Über Position
+x["3"]           # 10; Über Namen
+
+x <- c(1, 3, 2)
+names(x)         # NULL
+names(x) <- c("a", "c", "b")
+x                              # a c b
+                               # 1 3 2
+unname(x)                      # 1 3 2
+names(x) <- NULL               # Namen Löschen
+
+setNames(x, c("a", "c", "b"))  # a c b
+                               # 1 3 2
+setNames(nm = x)               # 1 3 2; Namen aus den Werten
+                               # 1 3 2
+\end{lstlisting}
+
+\subsubsection{Anfang und Ende}
+
+Mit \lstinline|head()| und \lstinline|tail()| erhält man den Anfang bzw.\ das Ende eines Vektors.
+
+\begin{lstlisting}
+x <- 1:5
+head(x, 2)    # 1 2; Ersten zwei Elemente
+tail(x, 2)    # 4 5; Letzten zwei Elemente
+head(x, -2)   # 1 2 3; Ohne die letzten beiden
+tail(x, -2)   # 3 4 5; Ohne die ersten beiden
+\end{lstlisting}
+
+
+\subsubsection{Veränderung}
+
+Bestehende Vektoren können mit \lstinline|c()| aneinander gehängt werden.
+
+\begin{lstlisting}
+x <- 1:3
+x <- c(x, 4L)     # 1 2 3 4; Element anhängen
+y <- 5:6
+c(x, y)           # 1 2 3 4 5 6
+\end{lstlisting}
+
+Die Funktion \lstinline|c()| erzeugt jedes Mal einen \emph{neuen} Vektor und kopiert dabei alle Elemente. Das wiederholte Anhängen von Elementen in einer Schleife kann bei großen Vektoren langsam werden.
+
+\begin{lstlisting}
+x <- integer(0)
+for (i in 1:100000) x <- c(x, i)
+
+x <- integer(100000)
+for (i in 1:100000) x[i] <- i
+\end{lstlisting}
+
+Mit \lstinline|append()| kann an einer bestimmten Position eingefügt werden.
+
+\begin{lstlisting}
+x <- 1:3
+append(x, 5:6, 2)   # 1 2 5 6 3; nach Position 2 einfügen
+append(x, 5:6, 9)   # 1 2 3 5 6; Position 9 gibt es nicht
+\end{lstlisting}
+
+Elemente können mit \lstinline|<-| überschrieben werden.
+
+\begin{lstlisting}
+x <- 1:3          # 1 2 3; Integer
+x[2] <- 4L        # 1 4 3; zweites Element ändern
+x[2] <- 2         # 1 2 3; Int wird Numeric
+x[2:3] <- 5:6     # 1 5 6
+x[x>1] <- 2       # 1 2 2; Alle >1 auf 2 ändern
+x[5] <- 5         # 1 2 2 NA 5; Element hinterm Ende einfügen
+x[] <- 2          # 2 2 2 2 2: Alle Elemente werden 2
+x[c(2,4)] <- 3    # 2 3 2 3 2
+\end{lstlisting}
+
+Die Reihenfolge kann mit \lstinline|rev()| umgedreht werden.
+
+\begin{lstlisting}
+rev(1:3)          # 3 2 1
+\end{lstlisting}
+
+Einen Index, mit dem die Elemente sortiert sind, erhält man mit \lstinline|order()|. Mit \lstinline|sort()| kann man einen Vektor sortieren. Mit \lstinline|rank()| bekommt man den Rang.
+
+\begin{lstlisting}
+x <- c(1,3,2,1)
+i <- order(x)       # 1 4 3 2
+x[i]                # 1 1 2 3
+is.unsorted(x)      # TRUE
+is.unsorted(x[i])   # FALSE
+sort(x)             # 1 1 2 3
+rank(x)             # 1.5 4.0 3.0 1.5
+\end{lstlisting}
+
+Einmalige Elemente erhält man mit \lstinline|unique()|, die Positionen von doppelten Elementen mit \lstinline|duplicated|.
+
+\begin{lstlisting}
+x <- c(2, 2, 1, 1, 3)
+unique(x)         # 2 1 3
+duplicated(x)     # FALSE TRUE FALSE TRUE FALSE
+\end{lstlisting}
+
+
+
+%%% HIER WEITER %%%
+
+\subsection{Grundtypen}
+
+Die elementaren Datentypen bilden die Basis aller atomaren Vektoren.
+
+
+\subsubsection{logical}
+
+Kann entweder \lstinline|FALSE| oder \lstinline|TRUE| sein.
+
+Übliche Operatoren für einzelne Elemente sind \lstinline|&&| (and, und), \lstinline{||} (or, oder) und \lstinline|!| (not, nicht).
+
+\begin{lstlisting}
+FALSE && TRUE          # FALSE
+TRUE  || FALSE         # TRUE
+!TRUE                  # FALSE
+!FALSE                 # TRUE
+\end{lstlisting}
+
+% & und |
+
+% TRUE + TRUE
+
+
+
+\subsubsection{integer}
+\subsubsection{double} numeric
+
+R kennt spezielle Werte für ungültige oder unendliche Zahlen.
+
+\begin{lstlisting}
+NaN                       # Not a Number (z.B. 0/0)
+Inf                       # Unendlich (z.B. 1/0)
+-Inf                      # Negativ unendlich (z.B. -1/0)
+\end{lstlisting}
+
+\subsubsection{complex}
+\subsubsection{character}
+\subsubsection{raw}
+
+\subsubsection{NA}
+
+R kennt spezielle Werte für fehlende Daten. Sie sind typabhängig und verhalten sich in Berechnungen wie reguläre Werte ihres jeweiligen Typs.
+
+\begin{lstlisting}
+NA                        # Fehlender Wert vom Typ logical
+NA_integer_               # Integer NA
+NA_real_                  # Double NA
+NA_character_             # Character NA
+is.na(1)                  # FALSE
+is.na(NA)                 # TRUE
+
+typeof(1L + TRUE)         # integer
+typeof(1L + NA)           # integer
+typeof(1L + 1.5)          # double
+typeof(1L + NA_real_)     # double
+\end{lstlisting}
+
+\subsection{NULL}
+
+
+
+Rekursive Objekte können als Elemente R-Objekte und mit diesen verschiedenen Typen enthalten.
+\lstinline|is.recursive()| prüft ob ein Objekt rekursiv ist.
+
+\begin{lstlisting}
+x <- list(1, 2)
+is.recursive(x)  # TRUE
+\end{lstlisting}
+
+
+\iffalse
+
+atomare Typen:
+    logical → TRUE / FALSE
+    integer → ganze Zahlen (1L)
+    double → Gleitkommazahlen
+    numeric → Alias für double
+    complex → komplexe Zahlen
+    character → Zeichenketten
+    raw → Binärdaten
+    NULL
+    NA
+    
+Mengen
+Gleicher Typ:
+  vektor
+Verschiedenen Typen:
+  list
+  environment
+
+Objektklassen
+Klassen, die auf atomaren Typen oder Listen aufbauen.
+Datum & Zeit
+
+    Date → basiert auf double
+
+    POSIXct → double (Sekunden seit 1970)
+
+    POSIXlt → list
+
+    POSIXt → virtuelle Oberklasse für POSIXct & POSIXlt
+
+Kategorische Daten
+
+    factor → integer + Levels (character)
+
+Datenstrukturen
+
+    data.frame → spezielle list
+
+    matrix, array
+    
+Sprach- & Codeobjekte (Language Objects)
+Diese repräsentieren R-Code selbst.
+Sprachobjekte:
+
+    language (Oberbegriff)
+
+    call → Funktionsaufruf
+
+    expression → Liste von Calls
+
+    name / symbol → Variablennamen
+quote(x + y)   # call
+expression(x + y)  # expression
+
+Funktionen & Formeln
+
+    function → ausführbarer Code
+
+    formula → spezielle Sprache (y ~ x)
+
+    Beide gehören nicht zu atomaren Typen, sondern sind eigene Objektklassen.
+
+    
+
+\subsection{Grundtypen}
+
+character
+complex
+Date
+double
+factor
+integer
+logical
+numeric
+POSIXct
+POSIXlt
+POSIXt
+raw
+
+formula
+function
+language
+
+call
+expression
+
+name
+symbol
+
+environment
+data.frame
+list
+vector
+
+\fi
+
 
 \begin{lstlisting}[language=R]
 1              # Double
@@ -842,38 +2766,10 @@ TRUE           # Boolean
 FALSE          # Boolean
 'abc'          # String
 "abc"          # String
+r"(abc)"       # String ohne Interpretation
 as.raw(97)     # Raw (Byte)
 as.raw(0x61)   # Raw
 charToRaw("a") # 61; Raw
-\end{lstlisting}
-
-Mit \lstinline|as.T(x)| wird ein Wert \lstinline|x| in den Typ \lstinline|T| konvertiert. R prüft dabei nicht streng auf Genauigkeit, sondern führt die Konvertierung stillschweigend durch.
-
-\begin{lstlisting}[language=R]
-as.integer(1)     # Wandelt Double in Integer
-as.integer(1.0)   # Wandelt Double in Integer
-as.integer(1.8)   # wird abgeschnitten => 1
-floor(1.3)        # Abrunden  => 1 Double
-ceiling(1.3)      # Aufrunden => 2 Double
-round(1.3)        # Runden    => 1 Double
-\end{lstlisting}
-
-R kennt spezielle Werte für fehlende, ungültige oder unendliche Zahlen. Sie sind typabhängig und verhalten sich in Berechnungen wie reguläre Werte ihres jeweiligen Typs.
-
-\begin{lstlisting}[language=R]
-NA                        # Fehlender Wert vom Typ logical
-NA_integer_               # Integer NA
-NA_real_                  # Double NA
-NA_character_             # Character NA
-is.na(1)                  # FALSE
-is.na(NA)                 # TRUE
-
-typeof(1L + NA)           # integer
-typeof(1L + NA_real_)     # double
-
-NaN                       # Not a Number (z.B. 0/0)
-Inf                       # Unendlich (z.B. 1/0)
--Inf                      # Negativ unendlich (z.B. -1/0)
 \end{lstlisting}
 
 R unterstützt auch komplexe Zahlen. Zur exakten Berechnung mit sehr großen Zahlen oder Brüchen lassen sich externe Pakete wie \texttt{gmp} (ganze und rationale Zahlen) oder \texttt{Rmpfr} (Gleitkommazahlen) verwenden.
@@ -892,6 +2788,10 @@ as.character(2^53 + 1)           # 9007199254740992 !
 as.character(2^53 + 2)           # 9007199254740994
 0.1 + 0.2 == 0.3                 # FALSE; Rundungsfehler
 all.equal(0.1 + 0.2, 0.3)        # TRUE; Einstellbare Toleranz
+
+2^53 + 1 + 1 - 2^53              # 0
+sum(2^53, 1, 1, -2^53)           # 0
+sum(c(2^53, 1, 1, -2^53))        # 2
 
 library(gmp)
 as.bigz("2147483648")            #  2147483648 als Ganzzahl
@@ -940,6 +2840,9 @@ x[2]                       # .
 x[101]                     # NA
 \end{lstlisting}
 
+R kennt keinen eigenen Zeichentyp (char); einzelne Zeichen werden als Zeichenketten (Strings) der Länge 1 behandelt.
+
+
 \subsection{Matrix, Array}
 
 Array ist eine ein bis mehrdimensionale Strukturen die Elemente des gleichen Typs enthält. Eine Matrix ist ein zweidimensionales Array.
@@ -969,6 +2872,8 @@ x[5,5]                           # 0
 \end{lstlisting}
 
 \subsection{List}
+
+%%% Copy-on-Modify für Listen %%%
 
 Eine Liste ist ein Vektor für Objekte beliebiger Typen und Längen.
 
@@ -1085,156 +2990,6 @@ x[1] <- list(NULL)    # Fügt NULL ein
 x <- data.frame(a=1:2, b=3:4)
 x$c <- list(NULL, 2)  # Fügt neue Liste ein
 x$b <- NULL           # Löscht Spalte b
-\end{lstlisting}
-
-\subsection{Funktionen und Closure}
-
-Beim Aufruf von Funktionen werden Argumente nach folgender Priorität zugeordnet:
-\begin{enumerate}
-  \item exakter Name  
-  \item partieller Name  
-  \item Position  
-\end{enumerate}
-Dadurch können Argumente frei kombiniert positional und per Name übergeben werden.
-
-\begin{lstlisting}
-f <- function(x, xa, ya, yb, za) cat(x, xa, ya, yb, za)
-f(1, 2, 3, 4, 5)         # 1 2 3 4 5; Position
-f(1, 2, 3, 4, x=5)       # 5 1 2 3 4; exakter Name + Position
-f(1, 2, 3, 4, xa=5)      # 1 5 2 3 4; exakter Name + Position
-#f(1, 2, 3, x=4, x=5)    ## Error, x passt zu mehreren
-#f(1, 2, 3, 4, y=5)      ## Error, y mehrdeutig ya oder yb
-f(z=1, 2, 3, 4, 5)       # 2 3 4 5 1; Partieller Name und Position
-#f(zak=1, 2, 3, 4, 5)    ## Error, unbenutztes Argument zak
-\end{lstlisting}
-
-In R sind Funktionen sogenannte Closures: Objekte, die aus einem Funktionskörper und einem enclosing environment bestehen.
-Variablen, die nicht als Funktionsargumente übergeben werden, sucht R zuerst im enclosing environment der Funktion und dann in den übergeordneten Environments.
-Im Environment können Variablen gespeichert werden.
-Bei Funktionen wird der letzte Ausdruck zurückgegeben.
-Zusätzlich gibt es noch \lstinline|return|.
-
-\begin{lstlisting}[language=R]
-f <- function(x) x+1
-f(3)           # 4
-
-f2 <- \() {x}  # \() Kurzschreibweise
-#f2()          ## Fehler, x nicht gefunden
-x <- 1
-f2()           # 1; greift jetzt auf globales x zu
-
-f3 <- \() {x <- 2; x}
-f3()           # 2; greift auf lokales x zu
-
-f4 <- local(\() x)
-f4()           # 1; greift auf globales x zu
-environment(f4)$x <- 4
-f4()           # 4; greift auf lokales x zu
-x              # 1
-
-f5 <- local({n=0L; \() {n <<- n+1L; n}})
-f5()           # 1
-f5()           # 2
-environment(f5)$n <- 8
-f5()           # 9
-
-f6f <- \(n){\() {n <<- n+1L; n}} # Function factory
-f6 <- f6f(7L)  # Gibt Funktion zurück
-f6()           # 8
-f6()           # 9
-ls(environment(f6))      # n
-as.list(environment(f6)) # n 9
-
-f7 <- \(a, b) a(b) # Argument ist eine Funktion
-f7(mean, 1:3)  # 2
-f7(sum , 1:3)  # 6
-
-f8 <- \() {x <<- 2; invisible(x)}
-f8()           # Gibt nichts in der Konsole aus
-cat(f8())      # 2; Gibt aber dennoch Wert zurück
-
-f9 <- \(n) if (n > 0) n + f9(n-1) else n
-f9(3)          # 6; Rekursiv
-\end{lstlisting}
-
-\lstinline|local()| erzeugt ein Environment, in dem Objekte (z. B. Zähler oder Parameter) dauerhaft für die zurückgegebene Funktion gebunden bleiben.
-
-Die Ellipsis \lstinline|...| fängt alle nicht explizit definierten Argumente auf und ermöglicht deren unveränderte Weitergabe an andere Funktionen.
-
-\begin{lstlisting}
-fx <- \(x) x
-fx(1)           # 1
-fx(x=1)         # 1
-#fx(y=1)        ## Error, unbenutztes Argument
-#fx(1, 2)       ## Error, unbenutztes Argument
-#fx()           ## Error, Argument x fehlt
-f <- \(...) fx(...)
-f(1)            # 1
-f(x=1)          # 1
-#f(y=1)         ## Error, unbenutztes Argument
-#f(1, 2)        ## Error, unbenutztes Argument
-
-fx <- \(x, y=0) x + y  # Defaultwert für y
-fx(1)           # 1
-#fx(y=1)        ## Error, kein x
-fx(1, 2)        # 3
-fx(1, 2, 3)     ## Error, unbenutztes Argument
-
-fx <- \(x, ...) x
-#fx(y=1)        ## Error, Argument x fehlt
-fx(1, 2)        # 1
-f <- \(x, ...) fx(...) # Vermeiden da x nur unbenannt an fx geht
-#f(1)           ## Error, Argument x fehlt für fx
-f(1, 2)         # 2
-f(x=1, 2)       # 2; 
-#f(x=1, x=2)    ## Error, x passt zu mehreren Argumenten
-f(x=1, y=2)     ## Error, Argument x fehlt für fx
-f <- \(y, ...) fx(...)
-f(1, 2)         # 2
-f(x=1, 2)       # 1
-f(x=1, y=2)     # 1
-
-f <- \(x, ...) ..2  # zweites Element von ...
-f(1, 2, 3, 4)   # 3
-f(1, 2, 3, x=4) # 2
-f(1, 2, 3, y=4) # 3
-#f()            ## Error, ..2 nicht vorhanden
-
-f <- \(x, ...) ...elt(2)  # zweites Element von ...
-f(1, 2, 3, 4)   # 3
-
-f <- \(x, ...) ...length()  # Länge von ...
-f()             # 0
-f(1, 2, 3)      # 2, weil x=1 nicht in ... ist
-f(1, cat("a"))  # 1; Wertet Argumente nicht aus
-
-f <- \(x, ...) length(list(...))  # Länge von ...
-f(1, cat("a"))  # 1; list wertet Argumente aus
-
-f <- \(...) ...names()  # Namen von ...
-f(1, 2)         # NULL
-f(1, a=2)       # "" "a"
-\end{lstlisting}
-
-Man kann auch eigene Infix Operatoren definieren. Jeder Operator, dessen Name mit \lstinline|%| beginnt und endet (z.~B. \lstinline|%myop%|), wird als Infix-Operator behandelt und hat in der Regel zwei Argumente. Er hat die gleiche Priorität wie der Operator \lstinline|+| und wird von links nach rechts ausgewertet.
-
-\begin{lstlisting}
-1 + 1      # 2; + ist Infix Operatoren
-`+`(1,1)   # 2; Aufruf als Funktion
-`%A%` <- \(l,r) l + r
-1 %A% 1    # 2
-`%A%`(1,1) # 2
-
-`%+%` <- \(l,r) l + r
-`%*%` <- \(l,r) l * r  # Überdeckt Matrixprodukt %*% !!
-1 + 2 * 3      # 7
-1 %+% 2 %*% 3  # 9; Wird von links nach recht ausgewertet
-
-`%^%` <- \(l,r) l^r  # Ausnutzung der Operatorpriorität
-`:=` <- \(l,r) l * r
-`?` <- \(l,r) l + r  # Überdeckt ? (help) !
-2 + 3 * 4^2          # 50
-2 ? 3 := 4%^%2       # 50
 \end{lstlisting}
 
 
@@ -2160,48 +3915,6 @@ f(0)        # Interaktiv: Q, n, s, c, ... verwenden
 \end{lstlisting}
 
 
-\subsection{Lazy Evaluation}
-
-Funktionsargumente werden erst ausgewertet wenn sie verwendet werden.
-Mit \lstinline|delayedAssign| können Zuweisungen auf den Zeitpunkt
-ihrer esten Verwendung verschoben werden.
-
-\begin{lstlisting}
-f1 <- \(x, y=x) c(x <- x+1, y)
-f1(0)                 # 1 1
-f2 <- \(x, y=x) c(y, x <- x+1)
-f2(0)                 # 0 1
-
-f <- \(x, y=x) print(substitute(y))  # Zeigt unausgewerteten Ausdruck
-f(0)                  # x
-f(0, 1)               # 1
-
-#y <- x               # Error, x nicht gefunden
-delayedAssign("y", x + 1)
-# y                   # Error, x nicht gefunden
-x <- 0
-y                     # 1
-x <- 42
-y                     # 1
-\end{lstlisting}
-
-\subsection{on.exit: Aufruf bei Funktionende}
-
-Mit \lstinline|on.exit| können in einer Funktion Aktionen registriert
-werden, die beim Verlassen der Funktion garantiert ausgeführt werden,
-unabhängig davon, ob sie regulär endet oder durch einen Fehler
-abgebrochen wird.
-
-\begin{lstlisting}
-f <- \(x) {
-  on.exit(cat("EXIT: "))
-  if (x < 0) stop("Error")
-  x + 1
-}
-f(0)       # EXIT: [1] 1
-f(-1)      # Fehler in f(-1) : Error, EXIT:
-\end{lstlisting}
-
 
 \subsection{Pipes}
 
@@ -2280,6 +3993,122 @@ f2(.)                  # f2 0
 quote(0 |> f1() |> f2()) # f2(f1(0))
 f2(f1(0))              # f2 f1 0
 \end{lstlisting}
+
+
+
+\iffalse
+
+\begin{lstlisting}
+q()                   # Beendet R (mit Rückfrage)
+#                     # Kommentar bis Zeilenende
+help()                # Hilfe starten
+help(q)               # Hilfe zu Befehl q
+?q                    # Hilfe zu Befehl q
+#?for                 ## funktioniert nicht
+?"for"                # Hilfe zur for-Schleife
+#help(for)            ## erzeugt Fehler
+help("for")           # Hilfe zur for-Schleife
+??reg                 # Sucht nach "reg" in allen Hilfetexten
+help.search("reg")    # Wie ??reg, aber als Funktion
+help.start()          # Öffnet HTML-Hilfesystem
+library(help = "stats")  # Hilfeübersicht zum Paket "stats"
+args(lm)              # Argumente der Funktion lm
+methods("plot")       # Methoden für generische Funktion plot
+methods(class = "lm") # Methoden für Objekte der Klasse "lm"
+getAnywhere("simpleLoess")#Zeigt auch nicht exportierte Funktion
+example(lm)           # Führt Beispiele zu lm aus
+demo()                # Zeigt verfügbare Demos
+demo(lm)              # Demo zur linearen Regression
+
+install.packages("lme4") # Installiert das Paket
+update.packages()    # Aktualisiert Pakete
+remove.packages()    # Entfernt Paket
+installed.packages() # Zeigt alle installierten Pakete
+library(lme4)        # Paket laden
+require(lme4)        # Alternative, gibt bei Fehler FALSE zurück
+search()             # Zeigt geladene Pakete und Umgebungen
+vignette()           # Verfügbare Vignetten anzeigen
+vignette("lmer")     # Einführung zu lmer öffnen
+
+version              # R-Version anzeigen
+sessionInfo()        # Infos zu Umgebung und geladenen Paketen
+citation()           # Wie man R zitiert
+x = 1                # Der Variablen x den Wert 1 zuweisen
+x <- 1               # Der Variablen x den Wert 1 zuweisen
+1 -> x               # Der Variablen x den Wert 1 zuweisen
+assign("x", 1)       # Der Variablen x den Wert 1 zuweisen
+x <<- 1              # Zuweisung in der Elternumgebung
+str(x)               # Struktur von x
+dput(x)              # Zeigt wie Objekt erzeugt werden kann
+ls()                 # Liste Objekte im aktuellen Environment
+rm(x)                # Objekt x entfernen
+rm(list = ls())      # Alle Objekte entfernen (Workspace leeren)
+
+getwd()              # Aktuelles Arbeitsverzeichnis anzeigen
+setwd("D:/")         # Arbeitsverzeichnis setzen
+source("file.R")     # R-Skript ausführen
+
+x <- 1:3             # 1 2 3; Erzeugt eine Integer Sequenz
+3:1                  # 3 2 1
+seq(1, 3)            # 1 2 3; Erzeugt eine Integer Sequenz
+seq(1, 6, 2)         # 1 3 5
+seq(3, by=2, length.out=4) # 3 5 7 9
+seq(0, by=3, along.with=x) # 0 3 6; so lange wie x
+seq_along(x)         # 1 2 3
+x <- integer(0)      # Vektor mit Länge 0
+seq_along(x)         # integer(0)
+n <- 3
+seq_len(n)           # 1 2 3
+n <- 0
+seq_len(n)           # integer(0)
+1:n                  # 1 0
+rep(1:3, 2)          # 1 2 3 1 2 3; Objekt wiederholen
+rep(1:3, each=2)     # 1 1 2 2 3 3
+rep(1:3, 3:1)        # 1 1 1 2 2 3
+1:4 + 1:2 + 1        # 3 5 5 7; Auto Wiederholung
+1:4 + 1:3            # 2 4 6 5; Warnung Länge
+1:3 + 1:4            # 2 4 6 5; Warnung Länge
+\end{lstlisting}
+
+
+\begin{lstlisting}
+x <- c(2, 2, 1, 1, 3)
+table(x)          # 1 2 3; Anzahlen
+                  # 2 2 1
+stem(x)           # stem-and-leaf plot
+summary(x)        # Min. 1st Qu. Median Mean 3rd Qu. Max.
+range(x)          # 1 3; kleinster und größter Wert
+which.max(x)      # 5; Index des ersten größten Wertes
+which.min(x)      # 3; Index des ersten kleinsten Wertes
+rle(x)            # lengths: int [1:3] 2 2 1;Run Length Encoding
+                  # values : num [1:3] 2 1 3
+g <- c("A", "A", "C", "B", "B")
+ave(x, g)         # Gruppenmittel für jedes Element
+tapply(x, g, mean) # Mittel je Gruppe
+s <- split(x, g)  # Teil x in Liste grupiert mit g
+lapply(s, mean)   # Mittel je Gruppe
+match(x, c(3,1,3))# NA NA  2  2  1; Position erster Treffer
+x %in% 1:2        # TRUE  TRUE  TRUE  TRUE FALSE
+findInterval(x, c(0,2)) # 2 2 1 1 2;
+pmin(x, 2)        # 2 2 1 1 2
+pmin(x, 0:4)      # 0 1 1 1 3
+pmax(x, 0:4)      # 2 2 2 3 4
+
+x <- c(1,2,3,4)
+y <- c(3,4,5,6)
+union(x, y)       # 1 2 3 4 5 6; Vereinigung
+intersect(x, y)   # 3 4;         Schnittmenge
+setdiff(x, y)     # 1 2; Elemente in x, aber nicht in y
+setdiff(y, x)     # 5 6; Elemente in y, aber nicht in x
+setequal(x, y)    # FALSE; # Mengen gleich?
+setequal(x, 4:1)  # TRUE
+\end{lstlisting}
+
+
+%%% Einarbeiten %%%
+
+\fi
+
 
 \end{document}
 
