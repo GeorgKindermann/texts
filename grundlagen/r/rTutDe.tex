@@ -38,6 +38,7 @@
 {─}{{-}}1
 {└}{{L}}1
 {│}{{|}}1
+{µ}{{\textmu}}1
 ,basicstyle=\ttfamily%\small
 ,backgroundcolor=\color{mygray}
 ,commentstyle=\emph
@@ -47,6 +48,7 @@
 ,upquote=true
 ,aboveskip=0pt
 ,belowskip=0pt
+,lineskip=0pt
 }
 \makeatletter
 \xpretocmd\lstinline
@@ -62,6 +64,8 @@
 
 \usepackage{adjustbox}
 \usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+
+\newcommand{\mycode}[1]{\texttt{\detokenize{#1}}}
 
 \usepackage[pdftitle={Grundlagen der Statistiksprache R}
 , pdfauthor={Georg Kindermann}
@@ -105,7 +109,7 @@ z.B. so erfolgen, wobei die \lstinline|export|-Zeilen und
 \lstinline|./configure|-Flags optional sind. Sie dienen der
 Geschwindigkeit und besseren Debug-Möglichkeiten:
 
-\begin{lstlisting}[language=sh]
+\begin{lstlisting}
 wget https://cran.r-project.org/src/base/R-latest.tar.xz
 mkdir R-latest
 tar -xf R-latest.tar.xz -C R-latest --strip-components=1
@@ -449,7 +453,7 @@ lobstr::obj_size(e2)        #  56 B
 
 Im Gegensatz zu einer Liste ist ein Environment referenzbasiert (Environments werden gewöhnlich nicht kopiert), besitzt keine feste Reihenfolge seiner Elemente und verfügt stets über ein Parent-Environment. Mit \lstinline|rlang::env_clone()| kann man ein Environment kopieren.
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 e1 <- new.env()
 e1$a <- 1
 e2 <- e1      # e2 zeigt auf e1
@@ -1368,9 +1372,11 @@ searchpaths()
 
 Deren Reihenfolge ist entscheidend. Die Suche erfolgt strikt von vorne nach hinten, d.\,h.\ ein Name in einem Environment maskiert gleiche Namen in nachfolgenden Environments. Dieser Mechanismus ermöglicht eine einfache Nutzung von Funktionen und Daten, birgt jedoch das Risiko von Namenskonflikten (masking), welches bei Verwendung von \lstinline|paket::funktion()| über den Namespace von Paketen umgangen werden kann. Mit \lstinline|as.environment()| kann man auch über den im Suchpfad angegeben Environmennamen auf dieses direkt zugreifen ohne den Suchpfad zu durchwandern.
 
-Dabei geht es zunächst einmal darum welcher Name gefunden wird. Wenn es sich um Daten handelt werden diese zurückgeliefert. Ist es hingegen eine \emph{Funktion}, ist diese mit einem \emph{Enclosing Environment} verbunden und bestimmt damit selbst wo sie, nachdem sie aufgerufen wurde, ihre Namen (Daten und weitere Funktionen) sucht.
+Dabei geht es zunächst einmal darum welcher Name gefunden wird. Wenn es sich um Daten handelt werden diese zurückgeliefert. Ist es hingegen eine \emph{Funktion}, ist diese mit einem \emph{Enclosing Environment} verbunden und bestimmt damit selbst wo sie, nachdem sie aufgerufen wurde, ihre Namen (Daten und weitere Funktionen) sucht nd bestimmt damit auch das Parent-Environment, in dem die Namenssuche fortgesetzt wird.
 
 Beispielsweise verwendet die Funktion \lstinline|sd| die Funktion \lstinline|sqrt|. Wenn sich der Name \lstinline|sqrt| im \lstinline|.GlobalEnv| befindet wird dieser von der Konsole aus gefunden. Die Funktionalität von \lstinline|sd| wird dadurch jedoch nicht beeinflusst, da \lstinline|sd| die Namenssuche nicht im \lstinline|.GlobalEnv| beginnt.
+
+Eine Besonderheit stellen dabei \emph{Primitive Functions} dar (z.\,B.\ \lstinline|sum|, \lstinline|exp|, \lstinline|+|, \lstinline|log|). Diese sind direkt in C implementiert und besitzen keinen regulären R-Funktionskörper. Während der Suchpfad und Namespaces für reguläre R-Funktionen (wie \lstinline|mean|) strikt eingehalten werden, nutzen viele interne R-Prozesse bei Primitiven einen direkten Aufruf auf C-Ebene (Fast-track). Dies führt dazu, dass Manipulationen an diesen Funktionen im Suchpfad oder Namespace (z.\,B.\ mittels \lstinline|trace()|) von anderen Paketen oft ignoriert werden, da diese nicht den Namen suchen, sondern direkt die interne C-Funktion ansprechen.
 
 \begin{lstlisting}
 sqrt(4)         # 2
@@ -2315,7 +2321,7 @@ is(x, "numeric") # TRUE
 
 Mit \lstinline|as.TYP()| wird in den Typ, mit \lstinline|as()| in die Klasse konvertiert. R prüft dabei nicht streng auf Genauigkeit, sondern führt die Konvertierung stillschweigend durch. Mit \lstinline|canCoerce()| kann geprüft werden ob ein Objekt in eine andere Klasse konvertiert werden kann.
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 as.integer(1)     # Wandelt Double in Integer
 as.integer(1.0)   # Wandelt Double in Integer
 as.integer(1.8)   # wird abgeschnitten => 1
@@ -3130,7 +3136,7 @@ Innerhalb von Anführungszeichen (Strings) leitet der Backslash \lstinline|\| ei
 \item \lstinline|\b| : \emph{Backspace}. Löscht das vorangegangene Zeichen.
 \end{itemize}
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 cat("Zeile 1\nZeile 2")   # Umbruch zwischen den Worten
 cat("Spalte1\tSpalte2")   # Grosser Abstand (Tab)
 cat("Der Pfad ist C:\\R") # Ausgabe: Der Pfad ist C:\R
@@ -3485,7 +3491,7 @@ Dieser Typ wird primär für die Arbeit mit binären Daten verwendet. Während a
 
 Wichtige Funktionen zur Erzeugung und Konvertierung:
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 as.raw(97)             # Zahl zu Byte: 61
 charToRaw("a")         # Zeichen 'a' (ASCII) -> 61
 rawToChar(as.raw(97))  # Byte zurück zu Zeichen: "a"
@@ -4172,7 +4178,7 @@ Mit \lstinline|seq()| lassen sich regelmäßig verteilte Datums- oder Zeitpunkte
 
 Bei \lstinline|day| werden exakt 24~Stunden addiert, daher kann die Uhrzeit bei einer Sommerzeit/Winterzeit-Umstellung um eine Stunde verschoben sein. Bei Monats- oder Jahresfolgen passt \lstinline|seq()| automatisch Schaltjahre oder unterschiedliche Monatslängen an.
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 seq(as.Date("2025-01-01"), as.Date("2025-04-01"), "1 month")
  # "2025-01-01" "2025-02-01" "2025-03-01" "2025-04-01"
 seq(as.Date("2024-02-29"), by = "2 years", length.out = 4)
@@ -4308,7 +4314,7 @@ Abhängig von der verwendeten Klammerart (\lstinline|[]| vs.\ \lstinline|[[]]|) 
 
 Standardmäßig fällt die Dimension weg (\lstinline|drop=TRUE|), wenn nur eine Dimensionsausprägung übrig bleibt. Mit \lstinline|drop=FALSE| behält man die ursprüngliche Struktur in jedem Fall bei.
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 m <- matrix(1:6, 2, dimnames=list(c("a","b")))
 m[2, 3]         # 6; Zeile 2, Spalte 3
 m[[2, 3]]       # 6; Extrahiert Einzelwert ohne Attribute
@@ -5267,6 +5273,80 @@ model.frame(mpg ~ wt * cyl, mtcars)
 \end{lstlisting}
 
 
+\subsection{Attribute}
+
+In R können fast alle Objekte (mit Ausnahme von \lstinline|NULL|) zusätzliche Metadaten in Form von Attributen tragen. Während die Basisdaten (z.\,B.\ ein numerischer Vektor) den Inhalt definieren, beschreiben Attribute die Struktur oder Bedeutung dieser Daten. Intern sind Attribute als benannte Liste organisiert, die dem Objekt zugeordnet ist. Attribute ändern nicht die Daten selbst, sondern deren Interpretation durch R.
+
+Sie bilden das Fundament für:
+
+\begin{description}
+\item[Benennungen:] \lstinline|names|, \lstinline|dimnames|.
+\item[Dimensionen:] \lstinline|dim| interpretiert einen Vektor als Matrix oder Array.
+\item[Objektorientierung:] \lstinline|class| definiert S3-Methoden wie \lstinline|print()| oder \lstinline|plot()|.
+\end{description}
+
+\subsubsection{Abfrage und Zuweisung}
+
+Mit der Funktion \lstinline|attributes()| lässt sich die gesamte Liste der Attribute anzeigen, während \lstinline|attr()| gezielt auf einzelne Einträge zugreift.
+
+\begin{lstlisting}
+x <- c(a = 1, b = 2)
+attributes(x)  # $names
+               # [1] "a" "b"
+
+attr(x, "einheit") <- "Kilogramm"
+attr(x, "zeitpunkt") <- as.Date("2026-01-15")
+str(attributes(x))  # List of 3
+                    #  $ names    : chr [1:2] "a" "b"
+                    #  $ einheit  : chr "Kilogramm"
+                 #  $ zeitpunkt: Date[1:1], format: "2026-01-15"
+attr(x, "einheit")  # "Kilogramm"
+
+attr(x, "einheit") <- NULL # Attr einheit löschen
+attributes(x) <- NULL      # Alle Attribute löschen
+\end{lstlisting}
+
+Bei vielen mathematischen Operationen (wie \lstinline|x + 1|) bleiben Attribute erhalten. Bei Funktionen, die Vektoren kombinieren oder vereinfachen (wie \lstinline|c()| oder \lstinline|as.vector()|), gehen sie hingegen oft verloren. Welche Attribute erhalten bleiben, hängt von der jeweiligen Funktion ab. Viele Basisfunktionen propagieren Attribute bewusst, andere verwerfen sie explizit.
+
+
+\subsubsection{Die Klasse als spezielles Attribut}
+
+Das wichtigste Attribut in R ist \lstinline|class|. Es steuert das S3-Objektsystem und bestimmt, wie generische Funktionen (z.\,B.\ \lstinline|print()| oder \lstinline|plot()|) auf das Objekt reagieren. Wenn die Klasse eines Objekts geändert wird, ändert sich nicht der Inhalt, sondern lediglich die Art und Weise, wie R dieses Objekt interpretiert und behandelt.
+
+\begin{lstlisting}
+v <- c(1L, 2L, 1L)
+class(v)                         # "integer"
+attr(v, "levels") <- c("L", "H")
+attr(v, "class") <- "factor"
+#class(v) <- "factor"            # Alternative
+v                                # L H L; Ist jetzt Faktor
+\end{lstlisting}
+
+Manche Klassen erfordern zwingend bestimmte Attribute, um valide zu sein. Ein \lstinline|factor| benötigt beispielsweise stets das Attribut \lstinline|levels|, da die Klasse allein nicht ausreicht, um die gespeicherten Ganzzahlen semantisch zu interpretieren.
+
+In der Praxis sollte die Klasse eines Objekts nicht manuell geändert werden, sondern über die dafür vorgesehenen Konstruktoren (z.\,B.\ \lstinline|factor()|), welche die Konsistenz der benötigten Attribute sicherstellen, erzeugt werden.
+
+
+\subsection{structure() -- Funktionale Objekterzeugung}
+
+\lstinline|structure()| ermöglicht die Erzeugung eines Objekts inklusive seiner Metadaten in einem einzigen, atomaren Schritt, d.\,h.\ ohne Zwischenzustände. Dies hat den Vorteil, dass Objekte im Gegensatz zur schrittweisen Erzeugung niemals in einem unvollständigen Zustand existieren.
+
+Das erste Argument von \lstinline|structure()| ist das Basisobjekt (der Kern), alle weiteren Argumente werden als \emph{benannte} Attribute an diesen Kern angehängt. Da die Funktion das resultierende Objekt direkt zurückgibt, eignet sie sich für den Einsatz innerhalb von Pipelines oder als Rückgabewert am Ende einer Funktion.
+
+\begin{lstlisting}
+x <- structure(42, einheit = "Meter", methode = "Laser",
+               class = "messung")
+
+x <- structure(x, datum = as.Date("2026-01-15"))
+dput(x)    # structure(42, einheit = "Meter", methode = "Laser",
+ #  class = "messung", datum = structure(20468, class = "Date"))
+
+#structure(42, "Meter")  ## Fehler: Attribute müssen Namen haben
+\end{lstlisting}
+
+\lstinline|structure()| verändert das ursprüngliche Objekt nicht direkt, sondern liefert ein neues Objekt mit den entsprechenden Attributen.
+
+
 \section{Programmierung}
 
 Programmierung basiert auf folgenden Konzepten:
@@ -6146,7 +6226,7 @@ which(x == 1)           # 1 3; Alle Treffer
 
 Diese Funktionen transformieren logische Bedingungen oder Extremwertsuche in Index-Vektoren. Sie werden genutzt, um von der \emph{Bedingung} zur exakten \emph{Position} zu gelangen. Ein wesentlicher Vorteil ist, dass \lstinline|NA|-Werte automatisch gefiltert bzw.\ ignoriert werden.
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 x <- c(10, 20, NA, 40, 40)
 which(x > 15)    # 2 4 5; NA wird ignoriert
 which(x > 100)   # integer(0); kein Treffer
@@ -6164,7 +6244,7 @@ which.min(x)     # 1; Position von 10
 \item[Gleichstand (Ties):] Über das Argument \lstinline|ties.method| kann gesteuert werden, welcher Index bei identischen Maxima gewählt wird (\lstinline|"random"| (Standard), \lstinline|"first"| oder \lstinline|"last"|).
 \end{description}
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 m <- matrix(c(1, 5, 5,
               3, 2, 3), nrow = 2, byrow = TRUE)
 max.col(m, "first")  # 2 1
@@ -6254,7 +6334,7 @@ Diese Funktionen teilen kontinuierliche numerische Werte in Intervalle (Bins) ei
   \end{itemize}
 \end{description}
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 x <- c(-1, 0, 1, 15, 19, 20, 21)
 vec <- c(0, 10, 20)
 findInterval(x, vec)                        # 0 1 1 2 2 3 3
@@ -6281,7 +6361,7 @@ Die von \lstinline|cut()| erzeugten Standard-Labels verwenden die mathematische 
 \item[Runde Klammern:] \lstinline|(a, b)| signalisieren, dass der Randwert ausgeschlossen ist (offenes Intervall).
 \end{description}
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 x <- c(-1, 0, 1, 15, 19, 20, 21)
 b <- c(0, 10, 20)
 cut(x, b)  # <NA> <NA> (0,10] (10,20] (10,20] (10,20] <NA>
@@ -6799,6 +6879,10 @@ l <- list(x = 1, s = c("A", "B"))
 as.data.frame(l)  #   x s; Auto Recycling
                   # 1 1 A
                   # 2 1 B
+l <- list(x = 1:2, m = matrix(1:4, 2))
+as.data.frame(l) #   x m.1 m.2
+                 # 1 1   1   3
+                 # 2 2   2   4
 
 m <- matrix(1:4, 2, dimnames = list(x=8:7, y=c("A", "B")))
 as.data.frame(m)  #   A B
@@ -6847,8 +6931,11 @@ l <- list(x = 1:2, s = c("A", "B"))
 list2DF(l)  #   x s
             # 1 1 A
             # 2 2 B
+
 l <- list(x = 1, s = c("A", "B"))
 #list2DF(l) ## Error: ungleich lang
+l <- list(x = 1:2, m = matrix(1:4, 2))
+#list2DF(l) ## Error: ungleich lang; ?
 
 l <- list(x = list(1, 2:3), s = c("A", "B"))
 list2DF(l)       #      x s; Spalte x ist Liste
@@ -7342,278 +7429,565 @@ Reduce(\(x, y) merge(x, y, by="id"), list(df1, df2, df3))
 \end{lstlisting}
 
 
+\subsection{Verkettete Funktionsaufrufe}
+
+Die Programmierung in R bietet verschiedene Möglichkeiten, Operationen nacheinander auf deren Ergebnis anzuwenden. Während das Endergebnis identisch bleibt, unterscheiden sich die Ansätze in der Lesbarkeit, dem Speicherbedarf oder der Reihenfolge von Funktionsaufrufen, bis hin zu dem Umstand, dass manche Funktionen aufgrund der Auswertungslogik gar nicht aufgerufen werden.
 
 
+\subsubsection{Zwischenergebnisse speichern}
 
-%%%
-\iffalse
-
-
-\subsection{Speicherverwaltung und Garbage Collection}
-
-Das \lstinline|bench|-Paket liefert zwar die Menge des \emph{alloziierten} Speichers (`mem\_alloc`), aber nicht den maximalen Speicherverbrauch (Peak-Verbrauch) während der Ausführung. R verwendet ein automatisches Speichermanagement namens "Garbage Collection" (GC), um nicht mehr benötigte Objekte aufzuräumen.
-
-\subsubsection{\lstinline|gc()|: Garbage Collection Manuell ausführen}
-
-Die Funktion \lstinline|gc()| fordert das System auf, den Speicher sofort aufzuräumen und einen Bericht über die Speichernutzung zu liefern. Normalerweise läuft dies automatisch im Hintergrund, aber für Benchmarking-Zwecke kann eine manuelle Ausführung hilfreich sein, um den tatsächlichen Speicherbedarf vor und nach einer Operation zu messen.
-
-Die Ausgabe zeigt die Nutzung von \emph{Vektorspeicher} (`Vcells`) und \emph{Konsenspeicher} (`Ncells`).
+Die explizite Speicherung nutzt (temporäre) Variablen, um Einzelschritte sequentiell abzubilden. Die \emph{Bizarro Pipe} (\lstinline|->.;|) kombiniert ein \emph{Right-Assignment} mit einem Semikolon und wirkt optisch wie eine Verkettung. Es handelt sich jedoch um eine Zuweisung an die Variable \lstinline|.|, gefolgt von einem separaten Befehl.
 
 \begin{lstlisting}
-library(bench)
+tmp <- 1:3
+sum(tmp)
+rm(tmp)
 
-# Aktuellen Speicherstatus vor der Operation prüfen
-gc() 
-#      used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-# Ncells  371.4     648.5         NA    376.1
-# Vcells  159.2     168.1         NA    160.5
+. <- 1:3
+sum(.)
+rm(.)
 
-# Eine Operation, die viel Speicher alloziiert
-m <- matrix(0, nrow = 10000, ncol = 10000)
+1:3 ->.
+  sum(.)
+rm(.)
 
-# Speicherstatus nach der Operation (Peak 'max used' steigt)
-gc()
-#      used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-# Ncells  371.7     649.0         NA    376.1
-# Vcells  920.1     960.1         NA    920.1 
-
-# Nach dem Aufräumen des Objekts 'm'
-rm(m)
-gc() 
-# 'max used' bleibt hoch, aber 'used' sinkt
+1:3 ->.; sum(.)
+rm(.)
 \end{lstlisting}
 
-\subsubsection{\lstinline|gctorture()|: Speicherdruck simulieren}
-
-Die Funktion \lstinline|gctorture(TRUE)}| ist ein fortgeschrittenes Debugging-Tool. Sie zwingt R dazu, die Garbage Collection nach \emph{jeder einzelnen} Speicheranforderung auszuführen.
-
-Dies verlangsamt den Code drastisch, ist aber nützlich, um Speicherprobleme aufzudecken, die zu Fehlern bei der Speicherzuweisung führen könnten, insbesondere wenn man C- oder C++-Code über \lstinline|Rcpp| verwendet, der den R-Speicher nicht korrekt verwaltet.
-
-\begin{lstlisting}
-# Aktiviert den Speicherdruck (ACHTUNG: Code wird langsam!)
-gctorture(TRUE) 
-
-# Führt Code aus, um Speicherfehler oder ineffiziente Zuweisungen zu finden
-# bench::mark(...) oder system.time(...) können hier verwendet werden
-# Man sucht nach Fehlern wie "cannot allocate vector of size..."
-
-# Deaktiviert den Speicherdruck
-gctorture(FALSE)
-\end{lstlisting}
+\begin{description}
+\item[Vorteil:] Sehr einfaches Debugging, da jeder Zwischenschritt inspiziert werden kann.
+\item[Nachteil:] \emph{Namespace-Pollution} durch viele temporäre Objekte. Ohne konsequente Nutzung von \lstinline|rm()| füllt sich der Arbeitsspeicher und die Übersichtlichkeit im Global Environment geht verloren.
+\end{description}
 
 
+\subsubsection{Verschachtelte Funktionsaufrufe}
 
+Dies entspricht der mathematischen Komposition \lstinline|h(g(f(x)))|. R wertet diese Ausdrücke grundsätzlich von außen nach innen aus (\emph{Function Call}), wobei die Argumente der Funktionen einer \emph{Lazy Evaluation} unterliegen.
 
-\subsection{Performance-Messung (Benchmarking)}
+Ein wichtiges Detail der \emph{Lazy Evaluation} ist, dass ein Argument erst dann ausgewertet wird, wenn die Funktion tatsächlich darauf zugreift. Wird ein Argument (z.\,B.\ das Ergebnis der Vorfunktion) innerhalb der Funktion nicht verwendet, wird die gesamte Kette darunter nicht ausgeführt.
 
-%%% https://fastverse.org/fastverse/
-%%% future.apply
-%%% https://www.futureverse.org/
-%%% parallel::
-
-Um die Effizienz verschiedener Code-Implementierungen (z.\,B. Schleifen vs. Vektorisierung vs. \lstinline|Rcpp|) objektiv vergleichen zu können, verwendet man Benchmarking-Tools. Das \lstinline|bench|-Paket bietet eine moderne und präzise Methode zur Messung der Ausführungszeit.
-
-\subsubsection{Das \lstinline|bench|-Paket}
-
-Die Hauptfunktion ist \lstinline|bench::mark()|. Sie führt die bereitgestellten Ausdrücke mehrmals aus, misst Zeit, Speicherverbrauch und verhindert, dass R Optimierungen vornimmt, die das Ergebnis verfälschen würden.
+\begin{description}
+\item[Vorteil:] Potenziell effizienter, da nur notwendige Berechnungen durchgeführt werden; kein manuelles Aufräumen von Variablen nötig.
+\item[Nachteil:] Bei tiefen Verschachtelungen kann die Lesbarkeit darunter leiden. Die Ausführungsreihenfolge kann für Anwender schwer nachvollziehbar sein.
+\end{description}
 
 \begin{lstlisting}
-# install.packages("bench")
-library(bench)
+f <- \(x) {cat("fin "); x; cat("fout ")}
+g <- \(x) {cat("gin "); x; cat("gout ")}
+h <- \(x) {cat("hin "); x; cat("hout ")}
+h(g(f(0)))  # hin gin fin fout gout hout
 
-# Beispiel: Vergleich von sum() (vektorisiert) und einer for-Schleife
-n <- 1e6 # Eine Million Zahlen
-input_data <- as.list(1:n)
+h(
+  g(
+    f(0)
+   )
+ )
 
-benchmark_ergebnisse <- bench::mark(
-  sum_func = sum(1:n),
-  for_loop = {
-    total <- 0
-    for (i in 1:n) {
-      total <- total + i
-    }
-    total
-  },
-  iterations = 10 # Anzahl der Wiederholungen für bessere Präzision
-)
+tmp <- f(0)     # fin fou
+tmp <- g(tmp)   # gin gout
+h(tmp)          # hin hout
+rm(tmp)
 
-# Anzeige der Ergebnisse (Ausgabe zeigt typischerweise min/mean/median Zeiten)
-print(benchmark_ergebnisse)
-\end{lstlisting}
+h <- \(x) {cat("hin "); cat("hout ")}  # Nutzt Argument x nicht
+h(g(f(0)))  # hin hout; g() und f() werden nie aufgerufen
 
-\subsubsection{Ergebnisse interpretieren}
-
-Die Ausgabe von \lstinline|bench::mark()| zeigt Metriken wie `min`, `mean`, `median` Ausführungszeit sowie `mem\_alloc` (Speicherverbrauch).
-
-*   **`median`:** Ist oft die robusteste Metrik, da sie weniger anfällig für kurzfristige Systemaktivitäten ist.
-*   **`mem\_alloc`:** Zeigt, wie viel Speicher die Operation während der Ausführung zugewiesen hat. Effizienter Code verbraucht oft weniger Speicher.
-
-Im obigen Beispiel wird die `sum\_func` (vektorisiert) signifikant schneller und speichereffizienter sein als die `for\_loop` (iterativ).
-
-\subsubsection{Basismethoden in R}
-
-Bevor das \lstinline|bench|-Paket populär wurde, verwendete man oft die Basis-R-Funktion \lstinline|system.time()|. Sie ist einfacher zu verwenden, aber weniger präzise als \lstinline|bench::mark()| für kurze Operationen, da sie keine Mehrfachmessungen durchführt und keine Speichermetriken liefert.
-
-\begin{lstlisting}
-# Basis R Methode: weniger detailliert
-system.time(
-  for (i in 1:1e6) {
-    # do something fast
-  }
-)
-# Ausgabe: user  system elapsed 
-#          0.2   0.0     0.2 
+tmp <- f(0)     # fin fou  ; f() und
+tmp <- g(tmp)   # gin gout ; g() werden aufgerufen
+h(tmp)          # hin hout ; obwohl h ihre Ergebnis nicht nutzt
+rm(tmp)
 \end{lstlisting}
 
 
+\subsubsection{Native Pipe |>}
 
+Die native Pipe \lstinline{|>} erlaubt eine sequentielle Schreibweise von links nach rechts, ohne dabei explizite Zwischenvariablen im Global Environment zu erzeugen. Die schrittweise Auswertung erfolgt allerdings \emph{nicht} von links nach rechts.
 
-\subsection{Integration von C++ mit \lstinline|Rcpp|}
+Technisch handelt es sich bei der nativen Pipe nicht um einen eigenen Funktionsaufruf, sondern um eine \emph{Syntax-Transformation} durch den R-Parser. Ein Ausdruck wie \lstinline!x |> f() |> g() |> h()! wird bereits vor der Ausführung in den verschachtelten Funktionsaufruf \lstinline|h(g(f(x)))| umgeschrieben. Dies bedingt zwei wichtige Regeln:
 
-Das Paket \lstinline|Rcpp| ermöglicht die nahtlose Integration von C++-Code in R. Der Hauptgrund für die Verwendung von \lstinline|Rcpp| ist die \emph{Leistungssteigerung} (Performance-Optimierung), da C++ in der Regel deutlich schneller als R-Code (insbesondere Schleifen) ausgeführt wird.
+\begin{itemize}
+\item Die rechte Seite \emph{muss} ein Funktionsaufruf sein (Klammerzwang)
+\item Der Platzhalter \lstinline|_| ist strikt an \emph{benannte Argumente} gebunden
+\end{itemize}
 
-\subsubsection{Konzept und Zweck}
+Um komplexe Operationen wie Mehrfachverwendung des Objekts oder tiefe Verschachtelungen zu realisieren, wird häufig das Muster einer anonymen Funktion \lstinline|(\(x) x)()| (z.\,B.\ \lstinline{-3:3 |> (\(X) sum(2*abs(X) - 3*X^2))()}) verwendet.
 
-R ist eine interpretierte Sprache, während C++ eine kompilierte Sprache ist. \lstinline|Rcpp| fungiert als Brücke, die R-Objekte effizient in C++-Objekte umwandelt, die C++-Funktion ausführt und die Ergebnisse wieder als R-Objekte zurückgibt.
+Daher entspricht das Verhalten der \emph{Lazy Evaluation} dem klassisch verschachtelter Funktionsaufrufe. Eine Funktion innerhalb der Pipe-Kette wird nur dann ausgewertet, wie es die nach der Transformation \emph{umschließende} Funktion verlangt, der ein entsprechendes \emph{Promise} (ein Platzhalter-Objekt, das erst bei Bedarf ausgewertet wird) als Argument übergeben wird. Die Pipe ändert weder Semantik noch Auswertungsreihenfolge. Sie bietet lediglich eine für manche lesbarere Schreibweise verschachtelter Funktionsaufrufe.
 
-Es richtet sich an fortgeschrittene Anwender, die spezifische, rechenintensive Teile ihres Codes optimieren müssen.
-
-\subsubsection{Einrichtung und Prozess}
-
-Um \lstinline|Rcpp| zu nutzen, müssen das Paket installiert und ein C++-Compiler (z.\,B. Rtools unter Windows, Xcode unter macOS) eingerichtet sein. Der Workflow beinhaltet das Schreiben von C++-Funktionen, die mit speziellen Attributen versehen sind, und das anschließende Kompilieren und Laden in die R-Sitzung.
-
-\paragraph{Beispiel: Eine einfache C++-Funktion in R}
-
-Im R-Paket \lstinline|Rcpp| ist die Funktion \lstinline|cppFunction()| enthalten, die den Prozess demonstriert, indem sie C++-Code direkt aus einem R-Skript kompiliert und lädt.
+Dieses Verhalten wird am transformierten Ausdruck \lstinline|h(g(f(x)))| deutlich, der aus \lstinline!x |> f() |> g() |> h()! hervorgeht. Zunächst wird \lstinline|h()| aufgerufen, wobei sein Argument als nicht ausgewerteter Ausdruck \lstinline|g(f(x))| übergeben wird. Erst wenn \lstinline|h()| dieses Argument tatsächlich verwendet, wird der Ausdruck ausgewertet. Dabei erhält \lstinline|g()| wiederum den Ausdruck \lstinline|f(x)| als Argument, der ebenfalls erst bei Bedarf ausgewertet wird. Die Auswertung erfolgt somit bedarfsgetrieben entlang der Verschachtelung der Funktionsaufrufe.
 
 \begin{lstlisting}
-# Installation des Pakets
-# install.packages("Rcpp")
-library(Rcpp)
+1:3 |> sum()           # 6
+#1:3 |> sum            ## Error, braucht function call
+sum(1:3)               # 6; Äquivalent
+quote( 1:3 |> sum() )  # sum(1:3); Syntax transformation
 
-# Wir definieren und kompilieren eine C++ Funktion direkt in R
-cppFunction('
-  // [[Rcpp::export]] 
-  int addiere_zwei_zahlen(int x, int y) {
-    int summe = x + y;
-    return summe;
-  }
-')
+#1:3 |> `+`(4)         ## Error, nicht unterstützt
+1:3 |> (`+`)(4)        # 5 6 7
+1:3 |> base::`+`(4)    # 5 6 7
+1:3 |>  `+`(4, e2 = _) # 5 6 7
 
-# Die Funktion kann nun wie jede normale R-Funktion aufgerufen werden
-ergebnis <- addiere_zwei_zahlen(10, 20)
-ergebnis # 30
+1 |> seq(3)            # 1 2 3; Einfügen erster freier Platz
+3 |> seq(from=1)       # 1 2 3
+1 |> seq(to=3)         # 1 2 3
+
+"x" |> assign(1)       # Kein zusätzliches Environment
+x                      # 1
+"x" |> (\(.) assign(., 2))() # Im Funktionsenvironment
+x                      # 1
 \end{lstlisting}
 
-\subsubsection{Hinweis zur Vektorisierung}
+\paragraph{Platzhalter und Argumentübergabe}
 
-Bevor man zu \lstinline|Rcpp| greift, sollte man sicherstellen, dass der R-Code optimal \emph{vektorisiert} ist (wie im Kapitel zur Logischen Indizierung und Funktionalem Programmieren beschrieben). Vektorisierter R-Code ist oft schnell genug und wesentlich einfacher zu warten als C++-Code. \lstinline|Rcpp| ist das Werkzeug der letzten Wahl für Performance-Engpässe.
-
-
-
-\fi
-%%%
-
-
-\subsection{Fehlerbehandlung: try, tryCatch, stop, warning, message}
-
-Fehler können im Program mit \lstinline|try| oder \lstinline|tryCatch| behandelt werden.
+Bei der Transformation wird der linksstehende Ausdruck standardmäßig als \emph{erstes} freies Argument in den rechtsstehenden Funktionsaufruf eingesetzt. Für komplexere Fälle erlaubt der Platzhalter \lstinline|_| die explizite Positionierung innerhalb eines \emph{benannten} Arguments.
 
 \begin{lstlisting}
-f1 <- \(x) {
+3 |> seq(1, to=_)      # 1 2 3; _ ... Platzhalter
+#3 |> seq(1, _)        ## Error, _ braucht Namen
+"b" |>  paste("a", . = _, "c") # "a b c"; Auch ... benötigt Name 
+3 |> (\(.) seq(1, .))() # 1 2 3; Über Funktion
+#3 |> rep(x=_, times=_)## Error, _ darf nur einmal vorkommen
+3 |> (\(.) rep(., .))() # 3 3 3; Über Funktion
+
+#1:3 |> sum(sqrt(x=_)) ## Error, _ nicht in nested calls
+1:3 |> (\(.) sum(sqrt(x=.)))() # 4.146; Über Funktion
+#1:3 |> sum(sqrt())    ## Error, kein Argument an sqrt
+1:3  |> sum(sqrt(1))   # 7; sum(1:3, sqrt(1))
+
+mtcars |> _$cyl        # 6 6 4 ...; Extraction call
+mtcars |> _$cyl[3]     # 4
+\end{lstlisting}
+
+\paragraph{Lazy Evaluation und Scoping}
+
+Die mechanische Umwandlung in eine Verschachtelung hat unmittelbare Folgen für die Sichtbarkeit von Variablen und den Zeitpunkt der Ausführung, was die Pipe deutlich von der sequentiellen Speicherung unterswcheidet.
+
+\begin{lstlisting}
+f <- \(x) {cat("fin "); x; cat("fout ")}
+g <- \(x) {cat("gin "); x; cat("gout ")}
+h <- \(x) {cat("hin "); x; cat("hout ")}
+0 |> f() |> g() |> h()         # hin gin fin fout gout hout
+quote(0 |> f() |> g() |> h())  # h(g(f(0)))
+h(g(f(0)))                     # hin gin fin fout gout hout
+\end{lstlisting}
+
+
+\subsection{Fehlerbehandlung}
+
+Die systematische Fehlerbehandlung dient nicht nur der Vermeidung eines abrupten Programmabbruchs, sondern auch der besseren Nachvollziehbarkeit von Fehlerursachen und erleichtert so das systematische Debugging. Besonders in umfangreichen Programmen tragen aussagekräftige Fehlermeldungen und Warnungen maßgeblich zur schnellen Lokalisierung und Behebung unerwarteter Ausnahmesituationen bei. Zudem sorgt sie dafür, dass im Fehlerfall notwendige Bereinigungsmaßnahmen (z.\,B.\ das Schließen von Datei- oder Datenbankverbindungen) zuverlässig ausgeführt werden, bevor das Programm stoppt.
+
+\subsubsection{stop(), warning() und message()}
+
+R bietet drei Hauptmechanismen, um auf Probleme oder Informationen während der Programmausführung hinzuweisen:
+
+\begin{itemize}
+\item \lstinline|stop()| erzeugt einen Fehler und \emph{stoppt} die Ausführung des Programms.
+\item \lstinline|warning()| gibt eine Warnung aus, aber das Programm läuft weiter.
+\item \lstinline|message()| gibt eine Informationsmeldung auf \lstinline|stderr| aus, ohne die Ausführung zu beeinflussen.
+\end{itemize}
+
+\begin{lstlisting}
+f <- \(x) {
+  stop("Abbruch") # erzeugt Fehler und beendet Funktion hier
+  x
+}
+y <- f(42)           # Fehler in f(42) : Abbruch
+#y                   ## y nicht gefunden
+
+f <- \(x) {
+  warning("Achtung") # Warnung, Programm läuft weiter
+  x
+}
+y <- f(42)           # Warnmeldung: In f(42) : Achtung
+y                    # 42
+. <- options(warn = 2)  # Warnings werden zu Fehlern
+y <- f(7)           # Fehler in f(7) : (konvertiert von Warnung) Achtung
+y                    # 42; Alter Wert
+options(warn = -1)
+f(1)                 # Gibt Warnmeldung nicht aus
+options(.)           # warn wieder zurücksetzen
+y <- f(8)            # Warnmeldung: In f(8) : Achtung
+y                    # 8
+suppressWarnings(f(0)) # Gibt Warnmeldung nicht aus
+
+warnings()           # Warnmeldung: In f(8) : Achtung
+
+f <- \(x) {
+  message("Info") # Informative Meldung
+  x
+}
+y <- f(1)            # Info
+y                    # 1
+suppressMessages(f(1)) # Gibt Message nicht aus
+
+\end{lstlisting}
+
+Der Zuweisung \lstinline|x <- 7| ist ein Funktionsaufruf, der alternativ als \lstinline|`<-`(y, 7)| geschrieben werden kann. \lstinline|y <- f(7)| kann als \lstinline|`<-`(y, f(7))| geschrieben werden, was einen verschachtelten Funktionsaufruf darstellt.  Wenn \lstinline|f(7)| zu dem Zeitpunkt, an dem der Wert durch \lstinline|`<-`()| zugewiesen werden soll, abbricht, kommt es damit auch nicht mehr zu der ohne Abbruch nachfolgenden Zuweisung.
+
+Die Option \lstinline|options(warn = ...)| steuert das Verhalten des Standard-Warn-Handlers in R über einen ganzzahligen Wert:
+
+\begin{itemize}
+  \item \textbf{< 0 (z.\,B.\ -1):} Alle Warnungen werden ignoriert.
+  \item \textbf{0 (Standard):} Warnungen werden gesammelt und beim Verlassen der obersten Funktion ausgegeben; bis zu 10 einzeln, ab 11 nur als Gesamtzahl. Speicherung in \lstinline|last.warning|.
+  \item \textbf{1:} Warnungen erscheinen sofort während der Programmausführung.
+  \item \textbf{$\geq 2$:} Warnungen werden als Fehler behandelt und brechen das Programm ab.
+\end{itemize}
+
+
+\subsubsection{stopifnot() -- Bedingungen Prüfen}
+
+Die Funktion \lstinline|stopifnot()| ist eine komfortable Kurzform, um eine oder mehrere Bedingungen zu prüfen. Ergeben diese nicht \lstinline|TRUE|, wird die Ausführung mit einer Fehlermeldung gestoppt. Dies ist besonders nützlich für Assertions (Zusicherungen) zu Beginn einer Funktion, um sicherzustellen, dass die Eingabedaten den Erwartungen entsprechen.
+
+\begin{lstlisting}
+f <- \(x) { 
+  stopifnot("x muss nicht-negativ sein" = x >= 0) 
+  log(x) 
+}
+f(0)     # -Inf; Bedingung erfüllt, da 0 >= 0
+f(-1)    # Fehler in f9(-1): x muss nicht-negativ sein
+
+f <- \(x) { stopifnot(x >= 0); log(x) }
+f(-1)    # ehler in f(-1) : x >= 0 ist nicht TRUE
+
+f <- \(x, y) { 
+  stopifnot("x muss nicht-negativ sein" = x >= 0,
+            "y muss nicht-negativ sein" = y >= 0) 
+  log(x) * log(y)
+}          # Bricht beim ersten Fehler ab
+f(-1, -1)  # Fehler in f(-1, -1) : x muss nicht-negativ sein
+f(0, -1)   # Fehler in f(0, -1) : y muss nicht-negativ sein
+f(1, 1)    # 0
+\end{lstlisting}
+
+Ein großer Vorteil von \lstinline|stopifnot()| gegenüber einer manuellen \lstinline|if|-Abfrage mit \lstinline|stop()| ist die Kompaktheit, da mehrere Bedingungen gleichzeitig als Argumente übergeben werden können.
+
+
+\subsubsection{try() -- Fehler abfangen}
+
+\lstinline|try()| dient dazu, \emph{Fehler} abzufangen. Tritt innerhalb von \lstinline|try()| ein Fehler auf, wird die Ausführung des betroffenen Ausdrucks abgebrochen. Der Fehler wird jedoch nicht an die aufrufende Umgebung propagiert, sodass die restliche Programmausführung außerhalb von \lstinline|try()| fortgesetzt werden kann. \lstinline|try()| verhindert den Abbruch der Programmausführung, nicht jedoch den Abbruch des fehlerhaften Ausdrucks.
+
+\lstinline|try()| erzeugt kein eigenes Environment. Der Ausdruck wird im aktuellen Scope ausgewertet, sodass Zuweisungen mit \lstinline|<-| wirksam sind.
+
+Warnungen werden von \lstinline|try()| nicht abgefangen und weiterhin regulär ausgegeben.
+
+Im Erfolgsfall gibt \lstinline|try()| das Ergebnis des Ausdrucks zurück. Im Fehlerfall wird ein Objekt der Klasse \lstinline|try-error| erzeugt. Dieses kann mit \lstinline|inherits()| geprüft werden, um den weiteren Programmfluss gezielt zu steuern.
+
+\begin{lstlisting}
+f <- \(x) {
   ret <- NA_real_
   ret <- log(x)
   ret
 }
-x <- f1("a")
+x <- f("a")       ## Error: "a" keine Zahl
 #x                ## Fehler, x nicht gefunden
-f1(-1)            # NaN
+f(-1)             # NaN; Warning NaN wurden erzeugt
 
-f2 <- \(x) {
-  ret <- NA_real_
-  try(ret <- log(x)) # Kein Abbruch
+g <- \(x) {
+  ret <- NA_real_ # Standardwert setzen
+  try(ret <- log(x)) # Bei Fehler intern Abbruch aber nicht von g
   ret
 }
-f2("a")           # NA
-f2(-1)            # NaN
+g("a")            # NA; Fehlermeldung wird ausgegeben
+g(-1)             # NaN; Warning NaN wurden erzeugt
+g(1)              # 0
 
-f3 <- \(x) {
-  tryCatch(log(x),
-    warning = \(s) {message("Warnung: ", s); NULL},
-    error = \(s) {message("Fehler: ", s);  NA_real_},
-    finally = {message("Ende")} )
+h <- \(x) {
+  res <- try(log(x), silent = TRUE)
+  if (inherits(res, "try-error")) {
+    message(res)  # Beliebige Rückgabe
+    NA_real_
+  } else res
 }
-x <- f3("a")      # Fehler, Ende
-x                 # NA
-x <- f3(-1)       # Warnung, Ende
-x                 # NULL
-
-f4 <- \(x) {
-  tryCatch(log(x),
-    error = \(s) {message("Fehler");  NA_real_} )
-}
-f4("a")           # NA, Fehler
-f4(-1)            # NaN, Warnmeldung
-
-f5 <- \(x) {
-  tryCatch(withCallingHandlers(log(x),
-    warning = \(s) {
-      message("Warnung")
-      invokeRestart("muffleWarning")} ),
-    error = \(s) {message("Fehler");  NA_real_} )
-}
-f5("a")           # NA, Fehler
-f5(-1)            # NaN, Warnung
-
-f6 <- \() {
-  stop("Abbruch") # erzeugt Fehler
-  42
-}
-y <- f6()
-#y                ## y nicht gefunden
-
-f7 <- \() {
-  warning("Achtung") # Warnung, Programm läuft weiter
-  42
-}
-f7()              # 42, Warnmeldung
-
-f8 <- \() {
-  message("Info") # Informative Meldung
-  42
-}
-f8()              # 42, Info
-
-f9 <- \(x) { stopifnot(x >= 0); log(x) } # Beenden wenn nicht
-f9(0)     # -Inf
-f9(-1)    # Fehler in f9(-1) : x >= 0 ist nicht TRUE
+h("a")            # NA; Ausgabe eigener Fehlermeldung
+h(-1)             # NaN; Warning NaN wurden erzeugt
+h(1)              # 0
 \end{lstlisting}
 
 
-\subsection{Fehlersuche und Debugging}
+\subsubsection{tryCatch() -- Fehler behandeln}
 
-Mit \lstinline|traceback()| wird der Aufrufstack (die Kette von
-Funktionen, die sich gegenseitig aufrufen) zum Zeitpunkt des Fehlers
-angezeigt.
+\lstinline|tryCatch()| ermöglicht es, auf Fehler und Warnungen kontrolliert zu reagieren. Im Gegensatz zu \lstinline|try()| erlaubt es die Definition spezifischer \emph{Handler} (Funktionen), die nur dann ausgeführt werden, wenn eine bestimmte Bedingung (\lstinline|error|, \lstinline|warning|) eintritt. 
 
-Mit \lstinline|debug(fun)| wird eine Funktion dauerhaft, mit
-\lstinline|debugonce(fun)| nur beim nächsten Aufruf für interaktives
-Debugging markiert.
+Handler dienen dazu, auf Ausnahmebedingungen gezielt zu reagieren, z.\,B.\ durch das Zurückgeben eines Ersatzwertes, Protokollierung oder kontrolliertes Beenden des Programms. Handler sind (anonyme) Funktionen, die in einem eigenen Scope ausgeführt werden. Variablen, die innerhalb eines Handlers definiert oder geändert werden, sind außerhalb von \lstinline|tryCatch()| nicht ohne Weiteres verfügbar.
 
-Mit \lstinline|browser()| kann an beliebiger Stelle gezielt in den
-Debugger gesprungen werden.
+Der Rückgabewert von \lstinline|tryCatch()| ist entweder das Ergebnis des Hauptausdrucks (\lstinline|expr|) oder, im Falle einer Störung, der Rückgabewert des entsprechenden Handlers. 
 
-Im interaktiven Debugger stehen u.\,a. folgende Befehle zur Verfügung:
+Ein \lstinline|finally|-Block wird in jedem Fall am Ende ausgeführt, unabhängig davon, ob ein Fehler auftrat oder nicht. Dies kann für Aufräumarbeiten (z.\,B\. Schließen von Dateiverbindungen) genutzt werden.
+
+Tritt eine Warnung oder ein Fehler auf, für den ein Handler definiert ist, wird die Auswertung des verbleibenden Codes im Hauptausdruck \lstinline|expr| abgebrochen und die Ausführung im entsprechenden Handler fortgesetzt.
+
+\begin{lstlisting}
+f <- \(x) {
+  tryCatch(
+    expr = {
+      res <- log(x)
+      message("Kein Fehler")
+      res
+    },
+    error = \(e) {
+      message("Fehler abgefangen: ", e$message)
+      NULL      # Rückgabewert im Fehlerfall
+    },
+    warning = \(w) {
+      message("Warnung abgefangen: ", w$message)
+      NA_real_  # Rückgabewert im Warnungsfall
+    },
+    finally = {
+      message("Berechnung beendet (finally)")
+    }
+  )
+}
+x <- f("a")      # Fehler abgefangen: ... Berechnung beendet
+x                # NULL
+x <- f(-1)       # Warnung abgefangen: ... Berechnung beendet
+x                # NA
+f(1)             # 0, Kein Fehler, Berechnung beendet
+
+g <- \(x) {
+  tryCatch({res <- log(x)
+            message("Kein Fehler")
+            res},
+    error = \(s) {message("Fehler");  NA_real_} )
+}
+g("a")           # NA, Fehler
+g(-1)            # NaN, Kein Fehler, Warnmeldung
+\end{lstlisting}
+
+
+\subsubsection{withCallingHandlers() -- Eingreifen ohne Abbruch}
+
+Während \lstinline|tryCatch()| den Code-Block bei einer Störung sofort verlässt (d.\,h.\ den normalen Kontrollfluss ersetzt), erlaubt \lstinline|withCallingHandlers()| das Ausführen von Aktionen direkt am Ort des Geschehens. 
+
+Wichtig ist hierbei die Art der Bedingung: Bei \emph{Warnungen} (\lstinline|warning|) und \emph{Nachrichten} (\lstinline|message|) springt das Programm in den Handler und danach an die Ausführungsstelle zurück, an der die Bedingung ausgelöst wurde, um die Auswertung des Hauptausdrucks fortzusetzen.
+
+Tritt jedoch ein \emph{Fehler} (\lstinline|error|) auf, kann auch \lstinline|withCallingHandlers()| den Abbruch des Hauptausdrucks nicht verhindern. Der Handler wird zwar noch auf dem ursprünglichen Call-Stack ausgeführt (was detaillierte Fehleranalysen ermöglicht), danach bricht die Ausführung des \lstinline|expr|-Blocks jedoch unwiderruflich ab.
+
+Der Rückgabewert eines Handlers wird ignoriert und hat keinen Einfluss auf den Rückgabewert von \lstinline|withCallingHandlers()|. Die Funktion eignet sich daher besonders für nicht-invasive Nebenwirkungen wie Logging, Monitoring oder das gezielte Unterdrücken von Warnungen mittels \lstinline|invokeRestart("muffleWarning")|.
+
+\begin{lstlisting}
+f <- \(x) {
+  withCallingHandlers(
+    expr = {
+      res <- log(x)
+      message("Läuft weiter")
+      res + 1
+    },
+    error = \(e) {
+      message("HANDLER: ERROR protokolliert.")
+    },
+    warning = \(w) {
+      message("HANDLER: Warnung unterdrückt.")
+      invokeRestart("muffleWarning")
+    }
+  )
+}
+x <- f("a")   # HANDLER läuft; danach regulärer Fehlerabbruch
+#x            ## Fehler, x nicht gefunden
+f(-1)         # NaN; Warnung abgefangen, Ausführung läuft weiter
+f(1)          # 1, Läuft weiter
+\end{lstlisting}
+
+
+\subsubsection{Kombination von tryCatch() und withCallingHandlers()}
+
+Die Kombination beider Funktionen ist ein bewährtes Muster, um robustes Logging mit einer sicheren Fehlerbehandlung zu vereinen. Dabei übernimmt \lstinline|withCallingHandlers()| im inneren Ausdruck die Behandlung von Warnungen und Nachrichten direkt am Entstehungsort, ohne den Kontrollfluss zu verändern. Das umschließende \lstinline|tryCatch()| dient als Sicherheitsnetz, um bei nicht abgefangenen Fehlern einen sauberen Abbruch mit einem definierten Ersatzwert zu ermöglichen. Dieses Muster trennt damit klar zwischen beobachtenden Nebenwirkungen (Logging) und kontrollflussverändernden Entscheidungen (Fehlerbehandlung).
+
+\begin{lstlisting}
+f <- \(x) {
+  tryCatch(
+    withCallingHandlers(  # Logging ohne Abbruch
+      log(x),
+      warning = \(w) {
+        cat("LOG [Warnung]:", w$message, "\n")
+        invokeRestart("muffleWarning")
+      }
+    ),
+    error = \(e) {        # Sicherheitsnetz
+      cat("LOG [Fehler]:", e$message, "\n")
+      NA_real_
+    }
+  )
+}
+f("a")     # NA,  LOG [Fehler]: Nicht-numerisches ...
+f(-1)      # NaN, LOG [Warnung]: NaNs wurden erzeugt
+f(1)       # 0
+\end{lstlisting}
+
+
+\subsubsection{Gezielte Steuerung: Eigene Fehlerklassen}
+
+Die Funktionen \lstinline|stop()|, \lstinline|warning()| und \lstinline|message()| liefern keinen regulären Rückgabewert, sondern signalisieren eine sogenannte \emph{condition}. Eine Condition ist ein S3-Objekt (intern meist als Liste realisiert), das Metadaten über das Ereignis enthält.
+
+Typischerweise enthält ein solches Objekt mindestens die folgenden Bestandteile:
+
+\begin{itemize}
+\item \lstinline|message|: Der Text der Fehlermeldung/Warnung.
+\item \lstinline|call|: Der Funktionsaufruf, der das Ereignis ausgelöst hat.
+\end{itemize}
+
+Man kann diese Objekte einfangen, um sie zu untersuchen, indem man sie in einem Handler als Argument entgegennimmt.
+
+\begin{lstlisting}
+h <- \(x) tryCatch(x, condition = \(y) y)
+
+str(h(stop(0)))
+# List of 2
+#  $ message: chr "0"
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.8pt}{9.5pt}\selectfont\ttfamily]
+#  $ call   : language doTryCatch(return(expr), name, parentenv, handler)
+#  - attr(*, "class")= chr [1:3] "simpleError" "error" "condition"}
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
+
+str(h(warning(0)))
+# List of 2
+#  $ message: chr "0"
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.8pt}{9.5pt}\selectfont\ttfamily]
+#  $ call   : language doTryCatch(return(expr), name, parentenv, handler)
+#  - attr(*, "class")= chr [1:3] "simpleWarning" "warning" "condition"
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
+
+str(h(message(0)))
+# List of 2
+#  $ message: chr "0\n"
+#  $ call   : language message(0)
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\ttfamily\scriptsize]
+#   ..- attr(*, "srcref")= 'srcref' int [1:8] 1 6 1 41 6 41 1 1
+#   .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x56341b0a1170> 
+#  - attr(*, "class")= chr [1:3] "simpleMessage" "message" "condition"
+\end{lstlisting}
+
+Die Reihenfolge der Klassen ist dabei entscheidend: \lstinline|tryCatch()| wählt stets den zuerst passenden Handler.
+
+Da diese Ereignisse gewöhnliche S3-Objekte sind, können wir sie erweitern. Anstatt nur den Standard-Typ \lstinline|simpleError| zu verwenden, weisen wir dem Objekt über \lstinline|structure()| eine spezifischere Klasse zu. Das erlaubt es uns, in \lstinline|tryCatch()| präzise Filter zu setzen.
+
+\begin{lstlisting}
+myErr <- \(msg, class) {
+  err <- structure(
+           list(message = msg, call = sys.call(-1)),
+           class = c(class, "error", "condition") )
+  stop(err)
+}
+
+f <- \(x) {
+  if (is.character(x)) myErr("Kein Text erlaubt", "InputError")
+  if (x < 0) myErr("Zahl zu klein", "ValueTooLowError")
+  log(x)
+}
+
+x <- f("a")   # Fehler in f("a") : Kein Text erlaubt
+#x            ## Fehler: Objekt 'x' nicht gefunden
+
+g <- \(x) tryCatch(
+  f(x),
+  InputError = \(e) { 
+    message("Spezifischer Input-Fehler: ", e$message)
+    NA
+  },
+  ValueTooLowError = \(e) {
+    message("Wert-Fehler: ", e$message)
+    NaN
+  },
+  error = \(e) { 
+    message("Allgemeiner Fehler: ", e$message)
+    NA
+  }
+)
+
+x <- g("a")   # Spezifischer Input-Fehler: Kein Text erlaubt
+x             # NA
+x <- g(-1)    # Wert-Fehler: Zahl zu klein
+x             # NaN
+g(1)          # 0
+\end{lstlisting}
+
+Der Funktionsaufruf wird explizit über \lstinline|sys.call(-1)| gesetzt, um den ursprünglichen Auslösepunkt des Fehlers zu dokumentieren.
+
+Eigene Fehlerklassen ermöglichen es, Fehler nicht nur abzufangen, sondern semantisch zu klassifizieren und gezielt zu behandeln.
+
+
+\subsection{Fehlersuche und Code-Analyse}
+
+In der Programmierung mit R unterscheidet man zwei wesentliche Ansätze zur Sicherstellung der Code-Qualität: das reaktive \emph{Debugging} und die proaktive \emph{statische Analyse}. Während das Debugging darauf abzielt, bereits aufgetretene Laufzeitfehler durch eine systematische Untersuchung des Call-Stacks (die Kette von Funktionen, die sich gegenseitig aufrufen) und des aktuellen Environments zu beheben, dient die statische Analyse dazu, potenzielle Fehlerquellen und Inkonsistenzen bereits im Quelltext zu identifizieren, bevor der Code ausgeführt wird. Die folgenden Abschnitte führen von Werkzeugen zur akuten Fehlersuche über die Tiefenanalyse der Codestruktur bis hin zur automatisierten Einhaltung von Formatierungsempfehlungen.
+
+
+\subsubsection{Debugging}
+
+Debugging umfasst Werkzeuge zur Fehlerdiagnose (Post-mortem-Analyse) sowie zur gezielten Untersuchung des Programmflusses. Ziel ist es, den Zustand der Daten (Environments) zum Zeitpunkt eines Fehlers oder an einer spezifischen Code-Stelle Schritt für Schritt zu inspizieren.
+
+\paragraph{print() -- Einfache Diagnose}
+
+Die simpelste Form des Debuggings ist das Einfügen von \lstinline|print()|-, \lstinline|cat()|- oder \lstinline|message()|-Befehlen, um Variablenwerte während der Ausführung in die Konsole zu schreiben. Dies stößt jedoch bei komplexen Objekten oder tiefen Funktionsverschachtelungen schnell an Grenzen.
+
+\begin{lstlisting}
+f <- \(x) {
+  message("A: ", x)
+  x <- x - 1
+  message("B: ", x)
+  x <- log(x)
+  message("C: ", x)
+  x <- x + 1
+  message("D: ", x)
+  x
+}
+f(1)  # -Inf   A: 1
+             # B: 0
+             # C: -Inf
+             # D: -Inf
+suppressMessages(f(1)) # -Inf; Gibt keine messages aus
+\end{lstlisting}
+
+\paragraph{Fehler lokalisieren}
+
+Ist ein Fehler bereits aufgetreten, helfen folgende Werkzeuge, den Ort des Scheiterns einzugrenzen:
 
 \begin{description}
-  \item[\texttt{n\dots next}:] nächste Anweisung ausführen („step over“)
-  \item[\texttt{s\dots step into}:] in den aufgerufenen Funktionsaufruf hineingehen
-  \item[\texttt{f\dots finish}:] aktuelle Funktion bis zum Ende ausführen
-  \item[\texttt{c\dots continue}:] weiterlaufen bis zum nächsten Breakpoint oder Ende
-  \item[\texttt{Q\dots Quit}:] Debugger verlassen und Ausführung abbrechen
-  \item[\texttt{where}:] aktuellen Call-Stack anzeigen (äquivalent zu \texttt{traceback()})
-  \item[\texttt{beliebiger R-Ausdruck}:] wird direkt im aktuellen Environment ausgewertet, z.\,B. \lstinline|ls()|, \lstinline|x|, \lstinline|head(x)|
+\item[\texttt{traceback()}] Zeigt den Aufrufstack an (die Kette der Funktionen, die sich gegenseitig aufgerufen haben). Der Fehler geschah in der obersten angezeigten Nummer.
+\item[\texttt{options(error = recover)}] Ändert das globale Fehlerverhalten. R springt bei einem Fehler automatisch in ein Menü, das die Auswahl eines Environments aus dem Call-Stack erlaubt und dort \lstinline|browser()| startet.
+\item[\texttt{options(error = NULL)}] Setzt das Fehlerverhalten auf den Standardzustand zurück.
+\item[\texttt{options(warn = 2)}] Behandelt Warnungen wie Fehler, was hilfreich ist, wenn man den Ursprung einer Warnung mittels \lstinline|traceback()| finden möchte.
 \end{description}
+
+\paragraph{Interaktiv und Haltepunkte}
+
+Um den Code Schritt für Schritt zu durchlaufen, bevor oder während ein Fehler auftritt, werden Haltepunkte gesetzt:
+
+\begin{description}
+\item[\texttt{browser()}] Pausiert die Ausführung an einer exakten Stelle im Quellcode und öffnet die interaktive Konsole.
+\item[\texttt{debug(fun)} / \texttt{debugonce(fun)}] Markiert eine Funktion, sodass bei ihrem Aufruf automatisch der Debugger startet. \lstinline|undebug(fun)| hebt dies wieder auf.
+\item[\texttt{trace(fun, ...)}] Erlaubt es, Code (z.\,B. \lstinline|browser|) an beliebigen Stellen in eine Funktion einzuschleusen, ohne deren Quellcode dauerhaft zu verändern. Mit \lstinline|untrace(fun)| wird dies rückgängig gemacht.
+\end{description}
+
+Dabei ist bei primitiven Funktionen (wie \lstinline|sum|), die intern in C geschrieben sind, eine Besonderheit zu beachten:
+
+\begin{description}
+\item[Einfaches Tracing:] \lstinline|trace(fun)| setzt ein Flag direkt auf der C-Ebene. Jeder Aufruf der Funktion wird gemeldet, egal ob er direkt aus der Konsole oder aus einer anderen Funktion (wie \lstinline|weighted.mean()|) erfolgt.
+\item[Tracing mit zusätzlichem Code:] Wird Code übergeben, z.\,B.\ \lstinline|trace(sum, quote(print("!")))|, erstellt R einen Wrapper.
+  \begin{itemize}
+  \item Nur Aufrufe, die das Objekt \lstinline|sum| über den regulären R-Suchpfad auflösen, finden diesen Wrapper und führen den Tracing-Code aus (z.\,B.\ direkte Eingaben in der Konsole).
+  \item Viele Funktionen (wie \lstinline|weighted.mean()|) sowie direkte \lstinline|.Primitive|-Aufrufe greifen intern direkt auf die C-Routine zu. Sie umgehen die Namenssuche im Suchpfad und damit den Wrapper, weshalb die Meldung dort nicht erscheint.
+  \end{itemize}
+\end{description}
+
+\paragraph{Steuerung im Debugger}
+
+Befindet man sich im interaktiven Modus (erkennbar am Präfix \lstinline|Browse[d]>|), stehen folgende Befehle zur Verfügung:
+
+\begin{itemize}
+\item \texttt{n} (next): Nächste Zeile ausführen.
+\item \texttt{s} (step into): In eine Funktion hineingehen.
+\item \texttt{f} (finish): Aktuelle Funktion zu Ende führen.
+\item \texttt{c} (continue): Bis zum Ende oder nächsten Haltepunkt fortfahren.
+\item \texttt{Q} (quit): Debugger beenden und gesamten Prozess abbrechen.
+\item \texttt{where}: Aktuellen Call-Stack anzeigen.
+\item \textit{beliebiger R-Code}: Auswertung von Variablen (z.\,B.\ \lstinline|ls()|, \lstinline|str(x)|).
+\end{itemize}
+
+Falls eine Variable denselben Namen wie ein Steuerbefehl hat (z.\,B.\ \lstinline|n|), muss diese mit \lstinline|print(n)| oder \lstinline|get("n")| abgefragt werden, da die Eingabe von \lstinline|n| sonst die nächste Zeile ausführt.
 
 \begin{lstlisting}
 f <- \(x) g(x)
@@ -7628,11 +8002,19 @@ traceback() # 4: stop("Testfehler") at #1
 
 trace("g", quote(browser()), at=2) # Fügt browser() in g ein
 f(0)        # Geht jetzt in Debugging Modus => Interaktiv
-body(g)     # Gibt funktion mit eingefügtem tracing code aus
+body(g)     # Gibt Funktion mit eingefügtem Tracing Code aus
 untrace("g")
 
 trace(sum)  # Zeigt an wenn Funktion sum aufgerufen wird
-hist(rnorm(100)) # Wird 3-4 mal aufgerufen
+weighted.mean(1:3)  # 2, trace: sum
+sum(1:3)            # 6, trace: sum(1:3)
+(.Primitive("sum"))(1:3) # 6, trace: (.Primitive("sum"))(1:3)
+untrace(sum)
+
+trace(sum, quote(print("Aufruf von sum()")))
+weighted.mean(1:3)  # 2; Keine Meldung von trace!
+sum(1:3)            # 6, "Aufruf von sum()"
+(.Primitive("sum"))(1:3) # 6; Keine Meldung von trace!
 untrace(sum)
 
 debug(g)    # Debugging für Funktion g aktivieren
@@ -7651,8 +8033,850 @@ f(0)        # Interaktiv: Q, n, s, c, ... verwenden
 \end{lstlisting}
 
 
+\subsubsection{Statische Code-Analyse}
+
+Dabei wird der Code untersucht, ohne ihn auszuführen, um potenzielle Fehlerquellen wie undefinierte globale Variablen oder ungenutzte Zuweisungen bereits vorab zu finden. Statische Code-Analyse ergänzt Tests und Debugging, indem sie potenzielle Probleme frühzeitig sichtbar macht.
+
+\paragraph{codetools}
+
+Das Paket \lstinline|codetools| bietet Werkzeuge zur Untersuchung der funktionalen Struktur von Code. Es wird verwendet, um Abhängigkeiten und die korrekte Verwendung von Symbolen sicherzustellen.
+
+\subparagraph{checkUsage(fun)}
+
+Prüft eine Funktion auf typische Probleme. Dazu gehören die Verwendung von Variablen, die weder lokal definiert noch als Parameter übergeben wurden (potenzielle Tippfehler), sowie ungenutzte Argumente oder Zuweisungen. Mit \lstinline|checkUsagePackage("pkg")| lässt sich dies auf ein gesamtes Paket ausweiten.
+
+\subparagraph{findGlobals(fun)}
+
+Identifiziert alle globalen Funktionen und Variablen, auf die die Funktion zugreift. Dies ist essenziell, um sicherzustellen, dass eine Funktion nicht versehentlich von Variablen im \emph{Global Environment} abhängt, was die Reproduzierbarkeit beeinträchtigt.
+
+\subparagraph{findLocals(body(fun))}
+
+Identifiziert Variablen, die innerhalb der Funktion durch Zuweisung (\lstinline|<-| oder \lstinline|=|) lokal neu erstellt werden. Da \lstinline|findLocals()| einen Ausdruck erwartet, wird der Funktionsrumpf mit \lstinline|body(fun)| übergeben.
+
+\subparagraph{showTree(expr)}
+
+Visualisiert den abstrakten Syntaxbaum (AST) eines Ausdrucks. Dies verdeutlicht z.\,B.\ die Auswertungsreihenfolge (Präzedenz) von Operationen.
+
+\begin{lstlisting}
+library(codetools)
+
+f <- \(x) {
+  y <- x + z
+  7
+}
+
+checkUsage(f)
+ # <anonymous>: no visible binding for global variable 'z' (:2)
+ # <anonymous>: local variable 'y' assigned but may not be used
+
+checkUsagePackage("codetools") # Prüft ganzes Paket
+
+findGlobals(f)       # "{"  "+"  "<-" "z"
+findLocals(body(f))  # "y"
+
+showTree(quote(1 + 2 * 3))  # (+ 1 (* 2 3))
+\end{lstlisting}
 
 
+\paragraph{lintr}
+
+Das Paket \lstinline|lintr| führt eine statische Analyse von R-Code durch, um Syntaxfehler, Verstöße gegen Stilrichtlinien und Best Practices zu identifizieren. Es erkennt neben Formatierungsfehlern auch potenzielle Fehlerquellen und Effizienzprobleme, was die Wartbarkeit des Codes verbessert.
+
+Standardmäßig nutzt \lstinline|lintr| eine Auswahl gängiger Regeln. Um den vollen Funktionsumfang inklusive Komplexitätsmessungen nutzen zu können, sollte zusätzlich das Paket \lstinline|cyclocomp| installiert sein.
+
+\begin{lstlisting}
+library(lintr)
+
+lint(text = "x <- x+1")
+  # Put spaces around all infix operators
+lint(text = "x = x + 1")
+  # Use one of <-, <<- for assignment, not =
+lint(text = "x <- x + 1")                      # No lints found
+lint(text = "x <- x + 1", linters = all_linters()) # Alle Tests
+  # Use 1L or 1.0 to avoid implicit integers.
+
+lint(text = "x <- c(1)")                       # No lints found
+lint(text = "x <- c(1L)", linters = all_linters())
+  # Remove unnecessary c() of a constant.
+\end{lstlisting}
+
+Neben kurzen Code-Abschnitten können ganze Dateien mit \lstinline|lint("datei.R")|, Verzeichnisse mit \lstinline|lint_dir()| oder vollständige R-Pakete mit \lstinline|lint_package()| geprüft werden. Viele Entwicklungsumgebungen (IDEs) integrieren \lstinline|lintr| direkt und markieren Stilfehler bereits während der Eingabe.
+
+
+\subsubsection{Automatische Code-Formatierung mit styler}
+
+Das Paket \lstinline|styler| ermöglicht die automatisierte Formatierung von R-Code gemäß gängiger Stilrichtlinien. Es verändert aktiv den Code, um Konsistenz zu gewährleisten.
+
+\begin{lstlisting}
+library(styler)
+
+style_text("a=2")                # a <- 2
+style_text("1++1-1/2+2^2")       # 1 + +1 - 1 / 2 + 2^2
+style_text(r"(f<-\(x,y){y+x;})") # f <- \(x, y){
+                                 #  y + x
+                                 # }
+\end{lstlisting}
+
+Neben kurzen Code-Abschnitten (\lstinline|style_text("code")|) können ganze Dateien mit \lstinline|style_file()|, Verzeichnisse mit \lstinline|style_dir()| oder vollständige R-Pakete mit \lstinline|style_pkg()| transformiert werden. 
+
+Viele Entwicklungsumgebungen (IDEs) integrieren \lstinline|styler| und können den Code auf Knopfdruck formatieren.
+
+Standardmäßig \textbf{überschreibt} \lstinline|styler| bestehende Dateien.
+
+
+\subsection{Ressourcenverbrauch}
+
+Da R standardmäßig nach dem In-Memory-Prinzip arbeitet, also alle Objekte direkt im Arbeitsspeicher hält, kann ein unbedachter Umgang mit Datenstrukturen zu Speicherengpässen führen. Eine ineffiziente Programmierweise, beispielsweise durch iteratives Erweitern eines Vektors, kann zu unnötig langen Rechenzeiten führen.
+
+
+\subsubsection{Speicherverwaltung und Garbage Collection}
+
+Beim Speicherverbrauch muss zwischen dem während der Ausführung kurzzeitig angeforderten (\emph{alloziierten})  und freigegeben Speicher und dem daraus resultierenden aktuell belegten Speicher unterschieden werden. In ressourcenschwachen Umgebungen ist dabei vor allem der maximale Speicherverbrauch (\emph{Peak-Verbrauch}) kritisch, da ein Überschreiten der physischen Hardware-Grenzen zum sofortigen Programmabbruch führt.
+
+In R wird die Speicherverwaltung weitgehend automatisiert durch die \emph{Garbage Collection} (GC) geregelt, welche nicht mehr benötigte Objekte im Arbeitsspeicher freigibt.
+
+\paragraph{gc() -- Analyse und Steuerung des Speichers}
+
+Obwohl die Garbage Collection automatisch startet, kann sie mit \lstinline|gc()| auch manuell ausgelöst werden. Dies ist besonders für die Diagnose des Speicherbedarfs nützlich. Die Funktion akzeptiert drei wesentliche Argumente:
+
+\begin{itemize}
+\item \lstinline|verbose|: Bei \lstinline|TRUE| werden zusätzliche Informationen über die Speicherschwellenwerte ausgegeben.
+\item \lstinline|reset|: Bei \lstinline|TRUE| werden die Zähler des Maximalverbrauchs (\emph{max used}) auf den aktuellen Stand zurückgesetzt. Dies ist essenziell, um den \emph{Peak}-Verbrauch eines spezifischen Code-Blocks zu isolieren.
+\item \lstinline|full|: Bestimmt, ob eine vollständige (gründlichere, aber zeitaufwändigere) Garbage Collection durchgeführt werden soll.
+\end{itemize}
+
+Die Ausgabe unterscheidet zwei Speichertypen:
+\begin{description}
+\item[Ncells (node/cons cells):] Speicher für Verwaltungsobjekte (Funktionsaufrufe, Symbole, Listenstrukturen). Größe: 28 Byte (32-bit) bzw. 56 Byte (64-bit).
+\item[Vcells (vector cells):] Speicher für die eigentlichen Datenwerte (Vektoren wie \emph{numeric} oder \emph{integer}). Größe: 8 Byte pro Zelle.
+\end{description}
+
+Die erste Spalte der Ausgabe gibt die absolute Anzahl dieser Zellen an. In der Spalte \texttt{(Mb)} liefert R die Werte in Megabyte. 
+(Beispiel: $302\,890 \text{ Ncells} \cdot 56 \text{ Byte} / 1024^2 \approx 16,2 \text{ MB}$).
+
+Diese Kennzahlen werden weiter unterteilt in:
+\begin{description}
+\item[used:] Aktuell belegter Speicher zum Zeitpunkt des Aufrufs.
+\item[gc trigger:] Der Schwellenwert, bei dessen Erreichen R die automatische Garbage Collection startet.
+\item[max used:] Der Höchststand (\emph{Peak}) seit dem letzten R-Start oder \lstinline|reset = TRUE|.
+\end{description}
+
+\paragraph{gctorture() -- Speicherdruck simulieren}
+
+Schwankungen im \emph{max used}-Wert entstehen oft dadurch, dass der Garbage Collector zu unterschiedlichen Zeitpunkten aktiv wird. Um den \emph{exakten Peak-Verbrauch} einer Funktion ohne diese Verzerrungen zu messen, kann \lstinline|gctorture(TRUE)| verwendet werden. Dieser Modus erzwingt nach \emph{jeder einzelnen} Speicheranforderung eine Garbage Collection.
+
+Dies verlangsamt die Ausführung drastisch, stellt jedoch sicher, dass zu jedem Zeitpunkt nur die absolut notwendigen Objekte im Speicher verbleiben. So lässt sich der minimale Speicher-Peak bestimmen, den eine Funktion zwingend benötigt.
+
+\begin{lstlisting}
+f <- \() { m <- matrix(rnorm(1e6), 1e3)
+          svd(m)$d[1] }
+
+gc(FALSE, TRUE, TRUE) # Speicherstatus vor Funktionsaufruf
+ #          used (Mb) gc trigger (Mb) max used (Mb)
+ # Ncells 302890 16.2     707757 37.8   302890 16.2
+ # Vcells 617836  4.8    8388608 64.0   617836  4.8
+
+f()
+gc(FALSE, FALSE, TRUE) # Speicherstatus nach Funktionsaufruf
+ #          used (Mb) gc trigger (Mb) max used (Mb)
+ # Ncells 303664 16.3     707757 37.8   304169 16.3
+ # Vcells 619945  4.8    8388608 64.0  7633001 58.3
+
+gc(FALSE, TRUE, TRUE) # Reset Max
+ #          used (Mb) gc trigger (Mb) max used (Mb)
+ # Ncells 303670 16.3     707757 37.8   303670 16.3
+ # Vcells 619973  4.8    8388608 64.0   619973  4.8
+
+f()
+gc(FALSE, FALSE, TRUE)
+ #          used (Mb) gc trigger (Mb) max used (Mb)
+ # Ncells 363510 19.5     707757 37.8   390395 20.9
+ # Vcells 754908  5.8    8388608 64.0  8223929 62.8
+
+gc(FALSE, TRUE, TRUE) # Reset Max
+ #          used (Mb) gc trigger (Mb) max used (Mb)
+ # Ncells 363516 19.5     707757 37.8   363516 19.5
+ # Vcells 754936  5.8    8388608 64.0   754936  5.8
+
+gctorture(TRUE)
+f()
+gc(FALSE, FALSE, TRUE)
+ #          used (Mb) gc trigger (Mb) max used (Mb)
+ # Ncells 363524 19.5     707757 37.8   363632 19.5
+ # Vcells 754942  5.8    9130879 69.7  7766958 59.3
+gctorture(FALSE)
+\end{lstlisting}
+
+Die Funktion benötigt laut der Messung mit \lstinline|gctorture| demnach: $((363632 - 363516) * 56 + (7766958 - 754936) * 8) / 1024^2 = 53.5Mb$ an zusätzlichem Speicher im Vergleich zum Zustand unmittelbar vor dem Aufruf.
+
+Bei der Messung des exakten Speicherbedarfs ist zu beachten, dass R beim ersten Aufruf einer Funktion oder eines Sprachkonstrukts internen Verwaltungsaufwand betreibt (z.\,B.\ Bytecode-Kompilierung oder das Laden von Namensräumen). Um diese einmaligen Artefakte aus der Peak-Messung auszuschließen, werden die relevanten Operationen im folgenden Beispiel einmalig warmgelaufen, bevor die eigentliche Messung mit \lstinline|gctorture| erfolgt. Allerdings kann auch dieser Speicherverbrauch relevant sein, wenn die zu vergleichenden Varianten verschiedene Funktionen verwenden. Zudem sind geringfügige Schwankungen im Bereich weniger Bytes (oft Vielfache der Zellgrößen) auch bei wiederholten Messungen normal, da R im Hintergrund minimale Verwaltungsprozesse für die Auswertung der Ausdrücke durchführt.
+
+Basale Zuweisungsstrategien können großen Einfluss auf den Speicherbedarf haben. Der folgende Vergleich demonstriert den Vorteil der Vor-Allokation gegenüber dem dynamischen Erweitern eines Vektors.
+
+\begin{lstlisting}
+f <- \(x) {sum(x[,"max used"]*
+  c(c(28,56)[.Machine$sizeof.pointer/4],8))}
+x <- sample(1:5, 1e6, TRUE)
+
+# Verwendete Funktionen einmal benutzen
+y <- 0
+y <- c(y, 1L)
+y[2] <- 1L
+gctorture(TRUE); gctorture(FALSE)
+f(gc(FALSE, TRUE, TRUE))
+
+y <- x
+m <- f(gc(FALSE, TRUE, TRUE))  # Aktueller Speicherverbrauch
+gctorture(TRUE)
+y <- c(y, 1L)
+gctorture(FALSE)
+f(gc(FALSE, FALSE, TRUE)) - m  # 4006496
+
+y <- integer(length(x)+1)
+y[seq_along(x)] <- x
+m <- f(gc(FALSE, TRUE, TRUE))
+gctorture(TRUE)
+y[1e6+1] <- 1L
+gctorture(FALSE)
+f(gc(FALSE, FALSE, TRUE)) - m  # 7176
+\end{lstlisting}
+
+
+\subsubsection{Performance-Messung (Benchmarking)}
+
+Um die Effizienz verschiedener Implementierungen objektiv vergleichen zu können, ist eine präzise Zeitmessung unerlässlich. Da moderne Prozessoren Aufgaben oft auf mehrere Kerne verteilen, unterscheidet R zwischen der real vergangenen Zeit und der tatsächlich geleisteten Prozessorarbeit.
+
+
+\paragraph{Manuelle Zeitmessung mit Sys.time()}
+
+Die einfachste Methode zum Benchmarking ist der direkte Vergleich der Systemzeit vor und nach der Ausführung eines Codeblocks. Dies entspricht dem Prinzip einer Stoppuhr, um die reine \emph{verstrichene Zeit} (Elapsed Time) zu ermitteln. \lstinline|Sys.time()| liefert einen Zeitstempel der aktuellen Uhrzeit.
+
+\begin{lstlisting}
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+
+t0 <- Sys.time()
+y <- lapply(i, f, x)
+Sys.time() - t0       # Time difference of 5.115614 secs
+
+library(parallel)
+t0 <- Sys.time()
+y <- mclapply(i, f, x, mc.cores = detectCores()/2)
+Sys.time() - t0       # Time difference of 1.342426 secs
+\end{lstlisting}
+
+
+\paragraph{Messung der CPU-Zeit mit proc.time()}
+
+Während \lstinline|Sys.time()| lediglich die Echtzeit misst, ermöglicht \lstinline|proc.time()| eine Analyse der tatsächlich verbrauchten Rechenzeit (CPU-Zeit). Dies ist entscheidend, um den Rechenaufwand unabhängig von anderen Systemprozessen zu bewerten. Die Funktion gibt einen Vektor zurück, dessen Differenz die CPU-Belastung aufzeigt:
+
+\begin{description}
+\item[User (Benutzerzeit):] Zeit, die der Prozessor direkt mit der Ausführung des R-Codes verbracht hat.
+\item[System (Systemzeit):] Zeit, die das Betriebssystem für Aufgaben des Prozesses (z.\,B.\ Speicherzuweisung) aufgewendet hat.
+\item[Verstrichen (Elapsed):] Die tatsächliche Wartezeit für den Nutzer.
+\end{description}
+
+\begin{lstlisting}
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+
+t0 <- proc.time()
+y <- lapply(i, f, x)
+proc.time() - t0
+ #        User      System verstrichen 
+ #       5.047       0.129       5.177 
+
+library(parallel)
+t0 <- proc.time()
+y <- mclapply(i, f, x, mc.cores = detectCores()/2)
+proc.time() - t0
+ #        User      System verstrichen 
+ #       4.736       0.734       1.333 
+\end{lstlisting}
+
+Bei paralleler Ausführung mittels \lstinline|mclapply| sinkt die \emph{verstrichene} Zeit, während die \emph{System}-Zeit oft ansteigt, da die Koordination der Prozesse (Overhead) zusätzliche Ressourcen beansprucht.
+
+
+\paragraph{system.time()}
+
+Die Funktion \lstinline|system.time()| dient als komfortabler Wrapper um \lstinline|proc.time()|. Sie startet intern den Zeitstempel, führt den übergebenen Ausdruck aus und berechnet automatisch die Differenz. Die Ergebniskategorien sind identisch mit denen von \lstinline|proc.time()|.
+
+\begin{lstlisting}
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+
+system.time(y <- lapply(i, f, x))
+ #        User      System verstrichen 
+ #       4.945       0.153       5.097 
+
+library(parallel)
+system.time(y <- mclapply(i, f, x, mc.cores = detectCores()/2))
+ #        User      System verstrichen
+ #       1.248       0.240       1.311
+
+system.time(y <- mclapply(i, f, x, mc.cores = detectCores()/2))
+ #        User      System verstrichen 
+ #       7.051       1.073       1.335 
+\end{lstlisting}
+
+Auffällig ist, dass die Summe aus \lstinline|User| und \lstinline|System| bei paralleler Ausführung stark schwankt und teilweise kleiner oder deutlich größer als bei der seriellen Messung ausfällt.
+
+Dieses Verhalten soll darin begründet liegen, dass \lstinline|system.time()| primär die CPU-Zeit des aufrufenden Hauptprozesses sowie derjenigen Kindprozesse erfasst, die bereits vollständig beendet wurden und deren Ressourcen vom Elternprozess mittels eines \lstinline|wait()|-Systemaufrufs erfolgreich eingesammelt wurden. Da die parallele Ausführung asynchron erfolgt, wird die Rechenzeit der \lstinline|Child|-Prozesse oft erst verzögert an den Master-Prozess gemeldet.
+
+Dies führt zu scheinbar widersprüchlichen Messergebnissen: Entweder fällt die CPU-Zeit zu gering aus, weil die Kinder noch aktiv sind, oder sie fällt beim nächsten Aufruf sprunghaft höher aus, weil das System die Rechenzeit mehrerer bereits beendeter Prozesse gleichzeitig nachmeldet. Die \lstinline|User|-Zeit ist daher bei parallelen R-Operationen unter Unix kein zuverlässiges Maß für die tatsächliche Rechenlast.
+
+Eine mögliche Alternative besteht darin, die CPU-Zeit direkt innerhalb der parallel ausgeführten Funktion zu messen. Dadurch lässt sich die Rechenzeit der Worker-Prozesse erfassen. Allerdings bleibt dabei der Overhead der Parallelisierung (Prozessverwaltung, Datenübertragung) unberücksichtigt.
+
+\begin{lstlisting}
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) mean(atan(tan(sin(cos(i+x)))))
+g <- \(i, x) sum(system.time(y <- f(i, x))[1:2])
+z <- mclapply(i, g, x, mc.cores = detectCores()/2)
+sum(unlist(z))           # 9.134
+\end{lstlisting}
+
+
+\paragraph{CPU-Zeit mit time bestimmen}
+
+Unter Linux kann mit dem Befehl \lstinline|time| die verbrauchte CPU-Zeit eines gesamten R-Prozesses bestimmt werden. Da \lstinline|time| den Prozess von außen misst, enthält das Ergebnis auch den Overhead für den Start von R und die Initialisierung der Daten (z.\,B.\ Vektorerzeugung). Um die reine Rechenzeit zu isolieren, kann dieser Overhead durch einen Leerlauf-Aufruf ermittelt und abgezogen werden.
+
+Die Ausgabe von \lstinline|time| liefert drei Werte:
+
+\begin{description}
+\item[real:] Die tatsächlich verstrichene Zeit.
+\item[user:] Die reine CPU-Zeit, die im Benutzermodus verbraucht wurde. Bei parallelen Prozessen werden die Zeiten der einzelnen Kerne addiert.
+\item[sys:] Die Zeit für Systemaufrufe (z.\,B.\ Speicherreservierung durch den Kernel).
+\end{description}
+
+\begin{lstlisting}
+time R --vanilla -e "i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) mean(atan(tan(sin(cos(i+x)))))
+y <- lapply(i, f, x)"
+ # real    0m5,454s
+ # user    0m5,561s
+ # sys     0m1,963s
+  
+time R --vanilla -e "i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) mean(atan(tan(sin(cos(i+x)))))
+library(parallel)
+y <- mclapply(i, f, x, mc.cores = detectCores()/2)"
+ # real    0m1,726s
+ # user    0m9,168s
+ # sys     0m3,312s
+
+time R --vanilla -e "i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) mean(atan(tan(sin(cos(i+x)))))"
+ # real    0m0,302s
+ # user    0m0,784s
+ # sys     0m1,624s
+\end{lstlisting}
+
+
+\paragraph{Das bench-Paket}
+
+Das Paket \lstinline|bench| erlaubt einen präzisen Vergleich von Code-Fragmenten. Es führt Ausdrücke mehrfach aus und misst dabei nicht nur die Zeit, sondern auch den angeforderten Speicher (\lstinline|mem_alloc|) und die Anzahl der Garbage Collections (\lstinline|gc/sec|). Ein besonderer Vorteil ist die automatische Überprüfung, ob alle Ausdrücke das gleiche Ergebnis liefern.
+
+Da die Speicherbereinigung (Garbage Collection) selbst Zeit beansprucht, ist Code, der effizienter mit Speicher umgeht, in der Praxis oft schneller. Ein technisches Problem bleibt jedoch die Zuordnung. Bei der sequentiellen Abfolge verschiedener Methoden lässt sich eine GC-Phase oft nicht eindeutig einem einzigen Verursacher zuschreiben.
+
+\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
+i <- 1:14
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+library(parallel)
+
+b <- alist(sc = lapply(i, f, x),
+           mc = mclapply(i, f, x, mc.cores = detectCores()/2) )
+
+x <- runif(1e3)
+z <- bench::mark(exprs=b, memory = FALSE) # Memory geht bei multicore nicht
+z
+#  expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 sc         488.5µs 524.1µs    1872.         NA     4.07   920     2      492ms
+#2 mc          18.2ms  20.5ms      48.9        NA     0       25     0      511ms
+
+# plot(z)  # Darstellung der Ergebnisse
+
+bench::mark(exprs=b[1])
+#  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 sc            488µs  507µs     1938.     110KB     4.05   957     2      494ms
+
+x <- runif(1e7)
+bench::mark(exprs=b, memory = FALSE)
+#  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 sc            5.15s  5.15s     0.194        NA     1.36     1     7      5.15s
+#2 mc            1.34s  1.34s     0.747        NA     5.98     1     8      1.34s
+\end{lstlisting}
+
+
+\paragraph{Das microbenchmark-Paket}
+
+Das Paket \lstinline|microbenchmark| erlaubt einen präzisen Vergleich von Code-Fragmenten. Es führt Ausdrücke mehrfach aus und misst dabei die verbrauchte Zeit.
+
+Im Gegensatz zu bench konzentriert sich microbenchmark ausschließlich auf die Laufzeitmessung, bietet dafür aber eine sehr feinkörnige Kontrolle über die Ausführungsreihenfolge und Reproduzierbarkeit der Messungen.
+
+Dabei wird mit \lstinline|order="block"| der zu vergleichende Code blockweise ausgeführt (zuerst alle Iterationen von A, dann alle von B), was die Wahrscheinlichkeit erhöht, dass in der Zeit durchgeführte garbage collections durch den Code selbst verursacht wurden. Auch lässt sich Code vor der Messung durchführen, also etwa \lstinline|gc()| um gleiche Bedingungen bei jedem Start herzustellen.
+
+\begin{lstlisting}[basicstyle=\fontsize{8.4pt}{8.7pt}\selectfont\ttfamily]
+i <- 1:14
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+library(parallel)
+
+b <- alist(sc = lapply(i, f, x),
+           mc = mclapply(i, f, x, mc.cores = detectCores()/2) )
+
+x <- runif(1e3)
+z <- microbenchmark::microbenchmark(list=b, control=list(order="block"))
+z
+# Unit: microseconds
+#  expr       min        lq       mean     median         uq       max neval
+#    sc   503.984   513.162   519.0315   516.3985   521.0265   557.835   100
+#    mc 14284.719 14641.051 14984.0689 14854.4060 15131.8615 19511.748   100
+
+# plot(z)  # Darstellung der Ergebnisse
+
+x <- runif(1e7)
+microbenchmark::microbenchmark(list=b, control=list(order="block"),
+       setup=gc(), times=5L)
+# Unit: seconds
+#  expr      min       lq     mean   median       uq      max neval
+#    sc 5.174460 5.177620 5.193484 5.187209 5.207704 5.220426     5
+#    mc 1.342342 1.344362 1.398547 1.410618 1.411172 1.484241     5
+\end{lstlisting}
+
+Es ist zu beachten, dass sowohl \lstinline|microbenchmark| als auch \lstinline|bench| die verstrichene Zeit messen und nicht die kumulierte CPU-Zeit. Bei parallelen Berechnungen wie im Beispiel \lstinline|mc| ist die gemessene Zeit daher deutlich kürzer als die tatsächlich von allen Kernen insgesamt erbrachte Rechenleistung.
+
+
+\paragraph{Profiling mit profvis}
+
+Während Benchmarking-Pakete dazu dienen, die Gesamtlaufzeit kleiner Code-Fragmente präzise zu vergleichen, wird Profiling eingesetzt, um Engpässe (\emph{Bottlenecks}) in komplexeren Funktionen oder ganzen Skripten zu identifizieren. Das Paket \lstinline|profvis| eignet sich hierfür.
+
+Anstatt Code hunderte Male auszuführen, unterbricht \lstinline|profvis| die Ausführung in sehr kurzen Intervallen (Sampling) und protokolliert, welche Funktion gerade aktiv ist und wie viel Speicher sie beansprucht. Die Ergebnisse werden in einer interaktiven HTML-Ansicht visualisiert.
+
+Da es sich um ein statistisches Sampling handelt, sind die Ergebnisse nicht zu 100\,\% reproduzierbar und besonders bei sehr kurzen Laufzeiten (unter ca. 100\,ms) oft ungenau oder leer. In solchen Fällen hilft es, den zu untersuchenden Code innerhalb des Profilings in eine Schleife zu setzen, um die Gesamtlaufzeit künstlich zu verlängern.
+
+\begin{lstlisting}
+profvis::profvis({        # Anzeige der Ergebnisse im Browser
+x <- runif(1e7)
+res1 <- sapply(1:10, function(i) mean(atan(tan(sin(cos(x))))))
+df <- data.frame(matrix(x, ncol = 10))
+res2 <- colMeans(df)
+})
+
+#profvis::profvis({source("meinSkript.R")}) # Ganze Datei
+\end{lstlisting}
+
+Ein großer Vorteil von \lstinline|profvis| ist die Identifikation von verstecktem Zeitverlust, z.\,B.\ unnötig häufigen Garbage Collections (\lstinline|<GC>| Blöcke), die bei reinem Benchmarking leicht übersehen werden. Besonders Schleifen, die viele temporäre Vektoren erzeugen, führen oft zu hohen GC-Zeiten.
+
+
+\subsection{Effizienzsteigerung durch Performance-Pakete}
+
+Sobald Engpässe identifiziert sind, kann die Performance durch optimierte Algorithmen oder die Nutzung mehrerer Prozessorkerne gesteigert werden. Ein wesentlicher Hebel zur Beschleunigung besteht darin, die Grenzen der interpretierten Ausführung von R zu verlassen. Dies kann entweder durch die Auslagerung kritischer Code-Segmente in performante Sprachen wie C++ mittels \lstinline|Rcpp| geschehen oder durch die direkte Übersetzung von R-Code in Maschinencode. Während \lstinline|Rcpp| das manuelle Schreiben von C++-Code erfordert, zielen moderne Performance-Pakete darauf ab, diesen Prozess zu automatisieren.
+
+
+\subsubsection{Optimierte Basis-Operationen: fastverse}
+
+Das \lstinline{fastverse} ist eine Sammlung von Paketen (primär \lstinline{collapse}, \lstinline{kit} und \lstinline{data.table}), die darauf optimiert sind, rechenintensive Operationen schnell auszuführen. \lstinline{collapse} minimiert den Overhead bei Gruppierungen und Transformationen.
+
+Die folgenden Benchmarks vergleichen typische Basisoperationen aus Base R mit funktional äquivalenten Implementierungen aus dem fastverse-Ökosystem.
+
+\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
+library(fastverse)
+library(fastmatch)
+
+set.seed(42)
+n <- 1e6
+x <- sample(1:1000, n, replace = TRUE)
+y <- sample(1:1000, 100)
+
+bench::mark(
+  base = unique(x),
+  collapse = collapse::funique(x),
+  kit = kit::funique(x) )
+#  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 base         5.65ms  6.5ms      143.   11.82MB     63.4    45    20      316ms
+#2 collapse     1.58ms 1.62ms      612.    3.82MB     48.5   265    21      433ms
+#3 kit          2.49ms 2.56ms      386.    3.95KB      0     193     0      500ms
+
+bench::mark(
+  base = x %in% y,
+  fastmatch = x %fin% y )
+#  expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 base        10.4ms 10.55ms      93.9   11.45MB     43.8    30    14      320ms
+#2 fastmatch    7.3ms  7.37ms     135.     7.63MB     37.8    50    14      371ms
+
+group <- sample(1:100, n, replace = TRUE)
+bench::mark(check = FALSE,
+  base = tapply(x, group, mean),
+  collapse = fmean(x, g = group) )
+#  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 base         25.8ms 26.9ms      37.4   30.91MB     56.0     6     9      161ms
+#2 collapse     2.88ms  3.1ms     282.     7.63MB     31.0   118    13      419ms
+\end{lstlisting}
+
+Der Einsatz des \lstinline{fastverse} kann CPU-Zeit (Latenz) verkürzt und den Speicherverbrauch verringern.
+
+
+\subsubsection{Parallelisierung}
+
+R arbeitet für die meisten Operationen standardmäßig Single-Threaded. Eine Ausnahme bildet die implizite Parallelisierung bei Matrix-Operationen (z.\,B.\ Multiplikationen oder Zerlegungen). Sofern R gegen eine optimierte BLAS-Bibliothek gelinkt ist, nutzt diese automatisch mehrere Kerne. Für allgemeine Berechnungen, wie das wiederholte Ausführen von Funktionen über Listen oder Datensätze, ist jedoch eine explizite Parallelisierung durch den Programmierer notwendig.
+
+Parallelisierung verursacht Overhead durch das Starten von Prozessen und Kopieren von Daten. Bei kleinen Aufgaben ist die Zeit für diesen Overhead oft größer als die Zeitersparnis durch die gleichzeitige Berechnung.
+
+
+\paragraph{Das native parallel-Paket}
+
+Parallelisierung erlaubt es, unabhängige Berechnungen gleichzeitig auf mehreren CPU-Kernen auszuführen und so die Laufzeit rechenintensiver Aufgaben zu reduzieren. Das Paket \lstinline|parallel| ist Teil von Base R und stellt dafür plattformnahe Mechanismen bereit, die ohne zusätzliche Abhängigkeiten auskommen. Je nach Betriebssystem und Anwendungsfall kommen dabei unterschiedliche Parallelisierungsstrategien zum Einsatz.
+
+\begin{description}
+\item[Forking] (\lstinline|mclapply|): Nutzt das Copy-on-Write-Prinzip von Unix-Systemen (Linux/macOS). Die Worker teilen sich den Arbeitsspeicher des Hauptprozesses, was extrem schnell und speichereffizient ist. Unter Windows ist diese Methode nicht verfügbar.
+\item[Socket-Cluster] (\lstinline|parLapply|): Startet separate, isolierte R-Instanzen im Hintergrund. Dies funktioniert plattformübergreifend, erfordert aber das Kopieren der Daten in jeden Worker. Funktionen und Variablen, die nicht direkt übergeben werden, müssen mit \lstinline|clusterExport()| manuell bereitgestellt werden.
+\end{description}
+
+Das folgende Beispiel verdeutlicht den Performance-Gewinn, aber auch den notwendigen Setup-Aufwand für Socket-Cluster.
+
+\begin{lstlisting}[basicstyle=\fontsize{9.3pt}{9.7pt}\selectfont\ttfamily]
+library(parallel)
+nc <- detectCores() / 2  # Anzahl der verwendeten Kerne
+
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+
+cl <- makeCluster(nc)    # Socket-Cluster erstellen
+
+microbenchmark::microbenchmark(times=10, control=list(order="block"),
+  single = lapply(i, f, x),
+  par = parLapply(cl, i, f, x),
+  mcl = mclapply(i, f, x, mc.cores = nc) )
+#Unit: seconds
+#   expr      min       lq     mean   median       uq      max neval
+# single 5.220722 5.241001 5.257549 5.253655 5.268984 5.298865    10
+#    par 2.138384 2.159821 2.247936 2.188913 2.234977 2.679923    10
+#    mcl 1.409640 1.415410 1.426833 1.427223 1.437269 1.444779    10
+
+stopCluster(cl)                # Cluster beenden
+\end{lstlisting}
+
+In den Ergebnissen zeigt sich, dass \lstinline|mclapply| (Forking) aufgrund des geringeren Overheads oft am schnellsten abschneidet, während \lstinline|parLapply| (Socket) durch den Datenexport (hier des Vektors \lstinline|x|) etwas langsamer ist, dafür aber auf allen Betriebssystemen stabil läuft.
+
+\lstinline|parLapply| (und anderen Socket-basierten Funktionen) startet mit einer leeren globalen Umgebung. Während \lstinline|mclapply| durch das Forking automatisch Zugriff auf alle Variablen des Hauptprozesses hat, müssen bei einem Socket-Cluster alle benötigten Objekte (Daten, Hilfsfunktionen oder geladene Pakete) explizit mit der Funktion \lstinline|clusterExport()| an die Worker übertragen werden.
+
+Das folgende Beispiel zeigt ein Szenario, in dem die Parallelisierung ohne expliziten Export fehlschlagen würde:
+
+\begin{lstlisting}
+library(parallel)
+cl <- makeCluster(2)
+
+k <- 42
+f <- \(x) x * 2
+
+lapply(1:10, \(i) f(i) + k)
+mclapply(1:10, \(i) f(i) + k)
+#parLapply(cl, 1:10, \(i) f(i) + k) ## Error: f nicht gefunden
+clusterExport(cl, c("k", "f"))
+parLapply(cl, 1:10, \(i) f(i) + k)
+stopCluster(cl)
+\end{lstlisting}
+
+Sollten innerhalb der parallelen Funktionen Funktionen aus externen Paketen benötigt werden, müssen diese zusätzlich auf jedem Worker mittels \lstinline|clusterEvalQ(cl, library(Paketname))| geladen werden.
+
+
+\paragraph{Das foreach-Paket}
+
+Während das \lstinline|parallel|-Paket funktionale Schnittstellen bietet, erlaubt \lstinline|foreach| eine Syntax, die klassischen \lstinline|for|-Schleifen ähnelt, aber deren Rückgabewerte direkt sammelt. Der entscheidende Vorteil liegt in der Trennung von Logik und Ausführung: Durch den Austausch des Operators von \lstinline|%do%| (sequentiell) zu \lstinline|%dopar%| (parallel) kann derselbe Code ohne Umstrukturierung parallelisiert werden. Hierfür muss lediglich ein passendes Backend (z.\,B.\ \lstinline|doParallel|) registriert werden.
+
+\begin{description}
+\item[Kombinierbarkeit] (\lstinline|.combine|): Ergebnisse können automatisch zusammengeführt werden (z.\,B.\ per \lstinline|c|, \lstinline|rbind| oder \lstinline|+|-Operator), was den Code oft lesbarer macht als verschachtelte \lstinline|lapply|-Aufrufe.
+\item[Backend-Agnostik]: Der Code bleibt unabhängig davon, ob im Hintergrund Forking (Unix) oder Sockets (Windows) genutzt werden. Dies wird zentral bei der Registrierung des Clusters entschieden.
+\end{description}
+
+Obwohl \lstinline|foreach| versucht, benötigte Variablen automatisch zu identifizieren und zu exportieren, ist bei komplexeren Skripten oft eine explizite Angabe notwendig. Da \lstinline|doParallel| auf dem \lstinline|parallel|-Paket aufbaut, gelten bei der Verwendung von Socket-Clustern dieselben Prinzipien für den Datentransfer. Über die Argumente \lstinline|.export| und \lstinline|.packages| werden Variablen oder externe Bibliotheken manuell an die Worker verteilt, falls die automatische Erkennung fehlschlägt.
+
+\begin{lstlisting}[basicstyle=\fontsize{9.3pt}{9.7pt}\selectfont\ttfamily]
+library(doParallel)
+
+nc <- detectCores() / 2
+cl <- makeCluster(nc)
+registerDoParallel(cl) # Backend registrieren
+
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
+
+microbenchmark::microbenchmark(times=10, control=list(order="block"),
+  single = lapply(i, f, x),
+  feDo = foreach(j = i, .combine='c') %do% f(j, x),
+  fePar = foreach(j = i, .combine='c') %dopar% f(j, x) )
+#Unit: seconds
+#   expr      min       lq     mean   median       uq      max neval
+# single 5.235397 5.260268 5.265211 5.263168 5.264978 5.293365    10
+#   feDo 5.266063 5.273814 5.286731 5.288002 5.292102 5.308973    10
+#  fePar 2.338029 2.364039 2.432095 2.406829 2.418770 2.818851    10
+
+stopCluster(cl)
+\end{lstlisting}
+
+
+\paragraph{Das Futureverse}
+
+Das \lstinline|future|-Framework stellt ermöglicht Parallelisierung. Es entkoppelt die Definition einer Berechnung von ihrer tatsächlichen Ausführung. Ein \emph{Future} ist ein Objekt, das als Platzhalter für einen Wert dient, der irgendwann geliefert wird.
+
+Die Steuerung der Hardware erfolgt zentral über die Funktion \lstinline|plan()|. Dies ermöglicht es, denselben Code ohne Änderungen auf unterschiedlichen Infrastrukturen laufen zu lassen:
+
+\begin{itemize}
+\item \lstinline|plan(sequential)|: Standardmäßige, sequentielle Ausführung im aktuellen R-Prozess.
+\item \lstinline|plan(multisession)|: Startet separate R-Instanzen im Hintergrund (vergleichbar mit Socket-Clustern). Dies ist die sicherste Wahl für alle Betriebssysteme (Windows, macOS, Linux).
+\item \lstinline|plan(multicore)|: Nutzt Forking (Unix/macOS). Es ist effizienter als \lstinline|multisession|, da kein Datentransfer nötig ist, läuft jedoch nicht unter Windows.
+\item \lstinline|plan(cluster)|: Erlaubt die Verteilung der Berechnungen auf externe Server oder HPC-Knoten.
+\end{itemize}
+
+Ein wesentlicher Vorteil gegenüber älteren Ansätzen ist das automatische Handling von Abhängigkeiten: \lstinline|future| scannt den Ausdruck und exportiert benötigte globale Variablen oder geladene Pakete eigenständig an die Worker, was die Fehleranfälligkeit (z.\,B.\ durch vergessene \lstinline|clusterExport|-Aufrufe) reduziert.
+
+Da die Standard-Funktionen wie \lstinline|lapply| nicht nativ mit Futures kommunizieren können, bietet das Paket \lstinline|future.apply| ein direktes Äquivalent zur \lstinline|base|-R \lstinline|apply|-Familie. Die Funktionen (z.\,B.\ \lstinline|future_lapply|) erkennen automatisch das über \lstinline|plan()| gesetzte Backend.
+
+\begin{lstlisting}[basicstyle=\fontsize{9.3pt}{9.7pt}\selectfont\ttfamily]
+library(future.apply)
+
+i <- 1:14
+x <- runif(1e7)
+f <- \(i, x) return(sum(mean(atan(tan(sin(cos(i+x)))))))
+
+plan(sequential)
+microbenchmark::microbenchmark(times=10, control=list(order="block"),
+  single = lapply(i, f, x),
+  f = future_lapply(i, f, x) )
+#Unit: seconds
+#   expr      min       lq     mean   median       uq      max neval
+# single 5.242385 5.269099 5.282620 5.274475 5.298246 5.333346    10
+#      f 5.296431 5.300745 5.310989 5.305784 5.319015 5.335790    10
+
+plan(multisession)
+microbenchmark::microbenchmark(times=10, control=list(order="block"),
+  f = future_lapply(i, f, x) )
+#Unit: seconds
+# expr      min       lq     mean   median      uq      max neval
+#    f 3.589647 3.603444 3.721767 3.622561 3.63133 4.658331    10
+
+plan(multicore)
+microbenchmark::microbenchmark(times=10, control=list(order="block"),
+  f = future_lapply(i, f, x) )
+#Unit: seconds
+# expr      min       lq     mean   median       uq     max neval
+#    f 1.376749 1.414727 1.419894 1.419452 1.426657 1.46345    10
+
+strategy <- if (supportsMulticore()) "multicore" else "multisession"
+plan(strategy)  # Auswahl nach Betriebsystem
+\end{lstlisting}
+
+
+\subsubsection{Compilieren}
+
+Beim Compilieren von R-Code müssen zwei grundlegend verschiedene technologische Ansätze unterschieden werden:
+
+\begin{description}
+\item[Bytecode-Kompilierung:] Hierbei wird der Code für eine virtuelle Maschine (VM) optimiert. Das Ergebnis ist kein eigenständiges Programm, sondern ein effizienterer Befehlssatz, der weiterhin innerhalb der R-Laufzeitumgebung interpretiert wird.
+\item[Native Kompilierung (Maschinencode):] Hierbei wird der R-Code (meist über den Zwischenschritt C oder C++) direkt in Instruktionen übersetzt, welche die CPU unmittelbar versteht. Dies entfernt den Overhead des R-Interpreters fast vollständig und erreicht die Geschwindigkeit von System-Programmiersprachen.
+\end{description}
+
+
+\paragraph{compiler}
+
+Das Paket \lstinline|compiler| ist Bestandteil der Standard-Distribution von R. Die primäre Funktion ist \lstinline|cmpfun()|, welche eine bestehende R-Funktion in Bytecode übersetzt. Besonders bei rechenintensiven Aufgaben mit vielen Schleifendurchläufen (\lstinline|for|, \lstinline|while|) oder komplexen Kontrollstrukturen lässt sich so die Ausführungszeit reduzieren, da der Overhead beim wiederholten Parsen des Quellcodes entfällt.
+
+Da moderne R-Versionen standardmäßig einen Just-In-Time-Compiler (JIT) nutzen, werden Funktionen oft schon beim ersten Aufruf automatisch im Hintergrund kompiliert. Um den Performance-Unterschied zwischen rein interpretiertem Code und Bytecode manuell zu demonstrieren, muss das JIT-System über die Funktion \lstinline|enableJIT()| gesteuert werden. Ein Level von \texttt{0} schaltet die automatische Kompilierung vollständig ab. Bei bereits stark vektorisiertem Code, der intern ohnehin hochoptimierte C- oder Fortran-Routinen aufruft, fällt der Geschwindigkeitsvorteil durch den Bytecode-Compiler hingegen meist gering aus.
+
+\begin{lstlisting}[basicstyle=\fontsize{8.4pt}{8.7pt}\selectfont\ttfamily]
+library(compiler)
+old_jit <- enableJIT(0)  # JIT-Compiler deaktivieren
+
+f <- \(n) {
+  res <- 0
+  for (i in 1:n) res <- res + sqrt(i)
+  res
+}
+g <- cmpfun(f)
+
+microbenchmark::microbenchmark(Interpr = f(1e6), Kompil = g(1e6))
+#Unit: milliseconds
+#    expr       min        lq      mean    median        uq       max neval
+# Interpr 142.94749 146.92359 152.62648 149.07006 155.29015 185.62841   100
+#  Kompil  25.56085  26.01051  26.46074  26.32038  26.84394  28.60703   100
+
+enableJIT(old_jit)       # JIT wieder aktivieren
+microbenchmark::microbenchmark(Interpr = f(1e6), Kompil = g(1e6))
+#Unit: milliseconds
+#    expr      min       lq     mean   median       uq      max neval
+# Interpr 25.18406 25.49902 25.79559 25.73593 26.00182 28.34142   100
+#  Kompil 25.24918 25.49117 25.87675 25.71388 26.09915 32.28898   100
+\end{lstlisting}
+
+
+\paragraph{r2c}
+
+Das Paket \lstinline|r2c| verfolgt einen radikaleren Ansatz als der Standard-Bytecode-Compiler, indem es R-Code direkt in C-Quellcode übersetzt. Dieser generierte Code wird anschließend von einem System-Compiler (wie GCC oder Clang) in echten, hardwarenahen Maschinencode umgewandelt und als Shared Library wieder in R eingebunden.
+
+Im Gegensatz zum Paket \lstinline|compiler| wird hier die Ebene der virtuellen Maschine verlassen. Die resultierenden Funktionen laufen mit der Geschwindigkeit nativer Binärprogramme, da der Overhead der R-Laufzeitumgebung innerhalb der berechneten Operationen fast vollständig entfällt. \lstinline|r2c| ist besonders effektiv für mathematische Algorithmen und Gruppierungsoperationen, die sich nur schwer vektorisieren lassen. Da der Fokus auf maximaler Performance liegt, unterstützt das Paket primär numerische Datentypen und eine Teilmenge der R-Basisfunktionen.
+
+Die Installation erfolgt über das GitHub-Repository des Entwicklers mittels:\\
+\lstinline{remotes::install_github("brodieG/r2c")}.
+
+\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
+library(r2c)
+
+n <- 1e7
+x <- runif(n)
+g <- sample(1:(n/1000), n, TRUE)
+
+r2c_sum <- r2cq(sum(x))                  # Compilieren
+system.time(g.r2c <- process_groups(g))  # pre-grouping
+#       User      System verstrichen 
+#      0.160       0.019       0.180 
+
+bench::mark(check = FALSE,
+  base = tapply(x, g, sum),
+  r2c  = group_exec(r2c_sum, x, g),
+  r2cGr = group_exec(r2c_sum, x, g.r2c))
+#  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 base          595ms  595ms      1.68   397.1MB     3.36     1     2      595ms
+#2 r2c           272ms  272ms      3.68   154.2MB     3.68     2     2      544ms
+#3 r2cGr         119ms  123ms      7.48    76.6MB     5.61     4     3      534ms
+
+f <- \(n) sum(sqrt(1:n))
+fc <- r2cf(f)
+n <- 1e7
+bench::mark(base = f(n), r2c = fc(n))
+# expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 base        63.4ms 108.7ms      9.97     153MB     16.0     5     8      502ms
+#2 r2c         63.8ms  67.1ms     13.4      154MB     11.5     7     6      522ms
+\end{lstlisting}
+
+
+\paragraph{ast2ast}
+
+Das Paket \lstinline|ast2ast| bietet eine spezialisierte Lösung, um R-Funktionen in performanten C++-Code zu übersetzen. Der Name leitet sich vom technischen Prozess ab. Das Paket greift auf den \textit{Abstract Syntax Tree} (AST), also die interne hierarchische Struktur des R-Codes, zu und transformiert diesen direkt in einen C++-AST. Dieser wird anschließend mittels des Pakets \lstinline|Rcpp| kompiliert und als Maschinencode für die CPU verfügbar gemacht.
+
+\lstinline|ast2ast| ist schlank konzipiert und konzentriert sich primär auf die Beschleunigung mathematischer Berechnungen und expliziter Schleifen. Bei der Nutzung ist zu beachten, dass nicht alle R-Funktionen innerhalb der zu übersetzenden Funktion verwendet werden können.
+
+Die zentrale Funktion ist \lstinline|translate()|. Sie übernimmt eine herkömmliche R-Funktion und generiert daraus eine kompilierte Version.
+
+Das Paket kann mit:\\
+\lstinline{remotes::install_github("Konrad1991/ast2ast")} installiert werden.
+
+\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.4pt}\selectfont\ttfamily]
+library(ast2ast)
+
+f <- \(n) {
+  x <- 0.
+  for (i in 1:n) {x <- x + sqrt(i)} # Braucht Klammern
+  return(x) }                       # Braucht return
+fc <- translate(f)
+
+g <- \(n) sum(sqrt(1:n))
+
+n <- 1e7
+bench::mark(base = f(n), base2 = g(n), ast2ast = fc(n))
+#  expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 base         262ms 262.5ms      3.81    36.5KB      0       2     0      525ms
+#2 base2         64ms 114.8ms      9.39   152.6MB     15.0     5     8      533ms
+#3 ast2ast       90ms  93.6ms     10.5         0B      0       6     0      573ms
+\end{lstlisting}
+
+
+\paragraph{nCompiler}
+
+Das Paket \lstinline|nCompiler| stellt eine Infrastruktur zur Verfügung, um R-Code in C++-Code zu transformieren, ohne dass der Anwender manuell C++-Code schreiben muss. Dabei nutzt das Paket eine eigene Typinferenz, um R-Ausdrücke in C++ zu übersetzen.
+
+Es können nicht nur einzelne Funktionen (\lstinline|nFunction|), sondern auch ganze Klassenstrukturen (\lstinline|nClass|) kompiliert werden, die sowohl in R als auch in C++ verfügbar sind. Die Kompilierung erfolgt über \lstinline|nCompile()|. Dabei wird der R-Code in C++-Dateien geschrieben, kompiliert und die resultierende Binärdatei mittels einer Interface-Schicht geladen. Dies ermöglicht eine Ausführungsgeschwindigkeit, die identisch mit handgeschriebenem C++ sein kann.
+
+Das Paket kann mittels:
+\begin{lstlisting}[basicstyle=\fontsize{9.4pt}{9.7pt}\selectfont\ttfamily]
+remotes::install_github("nimble-dev/nCompiler", subdir = "nCompiler")
+\end{lstlisting}
+  installiert werden. Zudem müssen die Pakete \lstinline|inline| sowie \lstinline|Rcpp| verfügbar sein.
+
+\begin{lstlisting}[basicstyle=\fontsize{8.8pt}{9.pt}\selectfont\ttfamily]
+library(nCompiler)
+
+f <- \(n) {
+  x <- 0.
+  for (i in 1:n) x <- x + sqrt(i)
+  return(x) }   # return(x) statt x verwenden
+
+fn <- nFunction(f, argTypes = list(n = "double"), returnType = "double")
+fc <- nCompile(fn)
+
+g <- \(n) return(sum(sqrt(1:n)))
+gn <- nFunction(g, argTypes = list(n = "double"), returnType = "double")
+gc <- nCompile(gn)
+
+n <- 1e7
+bench::mark(base = f(n), base2 = g(n), nCompf = fc(n), nCompg = gc(n))
+#  expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+#  <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+#1 base       258.43ms 259.01ms      3.86        0B      0       2     0
+#2 base2       63.49ms 126.45ms      8.66     153MB     13.9     5     8
+#3 nCompf      19.84ms  20.09ms     49.8         0B      0      25     0
+#4 nCompg       5.17ms   5.28ms    185.          0B      0      93     0
+\end{lstlisting}
+
+
+\paragraph{Rcpp}
+
+\lstinline|Rcpp| erlaubt die nahtlose Integration von C++-Code in R. Dies ist besonders effektiv bei Algorithmen, die sich nicht einfach vektorisieren lassen (z.\,B.\ abhängige Iterationen in Schleifen) oder eine komplexe Speicherverwaltung erfordern. Für die Nutzung muss ein C++-Compiler auf dem System konfiguriert sein.
+
+Mit \lstinline|cppFunction()| lassen sich kurze C++-Funktionen direkt als String im R-Skript definieren. Rcpp übernimmt die Kompilierung sowie die automatische Konvertierung von R-Objekten in C++-Datentypen.
+
+Für umfangreichere Projekte wird der C++-Code in separaten \lstinline|.cpp|-Dateien gespeichert. Diese nutzen spezielle Attribute (wie \lstinline|// [[Rcpp::export]]|), um Funktionen mittels \lstinline|sourceCpp()| in der R-Umgebung verfügbar zu machen.
+
+\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.2pt}\selectfont\ttfamily]
+Rcpp::cppFunction(r"(
+double fc(int n) {
+  double res = 0.;
+  for(int i=1; i<=n; ++i) res += sqrt(i);
+  return res;
+}
+)")
+
+Rcpp::sourceCpp(code=r"(
+#include <Rcpp.h>
+using namespace Rcpp;
+// [[Rcpp::export]]
+double fc2(int n) {
+  double res = 0.;
+  for(int i=1; i<=n; ++i) res += sqrt(i);
+  return res;
+}
+)")
+
+f <- \(n) {
+  res <- 0
+  for (i in 1:n) res <- res + sqrt(i)
+  res
+}
+
+n <- 1e7
+bench::mark(f = f(n), fc = fc(n), fc2 = fc2(n))
+# expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
+#  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
+#1 f          254.5ms 255.2ms      3.92        0B        0     2     0      510ms
+#2 fc          19.2ms  20.3ms     50.1         0B        0    26     0      519ms
+#3 fc2         20.3ms  20.3ms     49.2         0B        0    25     0      508ms
+\end{lstlisting}
 
 
 
@@ -7696,83 +8920,6 @@ f(0)        # Interaktiv: Q, n, s, c, ... verwenden
 \fi
 
 
-\subsection{Pipes}
-
-Der native Pipe-Operator \lstinline!|>! ist reiner syntaktischer Zucker 
-und \emph{keine} schrittweise Links-nach-Rechts-Ausführung. 
-
-Ein Ausdruck wie \lstinline!x |> f() |> g() |> h()!
-wird vor der Auswertung zu \lstinline|h(g(f(x)))| umgeschrieben 
-und anschließend nach den üblichen R-Regeln ausgewertet
-(insbesondere mit Lazy Evaluation der Funktionsargumente).
-
-Jeder Pipe-Ausdruck lässt sich ersetzen durch:
-\begin{itemize}
-  \item verschachtelte Funktionsaufrufe: \lstinline!h(g(f(x)))! oder
-  \item explizite Zwischenspeicherung:
-\begin{lstlisting}
-tmp <- f(x)
-tmp <- g(tmp)
-h(tmp)
-\end{lstlisting}
-\end{itemize}
-
-Die Pipe ändert weder Semantik noch Auswertungsreihenfolge.
-Sie bietet lediglich eine für manche
-lesbarere Schreibweise verschachtelter Funktionsaufrufe.
-
-\begin{lstlisting}
-1:3 |> sum()           # 6
-#1:3 |> sum            ## Error, braucht function call
-sum(1:3)               # 6; Äquivalent
-quote( 1:3 |> sum() )  # sum(1:3); Syntax transformation
-
-. <- 1:3               # Zwischenwerte explizit speichern
-sum(.)                 # 6
-
-1:3 -> .               # Zwischenwerte explizit speichern
-sum(.)                 # 6
-
-1:3 ->.; sum(.)        # 6; Bizarro pipe
-
-#1:3 |> `+`(4)         ## Error, nicht unterstützt
-1:3 |> (`+`)(4)        # 5 6 7
-1:3 |> base::`+`(4)    # 5 6 7
-1:3 |>  `+`(4, e2 = _) # 5 6 7
-
-1 |> seq(3)            # 1 2 3; Einfügen erster freier Platz
-3 |> seq(from=1)       # 1 2 3
-1 |> seq(to=3)         # 1 2 3
-
-3 |> seq(1, to=_)      # 1 2 3; _ ... Platzhalter
-#3 |> seq(1, _)        ## Error, _ braucht Namen
-"b" |>  paste("a", . = _, "c") # "a b c"; Auch ... benötigt Name 
-3 |> (\(.) seq(1, .))() # 1 2 3; Über Funktion
-#3 |> rep(x=_, times=_)## Error, _ darf nur einmal vorkommen
-3 |> (\(.) rep(., .))() # 3 3 3; Über Funktion
-
-#1:3 |> sum(sqrt(x=_)) ## Error, _ nicht in nested calls
-1:3 |> (\(.) sum(sqrt(x=.)))() # 4.146; Über Funktion
-#1:3 |> sum(sqrt())    ## Error, kein Argument an sqrt
-1:3  |> sum(sqrt(1))   # 7; sum(1:3, sqrt(1))
-
-mtcars |> _$cyl        # 6 6 4 ...; Extraction call
-mtcars |> _$cyl[3]     # 4
-
-"x" |> assign(1)       # Kein zusätzliches Environment
-x                      # 1
-"x" |> (\(.) assign(., 2))() # Im Funktionsenvironment
-x                      # 1
-
-f1 <- \(x) { message("f1"); x }
-f2 <- \(x) { message("f2"); x }
-. <- 0
-. <- f1(.)             # f1; Auswertung je Zeile
-f2(.)                  # f2 0
-0 |> f1() |> f2()      # f2 f1 0; Lazy evaluation
-quote(0 |> f1() |> f2()) # f2(f1(0))
-f2(f1(0))              # f2 f1 0
-\end{lstlisting}
 
 
 
@@ -7964,7 +9111,7 @@ In R werden Elemente von Datenstrukturen mit Hilfe von Subsetting ausgewählt. D
 
 \lstinline|[ ]| gibt immer ein Objekt des gleichen Typs zurück (z.\,B. Liste, data.frame), sofern \lstinline|drop=FALSE| gesetzt ist, \lstinline|[[ ]]| extrahiert ein einzelnes Element.
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 v <- c(a=10, b=20, c=30, d=40, e=50)
 v[2]             # 20; Element an Position 2
 v[[2]]           # 20
@@ -8016,7 +9163,7 @@ ls(e)                # "a"; Listet Elemente von e
 Faktor
 \paragraph{Häufigkeiten und Tabellen}
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 f <- factor(c("b","a","b","c","a"))
 x <- table(f)            # a b c; Häufigkeiten pro Level
                          # 2 2 1
@@ -8027,7 +9174,7 @@ proportions(x)           # 0.4 0.4 0.2
 
 Kombination mehrerer Faktoren. Mehrdimensionale Tabellen und Aggregation;
 
-\begin{lstlisting}[language=R]
+\begin{lstlisting}
 f1 <- factor(c("A","A","B","B"))
 f2 <- factor(c("X","Y","X","X"))
 f12 <- interaction(f1, f2) # Kombinieren
