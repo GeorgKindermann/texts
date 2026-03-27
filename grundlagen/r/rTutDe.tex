@@ -1,4 +1,8 @@
+%\DocumentMetadata{tagging=on}
+%\DocumentMetadata{testphase=phase-III}
 \documentclass[10pt,twocolumn]{scrartcl}
+
+%\usepackage[tagged, highstructure]{accessibility}
 
 \setcounter{tocdepth}{4}
 \setcounter{secnumdepth}{4}
@@ -14,9 +18,12 @@
 \usepackage{newpxmath}
 \usepackage[scaled=0.75]{beramono}
 
+\usepackage{graphicx}
+\graphicspath{./pic}
+
 \usepackage{xpatch}
-\usepackage{xcolor}
 \usepackage{realboxes}
+\usepackage{xcolor}
 \definecolor{mygray}{rgb}{0.9,0.9,0.9}
 
 \usepackage{listings}
@@ -39,6 +46,9 @@
 {└}{{L}}1
 {│}{{|}}1
 {µ}{{\textmu}}1
+{°}{{\textdegree}}1
+{‘}{{'}}1
+{’}{{'}}1
 ,basicstyle=\ttfamily%\small
 ,backgroundcolor=\color{mygray}
 ,commentstyle=\emph
@@ -50,19 +60,44 @@
 ,belowskip=0pt
 ,lineskip=0pt
 }
-\makeatletter
-\xpretocmd\lstinline
-  {%
-   \bgroup\fboxsep=1.5pt
-   \Colorbox{mygray}\bgroup\kern-\fboxsep\vphantom{\ttfamily\char`\\y}%
-   \appto\lst@DeInit{\kern-\fboxsep\egroup\egroup}%
-  }{}{}
-\makeatother
+
+%\makeatletter
+%\xpretocmd\lstinline
+%  {%
+%   \bgroup\fboxsep=1.5pt
+%   \Colorbox{mygray}\bgroup\kern-\fboxsep\vphantom{\ttfamily\char`\\y}%
+%   \appto\lst@DeInit{\kern-\fboxsep\egroup\egroup}%
+%   }{}{}
+%\makeatother
+
+\usepackage{etoolbox}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{listings}
+\let\oldlstinline\lstinline
+\DeclareTotalTCBox{\mycoloredinline}{ s O{} v }{
+  on line,
+  colback=mygray,
+%  colback=black!5,
+  colframe=mygray,
+  boxsep=0pt,
+  left=1.5pt,
+  right=1.5pt,
+  top=1.5pt,
+  bottom=1.5pt,
+  boxrule=0pt,
+  arc=0pt,
+%  arc=2pt,
+  fontupper=\ttfamily,
+}{%
+  \oldlstinline[#2]{#3}%
+}
+\renewcommand{\lstinline}{\mycoloredinline}
 
 \usepackage{enumitem}
 \setlist{nosep}
 
 \usepackage{adjustbox}
+%\usepackage[paperwidth=220mm, paperheight=297mm, left=11mm, right=1mm, top=1mm, bottom=1mm, includefoot, footskip=15pt]{geometry}
 \usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
 
 \newcommand{\mycode}[1]{\texttt{\detokenize{#1}}}
@@ -130,11 +165,13 @@ cd ..
 #rm R-latest.tar.xz
 #rm -r R-latest/
 \end{lstlisting}
+%apt install build-essential
+%apt build-dep r-base
 
 Nach dem Start kann R interaktiv verwendet werden. Alternativ lässt
 sich R auch über verschiedene IDEs (integrierte Entwicklungsumgebung)
 oder Texteditoren nutzen. Die gezeigten Codeabschnitte wurden mit R
-Version 4.5.2 (2025-10-31) getestet.
+Version 4.5.3 (2026-03-11) getestet.
 
 Wenn man R startet, kommt man in den interaktiven Modus.
 Deren wichtigste Tastenkombinationen sind:
@@ -5176,6 +5213,7 @@ eval(u)               # 2
 
 
 \subsubsection{Formeln}
+\label{ssec:formula}
 
 Formeln (\lstinline|formula|) beschreiben Beziehungen zwischen Variablen, die Modellierungsfunktionen wie \lstinline|lm()| interpretieren können. Die Interpretation einer Formel hängt von der Funktion ab, die sie verwendet. Formeln sind intern Calls mit dem Operator \lstinline|~|.
 
@@ -5482,7 +5520,7 @@ Logische Operatoren werden genutzt, um mehrere Bedingungen miteinander zu verkn�
 
 \paragraph{Elementweise Verknüpfung}
 
-Die Operatoren \lstinline|&| (UND) und \lstinline||| (ODER) vergleichen Vektoren Element für Element.
+Die Operatoren \lstinline|&| (UND) und \lstinline{|} (ODER) vergleichen Vektoren Element für Element.
 
 \begin{lstlisting}
 x <- 1:3
@@ -6219,7 +6257,7 @@ fastmatch::fmatch(x, y) # 3 NA 2
 x <- c(1, 2, 1)
 match(1, x)             # 1  ; Erster Treffer
 which(x == 1)           # 1 3; Alle Treffer
-\begin{lstlisting}
+\end{lstlisting}
 
 
 \subsubsection{which(), which.max() und which.min()}
@@ -6295,15 +6333,15 @@ pmatch(a, b, duplicates.ok = TRUE) # NA 2 2
 
 Sie wenden zur Suche eine frei wählbare Test-Funktion (Prädikat) auf jedes Element an und brechen die Suche beim ersten Treffer (\lstinline|TRUE|) ab.
 
-\begin{description}
-\item[\lstinline|Find(f, x)|:] Gibt das erste (oder letzte) Element zurück, für das die Funktion \lstinline|f| den Wert \lstinline|TRUE| liefert.
-\item[\lstinline|Position(f, x)|:] Gibt den Index dieses Elements zurück.
-\item[Wichtige Argumente:] 
+\begin{itemize}
+\item \lstinline|Find(f, x)|: Gibt das erste (oder letzte) Element zurück, für das die Funktion \lstinline|f| den Wert \lstinline|TRUE| liefert.
+\item \lstinline|Position(f, x)|: Gibt den Index dieses Elements zurück.
+\item Wichtige Argumente:
   \begin{itemize}
   \item \lstinline|right = TRUE|: Sucht vom Ende des Vektors oder der Liste her.
   \item \lstinline|nomatch|: Bestimmt den Rückgabewert, wenn kein Treffer erzielt wurde (Standard: \lstinline|NULL| für \lstinline|Find|, \lstinline|NA| für \lstinline|Position|).
   \end{itemize}
-\end{description}
+\end{itemize}
 
 \begin{lstlisting}
 l <- list(a = 7, b = "a", c = "bc", d = "ef")
@@ -8352,7 +8390,7 @@ Die Ausgabe von \lstinline|time| liefert drei Werte:
 \item[sys:] Die Zeit für Systemaufrufe (z.\,B.\ Speicherreservierung durch den Kernel).
 \end{description}
 
-\begin{lstlisting}
+\begin{lstlisting}[language=sh]
 time R --vanilla -e "i <- 1:14
 x <- runif(1e7)
 f <- \(i, x) mean(atan(tan(sin(cos(i+x)))))
@@ -8385,7 +8423,7 @@ Das Paket \lstinline|bench| erlaubt einen präzisen Vergleich von Code-Fragmente
 
 Da die Speicherbereinigung (Garbage Collection) selbst Zeit beansprucht, ist Code, der effizienter mit Speicher umgeht, in der Praxis oft schneller. Ein technisches Problem bleibt jedoch die Zuordnung. Bei der sequentiellen Abfolge verschiedener Methoden lässt sich eine GC-Phase oft nicht eindeutig einem einzigen Verursacher zuschreiben.
 
-\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
+\begin{lstlisting}
 i <- 1:14
 f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
 library(parallel)
@@ -8394,22 +8432,32 @@ b <- alist(sc = lapply(i, f, x),
            mc = mclapply(i, f, x, mc.cores = detectCores()/2) )
 
 x <- runif(1e3)
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 z <- bench::mark(exprs=b, memory = FALSE) # Memory geht bei multicore nicht
 z
 #  expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 sc         488.5µs 524.1µs    1872.         NA     4.07   920     2      492ms
 #2 mc          18.2ms  20.5ms      48.9        NA     0       25     0      511ms
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 # plot(z)  # Darstellung der Ergebnisse
 
 bench::mark(exprs=b[1])
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 #  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 sc            488µs  507µs     1938.     110KB     4.05   957     2      494ms
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 x <- runif(1e7)
 bench::mark(exprs=b, memory = FALSE)
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 #  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 sc            5.15s  5.15s     0.194        NA     1.36     1     7      5.15s
@@ -8425,7 +8473,7 @@ Im Gegensatz zu bench konzentriert sich microbenchmark ausschließlich auf die L
 
 Dabei wird mit \lstinline|order="block"| der zu vergleichende Code blockweise ausgeführt (zuerst alle Iterationen von A, dann alle von B), was die Wahrscheinlichkeit erhöht, dass in der Zeit durchgeführte garbage collections durch den Code selbst verursacht wurden. Auch lässt sich Code vor der Messung durchführen, also etwa \lstinline|gc()| um gleiche Bedingungen bei jedem Start herzustellen.
 
-\begin{lstlisting}[basicstyle=\fontsize{8.4pt}{8.7pt}\selectfont\ttfamily]
+\begin{lstlisting}
 i <- 1:14
 f <- \(i, x) sum(mean(atan(tan(sin(cos(i+x))))))
 library(parallel)
@@ -8434,16 +8482,22 @@ b <- alist(sc = lapply(i, f, x),
            mc = mclapply(i, f, x, mc.cores = detectCores()/2) )
 
 x <- runif(1e3)
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.4pt}{8.7pt}\selectfont\ttfamily]
 z <- microbenchmark::microbenchmark(list=b, control=list(order="block"))
 z
 # Unit: microseconds
 #  expr       min        lq       mean     median         uq       max neval
 #    sc   503.984   513.162   519.0315   516.3985   521.0265   557.835   100
 #    mc 14284.719 14641.051 14984.0689 14854.4060 15131.8615 19511.748   100
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 # plot(z)  # Darstellung der Ergebnisse
 
 x <- runif(1e7)
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{9.6pt}{9.9pt}\selectfont\ttfamily]
 microbenchmark::microbenchmark(list=b, control=list(order="block"),
        setup=gc(), times=5L)
 # Unit: seconds
@@ -8488,7 +8542,7 @@ Das \lstinline{fastverse} ist eine Sammlung von Paketen (primär \lstinline{coll
 
 Die folgenden Benchmarks vergleichen typische Basisoperationen aus Base R mit funktional äquivalenten Implementierungen aus dem fastverse-Ökosystem.
 
-\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
+\begin{lstlisting}
 library(fastverse)
 library(fastmatch)
 
@@ -8501,24 +8555,34 @@ bench::mark(
   base = unique(x),
   collapse = collapse::funique(x),
   kit = kit::funique(x) )
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 #  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 base         5.65ms  6.5ms      143.   11.82MB     63.4    45    20      316ms
 #2 collapse     1.58ms 1.62ms      612.    3.82MB     48.5   265    21      433ms
 #3 kit          2.49ms 2.56ms      386.    3.95KB      0     193     0      500ms
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 bench::mark(
   base = x %in% y,
   fastmatch = x %fin% y )
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 #  expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 base        10.4ms 10.55ms      93.9   11.45MB     43.8    30    14      320ms
 #2 fastmatch    7.3ms  7.37ms     135.     7.63MB     37.8    50    14      371ms
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 group <- sample(1:100, n, replace = TRUE)
 bench::mark(check = FALSE,
   base = tapply(x, group, mean),
   collapse = fmean(x, g = group) )
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 #  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 base         25.8ms 26.9ms      37.4   30.91MB     56.0     6     9      161ms
@@ -8697,7 +8761,7 @@ Das Paket \lstinline|compiler| ist Bestandteil der Standard-Distribution von R. 
 
 Da moderne R-Versionen standardmäßig einen Just-In-Time-Compiler (JIT) nutzen, werden Funktionen oft schon beim ersten Aufruf automatisch im Hintergrund kompiliert. Um den Performance-Unterschied zwischen rein interpretiertem Code und Bytecode manuell zu demonstrieren, muss das JIT-System über die Funktion \lstinline|enableJIT()| gesteuert werden. Ein Level von \texttt{0} schaltet die automatische Kompilierung vollständig ab. Bei bereits stark vektorisiertem Code, der intern ohnehin hochoptimierte C- oder Fortran-Routinen aufruft, fällt der Geschwindigkeitsvorteil durch den Bytecode-Compiler hingegen meist gering aus.
 
-\begin{lstlisting}[basicstyle=\fontsize{8.4pt}{8.7pt}\selectfont\ttfamily]
+\begin{lstlisting}
 library(compiler)
 old_jit <- enableJIT(0)  # JIT-Compiler deaktivieren
 
@@ -8708,14 +8772,20 @@ f <- \(n) {
 }
 g <- cmpfun(f)
 
-microbenchmark::microbenchmark(Interpr = f(1e6), Kompil = g(1e6))
+microbenchmark::microbenchmark(Interpr = f(1e6), Kompil= g(1e6))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.4pt}{8.7pt}\selectfont\ttfamily]
 #Unit: milliseconds
 #    expr       min        lq      mean    median        uq       max neval
 # Interpr 142.94749 146.92359 152.62648 149.07006 155.29015 185.62841   100
 #  Kompil  25.56085  26.01051  26.46074  26.32038  26.84394  28.60703   100
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 enableJIT(old_jit)       # JIT wieder aktivieren
-microbenchmark::microbenchmark(Interpr = f(1e6), Kompil = g(1e6))
+microbenchmark::microbenchmark(Interpr = f(1e6), Kompil= g(1e6))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{9.3pt}{9.6pt}\selectfont\ttfamily]
 #Unit: milliseconds
 #    expr      min       lq     mean   median       uq      max neval
 # Interpr 25.18406 25.49902 25.79559 25.73593 26.00182 28.34142   100
@@ -8732,7 +8802,7 @@ Im Gegensatz zum Paket \lstinline|compiler| wird hier die Ebene der virtuellen M
 Die Installation erfolgt über das GitHub-Repository des Entwicklers mittels:\\
 \lstinline{remotes::install_github("brodieG/r2c")}.
 
-\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
+\begin{lstlisting}
 library(r2c)
 
 n <- 1e7
@@ -8748,16 +8818,22 @@ bench::mark(check = FALSE,
   base = tapply(x, g, sum),
   r2c  = group_exec(r2c_sum, x, g),
   r2cGr = group_exec(r2c_sum, x, g.r2c))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 #  expression      min median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:tm> <bch:>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 base          595ms  595ms      1.68   397.1MB     3.36     1     2      595ms
 #2 r2c           272ms  272ms      3.68   154.2MB     3.68     2     2      544ms
 #3 r2cGr         119ms  123ms      7.48    76.6MB     5.61     4     3      534ms
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 
 f <- \(n) sum(sqrt(1:n))
 fc <- r2cf(f)
 n <- 1e7
 bench::mark(base = f(n), r2c = fc(n))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.5pt}\selectfont\ttfamily]
 # expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 base        63.4ms 108.7ms      9.97     153MB     16.0     5     8      502ms
@@ -8776,7 +8852,7 @@ Die zentrale Funktion ist \lstinline|translate()|. Sie übernimmt eine herkömml
 Das Paket kann mit:\\
 \lstinline{remotes::install_github("Konrad1991/ast2ast")} installiert werden.
 
-\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.4pt}\selectfont\ttfamily]
+\begin{lstlisting}
 library(ast2ast)
 
 f <- \(n) {
@@ -8789,12 +8865,15 @@ g <- \(n) sum(sqrt(1:n))
 
 n <- 1e7
 bench::mark(base = f(n), base2 = g(n), ast2ast = fc(n))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.4pt}\selectfont\ttfamily]
 #  expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 base         262ms 262.5ms      3.81    36.5KB      0       2     0      525ms
 #2 base2         64ms 114.8ms      9.39   152.6MB     15.0     5     8      533ms
 #3 ast2ast       90ms  93.6ms     10.5         0B      0       6     0      573ms
 \end{lstlisting}
+
 
 
 \paragraph{nCompiler}
@@ -8809,7 +8888,7 @@ remotes::install_github("nimble-dev/nCompiler", subdir = "nCompiler")
 \end{lstlisting}
   installiert werden. Zudem müssen die Pakete \lstinline|inline| sowie \lstinline|Rcpp| verfügbar sein.
 
-\begin{lstlisting}[basicstyle=\fontsize{8.8pt}{9.pt}\selectfont\ttfamily]
+\begin{lstlisting}
 library(nCompiler)
 
 f <- \(n) {
@@ -8817,14 +8896,24 @@ f <- \(n) {
   for (i in 1:n) x <- x + sqrt(i)
   return(x) }   # return(x) statt x verwenden
 
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.8pt}{9.pt}\selectfont\ttfamily]
 fn <- nFunction(f, argTypes = list(n = "double"), returnType = "double")
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 fc <- nCompile(fn)
 
 g <- \(n) return(sum(sqrt(1:n)))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.8pt}{9.pt}\selectfont\ttfamily]
 gn <- nFunction(g, argTypes = list(n = "double"), returnType = "double")
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt]
 gc <- nCompile(gn)
 
 n <- 1e7
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{8.8pt}{9.pt}\selectfont\ttfamily]
 bench::mark(base = f(n), base2 = g(n), nCompf = fc(n), nCompg = gc(n))
 #  expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
 #  <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>
@@ -8843,7 +8932,7 @@ Mit \lstinline|cppFunction()| lassen sich kurze C++-Funktionen direkt als String
 
 Für umfangreichere Projekte wird der C++-Code in separaten \lstinline|.cpp|-Dateien gespeichert. Diese nutzen spezielle Attribute (wie \lstinline|// [[Rcpp::export]]|), um Funktionen mittels \lstinline|sourceCpp()| in der R-Umgebung verfügbar zu machen.
 
-\begin{lstlisting}[basicstyle=\fontsize{7.9pt}{8.2pt}\selectfont\ttfamily]
+\begin{lstlisting}
 Rcpp::cppFunction(r"(
 double fc(int n) {
   double res = 0.;
@@ -8871,6 +8960,8 @@ f <- \(n) {
 
 n <- 1e7
 bench::mark(f = f(n), fc = fc(n), fc2 = fc2(n))
+\end{lstlisting}
+\begin{lstlisting}[aboveskip=-2pt,basicstyle=\fontsize{7.9pt}{8.2pt}\selectfont\ttfamily]
 # expression     min  median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time
 #  <bch:expr> <bch:t> <bch:t>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm>
 #1 f          254.5ms 255.2ms      3.92        0B        0     2     0      510ms
@@ -8878,7 +8969,2693 @@ bench::mark(f = f(n), fc = fc(n), fc2 = fc2(n))
 #3 fc2         20.3ms  20.3ms     49.2         0B        0    25     0      508ms
 \end{lstlisting}
 
+Typen für Vektoren:
+\begin{itemize}
+\item \lstinline|NumericVector| (für \lstinline|double|)
+\item \lstinline|IntegerVector| (für \lstinline|int|)
+\item \lstinline|LogicalVector| (für \lstinline|bool|)
+\end{itemize}
 
+Der Zugriff auf Elemente erfolgt in C++ über den Operator \lstinline|[]|, wobei die Indizierung (im Gegensatz zu R) bei \emph{0 beginnt}.
+
+Ein wesentliches Merkmal von \lstinline|Rcpp| ist die Behandlung von Speicherreferenzen. Wird ein Vektor als Referenz übergeben (\lstinline|NumericVector& x|), operiert C++ direkt auf dem Speicherbereich von R. Dies ermöglicht \textit{In-place}-Operationen, die zwar hochperformant sind, aber das ursprüngliche Objekt in der R-Umgebung dauerhaft verändern (Seiteneffekte). Um dies zu verhindern, kann die Methode \lstinline|clone(x)| genutzt werden, die eine tiefe Kopie des Objekts erstellt.
+
+Zusätzlich bietet \lstinline|Rcpp| mit sogenannten \textit{Sugar}-Funktionen eine Syntax an, die stark an R angelehnt ist. Viele Basis-Operationen wie \lstinline|cumsum()|, \lstinline|rev()| oder mathematische Transformationen sind bereits in hochoptimiertem C++ implementiert und können direkt auf Vektoren angewendet werden.
+
+\begin{lstlisting}
+f <- \(x) cumsum(rev(x))
+
+Rcpp::cppFunction(r"(
+NumericVector fc(const NumericVector& x) {
+  int n = x.size();
+  NumericVector res(n);
+  double s = 0.;
+  for(int i = n - 1; i >= 0; --i) {
+    s += x[i];
+    res[(n - 1) - i] = s;
+  }
+  return res;
+}
+)")
+
+Rcpp::cppFunction(r"(
+NumericVector fc2(const NumericVector& x) {
+  return cumsum(x); } )")
+
+Rcpp::cppFunction(r"(
+NumericVector fc2(const NumericVector& x) {
+  return cumsum(rev(x)); } )")
+
+x <- c(2, 1, 3)
+f(x)              # 3 4 6
+fc(x)             # 3 4 6
+fc2(x)            # 3 4 6
+
+Rcpp::cppFunction(r"( int gc(NumericVector& x) {
+  for(int i = 0; i < x.size(); ++i) ++x[i];
+  return 0; } )")
+Rcpp::cppFunction(r"(
+NumericVector gc2(const NumericVector& y) {
+  auto x = clone(y);
+  for(int i = 0; i < x.size(); ++i) ++x[i];
+  return x; } )")
+
+x                 # 2 1 3
+gc(x)             # In place Manipulation
+x                 # 3 2 4
+gc2(x)            # 4 3 5
+x                 # 3 2 4
+\end{lstlisting}
+
+
+\section{Statistik}
+
+Es werden ein paar subjektiv ausgewählte Themen, zu Statistik und wie diese beispielhaft behandelt werden können gezeigt.
+
+Die \href{https://cran.r-project.org/web/views/}{CRAN Task Views} sind eine Zusammenstellung von Paketen, die bei bestimmten Themen relevant sein könnten.
+
+\subsection{Daten}
+
+R bringt eine Vielzahl an integrierten Datensätzen mit, die sich zum Testen von Funktionen und Methoden, zur Demonstration von Visualisierungen oder zum Erlernen von Datenanalysen eignen.
+
+\subsubsection{Integrierte Datensätze}
+
+Diese Datensätze sind in der Regel Teil des Pakets \lstinline|datasets|, das beim Start von R automatisch geladen wird. Sie stehen somit sofort zur Verfügung, ohne dass externe Dateien importiert werden müssen.
+
+Mit dem Befehl \lstinline|data()| lässt sich eine Liste aller verfügbaren Datensätze anzeigen. Um Informationen über die Struktur und den Ursprung eines spezifischen Datensatzes zu erhalten, nutzt man die Hilfe-Funktion.
+
+\begin{lstlisting}
+data()            # Liste aller verfügbaren Datensätze
+help(iris)        # Dokumentation des Iris-Datensatzes
+head(mtcars)      # Die ersten Zeilen anzeigen
+str(swiss)        # Struktur des Datensatzes prüfen
+\end{lstlisting}
+
+Die Datensätze sind schreibgeschützt in den Paketen hinterlegt. Sobald man jedoch eine Zuweisung vornimmt, wird eine Arbeitskopie im globalen Environment erstellt.
+
+\begin{lstlisting}
+irisC <- iris      # Explizite Kopie erstellen
+iris$x <- 0        # Erzeugt iris im Global Environment
+ls()               # "iris"  "irisC"
+rm(iris)           # Löscht die Kopie;
+nrow(iris)         # 150; das Original bleibt im Paket erhalten
+\end{lstlisting}
+
+Datensätze werden erst dann in den Arbeitsspeicher geladen, wenn sie tatsächlich aufgerufen werden (Lazy Loading).
+
+
+\subsubsection{Datentransfer: Import und Export}
+
+\paragraph{Textbasierte Formate (CSV und TXT)}
+
+Standardmäßig nutzt man \lstinline|read.csv()| für den Import und \lstinline|write.csv()| für den Export von CSV-Datei (\emph{Comma Separated Values}) bzw.\ \lstinline|read.table()| und \lstinline|write.table()| für Textdateien. Ein wichtiger Parameter ist \lstinline|stringsAsFactors|, der bestimmt, ob Text direkt als Faktor geladen wird, \lstinline|colClasses| definiert welche Spalte welcher Typ ist und \lstinline|nrows| (Anzahl Datenzeilen) hilft den Speicher vorab korrekt zu reservieren.
+
+\begin{lstlisting}
+#write.table(mtcars, "daten.txt")
+d <- read.table("daten.txt")
+
+#write.csv(mtcars, "daten.csv")
+d <- read.csv("daten.csv", row.names = 1)
+\end{lstlisting}
+
+\paragraph{Binär- und R-native Formate}
+
+Um R-Objekte inklusive ihrer Metadaten (wie Faktoren oder Datumsformate) exakt zu sichern, werden native Formate verwendet.
+
+\begin{itemize}
+\item \lstinline|.RData / .rda|: Speichert mehrere Objekte gleichzeitig.
+\item \lstinline|.rds|: Speichert ein einzelnes Objekt. Dem Objekt wird beim Einlesen ein neuer Name zugewiesen.
+\end{itemize}
+
+\begin{lstlisting}
+#save(iris, mtcars, file = "daten.RData")
+load("daten.RData")
+ls()                      # "iris" "mtcars"
+
+#save.image("alleDaten.RData")  # Ganzer Workspace
+load("alleDaten.RData")
+
+#saveRDS(iris, "iris.rds")
+irisC <- readRDS("iris.rds")
+\end{lstlisting}
+
+\paragraph{Komprimierung}
+
+Sowohl \lstinline|write.csv| als auch \lstinline|saveRDS| unterstützen Komprimierung, um Speicherplatz auf der Festplatte zu sparen.
+Derzeit werden \lstinline|gzfile()|, \lstinline|bzfile()|, \lstinline|xzfile()| und \lstinline|zstdfile()| unterstützt.
+
+\begin{lstlisting}
+#write.table(mtcars, gzfile("daten.txt.gz"))
+d <- read.table("daten.txt.gz")
+
+#saveRDS(mtcars, "mtcars.rds", compress = "xz")
+\end{lstlisting}
+
+
+\subsection{Abbildungen}
+
+R verfügt über ein integriertes System zur Erstellung von Grafiken. Zuerst wird eine leere Leinwand oder ein Plot mit einem Hauptbefehl erstellt, und anschließend werden weitere Elemente (Punkte, Linien, Legenden) Ebene für Ebene hinzugefügt. Einmal gezeichnete Elemente können nicht mehr einfach entfernt oder verschoben werden.
+
+Grafiken in R werden standardmäßig in ein Grafikfenster (\emph{Device}) ausgegeben. Alternativ können sie direkt in Dateien (z.\,B.\ PDF, PNG, JPEG) umgeleitet werden.
+
+\subsubsection{Die plot-Funktion}
+
+Die Funktion \lstinline|plot()| ist die zentrale Funktion für die Erstellung von Grafiken. Sie ist generisch, was bedeutet, dass sie ihr Verhalten an den Datentyp anpasst, der ihr übergeben wird (z.\,B.\ Streudiagramm für Zahlen, Boxplot für Faktoren).
+
+Die einfachste Form ist \lstinline|plot(x, y)|. Das Aussehen kann durch zahlreiche Parameter gesteuert werden:
+
+\begin{itemize}
+\item \lstinline|type|: Bestimmt die Art der Darstellung (\lstinline|"p"| für Punkte, \lstinline|"l"| für Linien, \lstinline|"b"| für beides, \lstinline|"n"| für ein leeres Koordinatensystem).
+\item \lstinline|main|, \lstinline|xlab|, \lstinline|ylab|: Titel der Grafik sowie Beschriftungen der Achsen.
+\item \lstinline|col|: Farbe der Elemente (als Name wie \lstinline|"red"| oder Hex-Code).
+\item \lstinline|pch|, \lstinline|cex|: Symboltyp (Plotting Character) und Skalierung der Symbole.
+\item \lstinline|lty|, \lstinline|lwd|: Linientyp (durchgezogen, gestrichelt etc.) und Linienstärke.
+\item \lstinline|xlim|, \lstinline|ylim|: Festlegung der Achsenabschnitte als Vektor \lstinline|c(min, max)| bzw.\ auch als \lstinline|c(max, min)| um die Skala umzudrehen.
+\end{itemize}
+
+%pdf("/tmp/plotSimpl.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+x <- 0:10
+y <- x^2
+plot(x, y,
+  type = "b",
+  main = "Plot",
+  xlab = "Eingabewerte", ylab = "Ergebnis",
+  col = "blue", pch = 19)
+points(rev(x), y, pch = 3)
+lines(x, x^1.5, col = "red")
+abline(h=axTicks(2), col = "gray", lty = 3)
+legend("top", legend = c("x^2","x^1.5", "rev(x^2)"), bg="white",
+  col = c("blue", "red", 1), pch = c(19,NA,3), lty=c(1,1,NA))
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/plotSimpl}
+\end{figure}
+
+
+%pdf("/tmp/plotUbersicht.pdf", 6, 4)
+%par(mar=c(.1, .1, .1, .1))
+\begin{lstlisting}
+plot(NULL, xlim=c(0, 25), ylim=c(-0.2, 10.5), xlab="", ylab="",
+  xaxt="n", yaxt="n", bty="n")
+
+text(0, 10.5, "Standardfarben (col 1:8):", adj = 0, font = 2)
+rect(1:8 - 0.4, 9, 1:8 + 0.4, 10, col = 1:8, border = "black")
+text(1:8, 8.5, labels = 1:8)
+
+text(12, 10.5, "Graustufen (gray(0:4/4)):", adj = 0, font = 2)
+for(i in 0:4) {
+  rect(12 + i*1.5, 9, 13.2 + i*1.5, 10, col=gray(i/4),border=1)
+  text(12.6 + i*1.5, 8.5, labels = i/4)
+}
+
+text(0, 7.5, "Symbole (pch 0:25):", adj = 0, font = 2)
+points(0:25, rep(6.5, 26), pch =0:25,col="black",cex=1.5,bg=2)
+text(0:25, 5.8, labels = 0:25)
+
+text(0, 4.5, "Linientypen (lty 1:6):", adj = 0, font = 2)
+text(12, 4.5, "Eigene Linientypen:", adj = 0, font = 2)
+s <- c("solid", "22", "5222", "522222", "F2", "15")
+for(i in 1:6) {
+  y_pos <- 4.5 - (i * 0.8)
+  lines(c(0, 8), c(y_pos, y_pos), lty = i, col = "black", lwd=2)
+  text(8.5, y_pos, labels = paste("lty =", i), adj = 0, cex=0.9)
+  lines(c(12, 20), c(y_pos, y_pos), lty =s[i],col="black",lwd=2)
+  text(20.5, y_pos, labels = s[i], adj = 0, cex = 0.9)
+}
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/plotUbersicht}
+\end{figure}
+
+
+Über die Standardwerte hinaus bietet R tiefergehende Möglichkeiten zur Individualisierung:
+
+\begin{itemize}
+\item \textbf{Farbspezifikation (\lstinline|col|)}: 
+  Neben den Indizes (\lstinline|1:8|) und Namen (alle 657 Namen sind über \lstinline|colors()| abrufbar) können Farben präzise als Hexadezimal-Strings angegeben werden: \lstinline|"#RRGGBB"| oder \lstinline|"#RRGGBBAA"|, wobei \lstinline|AA| für den Alpha-Kanal (Transparenz) steht.
+\item \textbf{Eigene Linientypen (\lstinline|lty|)}: 
+  Statt der Zahlen 1--6 können benutzerdefinierte Muster als String aus bis zu acht hexadezimalen Ziffern definiert werden. Die Ziffern beschreiben abwechselnd die Länge von Strich und Lücke (z.\,B. \lstinline|"5222"| für einen langen Strich, eine Lücke, einen kurzen Strich und eine Lücke).
+\item \textbf{Eigene Symbole (\lstinline|pch|)}: 
+  Neben den numerischen Werten 0--25 akzeptiert \lstinline|pch| auch einzelne Zeichen als String (z.\,B. \lstinline|pch = "."|, \lstinline|"+"| oder \lstinline|"A"|). R verwendet dann dieses Zeichen als Plot-Symbol. Die Symbole \lstinline|pch = 21| bis \lstinline|25| sind die einzigen, die gleichzeitig eine Randfarbe (\lstinline|col|) und eine Füllfarbe (\lstinline|bg|) besitzen.
+\end{itemize}
+
+\subsubsection{High-Level vs. Low-Level Funktionen}
+
+In Base R unterscheidet man zwischen Funktionen, die ein neues Bild erzeugen, und solchen, die ein bestehendes Bild ergänzen.
+
+\paragraph{High-Level-Grafikfunktionen}
+
+Diese Funktionen löschen den aktuellen Inhalt des Grafikgeräts und starten eine neue Zeichnung:
+
+\begin{itemize}
+\item \lstinline|hist(x)|: Erstellt ein Histogramm.
+\item \lstinline|barplot(height)|: Erstellt ein Balkendiagramm.
+\item \lstinline|boxplot(x)|: Erstellt einen Box-and-Whisker-Plot.
+\item \lstinline|pairs(data)|: Erzeugt eine Streudiagramm-Matrix für einen Datensatz.
+\end{itemize}
+
+\begin{lstlisting}
+hist(trees$Height, main="Hist")
+n <- table(mtcars[c("cyl", "gear")])
+barplot(n, xlab="Gänge",  ylab="Autos", main="Barplot",
+ col=c("beige", "orange", "brown"), legend = rownames(n),
+ args.legend = list(title = "Zylinder"))
+boxplot(iris[1:4], main="Boxplot")
+pairs(trees, main="Pairs", oma = c(2, 2, 4.5, 2))
+\end{lstlisting}
+
+\iffalse
+pdf("/tmp/plotHistBar.pdf", 7, 4)
+par(mfrow = c(1, 2), mar=c(4.1, 4.1, 1.7, .1))
+hist(trees$Height, main="Hist")
+n <- table(mtcars[c("cyl", "gear")])
+barplot(n, xlab="Gänge",  ylab="Autos", main="Barplot",
+col=c("beige", "orange", "brown"), legend = rownames(n),
+args.legend = list(title = "Zylinder"))
+dev.off()
+
+pdf("/tmp/plotBox.pdf", 7, 4)
+par(mar=c(2.1, 2.1, 2.1, .1))
+boxplot(iris[1:4], main="Boxplot")
+dev.off()
+
+pdf("/tmp/plotPairs.pdf", 5.7, 6)
+pairs(trees, main="Pairs", oma = c(2, 2, 4.5, 2))
+dev.off()
+\fi
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/plotHistBar}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/plotBox}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/plotPairs}
+\end{figure}
+
+
+\paragraph{Low-Level-Grafikfunktionen}
+
+Diese Befehle fügen Inhalte zu einem bereits existierenden Plot hinzu. Sie funktionieren nur, wenn vorher eine High-Level-Funktion aufgerufen wurde:
+
+\begin{itemize}
+\item \lstinline|points(x, y)|: Fügt weitere Punkte hinzu.
+\item \lstinline|lines(x, y)| oder \lstinline|abline()|: Fügt Linien oder Regressionsgeraden hinzu.
+\item \lstinline|text(x, y, labels)|: Schreibt Text an bestimmte Koordinaten.
+\item \lstinline|legend()|: Fügt eine Legende an einer definierten Position hinzu.
+\item \lstinline|axis()|: Ermöglicht die manuelle Gestaltung von Achsen.
+\end{itemize}
+
+%pdf("/tmp/plot3Ax.pdf", 6, 4)
+\begin{lstlisting}
+par(mar=c(4.2,4.2,.1,3.2))
+nn <- c(0, 1000, 1500)
+xl <- c(0,1700)
+plot(nn, 3:1, xlab="Seehöhe [m]",
+     ylab="Jahrringbreite [mm]", xlim=xl)
+par(new=TRUE) 
+plot(nn, c(15, 8, 4), axes = FALSE, bty = "n", ylab="",
+     xlab="", type="l", col=2, xlim=xl)
+axis(4, col=2, col.axis =2) 
+mtext("Jahresmitteltemperatur [°C]", side=4, line=2, col=2) 
+par(new=TRUE) 
+plot(nn, c(800, 1000, 1400), axes = FALSE, bty = "n",
+ylab="", xlab="", type="l", col=4, xlim=xl, ylim=c(780,1420)) 
+axis(2, pos=par("usr")[2], col=4, col.axis = 4)
+mtext("Jahresniederschlag [mm]", side=4, line=-3, col=4) 
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/plot3Ax}
+\end{figure}
+
+Das Aussehen von Plots kann global über die Funktion \lstinline|par()| gesteuert werden. Die hier gesetzten Einstellungen bleiben für die gesamte Sitzung aktiv, bis sie zurückgesetzt werden.
+
+Ein häufiger Anwendungsfall ist das Anordnen mehrerer Grafiken in einem Fenster mit dem Parameter \lstinline|mfrow| \lstinline|par(mfrow = c(1, 2))| (1 Zeile, 2 Spalten).
+
+\subsubsection{Speichern von Abbildungen}
+
+Um Grafiken dauerhaft zu speichern, öffnet man ein Dateigerät (\emph{Device}), führt die Plot-Befehle aus und schließt das Gerät mit \lstinline|dev.off()|.
+
+\begin{lstlisting}
+pdf("pdf.pdf")  # Start des PDF-Exports
+plot(1:10)
+dev.off()       # Speichert und schließt Datei
+\end{lstlisting}
+
+Neben \lstinline|pdf()| stehen unter anderem \lstinline|png()|, \lstinline|jpeg()| und \lstinline|svg()| zur Verfügung.
+
+
+\subsection{Grundlegende Statistik}
+
+R wurde primär für die Statistik entwickelt. Die wichtigsten Methoden sind bereits in der Standardinstallation (Pakete \lstinline|base| und \lstinline|stats|) enthalten. Für fortgeschrittene Kennzahlen greifen wir auf das Paket \lstinline|DescTools| zurück.
+
+
+\subsubsection{Fehlende Werte}
+
+Ein kritischer Aspekt ist der Umgang mit fehlenden Werten (\lstinline|NA|). Die meisten Funktionen geben \lstinline|NA| zurück, wenn der Datensatz Lücken enthält, sofern man dies nicht explizit behandelt. Während \lstinline|na.rm=TRUE| den Wert nur innerhalb einer Berechnung ignoriert, bieten \lstinline|na.omit| und \lstinline|na.exclude| globale Strategien für Datensätze. Der Unterschied zeigt sich bei der Länge von Resultaten (z.\,B.\ in Modellen):
+
+\begin{lstlisting}
+x <- c(1, NA, 3)
+
+mean(x)               # NA
+mean(x, na.rm=TRUE)   # 2
+mean(na.omit(x))      # 2
+mean(na.exclude(x))   # 2
+
+fit <- lm(1:3 ~ x, na.action = na.omit)
+predict(fit)          # 1 3
+
+fit <- lm(1:3 ~ x, na.action = na.exclude)
+predict(fit)          # 1 NA 3
+\end{lstlisting}
+
+
+\subsubsection{Lage- und Streumaße (Scalar Statistics)}
+
+Diese Kennzahlen beschreiben die zentrale Tendenz und die Variabilität eines Datensatzes. Während die Standardmaße in \lstinline|base| enthalten sind, ergänzt \lstinline|DescTools| Maße wie den Modus oder das harmonische Mittel.
+
+\begin{lstlisting}
+library(DescTools)
+x <- c(1, 2, 3, 4, 5)
+
+sum(x)                       # Summe
+mean(x)                      # Arithmetisches Mittel
+mean(x, trim = 0.2)          # Trimmt 20% an den Enden
+weighted.mean(x, x)          # Gewichtetes Mittel   
+median(x)                    # Median
+Gmean(x)                     # Geometrisches Mittel
+Hmean(x)                     # Harmonisches Mittel
+Mode(x)                      # Modus (häufigster Wert)
+quantile(x, probs = 0.2)     # 20% Quantil
+
+var(x)                       # Varianz
+sum((x - mean(x))^2) / (length(x) - 1) # Varianz
+sd(x)                        # Standardabweichung
+sqrt(var(x))                 # Standardabweichung
+MeanSE(x)                    # Standardfehler
+sd(x) / sqrt(length(x))      # Standardfehler
+range(x)                     # Zeigt Min und Max
+diff(range(x))               # Spannweite (Differenz)
+IQR(x)                       # Interquartilsabstand
+mad(x)                       # Mittlere absolute Abweichung
+Skew(x)                      # Schiefe (Asymmetrie)
+Kurt(x)                      # Wölbung (Excess)
+
+y <- c(1, 3, 2, 4, 5)
+cov(x, y)                    # Kovarianz
+cor(x, y)                    # Korrelation
+\end{lstlisting}
+
+
+\subsubsection{Zufallszahlen und Stichproben}
+
+R nutzt ein Präfix-System für Verteilungen: \lstinline|r| steht für \emph{random}. Da Computer \emph{Pseudozufallszahlen} generieren, ist das Setzen eines Startwerts (\lstinline|set.seed|) für die Reproduzierbarkeit wissenschaftlicher Ergebnisse unerlässlich. Der zugrundeliegende Algorithmus (Standard: Mersenne-Twister) kann bei Bedarf mit \lstinline|RNGkind()| konfiguriert werden.
+
+\begin{lstlisting}
+set.seed(42)            # Macht Zufallsergebnisse wiederholbar
+RNGkind()               # zeigt oder setzt Generator-Typ
+# RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+
+runif(5)                # 5 gleichverteilte Zahlen U[0,1]
+rnorm(3)                # 3 standard-normalverteilte Zahlen
+rexp(3)                 # 3 exponentialverteilte Zahlen
+
+# Stichproben und Permutationen
+sample(1:10, 3)         # Ziehe 3 Zahlen aus 1 bis 10
+sample(c("A","B","C"), 
+       size=10, replace=TRUE) # Ziehen mit Zurücklegen
+sample(1:4)             # Shuffling (zufällige Permutation)
+\end{lstlisting}
+
+
+\subsubsection{Klassifizierung und Häufigkeiten}
+
+Die Umwandlung von metrischen Daten in Kategorien (Klassierung) sowie die Auszählung sind zentrale Schritte der deskriptiven Statistik.
+
+\begin{lstlisting}
+x <- c(1, 2, 1, 3, 3)
+
+table(x)                # Absolute Häufigkeiten
+proportions(table(x))   # Relative Anteile
+
+cut(x, 0:3)             # Einteilung in Intervalle
+
+f <- ecdf(x)            # Erzeugt Verteilungsfunktion
+f(2)                    # Welcher Anteil der Daten ist <= 2?
+\end{lstlisting}
+
+
+\subsubsection{Datentransformation und Skalierung}
+
+Zur Vorbereitung von Analysen müssen Daten oft auf ein einheitliches Niveau gebracht werden.
+
+
+\paragraph{Z-Transformation (Standardisierung)}
+
+Die Funktion \lstinline|scale()| berechnet den Z-Score ($\frac{x - \mu}{\sigma}$), sodass die Daten einen Mittelwert von 0 und eine Standardabweichung von 1 aufweisen. 
+
+\begin{lstlisting}
+x <- c(3, 1, 5)
+
+sc <- scale(x)         # 0 -1 1
+sc * attr(sc, "scaled:scale") + attr(sc, "scaled:center")
+ # 3 1 5; Rückskalieren
+\end{lstlisting}
+
+\paragraph{Min-Max Skalierung und Ausreißer}
+
+Zur Behandlung von Extremwerten bietet das Paket \lstinline|DescTools| spezialisierte Funktionen.
+
+\lstinline|RobScale()| nutzt den \lstinline|median| und \lstinline|mad| (mittlere absolute Abweichung) anstelle von Mittelwert und Standardabweichung, um robuster gegen Ausreißer zu sein. \lstinline|Winsorize()| ersetzt Extremwerte durch Grenzwerte.
+
+\begin{lstlisting}
+library(DescTools)
+x <- c(1, 2, 3, 4, 100)
+RobScale(x)            # -1.35 -0.67 0 0.67 65.43
+Winsorize(x, c(0, 10)) # 1 2 3 4 10
+\end{lstlisting}
+
+
+\subsubsection{Spezialisierte Datenoperationen}
+
+Über die Standardtransformationen hinaus bietet R effiziente Werkzeuge für spezifische strukturelle Manipulationen.
+
+\paragraph{Run-Length Encoding (RLE)}
+
+\lstinline|rle()| komprimiert Vektoren, indem aufeinanderfolgende identische Werte zusammengefasst werden.
+
+\begin{lstlisting}
+x <- c(1, 1, 4, 3, 3, 3, 1)
+res <- rle(x)    # Speichert Werte und deren Anzahl
+res              #   lengths: int [1:4] 2 1 3 1
+                 #   values : num [1:4] 1 4 3 1
+inverse.rle(res)             # 1 1 4 3 3 3 1
+rep(res$values, res$lengths) # 1 1 4 3 3 3 1
+\end{lstlisting}
+
+\paragraph{Dummy-Variablen (Indikatormatrizen)}
+
+Für statistische Modelle müssen kategoriale Daten oft in eine Binärmatrix umgewandelt werden. \lstinline|model.matrix()| ist hierfür der Standardweg. Der Zusatz \texttt{- 1} unterdrückt den Achsenabschnitt (Intercept).
+
+\begin{lstlisting}
+x <- factor(c(3, 1, 1))
+model.matrix(~ x - 1)   #   x1 x3
+                        # 1  0  1
+                        # 2  1  0
+                        # 3  1  0
+\end{lstlisting}
+
+\paragraph{Gleitendes Mittel}
+
+Die Funktion \lstinline|filter()| wendet gleitende Fenster an. Ein Vektor von \lstinline|c(.5, .5)| berechnet den Durchschnitt zweier benachbarter Werte.
+
+\begin{lstlisting}
+x <- c(0, 4, 3, 9)
+filter(x, c(.5, .5))   # 2.0 3.5 6.0 NA
+\end{lstlisting}
+
+\paragraph{Kombinationen}
+
+In der Datenanalyse ist es oft notwendig, alle theoretisch möglichen Verbindungen zwischen Werten zu untersuchen. R bietet hierfür drei Ansätze: \lstinline|combn()| für die Auswahl von Teilmengen ohne Zurücklegen, \lstinline|expand.grid()| für das kartesische Produkt (alle Paarungen als Liste) und \lstinline|outer()| für eine strukturierte Ergebnismatrix.
+
+\begin{lstlisting}
+# Alle moeglichen 2er-Gruppen aus der Menge 1 bis 3
+combn(1:3, 2)    #      [,1] [,2] [,3]
+                 # [1,]    1    1    2
+                 # [2,]    2    3    3
+
+# Erzeugt alle Kombinationen aus zwei (oder mehr) Vektoren
+expand.grid(1:2, 4:5)  #   Var1 Var2
+                       # 1    1    4
+                       # 2    2    4
+                       # 3    1    5
+                       # 4    2    5
+
+# Rechnet "jeder Wert von A mit jedem von B"
+outer(1:2, 10:11, `+`) #      [,1] [,2]
+                       # [1,]   11   12
+                       # [2,]   12   13
+\end{lstlisting}
+
+
+\subsection{Hypothesentests}
+
+Die Durchführung von Hypothesentests folgt einem einheitlichen Schema. Die meisten Testfunktionen geben ein Objekt vom Typ \lstinline|htest| zurück, das alle relevanten Informationen (Teststatistik, Freiheitsgrade, p-Wert und Konfidenzintervalle) enthält. Ist der p-Wert (\lstinline|testObjekt$p.value|) kleiner als das Signifikanzniveau $\alpha$ (meist 0,05), wird die Nullhypothese abgelehnt.
+
+
+\subsubsection{Parametrische Tests}
+
+Parametrische Tests werden verwendet, um Hypothesen über Mittelwerte oder Zusammenhänge metrischer (intervall- oder verhältnisskalierter) Daten zu prüfen. Sie setzen in der Regel voraus, dass die Daten (annähernd) normalverteilt sind und bei Gruppenvergleichen eine Varianzhomogenität zwischen den Gruppen vorliegt.
+
+Vor der Anwendung parametrischer Tests sollten diese Annahmen überprüft werden. Werden sie verletzt, sind ggf.\ nichtparametrische Alternativen zu bevorzugen.
+
+\paragraph{Voraussetzungsprüfung}
+
+Die Normalverteilung kann mit dem \lstinline|shapiro.test| geprüft werden. Die Nullhypothese ($H_0$) lautet, dass die Daten normalverteilt sind. Kleine p-Werte deuten auf Abweichungen von der Normalverteilung hin.
+
+Die Varianzhomogenität (Homoskedastizität) kann mit dem \lstinline|leveneTest| aus dem Paket \lstinline|car| überprüft werden. Dieser Test ist robuster gegenüber Abweichungen von der Normalverteilung als der klassische F-Test (\lstinline|var.test|).
+
+\begin{lstlisting}
+x <- c(1, 2, 3, 2, 2, 3)
+shapiro.test(x)     # Test auf Normalverteilung
+
+y <- c(2, 4, 7, 5, 4, 6)
+var.test(x, y)      # F-Test auf Varianzgleichheit
+
+z <- c(x, y)
+g <- gl(2, 6)
+library(car)
+leveneTest(z ~ g)   # Varianzhomogenität prüfen
+\end{lstlisting}
+
+\paragraph{t-Tests -- Mittelwertsvergleiche}
+
+t-Tests dienen dem Vergleich von Mittelwerten. Je nach Fragestellung werden Ein-Stichproben-, Zwei-Stichproben- oder gepaarte t-Tests verwendet.
+
+Mit \lstinline|power.t.test| kann die Teststärke (Power) oder der benötigte Stichprobenumfang berechnet werden.
+
+\begin{lstlisting}
+x <- c(1, 2, 3)
+t.test(x, mu = 0)       # Einstichproben-t-Test (mü=0)
+t.test(x, alternative = "two.sided") # Beidseitig
+t.test(x, alternative = "greater")   # Rechtsseitig
+t.test(x, alternative = "less")      # Linksseitig
+t.test(x, conf.level = 0.99)  # 99%  Konfidenzintervall
+
+y <- c(2, 4, 7)
+t.test(x, y)                    # Zweistichproben-t-Test
+t.test(x, y, paired = TRUE)     # Paarweiser t-Test
+t.test(x, y, var.equal = TRUE)  # 2 Sample, gleiche Varianz
+t.test(x, y, var.equal = FALSE) # ungleiche Varianz
+
+power.t.test(delta = 0.5, sd = 1, sig.level = 0.05,
+    power = 0.8, type = "two.sample") # Stichprobengröße
+\end{lstlisting}
+
+\paragraph{Varianzanalyse (ANOVA) und Post-hoc-Tests}
+
+Sollen mehr als zwei Gruppenmittelwerte verglichen werden, wird eine Varianzanalyse (ANOVA) durchgeführt. Die ANOVA prüft lediglich, ob sich mindestens ein Gruppenmittelwert unterscheidet.
+
+Zur Identifikation der konkreten Unterschiede werden Post-hoc-Tests eingesetzt. Dabei ist eine Korrektur des Signifikanzniveaus notwendig, um den Alpha-Fehler bei multiplen Vergleichen zu kontrollieren.
+
+\begin{lstlisting}
+x <- 1:6
+g <- gl(3, 2)
+
+a <- aov(x ~ g)   # ANOVA
+summary(a)
+
+s <- split(x, g)
+f <- \(i) t.test(s[[i[1]]], s[[i[2]]])$p.value
+p <- apply(combn(3, 2), 2, f)
+p.adjust(p, "bonferroni")  # Alpha-Fehler-Korrektur
+
+TukeyHSD(a)
+
+library(agricolae)
+duncan.test(a, "g", console = TRUE)
+scheffe.test(a, "g", console = TRUE)
+\end{lstlisting}
+
+\paragraph{Häufigkeitstests}
+
+Für kategoriale Daten werden Chi-Quadrat-Tests verwendet. Diese prüfen, ob beobachtete Häufigkeiten von erwarteten Häufigkeiten abweichen.
+
+\begin{lstlisting}
+n <- c(20, 30, 40)
+chisq.test(n)                # gleiche erwartete Häufigkeiten
+chisq.test(n, p = n/sum(n))  # Vorgegebene Erwartung
+\end{lstlisting}
+
+\paragraph{Korrelationstests}
+
+Zur Untersuchung linearer Zusammenhänge zwischen zwei metrischen Variablen wird häufig der Pearson-Korrelationskoeffizient verwendet.
+
+\begin{lstlisting}
+x <- c(1, 2, 3)
+y <- c(2, 4, 5)
+cor.test(x, y)
+\end{lstlisting}
+
+
+\subsubsection{Nichtparametrische Tests}
+
+Nichtparametrische Tests (auch verteilungsfreie Tests) erfordern keine Annahme über eine spezifische Verteilungsform der Grundgesamtheit. Sie eignen sich besonders für ordinalskalierte Daten, kleine Stichproben oder Situationen, in denen die Voraussetzungen parametrischer Tests (z.\,B.\ Normalverteilung oder Varianzhomogenität) verletzt sind.
+
+Im Gegensatz zu parametrischen Verfahren basieren viele nichtparametrische Tests auf Rangordnungen der Daten. Dadurch sind sie robuster gegenüber Ausreißern, besitzen jedoch häufig eine geringere Teststärke (Power).
+
+\paragraph{Lagevergleiche (Rangtests)}
+
+Diese Tests stellen nichtparametrische Alternativen zu t-Tests und der einfaktoriellen ANOVA dar. Der \lstinline|wilcox.test| wird für den Vergleich zweier Gruppen verwendet und prüft Unterschiede in der zentralen Lage der Verteilungen.
+
+\begin{lstlisting}
+x <- c(1, 2, 3)
+y <- c(2, 4, 7, 3)
+
+wilcox.test(x, y, paired = FALSE)  # unabhängige Stichproben
+wilcox.test(x, x + 0.5, paired = TRUE)#abhängige Stichproben
+kruskal.test(list(group1 = x, group2 = y)) # gleiche Verteilung
+
+library(DescTools)
+SignTest(x, mu = 2)  # Vorzeichentest für den Median
+\end{lstlisting}
+
+\paragraph{Verteilungstests}
+
+Diese Tests prüfen, ob Daten einer bestimmten theoretischen Verteilung folgen.
+
+\begin{lstlisting}
+x <- c(1, 2, 3)
+
+shapiro.test(x)  # Test auf Normalverteilung
+# Vergleich einer Stichprobe mit einer theoretischen Verteilung
+ks.test(x, "pnorm", mean = mean(x), sd = sd(x))
+\end{lstlisting}
+
+\paragraph{Zusammenhangs- und Unabhängigkeitstests}
+
+Während der Chi-Quadrat-Test große Stichproben benötigt, bieten die folgenden Verfahren verlässliche Ergebnisse bei kategorialen Daten mit geringen Häufigkeiten oder bei freien Verteilungsannahmen.
+
+Der \lstinline|binom.test| prüft eine dichotome Variable (z.\,B.\ Erfolg/Misserfolg) gegen eine theoretisch erwartete Trefferwahrscheinlichkeit. Für Kontingenztafeln (Häufigkeitstabellen) wird \emph{Fishers exakter Test} eingesetzt. Er ist insbesondere dann dem Chi-Quadrat-Test vorzuziehen, wenn die erwarteten Zellhäufigkeiten sehr klein sind (typischerweise $< 5$).
+
+\emph{Permutationstests} berechnen die Teststatistik für alle (oder sehr viele) möglichen Umordnungen der Daten. Dadurch wird die tatsächliche Verteilung der vorliegenden Stichprobe genutzt, anstatt eine theoretische Verteilung (wie die Normalverteilung) vorauszusetzen.
+
+\begin{lstlisting}
+# Binomialtest: Prueft, ob 2 Erfolge bei 7 Versuchen 
+# mit einer Wahrscheinlichkeit von 0.5 vereinbar sind.
+binom.test(x = 2, n = 7, p = 0.5)
+
+# Fishers exakter Test für Kontingenztafeln
+m <- matrix(c(10, 2, 3, 12), nrow = 2,
+  dimnames = list(Gruppe = c("A","B"), Erfolg = c("Ja","Nein")))
+fisher.test(m)
+
+# Permutationstest
+# wenn Annahmen für t-Test oder Wilcoxon-Test verletzt sind
+library(coin)
+x <- c(1,2,3, 2,4,7,3)
+g <- factor(c(1,1,1,2,2,2,2))
+independence_test(x ~ g, distribution = "exact")
+\end{lstlisting}
+
+
+\subsubsection{Zeitreihenanalyse und Diagnose}
+
+Zeitreihen unterscheiden sich von klassischen Querschnittsdaten dadurch, dass die zeitliche Ordnung der Beobachtungen eine zentrale Rolle spielt. Abhängigkeiten zwischen aufeinanderfolgenden Werten können Modellannahmen verletzen und müssen daher explizit untersucht werden.  Zur Identifikation von Mustern und zur Überprüfung von Modellannahmen werden folgende Werkzeuge genutzt:
+
+\paragraph{Identifikation von Mustern}
+
+Die Autokorrelation misst die Korrelation einer Reihe mit ihren eigenen vorhergehenden Werten (\emph{Lags}).
+
+\begin{itemize}
+\item \lstinline|acf()| (Autocorrelation Function): Misst den Gesamtzusammenhang über einen Zeitraum.
+\item \lstinline|pacf()| (Partial Autocorrelation Function): Misst den direkten Zusammenhang zwischen zwei Zeitpunkten unter Ausschluss der Zwischenschritte.
+\item \lstinline|ccf()| (Cross-Correlation Function): Misst den zeitversetzten Einfluss von Reihe A auf Reihe B.
+\end{itemize}
+
+\begin{lstlisting}
+x <- c(0, 0, 1, 1, 0, 0, 1, 1)
+y <- c(1, 1, 0, 0, 1, 1, 0, 0)
+
+acf(x, plot = FALSE)     # Autokorrelation
+pacf(x, plot = FALSE)    # Partielle Autokorrelation
+ccf(x, y, plot = FALSE)  # Kreuzkorrelation zweier Reihen
+\end{lstlisting}
+
+
+\paragraph{Stationarität und Unit Roots}
+
+Ein zentrales Konzept ist die Stationarität (konstante statistische Eigenschaften über die Zeit). Eine Unit Root weist auf Nichtstationarität hin, da Schocks einen permanenten Einfluss haben.
+
+\begin{itemize}
+\item \lstinline|tseries::adf.test()|: Klassischer Augmented Dickey-Fuller Test.
+\item \lstinline|urca::ur.df()|: Fortgeschrittene Unit-Root-Tests (erlaubt Unterscheidung von Trend- und Differenzstationarität).
+\end{itemize}
+
+\begin{lstlisting}
+x <- rnorm(1000)  # kein unit-root
+y <- cumsum(x)    # mit unit-root
+tseries::adf.test(x)
+tseries::adf.test(y)
+urca::ur.df(y, lags=3, type="trend")
+\end{lstlisting}
+
+\paragraph{Diagnose von Residuen und Unabhängigkeit}
+
+Nach der Modellierung (z.\,B.\ mittels \lstinline|lm()| oder \lstinline|arima()|) müssen die Residuen auf verbliebene Strukturen geprüft werden.
+Die folgenden Tests prüfen unterschiedliche Verletzungen der Modellannahmen und ergänzen sich gegenseitig.
+White Noise bezeichnet eine Folge unkorrelierter Zufallsvariablen mit konstanter Varianz.
+
+\begin{description}
+\item[Autokorrelation:] \lstinline|dwtest()| (Durbin-Watson für Lag 1) oder \lstinline|bgtest()| (Breusch-Godfrey für höhere Ordnungen).
+\item[Heteroskedastizität:] \lstinline|bptest()| prüft, ob die Varianz der Fehlerterme konstant ist.
+\item[White Noise:] \lstinline|Box.test()| (Ljung-Box) prüft, ob die Residuen insgesamt wie zufälliges Rauschen wirken. \lstinline|runs.test()| Überprüfung der Zufälligkeit einer Sequenz.
+\end{description}
+
+
+\begin{lstlisting}
+x <- c(3, 5, 4, 8)
+model <- lm(x ~ matrix(c(1:4,2,2,4,5), ncol=2))
+
+lmtest::dwtest(model)
+lmtest::bgtest(model, order = 1)
+
+lmtest::bptest(model)
+
+Box.test(x, lag = 1, type = "Box-Pierce")
+Box.test(x, lag = 1, type = "Ljung-Box")
+
+tseries::runs.test(factor(c(0, 0, 1, 0, 0, 0, 1)))
+\end{lstlisting}
+
+
+\subsubsection{Multivariate Tests}
+
+Multivariate Tests untersuchen Hypothesen über mehrere abhängige Variablen gleichzeitig. Dies ist notwendig, wenn Variablen korreliert sind und eine separate Betrachtung mittels univariater Tests (wie dem t-Test) zu einer Alpha-Fehler-Kumulierung (Ablehnung der Nullhypothese obwohl sie wahr ist) führen würde. Im Gegensatz zu univariaten Verfahren berücksichtigen multivariate Tests die Kovarianzstruktur zwischen den abhängigen Variablen und ermöglichen so eine gemeinsame Hypothesenprüfung. Hoch korrelierte abhängige Variablen können die Stabilität multivariater Tests beeinträchtigen.
+
+\paragraph{Hotelling's $T^2$-Test}
+
+Der Hotelling's $T^2$-Test ist die multivariate Erweiterung des t-Tests. Er prüft, ob die Mittelwertvektoren zweier Gruppen (oder einer Gruppe gegen einen Referenzvektor) signifikant voneinander abweichen.
+Der Test setzt multivariate Normalverteilung und gleiche Kovarianzmatrizen der Gruppen voraus.
+Für eine abhängige Variable reduziert sich der Test auf den klassischen t-Test.
+
+\begin{description}
+\item[Ein-Stichproben-Fall:] Testet, ob der Mittelwertvektor einer Stichprobe einem vorgegebenen Vektor entspricht.
+\item[Zwei-Stichproben-Fall:] Testet die Gleichheit der Mittelwertvektoren zweier unabhängiger Gruppen.
+\end{description}
+
+\begin{lstlisting}
+library(Hotelling)
+# Beispiel-Daten (z.B. zwei Merkmale pro Person)
+X <- matrix(c(1, 2, 1, 1, 2, 3, 2, 4), ncol=2)
+Y <- matrix(c(1, 3, 4, 1, 2, 2, 1, 4), ncol=2)
+print(hotelling.test(X, Y))
+\end{lstlisting}
+
+\paragraph{Multivariate Varianzanalyse (MANOVA)}
+
+Wenn mehr als zwei Gruppen verglichen werden sollen, wird die MANOVA eingesetzt. Sie prüft, ob sich die Gruppenmittelwerte bezüglich einer Kombination mehrerer abhängiger Variablen unterscheiden.
+
+Gängige Teststatistiken sind Pillai-Spur, Wilks' Lambda, Hotelling-Lawley und Roys größte Wurzel.
+
+\begin{lstlisting}
+X <- cbind(c(1, 2, 1, 2), c(3, 2, 4, 1))
+g <- factor(c("A", "A", "B", "B"))
+summary(manova(X ~ g))
+\end{lstlisting}
+
+Die MANCOVA erweitert die MANOVA um die Bereinigung von Effekten durch metrische Kontrollvariablen (Kovariaten). Dies erhöht die Teststärke, indem die Fehlervarianz reduziert wird, die durch die Kovariate erklärt werden kann.
+
+\begin{lstlisting}
+# Vergleich von Gruppen unter Kontrolle einer Kovariate
+Y <- cbind(iris$Sepal.Length, iris$Sepal.Width)
+kovariate <- iris$Petal.Width
+gruppe <- iris$Species
+
+summary(manova(Y ~ kovariate + gruppe), test = "Wilks")
+\end{lstlisting}
+
+Ein signifikantes MANOVA-Ergebnis sagt lediglich aus, dass sich die Gruppen in der kombinierten Mittelwertstruktur unterscheiden. Um zu bestimmen, welche spezifischen abhängigen Variablen und welche Gruppen für diesen Unterschied verantwortlich sind, können Post-hoc-Tests durchgeführt werden.
+
+\begin{description}
+\item[Univariate ANOVAs:] Es wird für jede abhängige Variable eine separate ANOVA berechnet. Hierbei ist eine Alpha-Fehler-Korrektur (z.\,B.\ nach Bonferroni) zwingend erforderlich.
+\item[Diskriminanzanalyse:] Sie hilft zu verstehen, welche Linearkombination der abhängigen Variablen die Gruppen am besten trennt.
+\end{description}
+
+\begin{lstlisting}
+fit <- manova(as.matrix(iris[,1:4]) ~ iris$Species)
+summary.aov(fit)  # Univariate ANOVAs
+\end{lstlisting}
+
+\paragraph{Voraussetzungsprüfung}
+
+Multivariate Verfahren stellen spezifische Anforderungen an die Datenstruktur. Neben der Unabhängigkeit der Beobachtungen sind zwei Voraussetzungen zentral:
+
+\begin{description}
+\item[Multivariate Normalverteilung:] Die gemeinsame Verteilung aller abhängigen Variablen muss einer Normalverteilung im multidimensionalen Raum folgen. Der \lstinline|mshapiro.test| ist die multivariate Erweiterung des Shapiro-Wilk-Tests.
+\item[Homogenität der Kovarianzmatrizen:] Multivariate Tests (wie MANOVA) setzen voraus, dass die Varianz-Kovarianz-Strukturen in allen Gruppen vergleichbar sind. Der \emph{Box-M-Test} prüft die Gleichheit der Kovarianzmatrizen zwischen den Gruppen.
+\end{description}
+
+\begin{lstlisting}
+X <- t(iris[iris$Species=="setosa", 1:4])
+mvnormtest::mshapiro.test(X) # Variablen in Zeilen
+biotools::boxM(iris[, 1:4], iris$Species)
+\end{lstlisting}
+
+\paragraph{Robuste Alternativen}
+
+Falls die Voraussetzung der multivariaten Normalverteilung verletzt ist, bietet sich die \emph{PERMANOVA} (Permutational Multivariate Analysis of Variance) an. Sie basiert auf Zentroiden in einem Distanzraum und ist gegenüber Abweichungen von der Normalverteilung robust.
+
+\begin{lstlisting}
+vegan::adonis2(iris[, 1:4] ~ iris$Species)
+\end{lstlisting}
+
+
+\subsection{Verfahren zur Dimensionsreduktion}
+
+Ziel der Dimensionsreduktion ist es, hochdimensionale Daten auf wenigen aussagekräftigen Dimensionen abzubilden. Je nach Verfahren wird dabei unterschiedlichen Kriterien gefolgt, etwa der Maximierung erklärter Varianz, der Erhaltung von Distanzen oder der Identifikation latenter Strukturen. Sie werden zur Visualisierung, zur Vermeidung von Multikollinearität oder zur Datenkompression eingesetzt.
+
+Zielsetzungen:
+\begin{itemize}
+\item Varianzmaximierung (PCA)
+\item Distanztreue (MDS)
+\item Modellierung latenter Variablen (Faktoranalyse)
+\item Statistische Unabhängigkeit (ICA)
+\end{itemize}
+
+\subsubsection{Hauptkomponentenanalyse (PCA)}
+
+Die PCA transformiert Variablen in ein neues System unkorrelierter Hauptkomponenten. Die erste Komponente erklärt dabei den größten Teil der Varianz.
+
+Variablen sollten in der Regel skaliert werden (\lstinline|scale. = TRUE|), damit Merkmale mit großen Zahlenwerten das Ergebnis nicht dominieren.
+
+Die Anzahl der Hauptkomponenten wird häufig anhand der erklärten Varianz bestimmt.
+
+%pdf("/tmp/drPca.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+X <- as.matrix(iris[, 1:4])
+
+pca <- prcomp(X)
+summary(pca)          # Ergebnisübersicht
+Y <- pca$x[, 1:2]     # Hauptkomponente 1 und 2
+predict(pca, X)[,1:2] # Mit beliebigem Datensatz
+# Rückprojektion
+Y %*% t(pca$rotation[, 1:2]) + rep(pca$center, each=nrow(Y))
+plot(pca$x[, 1:2], col=iris$Species, pch=19, main="PCA")
+legend("topright", levels(iris$Species), col = 1:3, pch = 19)
+loadings <- pca$rotation[, 1:2]
+arrows(0, 0, loadings[,1] * 1.8, loadings[,2] * 1.8, length=.2)
+text(loadings[,1] * 1.9, loadings[,2] * 1.9, rownames(loadings))
+\end{lstlisting}
+%dev.off()
+
+Die Kernel-PCA erweitert die PCA auf nichtlineare Zusammenhänge, indem die Daten
+implizit in einen höherdimensionalen Merkmalsraum abgebildet werden.
+
+%pdf("/tmp/drKpca.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+X <- as.matrix(iris[, 1:4])
+
+library(kernlab)
+kpca <- kpca(X, kernel = "polydot", kpar = list(degree = 2,
+             scale = 1, offset = 1), features = 2)
+XtKp <- predict(kpca, X)
+plot(kpca@rotated[, 1:2], col=iris$Species, pch=19, main="kPCA")
+\end{lstlisting}
+%dev.off()
+
+\subsubsection{Faktoranalyse}
+
+Die \emph{Faktoranalyse} basiert auf einem statistischen Modell mit latenten Variablen und explizitem Fehlerterm.
+
+\begin{lstlisting}
+X <- as.matrix(iris[, 1:4])
+
+fa <- factanal(X, factors = 1, scores = "regression")
+
+fa <- factanal(X, factors = 1, rotation = "varimax",
+               scores = "regression")
+print(fa$loadings, cutoff = 0.3)
+
+fap <- psych::fa(X, nfactors = 1, fm = "ml", rotate = "varimax")
+predict(fap, X)    # Umprojezieren
+\end{lstlisting}
+
+\subsubsection{Multidimensionale Skalierung (MDS)}
+
+MDS versucht, die Distanzen zwischen Objekten im niedrigdimensionalen Raum so originalgetreu wie möglich abzubilden. Man unterscheidet die metrische MDS (erhält euklidische Distanzen) und die nicht-metrische MDS (erhält die Rangfolge der Distanzen). Die nicht-metrische MDS minimiert dabei iterativ einen Stress-Wert, der die Abweichung zwischen ursprünglichen und projizierten Distanzen misst.
+
+%pdf("/tmp/drMds.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+X <- as.matrix(iris[-143, 1:4])
+
+d <- dist(X)                  # Euklidische Distanzmatrix
+mds <- cmdscale(d, k = 2)
+plot(mds, col=iris$Species[-143], pch=19, main="MDS")
+
+library(MASS)
+mdsI <- isoMDS(d, k = 2)
+mdsI$points
+\end{lstlisting}
+%dev.off()
+
+\subsubsection{Independent Component Analysis (ICA)}
+
+Die \emph{Independent Component Analysis (ICA)} sucht nach Komponenten, die statistisch so unabhängig wie möglich sind. ICA-Komponenten sind weder nach Varianz geordnet noch eindeutig skaliert oder vorzeichenstabil.
+
+%pdf("/tmp/drIca.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+X <- as.matrix(iris[, 1:4])
+
+library(fastICA)
+ica <- fastICA(X, n.comp = 2)
+X %*% ica$K %*% ica$W # Projektion der Testdaten
+plot(ica$S, col=iris$Species, pch=19, main="ICA")
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.49\columnwidth]{./pic/drPca}
+  \includegraphics[width=.49\columnwidth]{./pic/drKpca}\\
+  \includegraphics[width=.49\columnwidth]{./pic/drMds}
+  \includegraphics[width=.49\columnwidth]{./pic/drIca}
+\end{figure}
+
+
+\subsection{Kanonische Korrelationsanalyse (CCA)}
+
+Die Kanonische Korrelationsanalyse (CCA) ist ein multivariates Verfahren zur Untersuchung der Zusammenhänge zwischen zwei Sätzen von Variablen. Während die einfache Korrelation die Beziehung zwischen zwei Einzelvariablen misst, identifiziert die CCA Linearkombinationen (kanonische Variablen) für jeden Datensatz, sodass die Korrelation zwischen diesen Kombinationen maximiert wird.
+
+Dies ist besonders nützlich, um latente Strukturen zu finden, die beide Datensätze verbinden. Die Umsetzung erfolgt in R standardmäßig mit der Funktion \lstinline|cancor()|.
+
+%pdf("/tmp/cca.pdf", 6, 4)
+%par(mfrow = c(1, 2), mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+X <- as.matrix(iris[, 1:2])  # Datensatz 1: Sepal
+Y <- as.matrix(iris[, 3:4])  # Datensatz 2: Petal
+z <- iris[, 5]               # Spezies zur Gruppierung
+
+round(cor(cbind(X, Y)), 2)
+#              Sepal.Length Sepal.Width Petal.Length Petal.Width
+# Sepal.Length         1.00       -0.12         0.87        0.82
+# Sepal.Width         -0.12        1.00        -0.43       -0.37
+# Petal.Length         0.87       -0.43         1.00        0.96
+# Petal.Width          0.82       -0.37         0.96        1.00
+
+cca <- cancor(X, Y)
+cca$cor                      # 0.94 0.12
+
+Xc <- X %*% cca$xcoef        # Projektion der Daten
+Yc <- Y %*% cca$ycoef
+
+round(cor(cbind(Xc, Yc)), 2) # Korrelation der Transformation
+#     [,1] [,2] [,3] [,4]
+# [1,] 1.00 0.00 0.94 0.00
+# [2,] 0.00 1.00 0.00 0.12
+# [3,] 0.94 0.00 1.00 0.00
+# [4,] 0.00 0.12 0.00 1.00
+
+plot(Xc[,1], Yc[,1], col = z, pch = 19, main="CCA Dim1")
+legend("topleft", levels(z), col = 1:3, pch = 19)
+plot(Xc[,2], Yc[,2], col = z, pch = 19, main="CCA Dim2")
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/cca}
+\end{figure}
+
+
+\subsection{Lineare Diskriminanzanalyse (LDA)}
+
+Die Lineare Diskriminanzanalyse (LDA) verfolgt die optimale Trennung von Gruppen (Klassifikation) und die Reduktion der Dimensionen eines Datensatzes unter Beibehaltung der Klassenunterschiede.
+
+Ziel ist es, Linearkombinationen der Merkmale (Diskriminanzfunktionen) zu finden, welche das Verhältnis der Varianz \emph{zwischen} den Gruppen zur Varianz \textit{innerhalb} der Gruppen maximieren.
+
+In R wird die LDA normal über das Paket \lstinline|MASS| mit der Funktion \lstinline|lda()| durchgeführt.
+
+%pdf("/tmp/lda.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .3))
+\begin{lstlisting}
+library(MASS)
+train_data <- iris[c(TRUE,FALSE), ]
+test_data <- iris[c(FALSE,TRUE), ]
+lda_model <- lda(Species ~ ., data = train_data)
+pred <- predict(lda_model, test_data)
+table(Actual = test_data$Species, Predicted = pred$class)
+head(pred$posterior) # Grupenzugehörigkeitswahrscheinlichkeiten
+plot(pred$x[,1:2], main = "LDA", col = pred$class,
+  pch = as.integer(train_data$Species))
+legend(.7, par("usr")[4], legend = levels(pred$class),
+  fill = 1:3, title = "Prediction (Farbe)", cex=.8)
+legend("bottom", legend = levels(iris$Species), pch = 1:3,
+  title = "Observation (Symbol)", cex=.8)
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/lda}
+\end{figure}
+
+
+\subsection{Clusteranalyse}
+
+Ziel ist es, Beobachtungen so in Gruppen (Cluster) zu unterteilen, dass die Objekte innerhalb eines Clusters eine hohe Homogenität aufweisen, während die Cluster untereinander eine hohe Heterogenität zeigen.
+
+Bevor ein Algorithmus angewendet wird, können die Daten skaliert werden. Da Distanzmaße sensitiv auf die Größenordnung der Variablen reagieren, stellt die Skalierung sicher, dass jedes Merkmal das gleiche Gewicht erhält. Umgekehrt kann z.\,B.\ durch unterschiedliche Multiplikatoren einzelnen Merkmalen ein höheres Gewicht als anderen eingeräumt werden.
+
+Cluster können mit verschiedenen Methoden gebildet werden. Bei manchen muss die Anzahl der Cluster im Vorhinein angegeben werden.
+
+Bei der Clusterbildung muss zunächst die Art der Entfernungsbestimmung gewählt werden wie z.\,B.:
+\begin{description}
+\item[City Block, Manhattan:] Summe der absoluten Differenzen der Koordinaten (Weg in einem rechtwinkligen Gitternetz).
+\item[Euclid:] Die klassische Luftlinie; berechnet als Quadratwurzel der summierten quadrierten Differenzen.
+\item[Maximum:] Die größte absolute Differenz in einer einzelnen Dimension (auch Chebyshev-Distanz genannt).
+\item[Minkowski:] Die verallgemeinerte Metrik, die Manhattan ($p=1$) und Euklid ($p=2$) als Spezialfälle vereint.
+\end{description}
+
+Oft wird zwischen folgenden Clusterverfahren unterschieden:
+
+\begin{description}
+\item[Partitionierende Verfahren:] Diese teilen die Daten direkt in eine festgelegte Anzahl von Clustern auf. Eine Erweiterung ist \emph{Fuzzy C-Means}, bei dem Objekte nicht hart einem Cluster zugeordnet werden, sondern eine Zugehörigkeitswahrscheinlichkeit für mehrere Cluster besitzen.
+\item[Hierarchische Verfahren:] Diese erstellen eine schrittweise Ordnung (Dendrogramm). Man unterscheidet:
+  \begin{description}
+  \item[Agglomerativ (Bottom-Up):] Jedes Objekt startet als eigener Cluster und wird schrittweise mit dem ähnlichsten Partner verschmolzen.
+  \item[Divisiv (Top-Down):] Alle Objekte starten in einem Cluster, der sukzessive aufgeteilt wird.
+  \end{description}
+\item[Dichtebasierte Verfahren (DBSCAN):] Diese suchen nach Regionen mit einer hohen Dichte an Datenpunkten. Ein Vorteil ist, dass die Clusteranzahl nicht vorgegeben werden muss und Ausreißer automatisch erkannt werden.
+\end{description}
+
+Algorithmen zur Bestimmung der Distanz zwischen zwei Clustern:
+
+\begin{description}
+\item[Single Linkage:] Distanz der zwei nächsten Nachbarn. Neigt zu Kettenbildung.
+\item[Complete Linkage:] Distanz der zwei am weitesten entfernten Punkte. Erzeugt kompakte Cluster.
+\item[Average Linkage:] Mittelwert aller paarweisen Distanzen zwischen zwei Clustern.
+\item[Centroid / Median:] Distanz der Cluster-Schwerpunkte bzw. Mediane.
+\item[McQuitty:] Berechnet die Distanz als einfachen Durchschnitt der Distanzen der Vorgänger (ignoriert Clustergrößen bei der Gewichtung).
+\item[Ward:] Minimiert die Zunahme der Varianz innerhalb der Cluster. In R wird zwischen \lstinline|ward.D| (ursprüngliche, teils unpräzise Implementierung) und \lstinline|ward.D2| (mathematisch korrekte Umsetzung nach Ward) unterschieden.
+\end{description}
+
+Zur Beurteilung der Güte einer Clusterlösung kann die \emph{Silhouetten-Analyse} herangezogen werden. Sie kombiniert die Konzepte der Kompaktheit (Distanz innerhalb eines Clusters) und der Trennung (Distanz zum nächstgelegenen Nachbarcluster).
+
+Für jedes Objekt wird ein Silhouettenkoeffizient $s(i)$ im Intervall $[-1, 1]$ berechnet:
+\begin{itemize}
+\item \textbf{Werte nahe $1$:} Das Objekt ist seinem eigenen Cluster sehr ähnlich und von anderen Clustern klar getrennt (ideale Zuordnung).
+\item \textbf{Werte um $0$:} Das Objekt liegt im Grenzbereich zwischen zwei Clustern.
+\item \textbf{Negative Werte:} Das Objekt wurde vermutlich einem falschen Cluster zugeordnet, da es einem benachbarten Cluster ähnlicher ist.
+\end{itemize}
+
+Die durchschnittliche Silhouettenbreite über alle Objekte dient als Maß für die globale Güte der Partitionierung. Sie wird häufig verwendet, um die optimale Clusteranzahl $k$ zu bestimmen, indem das $k$ mit dem höchsten Durchschnittswert gewählt wird.
+
+%pdf("/tmp/cluster.pdf", 6, 12)
+\begin{lstlisting}
+M <- iris[, c("Sepal.Width", "Petal.Width")]
+MS <- scale(M)  # Mittelwert 0, Standardabweichung 1
+mu    <- attr(MS, "scaled:center")
+sigma <- attr(MS, "scaled:scale")
+scale(MS, center = -mu/sigma, scale = 1/sigma) # Rückskalieren
+d <- dist(MS) # Distanzmatrix
+
+library(NbClust)
+NbClust(MS, method = "kmeans")  # Wie viele Cluster
+
+library(cluster)
+library(dbscan)
+library(e1071)
+library(fossil)
+
+# Partitionierend
+rKmeans   <- kmeans(MS, centers = 3, nstart = 25)
+rKmedoids <- pam(MS, k = 3)
+
+# Hierarchisch
+rH_Single <- hclust(d, method = "single")
+rH_Ward   <- hclust(d, method = "ward.D2")
+
+# Dichtebasiert
+rDbscan <- dbscan(MS, eps = 0.4, minPts = 5)
+
+# Fuzzy
+rFuzzy <- cmeans(MS, centers = 3, m = 2)
+
+par(mfrow=c(4,2), mar=c(3,3,2,1))
+plot(MS, col=rKmeans$cluster, main="K-Means", pch=19)
+points(rKmeans$centers, col=1:3, pch=3, cex=2, lwd=2)
+plot(MS, col=rKmedoids$clustering,main="K-Medoids (PAM)",pch=19)
+plot(MS, col=cutree(rH_Single, k=3),
+      main="H-Clust Single Linkage", pch=19)
+plot(MS,col=cutree(rH_Ward,k=3), main="H-Clust Ward.D2", pch=19)
+plot(MS, col=rDbscan$cluster + 1, main="DBSCAN", pch=19)
+plot(MS, col=rFuzzy$cluster, main="Fuzzy C-Means", pch=19)
+plot(MS, col = iris$Species, main = "Beobachtung", pch = 19)
+plot(silhouette(rKmeans$cluster, d), main="")
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/cluster}
+\end{figure}
+
+
+\subsection{Regression}
+
+\subsubsection{Lineare Regression}
+
+Die lineare Regression ist eines der zentralen Werkzeuge der statistischen Modellierung.
+
+\paragraph{Lineare Algebra}
+
+Eine lineare Regression kann als System linearer Gleichungen ausgedrückt werden. Das Ziel ist die Schätzung der Koeffizienten $\beta$ im Modell $y = X\beta + \epsilon$ mittels der Methode der kleinsten Quadrate (Ordinary Least Squares, OLS), was nach dem Gauß-Markov-Theorem den besten linearen unverzerrten Schätzer (BLUE) liefert und aufgrund der Differenzierbarkeit der quadrierten Residuen eine analytisch eindeutige Lösung ermöglicht. In R kann dies mit \lstinline|qr.solve()| gemacht werden.
+
+\begin{lstlisting}
+# Matrix mit Intercept (1er-Spalte) und x-Werten
+X <- matrix(c(rep(1, 5), 1, 2, 3, 4, 5), ncol = 2)
+y <- c(2, 4, 7, 10, 9)
+
+qr.solve(X, y)     # 0.4 2.0; Intercept und Slope
+
+X2 <- cbind(X, X[,2]^2) # Quadratisch
+qr.solve(X2, y)    # -2.6 4.57 -0.428; -2.6 + 4.57*x - 0.428*x^2
+\end{lstlisting}
+
+\paragraph{Statistische Modellierung mit lm()}
+
+Die Funktion \lstinline|lm()| (linear model) liefert neben den geschätzten Koeffizienten umfangreiche Kennzahlen wie Standardfehler, $t$-Werte und das Bestimmtheitsmaß $R^2$. Da OLS-Schätzungen aufgrund der Quadrierung der Residuen empfindlich gegenüber Ausreißern oder Beobachtungen mit hoher Hebelwirkung (Leverage) sind, sollten diese mittels grafischer Diagnosemethoden wie \lstinline|plot(model)| sowie diagnostischer Maße wie der Cook-Distanz (\lstinline|cooks.distance(model)|) identifiziert werden.
+
+Darüber hinaus lassen sich formale Tests einfach anschließen. So kann etwa auf Heteroskedastizität (Varianzheterogenität der Fehlerterme) mittels des Breusch-Pagan-Tests (\lstinline|bptest|) geprüft werden. Die Normalverteilung der Residuen (z.\,B.\ mittels des Shapiro-Wilk-Tests) ist insbesondere für die Gültigkeit der $t$- und $F$-Tests in kleinen Stichproben relevant. Bei Zeitreihendaten sollte zudem auf mögliche Autokorrelation der Residuen, etwa mit dem Durbin-Watson-Test (\lstinline|dwtest|), geprüft werden.
+
+Liegt Heteroskedastizität vor, bleiben die OLS-Koeffizientenschätzer zwar unverzerrt, jedoch sind die Standardfehler und damit die zugehörigen $t$- und $F$-Tests nicht mehr zuverlässig. In diesem Fall können heteroskedastizitätsrobuste Standardfehler verwendet werden, etwa mittels der Funktionen \lstinline|vcovHC| aus dem Paket \lstinline|sandwich| in Kombination mit \lstinline|coeftest| aus \lstinline|lmtest|.
+
+\begin{lstlisting}
+X <- 1:5
+y <- c(2, 4, 7, 10, 9)
+model <- lm(y ~ X)
+
+summary(model)
+# Call:
+# lm(formula = y ~ X)
+#
+# Residuals:
+#    1    2    3    4    5 
+# -0.4 -0.4  0.6  1.6 -1.4 
+#
+# Coefficients:
+#             Estimate Std. Error t value Pr(>|t|)  
+# (Intercept)   0.4000     1.3808   0.290   0.7909  
+# X             2.0000     0.4163   4.804   0.0172 *
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#
+# Residual standard error: 1.317 on 3 degrees of freedom
+# Multiple R-squared:  0.885,     Adjusted R-squared:  0.8466 
+# F-statistic: 23.08 on 1 and 3 DF,  p-value: 0.01717
+
+anova(model)
+# Analysis of Variance Table
+#
+# Response: y
+#           Df Sum Sq Mean Sq F value  Pr(>F)  
+# X          1   40.0  40.000  23.077 0.01717 *
+# Residuals  3    5.2   1.733                  
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+plot(model)
+
+cooks.distance(model)
+influence.measures(model)
+
+shapiro.test(residuals(model)) # Test auf Normalverteilung
+library(lmtest)
+bptest(model)                 # Test auf Heteroskedastizität
+dwtest(model)                 # Test auf Autokorrelation
+
+library(sandwich)
+coeftest(model, vcov = vcovHC(model, type = "HC1"))
+\end{lstlisting}
+
+Über das klassische lineare Modell hinaus bietet R Erweiterungen für spezifische Datenkonstellationen: Die \emph{robuste Regression} (z.\,B.\ mittels \lstinline|rlm| aus dem Paket \lstinline|MASS|) reduziert den Einfluss von Ausreißern, indem sie große Residuen weniger stark gewichtet als OLS. Bei hochkorrelierten Prädiktoren (Multikollinearität) stabilisiert die \emph{Ridge-Regression} (\lstinline|glmnet|) die Schätzung durch Regularisierung der Koeffizienten. Besteht lediglich die Annahme eines monotonen Zusammenhangs ohne feste Funktionsform, kann die \emph{isotonische Regression} (\lstinline|isoreg|) eingesetzt werden.
+
+\begin{lstlisting}
+X <- 1:5
+y <- c(2, 5, 4, 10, 50)
+
+library(MASS)
+model <- rlm(y ~ X)
+
+library(glmnet)
+model <- cv.glmnet(cbind(x1 = X, x2 = X^2), y, alpha = 0) 
+coef(model, s = "lambda.min")
+
+model <- isoreg(X, y)
+model$yf          # 2.0 4.5 4.5 10.0 50.0
+\end{lstlisting}
+
+\paragraph{Die R-Formelsprache in der Praxis}
+
+Ein zentrales Merkmal von R ist die \emph{Formula}-Syntax (siehe \ref{ssec:formula}), die eine kompakte Beschreibung komplexer Modelle ermöglicht. Für die Regression ist sie deshalb so entscheidend, da sie die automatische Transformation von Datenframes in die mathematisch benötigte Designmatrix $X$ übernimmt. Dabei werden kategoriale Variablen (Faktoren) automatisch in Dummy-Variablen übersetzt und Interaktionseffekte ohne manuellen Rechenaufwand generiert.
+
+\begin{lstlisting}
+modelMatrix <- model.matrix(y ~ x1 * x2, data = my_data)
+
+# Beispiel fuer eine quadratische Erweiterung
+model <- lm(y ~ x + I(x^2), data = my_data)
+\end{lstlisting}
+
+Durch die Verwendung von \lstinline|update()| lassen sich bestehende Regressionsmodelle zudem effizient modifizieren, um beispielsweise schrittweise Variablen hinzuzufügen oder zu entfernen, ohne das gesamte Modell neu definieren zu müssen.
+
+Für die systematische Modellentwicklung bietet R die Funktionen \lstinline|add1()| und \lstinline|drop1()|. Diese berechnen für alle potenziellen Erweiterungen oder Reduktionen des aktuellen Modells relevante Gütemaße wie den AIC (Akaike Information Criterion) oder $p$-Werte auf Basis von $F$-Tests. Im Gegensatz zu \lstinline|summary()| wird hierbei der Beitrag jedes einzelnen Terms zum Gesamtmodell isoliert bewertet.
+
+Die Funktion \lstinline|step()| automatisiert diesen Prozess der Modellwahl (Stepwise Regression), indem sie basierend auf dem AIC iterativ Variablen hinzufügt oder entfernt. Um zu prüfen, ob die durch \lstinline|add1()| oder \lstinline|drop1()| motivierte Änderung tatsächlich eine signifikante Verbesserung der Modellgüte bewirkt, wird üblicherweise ein Varianzanalyse-Vergleich (\lstinline|anova()|) zwischen dem ursprünglichen und dem modifizierten Modell durchgeführt.
+
+Trotz ihrer Effizienz sollte die automatisierte Modellwahl mittels \lstinline|step()| mit Vorsicht angewendet werden, da das Verfahren rein datengetrieben optimiert. Eine theoretisch fundierte Variablenauswahl ist der rein algorithmischen meist vorzuziehen.
+
+\begin{lstlisting}
+model <- lm(mpg ~ wt + hp, data = mtcars)
+
+drop1(model, test = "F")
+add1(model, scope = ~ . + disp + cyl, test = "F")
+modelAdd <- update(model, . ~ . + cyl)
+anova(model, modelAdd)
+
+modelStep <- step(model, scope = ~ . + disp + cyl + drat + qsec,
+     direction = "both")
+summary(modelStep)
+\end{lstlisting}
+
+\paragraph{Automatisierung und dynamische Modelle}
+
+In der Praxis müssen oft mehrere Modelle über verschiedene Variablen hinweg berechnet werden. Da R Formeln als eigenständige Objekte behandelt, können diese dynamisch aus Strings generiert oder innerhalb von Schleifen (\lstinline|lapply|) angewendet werden. Diese Flexibilität macht R besonders leistungsfähig für automatisierte Analysen oder Simulationen, bei denen eine große Anzahl an Modellspezifikationen effizient verarbeitet werden muss.
+
+\begin{lstlisting}
+df <- data.frame(y = 1:10, x1 = 1:10, x2 = rnorm(10))
+
+modelle <- lapply(c("x1", "x2"), \(xName) {
+  formel <- as.formula(paste("y ~", xName))
+  lm(formel, data = df)
+})
+lapply(modelle, coef)
+\end{lstlisting}
+
+
+\subsubsection{Regularisierte Regression: Lasso, Ridge und Elastic Net}
+
+In Modellen mit vielen Prädiktoren führt die klassische Kleinst-Quadrate-Schätzung (OLS) oft zu \emph{Overfitting} (Überanpassung). Die Lasso-Regression (\textit{Least Absolute Shrinkage and Selection Operator}) wirkt dem entgegen, indem sie eine Strafe (\emph{Penalty}) auf die absolute Größe der Koeffizienten erhebt ($L_1$-Norm).
+
+\paragraph{Eigenschaften und Voraussetzungen}
+\begin{description}
+\item[Variablenauswahl:] Lasso kann Koeffizienten exakt auf Null setzen. Unwichtige Variablen werden somit automatisch aus dem Modell entfernt.
+\item[Skalierung:] Da die Strafe direkt von der Größe der Koeffizienten abhängt, müssen die Prädiktoren vergleichbar sein. \lstinline|glmnet| standardisiert die Daten intern automatisch (\lstinline|standardize = TRUE|), damit Variablen mit großen Einheiten nicht bevorzugt behandelt werden.
+\item[Alpha-Steuerung:]
+  \begin{itemize}
+  \item \lstinline|alpha = 1|: \emph{Lasso} ($L_1$).
+  \item \lstinline|alpha = 0|: \emph{Ridge} ($L_2$ - schrumpft nur, eliminiert nicht).
+  \item \lstinline|0 < alpha < 1|: \emph{Elastic Net} (Kombination).
+  \end{itemize}
+\end{description}
+
+\paragraph{Vergleich: Lasso, Ridge und Elastic Net}
+
+Der Hauptunterschied liegt in der Art der Bestrafung (\emph{Penalty}), die auf die Regressionskoeffizienten $\beta$ angewendet wird. Dies wird in \lstinline|glmnet| über den Parameter \lstinline|alpha| gesteuert.
+
+\begin{description}
+\item[Ridge Regression ($\alpha = 0$):] Verwendet die \emph{$L_2$-Norm} ($\sum \beta^2$). Die Koeffizienten werden gegen Null geschrumpft, erreichen diese aber nie exakt. Ridge ist ideal, wenn viele Variablen korrelieren (Multikollinearität), da es die Effekte auf alle Variablen verteilt, statt eine auszuwählen.
+\item[Lasso Regression ($\alpha = 1$):] Verwendet die \emph{$L_1$-Norm} ($\sum |\beta|$). Diese Strafe hat eine spitze Form am Nullpunkt, was dazu führt, dass Koeffizienten \emph{exakt Null} werden können. Lasso führt somit eine automatische \emph{Variablenauswahl} (Feature Selection) durch.
+\item[Elastic Net ($0 < \alpha < 1$):] Ist eine \emph{Kombination} aus $L_1$- und $L_2$-Strafe. Es kombiniert die Vorteile: Wie Lasso kann es Variablen eliminieren, verhält sich aber bei stark korrelierten Variablen stabiler wie Ridge (Gruppierungseffekt).
+\end{description}
+
+\paragraph{Optimierung des Hyperparameters $\lambda$}
+Der Grad der Bestrafung wird durch $\lambda$ (Lambda) gesteuert. In R nutzt man die Kreuzvalidierung (\lstinline|cv.glmnet|), um zwei kritische Werte zu finden:
+\begin{description}
+\item[\texttt{lambda.min}:] Der Wert, der den mittleren Vorhersagefehler (MSE) minimiert.
+\item[\texttt{lambda.1se}:] Der größte Lambda-Wert, dessen Fehler noch innerhalb einer Standardabweichung des Minimums liegt. Dies führt zu \emph{sparsameren} Modellen mit weniger Variablen.
+\end{description}
+
+\begin{lstlisting}
+library(glmnet)
+library(glmnetUtils) # Für Formula-Interface
+
+cv_lasso <- cv.glmnet(Sepal.Length ~ ., data = iris, 
+            family = "gaussian", alpha = 1, nfolds = 10)
+plot(cv_lasso)
+coef(cv_lasso, s = "lambda.1se")
+preds <- predict(cv_lasso, newdata = iris, s = "lambda.min")
+
+# Koeffizienten-Pfade visualisieren
+full_model <- glmnet(Sepal.Length ~ ., data = iris, alpha = 1)
+plot(full_model, xvar = "lambda", label = TRUE)
+\end{lstlisting}
+
+Im Plot der Koeffizienten-Pfade (\lstinline|xvar = "lambda"|) repräsentiert jede Linie einen Prädiktor. Je weiter man sich auf der x-Achse nach links bewegt (höheres $\lambda$), desto stärker wird die Bestrafung. Man erkennt visuell sehr gut die \emph{Selektionseigenschaft}: Variablen, deren Linien zuerst die Null-Linie erreichen, tragen am wenigsten zur Erklärung der Zielvariable bei.
+
+
+\subsubsection{Kategoriale Variablen und Designmatrizen}
+
+In der Regressionsanalyse müssen kategoriale Prädiktoren (Faktoren oder Strings) mathematisch greifbar gemacht werden. R übernimmt dies automatisch durch die Erstellung einer \emph{Designmatrix} mittels Dummy-Codierung. Dabei wird eine Kategorie als Referenz gewählt, gegen die alle anderen verglichen werden.
+
+\paragraph{Einfacher Gruppenvergleich}
+Wird nur ein kategorialer Faktor verwendet, entspricht dies einer Varianzanalyse (ANOVA). R bietet zwei Darstellungsformen:
+\begin{itemize}
+\item \lstinline|y ~ c|: Das Modell schätzt einen \emph{Intercept} (Mittelwert der Referenzgruppe) und die \emph{Differenzen} der anderen Gruppen dazu.
+\item \lstinline|y ~ 0 + c|: Das Modell schätzt den absoluten Mittelwert für \emph{jede} Gruppe separat.
+\end{itemize}
+
+\paragraph{Modelle mit Kovariaten (ANCOVA)}
+Kombiniert man eine metrische Variable ($X$) mit einem Faktor ($c$), entscheiden die Operatoren über die Flexibilität des Modells:
+\begin{description}
+\item[Additives Modell:] (\lstinline|y ~ c + X|): Geht davon aus, dass $X$ in allen Gruppen den gleichen Effekt hat (parallele Geraden). Nur der Achsenabschnitt unterscheidet sich.
+\item[Interaktionsmodell:] (\lstinline|y ~ c * X|): Erlaubt jeder Gruppe eine eigene Steigung und einen eigenen Intercept. Dies ist oft realistischer, da die Wirkung von $X$ je nach Gruppe variieren kann.
+\end{description}
+
+\paragraph{Spezielle Interaktionsformen}
+Neben dem Standard-Modell gibt es Fälle, in denen man die Struktur der Designmatrix gezielt verändert, um die Koeffizienten direkter interpretierbar zu machen:
+\begin{description}
+\item[Separate Steigungen ohne Intercept:] (\lstinline|y ~ 0 + c:X|):
+Dies unterdrückt den globalen Achsenabschnitt und schätzt für jede Gruppe eine eigene Steigung, die durch den Ursprung (0,0) geht. Sinnvoll, wenn theoretisch bei $X=0$ auch $y=0$ gelten muss.
+\item[Gemeinsamer Intercept, separate Steigungen:] (\lstinline|y ~ c:X|):
+Alle Gruppen starten beim selben Achsenabschnitt (gemeinsamer Intercept), erhalten aber jeweils eine eigene Steigungskonstante. Dies ist nützlich, wenn alle Gruppen den gleichen Ausgangspunkt haben, sich aber unterschiedlich schnell entwickeln.
+\item[Explizite Gruppen-Steigungen:] (\lstinline|y ~ c + c:X|):
+Dies ist mathematisch identisch mit \lstinline|y ~ c * X|, aber die Ausgabe in R ändert sich. Während \lstinline|c * X| eine Differenz-Steigung anzeigt, listet \lstinline|c + c:X| die Steigungen der einzelnen Gruppen direkt auf.
+\end{description}
+
+\begin{lstlisting}
+data <- data.frame(X = c(1,2,3,4,5), 
+                   c = factor(c("a","a","b","b","b")),
+                   y = c(2,4,7,10,13))
+
+# Intercept (Referenzgruppe a) und Differenz dazu
+ols <- lm(y ~ c, data = data)
+# (Intercept)    3 (Mittelwert Gruppe a)
+# cb             7 (Differenz b zu a)
+
+data$cr <- relevel(data$c, ref = "b") #  Referenzgruppe ändern
+ols <- lm(y ~ cr, data = data)
+# (Intercept)    10 (Mittelwert Gruppe b)
+# cra            -7 (Differenz a zu b)
+
+# Intercept je Gruppe (ohne globalen Intercept)
+ols <- lm(y ~ 0 + c, data = data)
+# ca    3
+# cb   10
+
+# Gemeinsame Steigung, unterschiedliche Intercepts
+ols <- lm(y ~ c + X, data = data)
+# (Intercept)  -1.2
+# cb            0.0
+# X             2.8
+
+# Interaktion: Intercept und Steigung je Gruppe
+ols <- lm(y ~ c * X, data = data)
+# (Intercept)   0.0
+# cb           -2.0
+# X             2.0
+# cb:X          1.0
+
+# Nur Steigung je Gruppe (kein Intercept)
+ols <- lm(y ~ 0 + c:X, data = data)
+# ca:X          2.00
+# cb:X          2.52
+
+# Gemeinsames Intercept, Steigung je Gruppe
+ols <- lm(y ~ c:X, data = data)
+# (Intercept)  -0.75
+# ca:X          2.45
+# cb:X          2.70
+
+# Intercept-Differenz und Steigung je Gruppe
+ols <- lm(y ~ c + c:X, data = data)
+# (Intercept)   0.0
+# cb           -2.0
+# ca:X          2.0
+# cb:X          3.0
+
+# Intercept und Steigung je Gruppe
+ols <- lm(y ~ 0 + c + c:X, data = data)
+# ca            0.0
+# cb           -2.0
+# ca:X          2.0
+# cb:X          3.0
+\end{lstlisting}
+
+
+\subsubsection{Kontraste und die Designmatrix}
+
+Die Art und Weise, wie kategoriale Variablen in Zahlen übersetzt werden, wird in R über \lstinline|options(contrasts)| gesteuert. Die Wahl der Kodierung ändert nicht die Vorhersage des Modells, wohl aber die Interpretation der Koeffizienten in der \lstinline|summary()|.
+
+\paragraph{Häufige Kontrast-Typen}
+\begin{description}
+\item[Treatment-Codierung:] (\lstinline|contr.treatment|) Der Standard in R. Eine Gruppe (Referenz) wird als Intercept gesetzt; alle anderen Koeffizienten zeigen die \emph{Differenz} zu dieser Referenz.
+\item[Effekt-Codierung:] (\lstinline|contr.sum|) Der Intercept entspricht dem \emph{Gesamtmittelwert} (Grand Mean). Die Koeffizienten geben die Abweichung der Gruppen vom Gesamtschnitt an.
+\end{description}
+
+\paragraph{Die Designmatrix (Dummy-Codierung)}
+Die Designmatrix $X$ ist das Herzstück der Regression. In ihr wird jede Zeile der Originaldaten in einen Vektor aus Zahlen umgewandelt. Angenommen, wir haben eine Variable $c$ mit den Gruppen $\{a, b, c\}$.
+
+\subparagraph{Standard-Dummy-Codierung (Referenz $a$):}
+Bei \lstinline|~ c| sieht die Matrix für drei Beobachtungen (eine pro Gruppe) so aus:
+\begin{equation*}
+X_{Ref} = \begin{pmatrix}
+1 & 0 & 0 \\
+1 & 1 & 0 \\
+1 & 0 & 1 
+\end{pmatrix}
+\begin{array}{l}
+\leftarrow \text{Gruppe } a \text{ (Referenz)} \\
+\leftarrow \text{Gruppe } b \\
+\leftarrow \text{Gruppe } c
+\end{array}
+\end{equation*}
+Die erste Spalte (Intercept) ist immer 1. Die weiteren Spalten zeigen die \emph{Zugehörigkeit} zu den Nicht-Referenzgruppen.
+
+\subparagraph{Modell ohne globalen Intercept:}
+Bei \lstinline|~ 0 + c| (oder \lstinline|~ -1 + c|) entfällt die Intercept-Spalte. Stattdessen erhält jede Gruppe eine eigene Indikatorspalte:
+\begin{equation*}
+X_{0} = \begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 
+\end{pmatrix}
+\begin{array}{l}
+\leftarrow \text{Gruppe } a \\
+\leftarrow \text{Gruppe } b \\
+\leftarrow \text{Gruppe } c
+\end{array}
+\end{equation*}
+Dies führt dazu, dass die Koeffizienten direkt die Gruppenmittelwerte darstellen.
+
+\subparagraph{Effekt-Codierung (\texttt{contr.sum}):}
+Hier wird gegen den Gesamtmittelwert verglichen. Die letzte Gruppe ($c$) hat keine eigene Spalte, sondern wird durch $-1$ in den anderen Spalten kodiert:
+\begin{equation*}
+X_{Sum} = \begin{pmatrix}
+1 & 1 & 0 \\
+1 & 0 & 1 \\
+1 & -1 & -1 
+\end{pmatrix}
+\begin{array}{l}
+\leftarrow \text{Gruppe } a \\
+\leftarrow \text{Gruppe } b \\
+\leftarrow \text{Gruppe } c \text{ (als -1 kodiert)}
+\end{array}
+\end{equation*}
+Der Intercept steht hier für den \textit{Grand Mean}. Die Koeffizienten für $a$ und $b$ zeigen deren Abweichung davon. Der Effekt für $c$ ist dann die negative Summe der anderen Effekte.
+
+\begin{lstlisting}
+data <- data.frame(c = factor(c("a","a","b","b","c")),
+                   y = c(2,4,7,10,13))
+
+model.matrix(~ c, data = data)
+model.matrix(~ 0 + c, data = data)
+
+options(contrasts = c("contr.sum", "contr.poly"))
+model.matrix(~ c, data = data)
+
+# Kontraste nur fur ein spezifisches Modell ändern
+lm(y ~ c, data = data, contrasts = list(c = "contr.sum"))
+\end{lstlisting}
+
+
+\subsubsection{Verallgemeinerte Lineare Modelle (GLM)}
+
+Während die klassische OLS-Regression konstante Varianz der Fehlerterme (Homoskedastizität) und normalverteilte Residuen voraussetzt, erweitern \emph{Verallgemeinerte Lineare Modelle (GLM)} diesen Rahmen. GLMs ermöglichen die Modellierung von abhängigen Variablen, deren Verteilung oder Wertebereich nicht zu OLS passt, z.\,B. binäre Daten oder Zähldaten.
+
+Ein GLM besteht aus drei Hauptkomponenten:
+
+\begin{description}
+\item[Zufallskomponente:] Die Verteilungsfamilie, aus der die abhängige Variable $Y$ modelliert wird.  
+Bei OLS entspricht dies normalverteilten Residuen; bei speziellen Datenarten z.\,B. \emph{Binomial} für Ja/Nein-Daten oder \emph{Poisson} für Zähldaten.
+\item[Systematische Komponente:] Der lineare Prädiktor\\
+\centerline{$ \eta = \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p, $} \\
+der die Prädiktoren in linearer Form kombiniert und den Erwartungswert der abhängigen Variable steuert.
+\item[Link-Funktion:] Eine Funktion $g(\cdot)$, die den Erwartungswert der abhängigen Variable $\mu = E[Y]$ mit dem linearen Prädiktor verbindet: $g(\mu) = \eta$. Sie stellt sicher, dass der Wertebereich von $Y$ eingehalten wird (z.\,B. nur positive Werte bei Zähldaten).
+\end{description}
+
+In R wird die Funktion \lstinline|glm()| mit Angabe der \lstinline|family| (inklusive Link-Funktion) verwendet. Die Syntax ähnelt \lstinline|lm()|, jedoch basieren die Schätzungen auf der \emph{Maximum-Likelihood-Methode}.
+
+\begin{lstlisting}
+data <- data.frame(X = 1:5, y = c(2, 4, 7, 10, 9))
+gauss <- glm(y ~ X, data, family = gaussian(link = "identity"))
+
+summary(gauss)      # Koeffizienten, Std. Fehler, t-Werte
+AIC(gauss)          # Modellgüte
+BIC(gauss)
+predict(gauss, type = "response")
+\end{lstlisting}
+
+\paragraph{GLM-Familien für spezielle Daten}
+
+Häufige Anwendungen für GLMs sind die logistische Regression für binäre Daten und die Poisson-Regression für Zähldaten.
+
+Ein Problem kann die Overdispersion (Varianz > Mittelwert) sein:
+\begin{itemize}
+\item \lstinline|quasipoisson| schätzt einen Dispersionsparameter, um Standardfehler zu korrigieren  
+\item \lstinline|glm.nb()| (Negativbinomial, Paket \lstinline|MASS|) bei starker Überdispersion  
+\end{itemize}
+
+GLMs bieten verschiedene Residuenarten: \lstinline|"deviance"| (Standard) oder \lstinline|"pearson"|.  
+Grafische Diagnose kann über \lstinline|plot(model)| erfolgen, ähnlich wie bei OLS.
+
+\begin{description}
+\item[Binomial / Logistische Regression:] Für Ja/Nein-Daten, Standard-Link: \lstinline|"logit"|
+  \begin{lstlisting}
+data_bin <- data.frame(X = c(1,2,2,3), y = c(0,0,1,1))
+logit_mod <- glm(y ~ X, data = data_bin, family = binomial)
+predict(logit_mod, type = "response")# Wahrscheinlichkeiten
+plot(logit_mod)
+  \end{lstlisting}
+
+\item[Poisson-Regression:] Für Zähldaten, Standard-Link: \lstinline|"log"|
+  \begin{lstlisting}
+data_pois <- data.frame(X = 1:4, y = c(2,6,4,50))
+pois_mod <- glm(y ~ X, data = data_pois, family = poisson)
+residuals(pois_mod, type = "deviance")  # Deviance-Residuals
+residuals(pois_mod, type = "pearson")   # Pearson-Residuals
+
+modNull <- glm(y ~ 1, data = data_pois, family = poisson)
+anova(modNull, pois_mod,test="Chisq")# Likelihood-Ratio-Test
+
+summary(pois_mod)$deviance / summary(pois_mod)$df.residual
+
+pois_quasi <- glm(y ~ X,data_pois, family = quasipoisson)
+summary(pois_quasi)$coefficients[, "Std. Error"]
+
+library(MASS)
+modNb <- glm.nb(y ~ X, data = data_pois)
+summary(modNb)
+  \end{lstlisting}
+
+\item[Gamma / rechtsschiefe stetige Daten:] Standard-Link: \lstinline|"log"|
+  \begin{lstlisting}
+data_pois <- data.frame(X = 1:4, y = c(2,6,4,50))
+gamma_mod <- glm(y ~ X, data_pois,
+                 family = Gamma(link = "log"))
+gauss_log_mod <- glm(y ~ X, data_pois,
+                     family = gaussian(link = "log"))
+gaus_inv <- glm(y ~ X, data_pois,
+                family = inverse.gaussian(link = "log"))
+lin <- lm(log(y) ~ X, data = data_pois) # Linearisiert
+  \end{lstlisting}
+\end{description}
+
+
+\subsubsection{Quantilsregression}
+
+Während die klassische OLS-Regression den \emph{bedingten Mittelwert} der Zielvariable schätzt, erlaubt die Quantilsregression die Analyse beliebiger Punkte der Verteilung (z.\,B. den Median, das 10\%- oder das 90\%-Quantil). In R kann das Paket \lstinline|quantreg| dafür verwendet werden. Die Median-Regression ($\tau = 0.5$) ist deutlich unempfindlicher gegenüber Ausreißern in den Residuen als die Mittelwerts-Regression. Der Parameter \texttt{tau} ($\tau$) gibt das gewünschte Quantil an ($0 < \tau < 1$). Es werden keine Annahmen über die Verteilungsform der Residuen benötigt.
+
+\begin{lstlisting}
+library(quantreg)
+
+m_median <- rq(Sepal.Length ~ Petal.Length, data=iris, tau=0.5)
+summary(m_median)
+
+# 2. Mehrere Quantile gleichzeitig schatzen
+m_multi <- rq(Sepal.Length ~ Petal.Length, data = iris,
+              tau = c(0.1, 0.5, 0.9))
+plot(summary(m_multi))
+\end{lstlisting}
+
+
+\subsubsection{Nichtlineare Regression (NLS)}
+
+Während lineare Modelle (\lstinline|lm|) eine feste Struktur voraussetzen, erlaubt die nichtlineare Regression (\emph{Nonlinear Least Squares}), beliebige mathematische Funktionen direkt zu modellieren. In R kann dafür die Funktion \lstinline|nls()| verwendet werden, um Parameter durch Minimierung der Fehlerquadrate numerisch zu schätzen.
+
+\paragraph{Startwerte}
+Im Gegensatz zu linearen Modellen benötigt \lstinline|nls()| Startwerte (\lstinline|start|). Sind diese zu weit vom Optimum entfernt, bricht der Algorithmus ab (\lstinline|Singular Gradient|). Wege zu guten Startwerten sind:
+\begin{description}
+\item[Linearisierung:] Vorab ein lineares Modell auf transformierte Daten (z.\,B. \lstinline|log(y) ~ X|) schätzen.
+\item[Self-Starting Functions:] R bietet Funktionen wie \lstinline|SSasymp| oder \lstinline|SSlogis|, die Startwerte intern automatisch über die Datenstruktur schätzen.
+\item[Schrittweise Schätzung:] Bei komplexen Modellen mit vielen Parametern kann man zunächst einen Teil der Parameter auf plausiblen Werten \emph{fixieren} (als Konstanten in die Formel schreiben) und nur die restlichen schätzen. Die so gewonnenen Schätzwerte nutzt man im nächsten Schritt als präzise Startwerte für das Vollmodell.
+\end{description}
+Self-Starting Funktionen ihre Startparameter automatisch aus den Daten. Sie werden in der Formel von \lstinline|nls()| wie normale mathematische Ausdrücke verwendet. Eine Liste aller verfügbaren Funktionen erhält man mit \lstinline|objects("package:stats", pattern = "^SS")|.
+
+\paragraph{Algorithmen und Constraints}
+Der Standard-Algorithmus (Gauss-Newton) kann keine Parametergrenzen verarbeiten. Wenn physikalische Grenzen (z.\,B. $p > 0$) erzwungen werden sollen, kann der \lstinline|"port"|-Algorithmus mit \lstinline|lower| und \lstinline|upper| Argumenten verwendet werden.
+
+\paragraph{Kategoriale Daten in NLS}
+In \lstinline|nls()| gibt es kein automatisches Dummy-Coding. Man kann jedoch Parameter-Vektoren definieren, die über den Index des Faktors angesprochen werden. Die kategoriale Variable muss als \lstinline|factor| vorliegen.
+
+\paragraph{Modellgüte}
+Da das klassische Bestimmtheitsmaß $R^2$ für nichtlineare Modelle statistisch nicht definiert ist, nutzt man zur Beurteilung der Anpassungsgüte primär den \emph{Residual Standard Error} (je kleiner, desto besser) und das \emph{Akaike Informationskriterium (AIC)}, um verschiedene Modellformeln miteinander zu vergleichen (\lstinline|AIC(fit1, fit2)|).
+
+\begin{lstlisting}
+d <- data.frame(X = 0:5, y = c(10, 6, 4, 2, 1, 0.5),
+                g = factor(c("a","a","a","b","b","b")))
+
+fit <- nls(y ~ c0 * exp(-X * c1), d,
+           start = list(c0 = 1, c1 = 1), trace = TRUE)
+summary(fit)             # Übersicht
+coef(fit)                # Schätzwerte
+df.residual(fit)         # Freiheitsgrade
+confint(fit, level = 0.95) # Konfidenzintervalle
+residuals(fit)           # Residuen
+predict(fit)             # Modelschaetzwerte
+AIC(fit)
+
+fitPre <- nls(y ~ c0 * exp(-X * c1) + .5, d,
+              start = c(c0 = 1, c1 = 1))
+fit <- nls(y ~ c0 * exp(-X * c1) + c2, d,
+           start = c(coef(fitPre), c2 = .5))
+
+fit <- nls(y ~ c0 * exp(-X * c1), d,
+           start = list(c0=5, c1=1), lower = c(c0=0, c1=0), 
+           algorithm = "port")
+
+fit <- nls(y ~ c0 * exp(-X * c1[g]), d,
+           start = list(c0=10, c1=c(.5, .5)))
+
+# Self-Starting Modell
+nls(y ~ SSasymp(X, Asym, R0, lrc), d)
+\end{lstlisting}
+
+
+\subsubsection{Mixed Models (Gemischte Modelle)}
+
+Gemischte Modelle (Mixed-Effects Models) werden eingesetzt, wenn Daten Gruppierungen oder Hierarchien aufweisen (z.\,B.\ Mehrfachmessungen pro Person, Schüler in Klassen). Im Gegensatz zu Standard-Regressionen berücksichtigen sie, dass Beobachtungen innerhalb einer Gruppe nicht unabhängig voneinander sind.
+Die Modelle differenzieren zwischen:
+
+\begin{description}
+\item[Fixed Effects (feste Effekte):] Die Parameter, die für die gesamte Population von Interesse sind (analog zur klassischen Regression).
+\item[Random Effects (zufällige Effekte):] Diese erfassen die Variabilität zwischen Gruppen (z.\,B.\ individuelle Startwerte oder Reaktionsgeschwindigkeiten), indem sie als Abweichungen von den festen Effekten modelliert werden.
+\end{description}
+
+In R kann das Paket \lstinline|lme4| für diese Analysen verwendet werden. Das Paket \lstinline|lme4| liefert standardmäßig keine p-Werte für feste Effekte. Für inferenzstatistische Tests kann z.\,B. das Paket \lstinline|lmerTest| verwendet werden.
+
+\paragraph{Lineare gemischte Modelle (LMM)}
+LMMs werden für stetige, normalverteilte Zielvariablen verwendet. Die Funktion hierfür ist \lstinline|lmer()|.
+
+Standardmäßig verwendet \lstinline|lmer()| die Restricted Maximum Likelihood (REML). Für Modellvergleiche mit unterschiedlichen Fixed Effects sollte jedoch Maximum Likelihood (REML = FALSE) verwendet werden.
+
+\subparagraph{Skalare Zufallseffekte (Random Intercepts)}
+Hier wird angenommen, dass jede Gruppe \lstinline|G| einen eigenen Startwert (Intercept) hat, die Steigung der Prädiktoren aber für alle gleich bleibt. Syntax: \lstinline"(1|G)".
+\begin{lstlisting}
+library(lme4)
+fm1 <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
+summary(fm1) # Zeigt Varianzkomponenten und fixe Effekte
+fixef(fm1) # Erwartungswert ueber alle Batches
+ranef(fm1) # Spezifische Abweichungen der einzelnen Batches
+\end{lstlisting}
+
+\subparagraph{Vektorwertige Zufallseffekte (Random Slopes)}
+Wenn sich auch die Wirkung eines Prädiktors \lstinline|X| zwischen Gruppen unterscheidet, nutzt man \lstinline"(X|G)". Dies schätzt einen eigenen Intercept \emph{und} eine eigene Steigung pro Gruppe. Um diese Korrelation zu unterdrücken (z.\,B.\ bei Konvergenzproblemen), nutzt man in R den Operator \lstinline"||" oder definiert die Terme getrennt. Bei qualitativen Prädiktoren (Faktoren) werden in R standardmäßig Korrelationen zwischen allen Level-Abweichungen geschätzt, wenn diese im Zufallsteil stehen.
+
+Bei hierarchischer (verschachtelter/nested) Gruppierung wird \lstinline|:| oder \lstinline|/| verwendet. \lstinline"(1|G/H)" ist die Abkürzung für \lstinline"(1|G) + (1|G:H)", wobei \lstinline|H| die Untergruppe in \lstinline|G| ist.
+
+\begin{lstlisting}
+library(lme4)
+# Intercept und Steigung (Days) variiert pro Subject
+fm2 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+fm2 <- lmer(Reaction ~ Days + (1 + Days | Subject), sleepstudy)
+
+fm3 <-lmer(diameter ~ 1 + (1 | plate) + (1 | sample),Penicillin)
+
+# Nur die Steigung (Days) variiert pro Subject
+fm4 <- lmer(Reaction ~ Days + (0 + Days | Subject), sleepstudy)
+
+# Intercept und Steigung korreliert (1 + days | Subject)
+fm5 <- lmer(Reaction~1 + Days + (1 + Days | Subject),sleepstudy)
+
+# Modell ohne Korrelation zwischen Intercept und Steigung
+fm5b <- lmer(Reaction~1 +Days + (1 +Days || Subject),sleepstudy)
+# Alternativ: (1 | Subject) + (0 + Days | Subject)
+
+# Tage als Faktor behandeln
+sleepstudy$Phase <- factor(ifelse(sleepstudy$Days <= 4,
+                           "Anfang", "Ende"))
+
+fm5c <-lmer(Reaction ~1 +Phase +(1 +Phase | Subject),sleepstudy)
+
+# Keine Korrelation zwischen den Levels
+library(afex)
+fm5d <- mixed(Reaction ~ Phase + (Phase || Subject),
+              data = sleepstudy, method = "LRT")
+
+fm6 <- lmer(strength ~ 1 + (1 | batch / cask), data = Pastes)
+
+# Manuelle Verschachtelung durch Kombination der Labels
+Pastes$sample <- paste0(Pastes$batch, "&", Pastes$cask)
+fm6b <- lmer(strength ~ 1 + (1 | sample) + (1 | batch), Pastes)
+\end{lstlisting}
+
+
+\paragraph{Generalisierte lineare gemischte Modelle (GLMM)}
+Für kategoriale Daten (z.\,B.\ Erfolg/Misserfolg) oder Zähldaten nutzt man \lstinline|glmer()|. Da die Zielvariable hier nicht normalverteilt ist, muss eine \lstinline|family| (hier \lstinline|binomial| für Ja/Nein-Entscheidungen) angegeben werden.
+
+In R gibt es drei gängige Arten, die binomiale Zielvariable zu definieren:
+\begin{description}
+\item[Matrix-Schreibweise (Erfolge vs.\ Misserfolge):] Ideal für aggregierte Daten pro Gruppe.
+\item[Gewichtungs-Schreibweise (Proportionen):] Man gibt den Anteil an und nutzt \lstinline|weights| für die Fallzahl.
+\item[Binäre Schreibweise (0/1):] Jede Zeile im Datensatz entspricht einer einzelnen Beobachtung.
+\end{description}
+
+Alle drei Varianten führen unter äquivalenten Datenstrukturen zum selben Ergebnis.
+
+Die von \lstinline|glmer()| ausgegebenen Schätzwerte (\lstinline|Estimate|) für die festen Effekte liegen auf der \emph{Logit-Skala} (Log-Odds). Ein positiver Wert bedeutet eine Erhöhung der Wahrscheinlichkeit, ein negativer eine Verringerung. Um die Ergebnisse anschaulicher als \emph{Odds Ratios} (Chancenverhältnisse) zu interpretieren, müssen die Koeffizienten mit der Exponentialfunktion transformiert werden:
+
+\begin{lstlisting}
+library(lme4)
+
+gm1 <- glmer(cbind(incidence, size - incidence) ~
+            period + (1 | herd), data = cbpp, family = binomial)
+fixef(gm1)
+exp(fixef(gm1))
+exp(confint(gm1, method="Wald"))
+
+cbpp$prob <- cbpp$incidence / cbpp$size
+gm2 <- glmer(prob ~ period + (1 | herd),
+     data = cbpp, family = binomial, weights = size)
+
+d <- data.frame(sick = c(1, 0, 1, 1, 0, 0),
+       herd = c("A", "A", "B", "B", "B", "C"),
+       period = c("1", "1", "1", "2", "2", "1") )
+gm3 <- glmer(sick ~ period + (1 | herd), d, family = binomial)
+\end{lstlisting}
+
+
+\paragraph{Nichtlineare gemischte Modelle (NLMM)}
+Wenn kein vorgefertigtes Modell (\textit{Self-starting function}) genutzt wird, muss die nichtlineare Funktion explizit definiert werden. Wichtig ist dabei, dass nlmer intern die Ableitungen (Gradienten) der Funktion nach den Parametern benötigt.
+
+\subparagraph{Struktur der Zufallseffekte}
+
+In nlmer kann man festlegen, welche der nichtlinearen Parameter als zufällig betrachtet werden soll:
+
+\begin{itemize}
+\item \lstinline{(asym | Tree)}: Nur die maximale Sättigung unterscheidet sich je Baum.
+\item \lstinline{(asym + xmid | Tree)}: Sowohl das Maximum als auch der Zeitpunkt des stärksten Wachstums (\emph{Inflection Point}) variieren je Baum (inkl. Korrelation).
+\item \lstinline{(asym + 0 | Tree)}: Nur die Sättigung variiert, ohne Intercept-Verschiebung.
+\end{itemize}
+
+\subparagraph{Steuerung der Optimierung}
+
+Nichtlineare Modelle sind numerisch instabil. Wenn das Modell nicht konvergiert, kann der Optimizer gewechselt werden. Standardmäßig kann \lstinline|lme4| \lstinline|"Nelder_Mead"| oder \lstinline|"bobyqa"| nutzen.
+
+Da NLMMs empfindlich auf Startwerte reagieren, kann es helfen, diese über ein einfaches nicht-gemischtes Modell (\lstinline|nls()|) zu schätzen.
+
+\begin{lstlisting}
+library(lme4)
+f  <- deriv(~ asym / (1 + exp((xmid - age) / scale)),
+       namevec = c("asym", "xmid", "scale"),
+       function.arg = c("age", "asym", "xmid", "scale"))
+ST <- c(asym = 190, xmid = 700, scale = 350)
+nm1 <-nlmer(circumference ~f(age,asym,xmid,scale) ~(asym |Tree),
+    data = Orange, start = ST)
+
+nm2 <-nlmer(circumference ~f(age,asym,xmid,scale) ~(asym |Tree),
+    data = Orange, start = ST,
+    control = nlmerControl(optimizer = "bobyqa"))
+
+fit <-nls(circumference ~ asym / (1 + exp((xmid - age) /scale)),
+  data = Orange, start = c(asym = 150, xmid = 600, scale =300))
+nm3 <-nlmer(circumference ~f(age,asym,xmid,scale) ~(asym |Tree),
+    data = Orange, start = coef(fit))
+\end{lstlisting}
+
+\begin{description}
+\item[Skalierung der Daten:] Nichtlineare Algorithmen können scheitern, wenn die Prädiktoren und die Zielvariable in völlig unterschiedlichen Größenordnungen liegen. Eine Skalierung der Daten kann helfen.
+\item[Anzahl der Parameter:] Versuch nicht alle Parameter gleichzeitig als zufällig zu definieren (\lstinline{(asym + xmid + scale | Tree)}). Das kann zu \textit{Singular Fit} oder Konvergenzfehlern führen. Nur die Parameter als zufällig wählen, bei denen biologisch/theoretisch eine Varianz zwischen den Gruppen zu erwarten ist.
+\item[Diagnose:] \lstinline|plot(nm1)|, um die Residuen zu prüfen. Bei NLMMs sind systematische Muster in den Residuen oft ein Zeichen dafür, dass die gewählte mathematische Funktion (z.\,B.\ logistisch vs.\ exponentiell) nicht optimal passt.
+\item[Alternative Pakete:] Wenn \lstinline|lme4| (nlmer) an seine Grenzen stößt, ist das Paket \lstinline|nlme| (Funktion \lstinline|nlme()|) eine Alternative.
+\end{description}
+
+Die Syntax von \lstinline|nlme| unterscheidet sich leicht, da feste (\lstinline|fixed|) und zufällige Effekte (\lstinline|random|) getrennt definiert werden.
+
+\begin{lstlisting}
+library(nlme)
+
+nm <-nlme(circumference ~ asym / (1 + exp((xmid - age) / scale)),
+   data = Orange,
+   fixed = asym + xmid + scale ~ 1, random = asym ~ 1 | Tree,
+   start = c(asym = 190, xmid = 700, scale = 350))
+\end{lstlisting}
+
+
+\paragraph{Vergleich: Separate Regressionen vs. Mixed Models (Shrinkage)}
+
+Ein entscheidender Vorteil von Mixed Models gegenüber separaten Regressionen pro Gruppe (\emph{No Pooling}) ist das Prinzip des \emph{Partial Pooling}. Während eine separate Regression jede Gruppe isoliert betrachtet, werden im Mixed Model gruppenspezifische Effekte als Realisationen einer gemeinsamen Verteilung modelliert.
+
+Dies führt zum sogenannten \emph{Shrinkage-Effekt}: Schätzungen für Gruppen mit sehr wenigen Datenpunkten oder extremen Ausreißern werden in Richtung des Gesamtmittels der Population gezogen (geschrumpft), da das Modell der unsicheren Datenlage einzelner Gruppen weniger traut als dem globalen Trend.
+
+Beim Umgang mit gruppierten Daten (z.\,B.\ Probanden, Schulen, Batches) gibt es drei grundlegende Strategien:
+
+\begin{description}
+\item[1. Complete Pooling:] Alle Daten werden aggregiert. Gruppenunterschiede werden ignoriert. Dies führt zu verzerrten Ergebnissen (\emph{Bias}), wenn Gruppenvarianz existiert.
+\item[2. No Pooling:] Jede Gruppe wird isoliert geschätzt (z.\,B.\ via Interaktion \lstinline|y ~ x * g|). Dies führt bei kleinen Fallzahlen pro Gruppe zu instabilen Schätzungen (\emph{Overfitting}).
+\item[3. Partial Pooling:] Der Mixed-Model-Ansatz. Gruppenspezifische Schätzungen werden durch die Gesamtpopulation beeinflusst. Schätzungen werden stabilisiert, indem sie Information aus der gesamten Population einbeziehen.
+\end{description}
+
+Der Shrinkage-Effekt ist besonders stark für Gruppen mit wenigen Beobachtungen, während Gruppen mit vielen Datenpunkten nur geringfügig angepasst werden.
+
+\begin{lstlisting}
+library(lme4)
+set.seed(42)
+g_int <- rnorm(10, 0, 2)
+g_slp <- rnorm(10, 0, 0.5)
+d <- data.frame(g = gl(10, 20, labels = letters[1:10]), 
+                x = runif(200, 0, 10))
+d$y <- (2 +g_int[d$g]) +(0.5 +g_slp[d$g]) *d$x +rnorm(200, sd=1)
+d <- d[!(d$g == "a" & seq_len(200) > 2), ]
+d$y[d$g == "a"] <- c(2, 5)
+
+# 1. Complete Pooling (Einfache Regression)
+fit1 <- lm(y ~ x, d)
+
+# 2. No Pooling (Interaktion - schaetzt 20 Parameter)
+fit2 <- lm(y ~ x * g, d)
+
+# 3. Partial Pooling (Mixed Model - schaetzt Varianzen)
+fit3 <- lmer(y ~ x + (x | g), d, REML = FALSE)
+
+AIC(fit1, fit2, fit3)
+
+# Vergleich der Steigung fuer Gruppe 'a'
+coef(fit2)["x"]
+coef(fit3)$g["a", "x"]
+\end{lstlisting}
+
+In Einzelfällen kann das No-Pooling-Modell einen kleineren AIC-Wert aufweisen als das Mixed Model. Dies kann daran liegen, dass die enorme Flexibilität des Modells lokale Ausreißer (wie in Gruppe a) perfekt beschreibt. Statistisch ist das Mixed Model dennoch vorzuziehen: Es ist wesentlich robuster gegenüber Overfitting, da es extreme Schätzwerte durch \emph{Shrinkage} stabilisiert. Die Modellwahl sollte daher nicht rein numerisch (AIC), sondern unter Einbezug von Generalisierbarkeit und Theorie erfolgen.
+
+
+\paragraph{Generalisierte Additive Gemischte Modelle (GAMM)}
+
+Generalisierte Additive Gemischte Modelle (GAMMs) erweitern Generalisierte Lineare Gemischte Modelle (GLMMs) um \emph{nichtlineare} Zusammenhänge zwischen Prädiktoren und der Zielvariable. Während in (G)LMMs feste Effekte meist als lineare Terme modelliert werden, erlauben GAMMs flexible Funktionen (sogenannte \emph{Splines}), um komplexe, glatte Verläufe direkt aus den Daten zu schätzen.
+
+Ein GAMM kombiniert somit drei wesentliche Komponenten:
+\begin{description}
+\item[Fixed Effects:] Klassische lineare Regressionsparameter.
+\item[Smooth Terms:] Nichtlineare Effekte, die mittels Splines (\lstinline|s()|) modelliert werden.
+\item[Random Effects:] Berücksichtigung von Gruppierungsstrukturen und Abhängigkeiten (z.\,B.\ Messwiederholungen).
+\end{description}
+
+In R kann das Paket \lstinline|mgcv| für diese Modellklasse (Funktionen \lstinline|gam()| oder \lstinline|gamm()|) verwendet werden.
+
+\subparagraph{Grundidee von Splines}
+
+Ein Spline ist eine glatte Funktion, die sich flexibel an den Verlauf der Daten anpasst. Die Komplexität wird über die \emph{effektiven Freiheitsgrade} (edf) gesteuert:
+\begin{description}
+\item[Niedrige edf ($\approx 1$):] Glatte, nahezu lineare Kurve.
+\item[Hohe edf:] Flexible, stark gekrümmte Kurve mit der Gefahr des Overfittings.
+\end{description}
+
+Die optimale Balance zwischen Flexibilität und Glattheit wird in \lstinline|mgcv| automatisch über eine \emph{penalisierte Likelihood} bestimmt.
+
+\subparagraph{Einfaches GAM (ohne Random Effects)}
+
+Bevor Zufallseffekte integriert werden, betrachtet man oft ein einfaches Modell, um die glatten Terme zu identifizieren:
+
+\begin{lstlisting}
+library(mgcv)
+set.seed(42)
+d <- gamSim(eg = 1, n = 400, dist = "normal")
+
+# Modellierung eines glatten Effekts von x2
+gm1 <- gam(y ~ s(x2), data = d)
+
+summary(gm1)
+plot(gm1, shade = TRUE, residuals = TRUE)
+\end{lstlisting}
+
+Wichtige Kennzahlen der Ausgabe:
+\begin{itemize}
+\item \lstinline|s(x2)|: Symbolisiert den glatten, nichtlinearen Effekt.
+\item \lstinline|edf| (effective degrees of freedom): Gibt die Komplexität des geschätzten Splines an. Ein edf von 1 entspricht einer Geraden.
+\end{itemize}
+
+
+\subparagraph{GAMM mit Random Effects}
+
+Random Effects können in \lstinline|mgcv| auf zwei Arten integriert werden:
+
+\begin{itemize}
+\item Über \lstinline|gam()|: Random Effects werden als spezieller Glättungstyp (\lstinline|bs = "re"|) modelliert. Dies ist numerisch effizient und erlaubt die Nutzung aller Standard-GAM-Tools.
+\item Über \lstinline|gamm()|: Kombiniert \lstinline|mgcv| mit dem Paket \lstinline|nlme|. Dies ist vorteilhaft, wenn zusätzlich Korrelationsstrukturen (z.\,B.\ Autokorrelation in Zeitreihen) modelliert werden müssen.
+\end{itemize}
+
+\emph{Extraktion der Gruppen-Effekte (BLUPs):} Bei Modellen mit \lstinline|bs = "re"| interessiert oft die Abweichung der einzelnen Gruppen vom globalen Trend. Diese Werte entsprechen den \emph{Best Linear Unbiased Predictors} (BLUPs).
+
+\begin{description}
+\item[Interpretation:] Ein positiver Wert bedeutet, dass die Zielvariable in dieser Gruppe systematisch höher liegt als der Durchschnitt.
+\item[Visualisierung:] Die extrahierten Werte können visualisiert werden, um Ausreißer-Gruppen zu identifizieren.
+\end{description}
+
+\begin{lstlisting}[language=R]
+library(mgcv)
+set.seed(42)
+d <- gamSim(eg = 1, n = 400, dist = "normal", verbose = FALSE)
+d$group <- gl(10, 40)
+
+# gm2: Random Intercept pro Gruppe
+gm2 <- gam(y ~ s(x2) + s(group, bs = "re"), data = d)
+gam.check(gm2)
+# Extraktion der BLUPs
+tt <- coef(gm2)
+tt <- tt[grep("s(group)", names(tt), fixed=TRUE)]
+tt <- data.frame(Group=levels(d$group), InterceptShift=tt)
+dotchart(tt[,2], labels=tt$Group, main="Random Intercepts")
+
+# gm3: Random Slope (Steigung von x1 variiert pro Gruppe)
+gm3 <- gam(y ~ s(x2) + s(group, x1, bs = "re"), data = d)
+AIC(gm2, gm3)
+
+# gm4: Klassischer Mixed-Model-Ansatz via nlme
+gm4 <- gamm(y ~ s(x2), random = list(group = ~1), data = d)
+
+# Visualisierung: 3D-Oberflaeche der Vorhersage
+vis.gam(gm2, view = c("x2", "group"), theta = 30, phi = 30,
+        ticktype = "detailed")
+# 2D-Konturplot (Heatmap)
+vis.gam(gm2, view = c("x2", "group"), plot.type = "contour")
+\end{lstlisting}
+
+Der Term \lstinline|bs = "re"| definiert einen zufälligen Effekt. Während \lstinline|gm2| jeder Gruppe einen eigenen konstanten Intercept zuweist, erlaubt \lstinline|gm3| eine gruppenabhängige Variation des Effekts (Steigung) von \lstinline|x1|.
+
+\emph{Hinweise zur Diagnose:}
+\begin{description}
+\item[Modellprüfung:] Mit \lstinline|gam.check(gm2)| wird geprüft, ob die Basisdimension \lstinline|k| ausreichend hoch gewählt wurde (p-Werte sollten idealerweise nicht signifikant sein).
+\item[Rückgabewert von gamm:] Dieser ist eine Liste. \lstinline|gm4$gam| enthält das additive Modell, während \lstinline|gm4$lme| die Schätzungen der Varianzkomponenten enthält.
+\item[Modellvergleich:] Modelle (z.\,B.\ \lstinline|gm2| vs. \lstinline|gm3|) können einfach mittels \lstinline|AIC()| verglichen werden.
+\end{description}
+
+
+\subparagraph{Verallgemeinerte GAMMs}
+
+Analog zu GLMMs kann auch eine Verteilung (\lstinline|family|) angegeben werden, um nicht-normalverteilte Daten zu modellieren.
+
+\begin{lstlisting}
+library(mgcv)
+set.seed(42)
+d <- gamSim(eg = 1, n = 400, dist = "normal", verbose = FALSE)
+d$group <- gl(10, 40)
+d$yBin <- ifelse(d$y > mean(d$y), 1, 0)
+
+gm5 <- gam(yBin ~ s(x2) + s(group, bs = "re"),
+           data = d, family = binomial)
+summary(gm5)
+\end{lstlisting}
+
+Typische Familien und Link-Funktionen:
+\begin{itemize}
+\item \lstinline|gaussian|: Kontinuierliche Daten (Standard).
+\item \lstinline|binomial|: Binäre Daten oder Proportionen (Logit-Link).
+\item \lstinline|poisson|: Zähldaten (Log-Link).
+\item \lstinline|nb|: Negative Binomialverteilung (bei Überdispersion von Zähldaten).
+\end{itemize}
+
+Bei der Verwendung von \lstinline|family = binomial| oder \lstinline|poisson| werden die Effekte auf der Skala des Linearen Prädiktors (z.\,B. Log-Odds) geschätzt. Um die Ergebnisse auf der Ebene der Originaldaten (Wahrscheinlichkeiten) zu interpretieren, muss in \lstinline|predict()| oder \lstinline|vis.gam()| das Argument \lstinline|type = "response"| gesetzt werden.
+
+\subparagraph{Interpretation}
+
+Die Interpretation eines GAMMs unterscheidet sich grundlegend von klassischen linearen Modellen:
+\begin{description}
+\item[Visuelle Beurteilung:] Die Form des Zusammenhangs wird primär über \lstinline|plot()| interpretiert, da es keinen einzelnen Steigungskoeffizienten ($\beta$) gibt.
+\item[Signifikanz:] P-Werte beziehen sich auf den gesamten Funktionsverlauf (Nullhypothese: Der Effekt ist eine Null-Linie).
+\item[Nichtlinearität:] Ein Wert von \lstinline|edf > 1| deutet statistisch auf einen nichtlinearen Zusammenhang hin.
+\end{description}
+
+\subparagraph{Hinweise}
+
+\begin{description}
+\item[Overfitting:] \lstinline|mgcv| reguliert die Komplexität automatisch über Penalisierung. Dennoch sollte man prüfen, ob Schwingungen in der Kurve biologisch/inhaltlich plausibel sind.
+\item[Konkurrierende Modelle:] Ein GAMM sollte stets mit einfacheren Modellen (z.\,B.\ LMM) verglichen werden (z.\,B.\ via AIC), um zu prüfen, ob die zusätzliche Flexibilität notwendig ist.
+\item[Diagnostik:] \lstinline|gam.check()| ist essenziell, um die Wahl der Basisdimension $k$ und die Verteilung der Residuen zu validieren.
+\item[Interaktionen:] Komplexe Interaktionen zwischen kontinuierlichen Variablen werden oft mit \lstinline|te()| (Tensor Product Smooths) oder \lstinline|ti()| statt \lstinline|s()| modelliert.
+\end{description}
+
+\subparagraph{Beispiel}
+
+Das folgende Beispiel verdeutlicht die Stärke von GAMMs bei der Rekonstruktion einer unbekannten Sinus-Funktion unter Berücksichtigung von Gruppen-Varianz:
+
+\begin{lstlisting}
+library(mgcv)
+set.seed(42)
+d <- data.frame( group = gl(10, 50), x = runif(500, 0, 10))
+f <- \(x) sin(x) + x / 5
+group_intercepts <- rnorm(10, sd = 1)
+d$y <- f(d$x) + group_intercepts[d$group] + rnorm(500, sd = 0.5)
+
+gm6 <- gam(y ~ s(x) + s(group, bs = "re"), data = d)
+plot(gm6, pages = 1, shade = TRUE, pch = 16, cex = 0.5)
+summary(gm6)
+\end{lstlisting}
+
+GAMMs sind nützlich, wenn keine klare funktionale Form bekannt ist, aber dennoch komplexe Hierarchien und Abhängigkeiten in den Daten vorliegen.
+
+
+\subsection{Numerische Optimierung}
+
+R bietet mit generischen Werkzeugen die Möglichkeit, eigene Zielfunktionen (Objective Functions) numerisch zu minimieren oder zu maximieren.
+
+\subsubsection{Eindimensionale Optimierung: optimize()}
+Für Funktionen mit nur einem Parameter wird der Suchbereich über das Argument \lstinline|interval| eingeschränkt. Die Methode basiert auf dem \textbf{Brent-Algorithmus}, der Intervallhalbierung mit quadratischer Interpolation kombiniert. Wenn \lstinline|maximum = TRUE|, wird das Maximum gesucht.
+
+\begin{lstlisting}
+f <- \(x) (x - 2)^2 + 5
+
+# Suche das Minimum im Intervall [0, 5]
+res <- optimize(f, interval = c(0, 5))
+res$minimum    # Der optimale x-Wert (~ 2)
+res$objective  # Der Funktionswert am Minimum (5)
+\end{lstlisting}
+
+\subsubsection{Mehrdimensionale Optimierung: optim()}
+Für Probleme mit mehreren Parametern kann \lstinline|optim()| verwendet werden. Sie benötigt Startwerte (\lstinline|par|) und die zu minimierende Funktion (\lstinline|fn|).
+
+Methoden:
+\begin{description}
+\item[Nelder-Mead:] Der Standard-Algorithmus. Er ist robust und benötigt keine Ableitungen, ist aber bei vielen Parametern langsam.
+\item[BFGS / L-BFGS-B:] Quasi-Newton-Verfahren für glatte Funktionen. \lstinline|L-BFGS-B| erlaubt Parametergrenzen (\lstinline|lower|, \lstinline|upper|).
+\item[CG:] \emph{Conjugate Gradient} Verfahren. Besonders speichereffizient bei sehr vielen Parametern (hochdimensionale Probleme).
+\item[SANN:] \emph{Simulated Annealing}. Ein stochastischer Algorithmus für die \emph{globale Optimierung}, um lokalen Minima zu entkommen.
+\end{description}
+
+\begin{lstlisting}
+set.seed(42)
+y <- rnorm(100, mean = 5, sd = 2)
+f <- \(p) {mu <- p[1]; sigma <- p[2]
+  -sum(dnorm(y, mean = mu, sd = sigma, log = TRUE)) }
+
+res <- optim(par = c(mu = 0, sigma = 1), fn = f, 
+             method = "L-BFGS-B", lower = c(-Inf, 0.001))
+res$par        # Schätzwerte nahe 5 und 2
+\end{lstlisting}
+
+\begin{description}
+\item[Hessian:] Mit \lstinline|hessian = TRUE| berechnet R die Matrix der zweiten Ableitungen. Diese ist essenziell, um Standardfehler für statistische Schätzer zu erhalten.
+\item[Skalierung:] Bei stark unterschiedlichen Größenordnungen der Parameter sollte \lstinline|control = list(parscale = ...)| genutzt werden.
+\item[Startwerte:] Da Optimierung oft lokal ist, sollte man verschiedene Startwerte testen, um sicherzugehen, dass man nicht in einem lokalen Minimum feststeckt.
+\item[Konvergenz:] Immer prüfen, ob \lstinline|res$convergence == 0| ist.
+\item[Maximierung:] Standardmäßig wird minimiert. Zur Maximierung kann die Zielfunktion mit $-1$ multipliziert oder \lstinline|control = list(fnscale = -1)| gesetzt werden.
+\item[Gradienten:] Wenn die mathematische Ableitung (Gradient) der Funktion bekannt ist, kann diese als Argument an \lstinline|gr| übergeben werden. Das macht die Optimierung massiv schneller und stabiler.
+\end{description}
+
+\subsubsection{Erweiterte Pakete für komplexe Probleme}
+Wenn die Standardfunktion \lstinline|optim()| an ihre Grenzen stößt (z.\,B.\ bei komplexen Nebenbedingungen oder sehr unebenen Straffunktionen), bietet das R-Ökosystem spezialisierte Werkzeuge.
+
+\begin{description}
+\item[Standardfälle:] \lstinline|optim()| oder \lstinline|optimize()|.
+\item[Vergleich von Methoden:] \lstinline|optimx|.
+\item[Harte Nebenbedingungen:] \lstinline|nloptr|.
+\item[Schwierige globale Suche:] \lstinline|DEoptim| oder \lstinline|GA|.
+\item[Infrastruktur für große Projekte:] \lstinline|ROI|.
+\end{description}
+
+\paragraph{Globale und Meta-heuristische Verfahren}
+Diese Verfahren suchen großflächig im Parameterraum und sind weniger anfällig für lokale Minima.
+
+\subparagraph{GA:} Genetische Algorithmen simulieren evolutionäre Prozesse (Mutation, Crossover), um Optima zu finden. Ideal für diskrete oder extrem zackige Funktionen.
+\begin{lstlisting}
+library(GA)
+# Suche Maximum von f(x) = abs(x) + cos(x)
+ga_res <- ga(type = "real-valued", fitness =
+    \(x) -(abs(x) + cos(x)), lower = -20, upper = 20)
+summary(ga_res)
+\end{lstlisting}
+
+\subparagraph{DEoptim:} Implementiert die \emph{Differential Evolution}. Es ist oft schneller und zuverlässiger als SANN oder GA bei kontinuierlichen globalen Problemen.
+\begin{lstlisting}
+library(DEoptim)
+rosenbrock <- \(x) 100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
+de_res <- DEoptim(rosenbrock, lower = c(-10, -10),
+                  upper = c(10, 10))
+\end{lstlisting}
+
+\paragraph{Solver-Interfaces}
+Für wissenschaftliche oder industrielle Anwendungen bieten diese Pakete Zugang zu hochoptimierten Algorithmen.
+
+\subparagraph{optimx:} Ein Meta-Optimizer, der es erlaubt, mehrere Algorithmen (wie BFGS, Nelder-Mead, ucminf) gleichzeitig auf dasselbe Problem anzuwenden und die Ergebnisse zu vergleichen.
+\begin{lstlisting}
+library(optimx)
+rosenbrock <- \(x) 100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
+res <- optimx(par = c(0, 0), fn = rosenbrock, 
+                method = c("Nelder-Mead", "BFGS", "nlminb"))
+summary(res)
+\end{lstlisting}
+
+\subparagraph{nloptr:} Interface zur C-Bibliothek NLopt. Es unterstützt komplexe \emph{Nicht-lineare Nebenbedingungen} (z.B. $x_1^2 + x_2^2 \le 1$).
+\begin{lstlisting}
+library(nloptr)
+rosenbrock <- \(x) 100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
+res <- nloptr(x0 = c(1, 1), eval_f = rosenbrock, 
+              lb = c(-5, -5), ub = c(5, 5),
+    opts = list(algorithm = "NLOPT_LN_COBYLA", xtol_rel = 1e-8))
+\end{lstlisting}
+
+\subparagraph{ROI (R Optimization Infrastructure):} Ein einheitliches Framework, das die Syntax für lineare, quadratische und nicht-lineare Probleme vereinheitlicht.
+\begin{lstlisting}
+library(ROI)
+library(ROI.plugin.nloptr) 
+rosenbrock <- \(x) 100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
+op <- OP(objective = F_objective(rosenbrock, n = 2),
+ bounds = V_bound(li =1:2, ui =1:2, lb =c(-5, -5), ub =c(5, 5)))
+res <- ROI_solve(op, solver = "nloptr.cobyla", start = c(0, 0))
+\end{lstlisting}
+
+
+\subsection{Entscheidungsbäume und Ensemble-Verfahren}
+
+Entscheidungsbäume sind nicht-parametrische Modelle, die Daten durch hierarchische Gruppen unterteilen. In R ist ein CART-Verfahren (Classification and Regression Trees) über das Paket \lstinline|rpart| verfügbar. Bäume sind invariant gegenüber der Skalierung der Features (kein Standardisieren/Normalisieren nötig).
+
+\subsubsection{Klassifikation mit CART}
+
+Ein einzelner Baum teilt die Daten Schritt für Schritt so auf, dass in den entstehenden Gruppen (Blättern) möglichst ähnliche bzw. gleichartige Fälle liegen.
+
+%pdf("/tmp/rpart.pdf", 6, 4)
+%par(mar=c(.1, .1, 1.7, .1))
+\begin{lstlisting}
+library(rpart)
+library(rpart.plot)
+
+model <- rpart(Species ~ ., data = iris)
+rpart.plot(model, main = "rpart")
+model$variable.importance
+predClass <- predict(model, iris, type = "class")
+predProb  <- predict(model, iris, type = "prob")
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/rpart}
+\end{figure}
+
+\paragraph{Overfitting und Pruning}
+
+Ein Hauptproblem von Entscheidungsbäumen ist \emph{Overfitting} (Überanpassung): Der Baum wird so tief, dass er das Rauschen der Trainingsdaten lernt, was die \emph{Generalisierung} auf neue Daten verschlechtert.
+\begin{description}
+\item[CP (Complexity Parameter):] Bestimmt, ab welcher Verbesserung der Genauigkeit ein Split durchgeführt wird. Ein kleinerer CP führt zu tieferen Bäumen.
+\item[Pruning:] Mit \lstinline|prune(model, cp = ...)| werden zu spezifische Äste nachträglich entfernt, um die Modellkomplexität zu senken.
+\end{description}
+
+\begin{lstlisting}
+library(rpart)
+model <- rpart(Species ~ ., data = iris, 
+  control = rpart.control(minsplit = 10, cp = 0.01))
+prune(model, cp = 0.1)
+\end{lstlisting}
+
+
+\subsubsection{Ensemble-Methoden: Bagging und Boosting}
+
+Da einzelne Bäume oft instabil sind (hohe Varianz), kombiniert man viele Bäume zu Ensembles.
+
+\paragraph{Bagging (Random Forest):} Es werden viele leicht unterschiedliche Entscheidungsbäume auf Basis von Bootstrapping (zufälligen Stichproben der Daten mit Zurücklegen) trainiert und deren Ergebnisse gemittelt. Der Parameter \lstinline|mtry| sorgt dafür, dass bei jedem Verzweigungsschritt nur eine zufällige Auswahl an Merkmalen (Features) betrachtet wird. Dies verringert die Ähnlichkeit (Korrelation) der Bäume untereinander, was das Gesamtmodell stabiler und robuster gegen Fehler macht.
+
+\paragraph{Boosting (AdaBoost / XGBoost):} Erzeugt sequenziell flache Bäume (Stumps), die gewichtet kombiniert werden. Jeder neue Baum versucht gezielt, die Fehler (Residuen) seiner Vorgänger zu korrigieren. Durch diesen schrittweisen Lernprozess wird primär der Bias (systematischer Fehler) gesenkt.
+
+\begin{lstlisting}
+library(randomForest)
+set.seed(42)
+rfModel <- randomForest(Species ~ ., data = iris, 
+            ntree = 500, mtry = 2, importance = TRUE)
+# Welche Features erklaeren am meisten?
+importance(rfModel)
+varImpPlot(rfModel)
+predict(rfModel, iris, type = "prob")
+
+library(adabag)
+adaModel <- boosting(Species ~ ., data = iris, 
+                      mfinal = 20, boos = TRUE)
+adaModel$importance
+predict(adaModel, iris)$prob
+
+library(xgboost)
+xgbModel <- xgboost(x = as.matrix(iris[, 1:4]), 
+   y = iris$Species, nrounds = 20,
+   objective = "multi:softprob", verbosity = 0)
+xgb_imp <- xgb.importance(model = xgbModel)
+xgb.plot.importance(xgb_imp)
+predict(xgbModel, as.matrix(iris[, 1:4]))
+\end{lstlisting}
+
+\subsubsection{Modellvalidierung und Hyperparameter-Tuning}
+
+Anstatt Parameter wie \lstinline|cp| oder \lstinline|mtry| zu raten, nutzt man das Paket \lstinline|caret|, um mittels \emph{Kreuzvalidierung} (Cross-Validation) die optimale Konfiguration zu finden.
+
+\begin{lstlisting}
+library(caret)
+# 10-fache Kreuzvalidierung definieren
+trainControl <- trainControl(method = "cv", number = 10)
+
+tuneRp <- train(Species ~ ., iris, method = "rpart", 
+      trControl = trainControl, tuneLength = 10)
+tuneRp$bestTune
+
+tuneRf <- train(Species ~ ., iris, method = "rf",
+      trControl = trainControl, tuneLength = 10)
+tuneRf$bestTune
+
+tuneAda <- train(Species ~ ., iris, method = "AdaBoost.M1",
+      trControl = trainControl, tuneLength = 3)
+tuneAda$bestTune
+\end{lstlisting}
+
+\subsubsection{Regression}
+
+Bei der Regression minimiert der Baum die Varianz innerhalb der Knoten. Der Vorhersagewert eines Blattes ist der Mittelwert der darin enthaltenen Beobachtungen.
+
+%pdf("/tmp/regTree.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+set.seed(42)
+data <- data.frame(x = c(runif(50, 0, 3), runif(50, 7, 10)))
+data$y <- 2 * data$x + 5 + rnorm(100, sd = .5)
+test <- data.frame(x = seq(0, 15, length.out = 150))
+
+fitLm  <- lm(y ~ x, data = data)
+test$lm  <- predict(fitLm, test)
+
+library(rpart)
+fitRp <- rpart(y ~ x, data = data, method = "anova")
+test$rp  <- predict(fitRp, test)
+
+library(randomForest)
+fitRf  <- randomForest(y ~ x, data = data)
+test$rf  <- predict(fitRf, test)
+
+library(xgboost)
+fitXgb <- xgboost(as.matrix(data$x), data$y,
+                  objective = "reg:squarederror")
+test$xgb <- predict(fitXgb, as.matrix(test$x))
+
+plot(data, xlim = c(0, 15), ylim = c(5, 35), col=5,
+     pch=19, main = "Entscheidungsbaum Regression", cex=1.5)
+matlines(test$x, test[-1], lwd=c(4,4,4,2), lty=1, col=4:1)
+legend("topleft", legend = c("Beobachtung", "Linear (lm)",
+  "RPart", "Random Forest", "XGBoost"), 
+col = 5:1, lwd = c(NA, 4,4,4,2), pch=c(19,NA,NA,NA,NA))
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/regTree}
+\end{figure}
+
+Das obige Beispiel verdeutlicht eine zentrale Eigenschaft baumbasierter Modelle im Vergleich zu linearen Modellen:
+
+\begin{description}
+\item[Interpolation:] In datenfreien Bereichen können Bäume keinen Trend fortsetzen. Da sie Vorhersagen als gewichtete Mittelwerte der Blattknoten treffen, resultiert in der Lücke eine \emph{stückweise konstante} Funktion (Plateau), statt der Fortführung der Steigung.
+\item[Extrapolation:] Baumbasierte Modelle wie \emph{Random Forest} und \emph{XGBoost} können bauartbedingt keine Werte vorhersagen, die außerhalb des im Training gesehenen Zielwertbereichs ($y$) liegen. Während das lineare Modell den Trend mathematisch ins Unendliche fortschreibt, frieren die Baum-Vorhersagen auf dem Niveau des letzten bekannten lokalen Mittelwerts ein.
+\end{description}
+
+Zusammenfassend sind baumbasierte Modelle hervorragend darin, komplexe Strukturen \emph{innerhalb} bekannter Datenbereiche zu erfassen. Sie sind jedoch ungeeignet, wenn Trends in datenarme Zwischenbereiche oder in unbekannte Wertebereiche extrapoliert werden müssen.
+
+\paragraph{Lösungsansätze für Extrapolationsprobleme}
+
+Um die Einschränkungen baumbasierter Modelle bei der Trendfortschreibung zu umgehen, existieren im Wesentlichen zwei Strategien:
+
+\begin{description}
+\item[Modellbasierte Bäume (M5-Trees / Linear Trees):] Anstatt in den Blättern (Leaf Nodes) lediglich einen konstanten Mittelwert zu speichern, wird in jedem Blatt eine lokale lineare Regression berechnet. Dadurch können diese Modelle innerhalb der Endknoten Trends abbilden und über den Trainingsbereich hinaus linear extrapolieren.
+\item[Hybride Modellierung (Differentielles Lernen):] Hierbei wird die Vorhersage in zwei Teile zerlegt. Ein einfaches (lineares) Modell erfasst den globalen Trend (Basis-Modell), während das Baummodell lediglich die verbleibenden Fehler (Residuen) lernt. Die finale Vorhersage ist die Summe aus dem Trend des linearen Modells und der Korrektur durch den Baum.
+\end{description}
+
+%pdf("/tmp/regTree2.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}
+set.seed(42)
+data <- data.frame(x = c(runif(50, 0, 3), runif(50, 7, 10)))
+data$y <- 2 * data$x + 5 + rnorm(100, sd = .5)
+test <- data.frame(x = seq(0, 15, length.out = 150))
+
+library(Cubist)
+fitCubist <- cubist(x = data["x"], y = data$y)
+test$cubist <- predict(fitCubist, test["x"])
+
+library(randomForest)
+# Schritt A: Globalen Trend mit LM erfassen
+fitBase <- lm(y ~ x, data = data)
+data$residuen <- data$y - predict(fitBase, data)
+# Schritt B: RF lernt nur die Abweichungen vom Trend
+fitRfResid <- randomForest(residuen ~ x, data = data)
+# Schritt C: Kombination für die Vorhersage
+test$hybrid <-predict(fitBase, test) + predict(fitRfResid, test)
+
+plot(data[1:2], xlim = c(0, 15), ylim = c(5, 35), col=5,
+     pch=19, main = "Entscheidungsbaum+ Regression", cex=1.5)
+matlines(test$x, test[-1], col=1:2, lwd=3, lty=1)
+legend("topleft", legend = c("Beobachtung", "Cubist (M5-Tree)",
+   "Hybrid (LM + RF)"),
+   col = c(5,1,2), lwd = c(NA, 3,3), pch=c(19,NA,NA))
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/regTree2}
+\end{figure}
+
+Die Wahl zwischen einem modellbasierten Baum und einem hybriden Ansatz hängt primär davon ab, wie viel Vorwissen über den globalen Trend vorhanden ist:
+
+\begin{description}
+\item[Modellbasierte Bäume (z.\,B. Cubist):] Diese sind besonders wertvoll, wenn das Modell \emph{selbstständig} erkennen soll, in welchen Datenbereichen welche linearen Zusammenhänge gelten. Sie sind hochflexibel und erfordern kaum manuelles Eingreifen, können aber bei sehr kleinen Datensätzen instabile Regeln bilden.
+\item[Hybride Modelle (Residual Learning):] Dieser Ansatz ist ideal, wenn ein globaler Trend (z.\,B. physikalisches Wachstum) bereits bekannt ist. Man erzwingt durch das lineare Basismodell eine stabile Extrapolation, während der Baum lediglich die lokalen Feinheiten und Nicht-Linearitäten korrigiert. Dies kombiniert die Robustheit klassischer Statistik mit der Flexibilität des Machine Learnings.
+\end{description}
+
+Während \emph{Cubist} lokale Trends automatisiert findet, sichert der \emph{hybride Ansatz} durch Expertenwissen (Wahl des Basismodells) eine kontrollierte Trendfortschreibung ab.
+
+
+\subsection{Nearest Neighbors (NN)}
+
+Die Suche nach den nächsten Nachbarn ist ein Verfahren, das sowohl für die Klassifikation als auch für die Regression und Ausreißererkennung eingesetzt wird. Da NN-Verfahren auf Distanzmaßen (meist der Euklidischen Distanz) basieren, ist eine vorherige \emph{Skalierung der Daten} (Normalisierung) essenziell, um zu verhindern, dass Merkmale mit großen Wertebereichen das Ergebnis dominieren.
+
+Die Qualität der Vorhersage wird maßgeblich durch drei Faktoren bestimmt:
+\begin{description}
+\item[Anzahl der Nachbarn:] Ein zu kleines $k$ führt zu \emph{Overfitting} (Rauschempfindlichkeit), ein zu großes $k$ zu \emph{Underfitting}. Als Startwert kann z.\,B.\ $\sqrt{n}$ verwendet werden.
+\item[Distanzmetrik:] Z.\,B.\ \emph{Euklidische Distanz} oder \emph{Manhattan-Distanz}. Sind die Merkmale stark korreliert, bietet sich die \emph{Mahalanobis-Distanz} an.
+\item[Feature Weighting:] Nach der Skalierung können einzelne Merkmale gezielt gewichtet werden. Multipliziert man ein skaliertes Merkmal mit einem Faktor $> 1$, erhöht sich dessen Einfluss auf die Distanzberechnung und damit auf die Nachbarschaftssuche.
+\end{description}
+
+Zusätzlich zur Merkmalsgewichtung kann die \textit{Abstimmung} gewichtet werden. Nähere Nachbarn erhalten ein höheres Gewicht (z.\,B.\ $w_i = 1/d_i$), was oft präzisere Ergebnisse liefert.
+
+In R gibt es unterschiedliche Ansätze zur Umsetzung:
+\begin{description}
+\item[class::knn:] Für einfache Klassifikationsaufgaben. Training und Vorhersage erfolgen in einem Schritt.
+\item[FNN:] Optimiert auf Geschwindigkeit bei großen Datensätzen durch effiziente Suchstrukturen wie \emph{KD-Trees} oder \emph{Cover-Trees}.
+\item[dbscan:] Bietet mit \lstinline|frNN| eine radiusbasierte Suche ($\epsilon$-Nachbarschaft) statt einer festen Anzahl $k$.
+\end{description}
+
+%pdf("/tmp/nearestNeighbors.pdf", 6, 4)
+%par(mar=c(4.1, 4.1, 1.7, .1))
+\begin{lstlisting}]
+d <- scale(iris[, 1:4])
+weights <- c(2, 1, 1, 1)
+d <- d * weights[col(d)]
+i <- c(TRUE, FALSE)
+M  <- d[i, ]
+Mt <- d[!i, ]
+s  <- iris[i, 5]
+st <- iris[!i, 5]    
+
+library(class)
+preds <- knn(train = M, test = Mt, cl = s, k = 3)
+table(preds, st)
+
+k <- 1:9
+n <- sapply(k, \(k) {sum(knn(M,Mt,s,k)==st)/length(st)})
+k[which.max(n)]   # 1; Liefert hier bestes Ergebnis
+
+library(FNN)
+res <- get.knnx(M, Mt, k = 5) # Indizes und Distanzen
+# Gewichtetes Votum berechnen
+preds <- sapply(seq_len(nrow(Mt)), \(i) {
+  w <- 1 / (res$nn.dist[i, ] + 1e-6)
+  proportions(xtabs(w ~ s[res$nn.index[i, ]])) })
+rowsum(t(preds), st)
+
+library(dbscan)
+res <- frNN(M, 0.7, Mt) # Alle Nachbarn innerhalb 0.7
+preds <- sapply(seq_len(nrow(Mt)), \(i) {
+  w <- 1 / (res$dist[[i]] + 1e-6)
+  w <- xtabs(w ~ s[res$id[[i]]])
+  if(sum(w) == 0) w[] <- 1
+  proportions(w) })
+rowsum(t(preds), st)
+
+# mindestens 3 und alle die 0.5 entfernt sind
+kMin <- 3
+radius <- 0.5
+resK <- get.knnx(M, Mt, k = kMin)
+resR <- frNN(M, query = Mt, eps = radius)
+res <- vector("list", nrow(Mt))
+res <- list(dist = res, id = res)
+for ( i in seq_len(nrow(Mt))) {
+  idx  <- c(resK$nn.index[i, ], resR$id[[i]])
+  j <- !duplicated(idx)
+  res$id[[i]] <- idx[j]
+  res$dist[[i]] <- c(resK$nn.dist[i, ], resR$dist[[i]])[j]
+}
+preds <- sapply(seq_len(nrow(Mt)), \(i) {
+  w <- 1 / (res$dist[[i]] + 1e-6)
+  proportions(xtabs(w ~ s[res$id[[i]]])) })
+rowsum(t(preds), st)
+
+X <- iris[, 1:2]
+px <- seq(min(X[,1]), max(X[,1]), length.out = 100)
+py <- seq(min(X[,2]), max(X[,2]), length.out = 100)
+grid <- expand.grid(x = px, y = py)
+res <- class::knn(X, grid, iris$Species, k = 3)
+res <- matrix(as.integer(res), length(px), length(py))
+image(px, py, res, main = "Nearest Neighbors")
+points(X, col = iris$Species, pch = 19)
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.95\columnwidth]{./pic/nearestNeighbors}
+\end{figure}
+
+
+\subsection{Neuronale Netze}
+
+Neuronale Netze sind flexible Modelle, die komplexe Zusammenhänge durch miteinander verbundene Schichten von Neuronen abbilden. In R ist \lstinline|nnet| der Standard für flache Netze (eine verborgene Schicht), während Frameworks wie \lstinline|keras| oder \lstinline|torch| für Deep Learning genutzt werden.
+
+Ein Multilayer Perceptron (MLP) besteht aus einem \emph{Input Layer} (Dateneingang), mindestens einem \emph{Hidden Layer} (Verarbeitung) und einem \emph{Output Layer} (Liefert den numerischen Schätzwert oder eine Wahrscheinlichkeit). Die Neuronen sind über Gewichte verbunden, die während des Trainings iterativ angepasst werden. Da die Startgewichte zufällig gesetzt werden, ist ein \lstinline|set.seed()| für die Reproduzierbarkeit unerlässlich. Gefahr von \emph{lokalen Minima}, daher oft mehrere Durchläufe sinnvoll.
+
+Neuronale Netze können mit dem Paket \lstinline|nnet| erzeugt werden. Zur Interpretation der Struktur kann das Paket \lstinline|NeuralNetTools| genutzt werden, um die Gewichtungen der Verbindungen visuell darzustellen.
+
+Da die inneren Gewichte eines neuronalen Netzes schwer zu interpretieren sind, nutzt man Verfahren wie den \emph{Olden-Algorithmus}. Dieser dekonstruiert die Gewichte der Verbindungen, um den relativen Einfluss jeder Eingangsvariablen auf die Zielgröße zu quantifizieren.
+
+Das Paket \lstinline|fastshap| nutzt den Shapley-Value-Ansatz aus der Spieltheorie, um den Beitrag jedes Merkmals zur Vorhersage zu quantifizieren. Dies bietet im Vergleich zu gewichtsbasierten Methoden wie dem Olden-Algorithmus eine robustere Grundlage für die Variablenauswahl.
+
+Die optimale Anzahl der \emph{Hidden Neurons} (\lstinline|size|) sowie Regularisierung gegen Overfitting (Weight Decay) lässt sich kaum theoretisch herleiten. Stattdessen nutzt man \emph{Grid Search} mit Kreuzvalidierung, um die beste Kombination aus Modellkomplexität und Fehlervermeidung zu finden. Bei sehr ähnlichen Ergebnissen wird meist das kleinste Netz mit dem höchsten Decay bevorzugt.
+
+%pdf("/tmp/neuralNet.pdf", 6, 4)
+%par(mar=c(.1, .1, .1, .1))
+\begin{lstlisting}
+iris[1:4] <- lapply(iris[1:4], # Skalierung auf [0, 1]
+              \(x) (x - min(x)) / (max(x) - min(x)))
+
+library(nnet)
+set.seed(42)
+model <- nnet(Species ~ ., iris, size = 2, maxit = 500)
+rowsum(predict(model), iris$Species)
+which(predict(model, type="class") != iris$Species)
+library(NeuralNetTools)
+plotnet(model,  pad_x = 0.6)
+olden(model, bar_plot = FALSE, out_var="setosa")
+
+# Eingangsdaten Auswählen (hier mit RandomForest)
+library(caret)
+ctrl <- rfeControl(functions = rfFuncs, method = "cv",
+                   number = 5, repeats = 7)
+RFE <- rfe(iris[, 1:4], iris$Species, sizes = 1:4,
+                   rfeControl = ctrl)
+
+# Eingangsdaten Auswählen2
+library(fastshap)
+pFun <- function(object, newdata) {
+  predict(object, newdata)[, 1] }
+set.seed(42)
+shap <- fastshap::explain(model, X = iris[, 1:4],
+    shap_only = FALSE, pred_wrapper = pFun, nsim = 100)
+library(shapviz)
+sv <- shapviz(shap)
+sv_importance(sv, kind = "bar")
+sv_importance(sv, kind = "beeswarm")
+# Dependence-Plot für einzelne Merkmale
+sv_dependence(sv, v = "Sepal.Length")
+
+dataS <- iris[c("Species", "Petal.Length", "Petal.Width")]
+
+# Größe und decay optimieren
+grid <- expand.grid(size = 1:5, 
+                    decay = c(0.01, 0.001, 0))
+ctrl <- trainControl(method = "cv", number = 5)
+set.seed(42)
+tuned <- do.call(rbind, lapply(1:9, \(i) {
+  train(Species ~ ., dataS, method = "nnet", trace=FALSE,
+  tuneGrid = grid, trControl = ctrl, maxit = 500)$results }))
+a <- aggregate(cbind(Accuracy, Kappa) ~ size + decay, tuned,max)
+a[order(a$Accuracy),]
+
+MIN <- Inf
+set.seed(42)
+for (i in 1:1000) {
+  model <- nnet(Species ~ ., dataS, size = 3, decay=0.001,
+                maxit=500, trace=FALSE)
+  if (MIN > model$value) {
+    MIN <- model$value
+    MODEL <- model
+  }
+}
+rowsum(predict(MODEL), iris$Species)
+\end{lstlisting}
+%dev.off()
+
+\begin{figure}[htbp]
+  \centering
+  Neuronales Netz\\
+  \includegraphics[trim=1cm 1.3cm 1.5cm 0cm, clip, width=.95\columnwidth]{./pic/neuralNet}
+\end{figure}
+
+
+\subsection{Machine Learning}
+
+Dieser Abschnitt zeigt exemplarisch Methoden die über die klassische statistische Modellierung hinausgehen, von der Datenaufbereitung und Modellierung bis zur computergestützten Automatisierung der Modellbildung.
+
+
+\subsubsection{Strukturierte Workflows mit tidymodels}
+
+Das \lstinline|tidymodels|-Ökosystem bietet eine Infrastruktur, die den gesamten Machine-Learning-Prozess in modulare Bausteine unterteilt. Ziel ist es, die Datenaufbereitung (\lstinline|recipes|) strikt von der eigentlichen Modellwahl (\lstinline|parsnip|) zu trennen und beide in sogenannten \lstinline|workflows| zu bündeln. Dieser strukturierte Ansatz garantiert, dass Transformationen konsistent auf Trainings- und Testdaten angewendet werden.
+
+\paragraph{Datenaufbereitung mit recipes}
+
+Im ersten Schritt wird ein Rezept erstellt. Es definiert eine Sequenz von Vorverarbeitungsschritten (\emph{Steps}), die auf die Variablen angewendet werden. Ein zentraler Vorteil ist die Vermeidung von \emph{Data Leakage}: Statistische Maße (wie der Mittelwert zur Skalierung) werden ausschließlich auf den Trainingsdaten berechnet und später identisch auf neue Daten übertragen.
+
+\begin{description}
+\item[Imputation:] Mit \lstinline|step_impute_median()| werden fehlende Werte durch den Median ersetzt.
+\item[Nominalisierung:] \lstinline|step_dummy()| wandelt kategorische Texte in numerische Indikatorvariablen um.
+\item[Normalisierung:] \lstinline|step_normalize()| bringt alle numerischen Werte auf eine einheitliche Skala.
+\end{description}
+
+\paragraph{Modellierung mit parsnip}
+
+Anstatt für jedes R-Paket eine eigene Syntax zu lernen, vereinheitlicht \lstinline|parsnip| die Schnittstellen. Ein Modell wird abstrakt über seinen Typ (z.\,B. \emph{Random Forest}), die Rechen-Engine (das zugrunde liegende Paket wie \lstinline|"ranger"|) und den Modus (Regression oder Klassifikation) spezifiziert. Dies erlaubt es, den Algorithmus später mit nur einer Zeile Code auszutauschen.
+
+\paragraph{Das Workflow-Konzept}
+
+Der \lstinline|workflow| fungiert als Container, der das Rezept und die Modellspezifikation fest miteinander verknüpft. Beim Aufruf von \lstinline|fit()| wird das Rezept auf die Daten angewendet und das resultierende Modell trainiert. Besonders vorteilhaft ist dies bei der Vorhersage mit \lstinline|predict()|. Die neuen Rohdaten werden automatisch durch alle Schritte des Rezepts geschleust, bevor sie in das Modell fließen, was manuelle Fehler bei der Datenvorbereitung ausschließt.
+
+\begin{lstlisting}
+library(tidymodels)
+
+# 1. Rezept: Definiert die Vorverarbeitung (Preprocessing)
+rec <- recipe(mpg ~ ., data = mtcars) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors()) 
+
+# 2. Modell: Definiert den Algorithmus abstrakt (parsnip)
+model_spec <- rand_forest() |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("regression")
+
+# 3. Workflow: Verknuepft Rezept und Modell zu einer Einheit
+wflow <- workflow() |> 
+  add_recipe(rec) |> 
+  add_model(model_spec)
+
+# 4. Training und Vorhersage
+fit_wflow <- fit(wflow, data = mtcars)
+x <- predict(fit_wflow, new_data = mtcars)
+plot(x[[1]], mtcars$mpg)
+extract_fit_parsnip(fit_wflow)
+extract_recipe(fit_wflow)
+
+library(vip)
+vip(fit_wflow)
+\end{lstlisting}
+
+
+\subsubsection{Deep Learning mit Keras 3}
+
+Für den Entwurf tiefer neuronaler Netze kann das Paket \lstinline|keras3| verwendet werden. Es dient als Schnittstelle für \emph{TensorFlow}, eine Software-Plattform, die im Hintergrund die komplexen mathematischen Berechnungen für künstliche Intelligenz übernimmt.
+
+\paragraph{Datenaufbereitung und Architektur}
+
+Im Gegensatz zu Standardmodellen erfordern neuronale Netze eine strikte numerische Vorbereitung der Daten. Kategorische Zielvariablen (wie Pflanzenarten) müssen mittels \emph{One-Hot-Encoding} (\lstinline|to_categorical|) transformiert werden. Dabei wird jede Kategorie in eine eigene Spalte aus Nullen und Einsen umgewandelt, damit das Modell keine künstliche Rangfolge zwischen den Klassen interpretiert.
+
+Die Modellarchitektur wird schichtweise aufgebaut:
+\begin{description}
+\item[Dense Layers:] Vollvernetzte Schichten, die Muster in den Daten erkennen. Die \emph{ReLU}-Aktivierung (Rectified Linear Unit) hilft dabei, komplexe, nicht-lineare Zusammenhänge zu lernen, indem sie negative Signale blockiert (auf Null setzt) und nur positive Informationen unverändert weitergibt.
+\item[Dropout:] Eine Regularisierungstechnik, die während des Trainings zufällig Neuronen deaktiviert. Dies verhindert, dass das Modell die Trainingsdaten lediglich auswendig lernt (\emph{Overfitting}), und zwingt es stattdessen, robustere Merkmale zu finden.
+\item[Softmax:] Die letzte Schicht wandelt die Ergebnisse in Wahrscheinlichkeiten um, die sich zu 100\,\% aufaddieren.
+\end{description}
+
+\paragraph{Kompilierung und Training}
+
+Bevor das Training beginnt, muss das Modell kompiliert werden. Hierbei wird ein Optimierer (z.\,B. \emph{Adam}) gewählt, der die internen Gewichte des Netzes so anpasst, dass der Fehler (\emph{Loss}) minimiert wird. Das Training erfolgt in Epochen, wobei der Algorithmus den Datensatz mehrfach durchläuft, um seine Vorhersagegenauigkeit schrittweise zu verbessern.
+
+\begin{lstlisting}
+library(keras3)
+
+# 1. Vorbereitung: One-Hot-Encoding der Zielvariable
+y_train <- as.numeric(iris$Species) - 1 
+y_train_cat <- to_categorical(y_train, num_classes = 3)
+x_train <- as.matrix(iris[, 1:4])
+
+# 2. Modell-Architektur definieren
+model <- keras_model_sequential(input_shape = c(4)) |>
+  layer_dense(units = 16, activation = "relu") |>
+  layer_dropout(rate = 0.2) |>
+  layer_dense(units = 3, activation = "softmax")
+
+# 3. Kompilieren (Regeln festlegen) und Trainieren
+model |> compile(
+  loss = "categorical_crossentropy",
+  optimizer = "adam", 
+  metrics = "accuracy" )
+
+history <- model |> fit(x_train, y_train_cat, epochs = 100,
+                        batch_size = 5, verbose = 0)
+
+# 4. Vorhersage der Wahrscheinlichkeiten fuer jede Klasse
+probs <- model |> predict(x_train)
+rowsum(probs, iris$Species)
+\end{lstlisting}
+
+
+\subsubsection{Automated Machine Learning (AutoML)}
+
+Steht nicht die manuelle Modellkontrolle, sondern die maximale Vorhersagegüte im Vordergrund, übernimmt \emph{AutoML} die systematische Suche nach dem optimalen Algorithmus. Das Paket \lstinline|h2o| bietet hierfür eine Umgebung, die ohne tiefgreifendes manuelles Tuning Modelle erstellt.
+
+\paragraph{Automatisierte Pipeline}
+
+Bei diesem Verfahren muss lediglich die Zielvariable definiert werden. Den Rest der Pipeline übernimmt der Algorithmus autonom. Er erkennt Datentypen, füllt fehlende Werte aus (\emph{Imputation}) und transformiert Texte in numerische Formate (\emph{Encoding}). Während der Laufzeit führt H2O eine massive Suche über verschiedene Modellklassen wie \emph{Gradient Boosting}, \emph{Distributed Random Forests} und tiefe neuronale Netze durch.
+
+Obwohl AutoML wenig Input verlangt, lässt sich der Rechenaufwand über \lstinline|max_runtime_secs| (Zeitlimit) oder \lstinline|max_models| (Anzahl der Versuche) begrenzen.
+
+\paragraph{Vom Leaderboard zum Stacked Ensemble}
+
+Die Ergebnisse aller trainierten Modelle werden in einem \emph{Leaderboard} nach ihrer Vorhersagegenauigkeit sortiert. Am Ende des Prozesses werden die besten Einzelmodelle zu sogenannten \emph{Stacked Ensembles} verknüpft. Dabei lernt ein übergeordnetes Modell, wie es die Vorhersagen der Spezialisten am geschicktesten kombiniert, um eine Genauigkeit zu erzielen, die über der jedes einzelnen Modells liegt.
+
+\paragraph{Interpretation von Black-Box-Modellen}
+
+Da komplexe Ensembles schwer zu durchschauen sind, bietet H2O spezialisierte Werkzeuge zur Interpretation (\emph{Explainable AI}):
+
+\begin{description}
+\item[Variable Importance:] Identifiziert mittels \lstinline|h2o.varimp_plot()| jene Merkmale (z.\,B.\ Gewicht oder PS), die den stärksten mathematischen Einfluss auf die Vorhersagen des Modells ausüben.
+\item[Partial Dependence Plots (PDP):] Visualisieren den isolierten Trend eines Merkmals. Zur Berechnung wird dieses Merkmal für \emph{alle} Datensätze künstlich auf einen festen Wert gesetzt (z.\,B.\ 200 PS), während alle anderen Variablen ihre Originalwerte behalten. Der Durchschnitt der daraus resultierenden Modellvorhersagen bildet einen Punkt der Kurve. Dies vernachlässigt jedoch Abhängigkeiten zwischen Variablen und kann zu unrealistischen Datenkombinationen führen.
+\item[Accumulated Local Effects (ALE):] Stellen eine robustere Lösung für korrelierte Daten dar. In H2O können diese über die zentrale Funktion \lstinline|h2o.explain()| bzw.\ über das Paket \lstinline|DALEXtra| generiert werden, um auch bei korrelierten Merkmalen präzise Einblicke zu erhalten. Anstatt Werte künstlich über den gesamten Bereich zu setzen, analysiert der ALE-Plot, wie sich die Vorhersage ändert, wenn man den echten Wert einer Beobachtung nur um ein winziges Stück (\emph{lokal}) variiert. Dies verhindert Berechnungen in datenfreien, unrealistischen Bereichen und liefert präzisere Einblicke in die tatsächliche Modelllogik.
+\end{description}
+
+\begin{lstlisting}
+library(h2o)
+h2o.init() # Startet die Java-basierte Rechenumgebung
+data_h2o <- as.h2o(mtcars)
+
+# 1. Start des automatisierten Trainings
+aml <- h2o.automl(y = "mpg", training_frame = data_h2o, 
+                  max_runtime_secs = 300, seed = 42)
+
+# 2. Auswertung und Auswahl des besten Modells (Leader)
+lb <- aml@leaderboard      
+best_model <- aml@leader   
+
+# 3. Vorhersage und Interpretation
+predictions <- h2o.predict(best_model, newdata = data_h2o)
+plot(as.data.frame(predictions)[[1]], mtcars$mpg)
+h2o.varimp(best_model)
+h2o.varimp_plot(best_model)
+h2o.pd_plot(best_model, data_h2o, column = "hp")
+h2o.explain_row(best_model, data_h2o, row_index = 1) 
+h2o.explain(best_model, data_h2o)
+
+# 4. Interpretation mit DALEXtra (fuer ALE-Plots)
+library(DALEXtra)
+explainer <- explain_h2o(best_model, data = mtcars[,-1],
+                         y = mtcars$mpg)
+ale <- model_profile(explainer, type = "accumulated",
+                     variables = "hp")
+plot(ale)
+
+# 5. Modell speichern
+#h2o.saveModel(object = best_model, path = getwd())
+\end{lstlisting}
 
 
 
