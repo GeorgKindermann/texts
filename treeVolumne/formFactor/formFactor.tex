@@ -1,0 +1,674 @@
+\documentclass[twocolumn, bibliography=totoc]{scrartcl}
+
+\usepackage[T1]{fontenc}
+%\usepackage[english]{babel}
+\usepackage[british]{babel}
+\usepackage[autostyle=true]{csquotes}
+
+\usepackage{newpxtext}
+\usepackage{newpxmath}
+\usepackage{microtype}
+
+\usepackage[
+  backend=biber,
+  style=authoryear,
+  natbib=true,
+  maxbibnames=99,
+  maxcitenames=2
+]{biblatex}
+\addbibresource{literatur.bib}
+
+\usepackage{amsmath}
+\usepackage{siunitx}
+
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+\usepackage[pdftitle={Eliminating DBH Thresholds: A Continuous Form Factor for Stump, Stem, and Top Volume Across All Tree Sizes}
+, pdfauthor={Georg Kindermann}
+, pdfsubject={Form factor, stem volume, Picea abies, taper curve, biomass assessment, forest inventory, continuous volume estimation, stump volume, sectional form factors, forest regeneration, saplings, Tree, Stem, Volume, Forestry, Baum, Schaft, Volumen, Forestwirtschaft}
+, pdfkeywords={Form factor, stem volume, Picea abies, taper curve, biomass assessment, forest inventory, continuous volume estimation, stump volume, sectional form factors, forest regeneration, saplings, Tree, Stem, Volume, Forestry, Baum, Schaft, Volumen, Forestwirtschaft}
+, pdflang={en}
+, hidelinks
+, pdfpagemode={UseNone}]{hyperref}
+
+\title{Eliminating DBH Thresholds: A Continuous Form Factor for Stump, Stem, and Top Volume Across All Tree Sizes}
+\author{Georg Kindermann}
+
+\usepackage{abstract}
+
+\begin{document}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{abstract}
+      Accurate estimation of stem volume is critical for forest inventory and biomass assessment. Traditional methods rely on diameter at breast height (DBH), which is undefined for trees shorter than \qty{1.3}{m}. This limitation introduces discontinuities in volume estimation and leads to inconsistent treatment of small trees, which in turn causes systematic errors in forest modelling.
+
+      This study introduces a unified, continuous framework for stem volume estimation across all tree sizes, from young saplings to mature individuals. By replacing the fixed DBH with a height-adaptive reference diameter ($d_r$), the model eliminates arbitrary thresholds and ensures a smooth transition across the full range of tree development.
+      
+      Through biologically consistent preprocessing and Steffen monotonic interpolation, stem profiles are reconstructed to capture the true taper along the entire stem. The total stem volume is partitioned into three sections—stump, merchantable stem, and top—each described by appropriate geometric formulations. The framework is parameterised using a comprehensive dataset of 15\,684 Norway spruce (\textit{Picea abies}) stems.
+
+      The results demonstrate high accuracy and consistency across the full size range, with no systematic bias. Derived sectional form factors enable precise volume estimates even when only basic inventory data (height and diameter) are available. This approach provides a scalable and consistent solution for forest inventories, ensuring that both regeneration stages and mature trees are represented within a single framework.
+
+      \noindent \textbf{Keywords:} Form factor, stem volume, \textit{Picea abies}, taper curve, biomass assessment, forest inventory, continuous volume estimation, stump volume, sectional form factors, forest regeneration, saplings.
+    \end{abstract}
+  \end{@twocolumnfalse}
+]
+
+\tableofcontents
+
+\section{Introduction}
+
+Estimating stem volume accurately is a fundamental component of forest inventory and biomass assessment. Traditionally, tree volume ($V$) is expressed as the product of basal area ($g$, typically derived from diameter at breast height  measured at \qty{1.3}{m}, DBH), total height ($H$), and a dimensionless correction factor, the \emph{form factor} ($f$):
+\begin{equation}
+V = g \cdot H \cdot f
+\end{equation}
+
+The form factor accounts for deviations of the actual stem shape from an idealised cylinder defined by basal area and height. While stem cross-sections are commonly assumed to be circular, irregular growth patterns and measurement errors in diameter and height introduce uncertainties. Despite these limitations, form-factor-based approaches remain the pragmatic standard in large-scale inventories due to their simplicity and low data requirements.
+
+Stem shape is primarily characterised by taper, i.e., the rate at which diameter decreases towards the apex. These morphological traits are influenced by stand dynamics and environmental conditions: dense stands favour more cylindrical stems, whereas trees growing in open conditions typically develop greater taper to enhance mechanical stability against wind and snow loads.
+
+However, reliance on a single reference diameter—typically the DBH—introduces a fundamental limitation. DBH is undefined for trees shorter than \qty{1.3}{m}, creating a discontinuity that leads to the systematic exclusion or inconsistent treatment of small trees. In larger trees, DBH is often influenced by basal swellings, such as root flares and buttresses. Because basal area is derived from DBH, these local irregularities require compensatory adjustments in the form factor to maintain volume accuracy. This may create the misleading impression of increasing taper with age, even when the upper stem profile remains largely unchanged.
+
+To address these issues, a distinction is commonly made between the \emph{artificial form factor} (e.g., $f_{1.3}$), based on diameter at a fixed height, and the \emph{true form factor} (e.g., $f_{0.1}$), based on diameter at a relative height (e.g., one-tenth of total tree height). While true form factors provide a more consistent basis for analysing stem form across developmental stages, they are rarely used in operational practice due to practical limitations in obtaining reliable measurements at relative heights.
+
+Despite these refinements, existing approaches continue to rely—explicitly or implicitly—on fixed or discrete reference points along the stem. As a result, they do not fully resolve the structural discontinuity introduced by DBH, nor do they provide a unified framework applicable across the entire range of tree sizes.
+
+This study introduces a unified framework that addresses this limitation at its conceptual root. By defining a continuous, height-adaptive reference diameter ($d_r$), the proposed approach replaces fixed measurement heights with a continuous reference system, thereby eliminating DBH-related discontinuities. This enables consistent volume estimation across all size classes within a single, continuous formulation. Combined with numerical integration of reconstructed stem profiles and the derivation of sectional form factors, the framework provides a biologically consistent and methodologically robust solution for trees ranging from young saplings to mature individuals.
+
+The main contributions of this study are:
+\begin{itemize}
+\item introducing a continuous diameter reference system independent of the \qty{1.3}{m} threshold;
+\item reconstructing stem profiles using biologically constrained Steffen monotonic interpolation;
+\item deriving analytical and numerical solutions for sectional volume estimation (stump, merchantable stem, and top);
+\item providing a unified formulation that consistently represents stem volume across all developmental stages.
+\end{itemize}
+
+
+\section{Data}
+
+This study uses the dataset published by~\cite{Didion2024sectionWiseStemDiametersText,Didion2024sectionWiseStemDiametersData}, which comprises measurements from 15,684 Norway spruce (\textit{Picea abies}) stems. The sampled trees cover a broad range of dimensions, with DBH ranging from \qty{0.6}{cm} to \qty{100.8}{cm} and total height from \qty{1.6}{m} to \qty{48.6}{m}. Most observations are concentrated within a DBH range of \qtyrange{10}{50}{cm} and a height range of \qtyrange{5}{35}{m} (see Figs.~\ref{fig:dhScatter} and \ref{fig:dhCumObs}).
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{dhScatter}
+\caption{Relationship between DBH and total height for the sampled trees.}
+\label{fig:dhScatter}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{dhCumObs}
+\caption{Cumulative distribution of observations across DBH and height classes.}
+\label{fig:dhCumObs}
+\end{figure}
+
+Stem diameters over bark were measured in \qty{2}{m} sections starting at a height of \qty{1}{m}, following standard protocols for merchantable timber ($d \geq \qty{7}{cm}$). For the final merchantable segment shorter than \qty{2}{m}, diameters were recorded at the segment midpoint. Diameters of non-merchantable top sections ($d < \qty{7}{cm}$) were similarly measured at their respective midpoints. In addition, DBH was recorded at \qty{1.3}{m}.
+
+For a subset of 2,964 trees, an additional diameter measurement at \qty{0.65}{m} was available, providing critical information for characterising basal stem flare. The distribution of measurement heights is summarised in Table~\ref{tab:nDiamAtHeight}.
+
+\begin{table}[!htb]
+\centering
+\caption{Number of diameter measurements ($n$) at specific heights ($h$).}
+\label{tab:nDiamAtHeight}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l *{7}{r}}
+  \toprule
+      $h$ & 0.65 & 1.0 & 1.3 & 3.0 & 5.0 & 7.0 & 9.0 \\
+    $n$ & 2\,964 & 15\,177 & 15\,684 & 14\,651 & 13\,930 & 13\,016 & 12\,026 \\
+    \midrule
+    $h$ & 11.0 & 13.0 & 15.0 & 17.0 & 19.0 & 21.0 & 23.0 \\
+    $n$ & 11\,037 & 10\,025 & 8\,939 & 7\,812 & 6\,634 & 5\,604 & 4\,617 \\
+    \midrule
+    $h$ & 25.0 & 27.0 & 29.0 & 31.0 & 33.0 & 35.0 & 37.0 \\
+    $n$ & 3\,649 & 2\,748 & 1\,886 & 1\,045 & 475 & 164 & 58 \\
+    \midrule
+    $h$ & 39.0 & 41.0 & 43.0 & 45.0 & \text{midpt} & \text{d=7} & \text{DTop} \\
+    $n$ & 24 & 8 & 4 & 1 & 10\,063 & 15\,417 & 13\,079 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\raggedright
+\footnotesize{
+\textbf{h}: measurement height [m]; \textbf{n}: number of observations; \\
+\textbf{midpt}: midpoint of the last merchantable section; \\
+\textbf{d=7}: height at which stem diameter reaches \qty{7}{cm}; \\
+\textbf{top}: midpoint of the non-merchantable top section.
+}
+\end{table}
+
+While the full dataset was used for general volume estimation and form factor analysis, the modelling of the basal stem section required higher vertical resolution near the ground. Consequently, individual power-law regressions and subsequent generalised basal taper models were fitted using a refined subset of 2,828 trees that passed quality filtering and contained sufficient measurements in the lower stem region.
+
+
+\section{Methods}
+\subsection{Conceptual Framework}
+
+To overcome the limitations of DBH-based volume estimation—most notably the absence of a defined reference diameter for trees shorter than \qty{1.3}{m}—a continuous, height-adaptive reference system is introduced. This framework ensures a smooth transition in stem profile modelling across all height classes, from saplings to mature individuals.
+
+\subsubsection{Terminal and Reference Diameter}
+
+To avoid a mathematically singular tree tip (a point with \qty{0}{cm} diameter), a height-dependent terminal diameter $d_t$ is defined. This diameter scales quadratically from \qty{0.1}{cm} for small seedlings to a constant \qty{0.8}{cm} for trees reaching the breast height threshold:
+\begin{equation}
+d_t =
+\begin{cases}
+0.8 & \text{for } H_{\text{total}} \geq \qty{1.3}{m} \\
+0.1 + 0.7 \cdot \left[ 1 - \left( \frac{1.3 - H_{\text{total}}}{1.3} \right)^2 \right] & \text{for } H_{\text{total}} < \qty{1.3}{m}
+\end{cases}
+\end{equation}
+where $d_t$ is the terminal diameter in \unit{cm} and $H_{\text{total}}$ is the total tree height in \unit{m}.
+
+The core of the framework is the \emph{reference diameter} ($d_r$), which replaces DBH as a continuous reference variable, enabling consistent stem profile reconstruction across all tree sizes. To maintain biological plausibility and ensure that ground-level diameter estimates remain robust, an offset of \qty{0.65}{cm} is applied to trees exceeding \qty{1.3}{m} in height. This offset is derived from a theoretical height-to-diameter ratio ($H/D$) of 200, ensuring that predicted basal diameters ($d_0$) consistently exceed the reference value, even in slender individuals. The reference diameter is defined as:
+\begin{equation}
+d_r =
+\begin{cases}
+\text{DBH} + 0.65 & \text{for } H_{\text{total}} \geq \qty{1.3}{m} \\
+d_t + \frac{H_{\text{total}}}{2} & \text{for } H_{\text{total}} < \qty{1.3}{m}
+\end{cases}
+\end{equation}
+where $d_r$ and DBH are in \unit{cm}.
+
+For trees shorter than \qty{1.3}{m}, $d_r$ is derived from total height. While this height-dependent approximation does not explicitly capture diameter variations driven by stand density or competition in the smallest individuals, it provides a consistent and stable geometric anchor for volume integration.
+
+DBH remains important and will be used; however, for trees shorter than \qty{1.3}{m}, the diameter at the tree top is used instead. Correspondingly, the height $h_{\text{D}}$ is defined as:
+\begin{equation}
+h_{\text{D}} = \min(1.3, H_{\text{total}})
+\end{equation}
+The corresponding diameter $d_{\text{D}}$ is defined as the diameter at height $h_{\text{D}}$ , i.e., either the DBH or $d_t$.
+
+\subsubsection{Stump Height}
+
+Stump height ($h_{st}$) is influenced by tree size, terrain, and felling practices. To account for diameter dependency, $h_{st}$ (in \unit{m}) is modelled as a non-linear function of $d_r$:
+\begin{equation}
+h_{st} = \min\left(H_{\text{total}}, 0.08 + 0.3 \cdot \frac{d_r}{30 + d_r}\right)
+\end{equation}
+This formulation ensures that $h_{st}$ remains proportional to tree size and asymptotically approaches a realistic maximum, while never exceeding $H_{\text{total}}$.
+
+\subsection{Basal Diameter Reconstruction}
+
+To estimate total stem volume and merchantable volume, diameters at ground level ($d_0$) and stump height ($d_{st}$) are essential. To stabilise the interpolation at the stem base and ensure a realistic representation of the root flare, a hypothetical diameter at \qty{1}{m} below ground level ($d_{-1m}$) is introduced as a geometric anchor.
+
+\subsubsection{Individual Power Functions}
+
+For a subset of 2,828 trees with sufficient lower-stem measurements, tree-specific power functions were fitted to describe basal taper:
+\begin{equation}
+d(h) = c_0 + c_1 \cdot (5 - h)^{c_2}
+\end{equation}
+where $d(h)$ is the diameter at height $h$, and \qty{5}{m} serves as the upper reference limit for the basal fit. The coefficients $c_0, c_1,$ and $c_2$ were estimated individually for each tree.
+
+To ensure biological plausibility, individual fits were rejected if the extrapolated diameters exceeded the following thresholds relative to the reference diameter $d_r$:
+\begin{itemize}
+\item $d_{st} > 1.8 \cdot d_r$ (11 cases rejected)
+\item $d_0 > 2.0 \cdot d_r$ (40 cases rejected)
+\item $d_{-1m} > 3.0 \cdot d_r$ (412 cases rejected)
+\end{itemize}
+These constraints prevent unrealistic basal swells that can arise from extrapolating power functions in trees with sparse measurements near the ground.
+
+
+\subsubsection{Generalised Basal Models}
+
+For trees with missing or rejected individual fits, Generalised Linear Models (GLM) with a Gamma distribution and log-link function were employed. The Gamma distribution was chosen to account for the heteroscedasticity observed in taper slopes, which typically increases with tree size. This distribution is particularly suitable for modelling positive, skewed data with non-constant variance, commonly observed in the basal taper of larger trees.
+
+The basal taper slope ($s_0$) represents the diameter increase per unit of height between the reference height $h_{\text{D}}$ and the ground. To ensure a minimum taper, a baseline of \qty{0.015}{cm/cm} was assumed, and the additional taper was modelled as:
+\begin{equation}
+\ln(s_0 - 0.015) = \beta_0 + \beta_1 \cdot \frac{1}{H_{\text{total}}} + \beta_2 \cdot \frac{1}{d_r}
+\end{equation}
+The ground-level diameter is then reconstructed as:
+\begin{equation}
+d_0 = d_{\text{D}} + s_0 \cdot h_{\text{D}} \cdot 100
+\end{equation}
+where $h_{\text{D}}$ (in \unit{m}) is scaled by a factor of 100 to convert the height to centimetres, ensuring unit consistency with the diameters (in \unit{cm}).
+
+To stabilise the stem profile, an additional taper slope $s_{-1m}$ was modelled to calculate $d_{-1m}$. This slope represents the incremental increase in taper that, when added to $s_0$, defines the total diameter expansion from $d_{\text{D}}$ down to $d_{-1m}$. The model for this slope is:
+\begin{equation}
+\ln(s_{-1m}) = \beta_3 + \beta_4 \cdot \frac{1}{H_{\text{total}}}
+\end{equation}
+The diameter $d_{-1m}$ is reconstructed by applying the combined slopes, accounting for the depth of \qty{1}{m} (\qty{100}{cm}) below ground:
+\begin{equation}
+d_{-1m} = d_{\text{D}} + (s_0 + s_{-1m}) \cdot (h_{\text{D}} \cdot 100 + 100)
+\end{equation}
+
+\subsubsection{Stump Diameter Curvature}
+
+The diameter at stump height ($d_{st}$) is derived using a non-linear curvature model for the exponent $e_{st}$:
+\begin{equation}
+\label{eq:est_model}
+e_{st} = \exp\left(\gamma_0 + \gamma_1 \cdot \ln(\gamma_2 + s_0)\right)
+\end{equation}
+Using this exponent, $d_{st}$ is calculated by interpolating between ground level and the reference height. This curvature-based interpolation captures the characteristic shape of the root flare, ensuring a realistic representation of the morphological transition from the lower stem to the ground:
+\begin{equation}
+d_{st} = d_0 - \left( \frac{h_{st}}{h_{\text{D}}} \right)^{e_{st}} \cdot (d_0 - d_{\text{D}})
+\end{equation}
+
+
+\subsection{Quality Control and Stem Profile Smoothing}
+
+To ensure biologically consistent stem profiles, monotonicity and taper constraints were enforced. These require that diameters decrease monotonically (though not necessarily strictly) with height and that the taper rate remains within plausible limits. Measurement noise, branch whorls, or recording errors can otherwise result in non-monotonic sequences or unrealistic taper rates, potentially distorting volume integration and profile reconstruction.
+
+\subsubsection{Analysis of Taper Slope and Curvature}
+
+To detect anomalies, such as measurement errors or morphological inconsistencies, the relative taper slope $s_j$ (radius change per unit height) and the change in slope $\Delta s_j$ (representing curvature) were analysed for each stem section $j$:
+\begin{equation}
+s_j = \frac{d_{j+1} - d_j}{2 \cdot (h_{j+1} - h_j)}, \quad \Delta s_j = s_{j+1} - s_j
+\end{equation}
+The distribution of these parameters relative to tree height is shown in Fig.~\ref{fig:taper_corridor}. To characterise the general trend across the dataset of 15,684 stems, a height-dependent ``plausibility corridor'' was established using weighted 2.5\% and 97.5\% quantiles ($Q_{0.025}$ and $Q_{0.975}$). Section lengths ($\Delta h$) were utilised as weights to ensure the statistical analysis reflects actual stem proportions, giving sections with larger vertical coverage a proportional influence.
+
+The analysis (Fig.~\ref{fig:taper_corridor}) confirms that extreme taper and curvature are concentrated in the lower 15\% of tree height ($h/H_{\text{total}} < 0.15$) due to root flare. Between 20\% and 80\% of the height, both the slope and its rate of change stabilise, reflecting a nearly parabolic mid-section where curvature becomes minimal as the stem transitions from basal flare to uniform taper.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics[width=\textwidth]{slope.png}
+\caption{Taper slope $s$ vs. relative height.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics[width=\textwidth]{dSlope.png}
+\caption{Change in slope $\Delta s$ vs. relative height.}
+\end{subfigure}
+\caption{Distribution of taper parameters. The green line represents the weighted median; red lines indicate the 2.5\% and 97.5\% quantiles. These boundaries are used to identify outliers relative to height-dependent stem morphology.}
+\label{fig:taper_corridor}
+\end{figure}
+
+
+\subsubsection{Data Smoothing and Outlier Handling}
+
+This step converts raw measurements into biologically consistent stem profiles suitable for robust volume integration. An iterative smoothing algorithm was implemented to rectify data points violating the established quantile boundaries or the monotonicity requirement ($d_{j+1} \leq d_j$). When a violation was detected, adjacent points were merged into a single representative point using a weighted centroid calculation:
+\begin{equation}
+h_{\text{new}} = \frac{h_i w_i + h_{i+1} w_{i+1}}{w_i + w_{i+1}}, \quad d_{\text{new}} = \frac{d_i w_i + d_{i+1} w_{i+1}}{w_i + w_{i+1}}
+\end{equation}
+The weights $w$ were derived from the frequency of points in the merging process to balance the influence of shared nodes. As illustrated in Fig.~\ref{fig:smoothing_example}, this procedure effectively removes spurious oscillations and measurement noise while preserving the characteristic stem taper. Following this refinement, the reconstructed basal diameters ($d_0$ and $d_{-1\text{m}}$) were appended to the dataset, completing the stem profile for subsequent interpolation and volume estimation.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.95\columnwidth]{sampleSmooth.pdf}
+\caption{Illustration of the iterative smoothing and point merging algorithm. The top row shows original diameter measurements with local irregularities (red segments) violating monotonicity or taper constraints. The bottom row displays the resulting biologically consistent profile (green/black) after merging anomalous points into weighted centroids. The grey line provides a reference to the original geometry.}
+\label{fig:smoothing_example}
+\end{figure}
+
+
+\subsection{Volume Calculation and Partitioning}
+
+The total stem volume ($V_{\text{total}}$) and its components are determined by treating the stem as a solid of revolution. To ensure a biologically realistic and strictly monotonic taper between measurement points, Steffen monotonic cubic spline interpolation is applied to the diameter-height pairs, incorporating the reconstructed basal values ($d_0, d_{-1\text{m}}$). This method ensures that the stem profile remains smooth while strictly respecting the monotonicity constraints between adjacent observations.
+
+\subsubsection{Numerical Integration and Stem Sectioning}
+
+The cross-sectional area at any height $h$ is defined as $A(h) = \frac{\pi}{4} d(h)^2$. The volume between two vertical positions is calculated via numerical integration:
+\begin{equation}
+    V = \frac{\pi}{40\,000} \int_{h_{\text{start}}}^{h_{\text{end}}} d(h)^2 \, dh
+\end{equation}
+where the constant $40\,000$ accounts for the conversion of diameters (\unit{cm}) and heights (\unit{m}) into volume (\unit{m^3}). Numerical integration was performed using adaptive Gauss-Kronrod quadrature (QuadGK).
+
+To partition the stem, the merchantable height $h_{d7}$ (where $d = \qty{7}{cm}$) is identified via numerical root-finding on the interpolated function $d(h)$. If $d(h_{st}) < \qty{7}{cm}$, then $h_{d7}$ is set equal to $h_{st}$. This approach enables the precise definition of three distinct sections:
+\begin{itemize}
+    \item \textbf{Stump volume ($V_{st}$):} from ground level ($h=0$) to $h_{st}$;
+    \item \textbf{Merchantable volume ($V_{merc}$):} from $h_{st}$ to $h_{d7}$;
+    \item \textbf{Top volume ($V_{top}$):} from $h_{d7}$ to $H_{\text{total}}$.
+\end{itemize}
+
+\subsubsection{Analytical Stump Volume}
+
+The volume of the stump ($V_{st}$) is derived analytically to maintain consistency with the basal curvature $e_{st}$ modelled in Eq.~\ref{eq:est_model}. Unlike numerical approximation, this analytical formulation explicitly captures the non-linear basal flare:
+\begin{equation}
+    V_{st} = \frac{\pi}{40,000} \int_{0}^{h_{st}} \left[ d_0 - \left( \frac{h}{h_{\text{D}}} \right)^{e_{st}} \cdot (d_0 - d_{\text{D}}) \right]^2 dh
+\end{equation}
+Solving this integral yields the final formulation for the stump section:
+\begin{equation}
+\begin{split}
+    V_{st} = \frac{\pi}{40,000} h_{st} \biggl[ & d_0^2 - \frac{2 d_0 (d_0 - d_{\text{D}})}{e_{st}+1} \left(\frac{h_{st}}{h_{\text{D}}}\right)^{e_{st}} \\
+    & + \frac{(d_0 - d_{\text{D}})^2}{2e_{st}+1} \left(\frac{h_{st}}{h_{\text{D}}}\right)^{2e_{st}} \biggr]
+\end{split}
+\end{equation}
+By accounting for the characteristic root flare, this approach avoids the systematic overestimation of volume typical of conventional truncated cone models ($e_{st}=1$).
+
+
+\subsubsection{Parametric Estimation of Sectional Volumes}
+
+To facilitate application in standard forest inventories where only DBH and total height are available, simplified parametric models were developed. These models enable robust volume estimation by approximating the stem profile through key morphological parameters.
+
+\paragraph{Merchantable Taper Curvature}
+The exponent $e_{d7}$ describes the deviation of the merchantable stem from a truncated cone. This curvature is estimated using the following model:
+\begin{equation}
+e_{d7} = \exp\left( \beta_0 + \beta_1 \left( \ln(\beta_2 \Delta d_{st}) \right)^2 + \beta_3 \ln\left( \frac{H_{\text{total}} - h_{st}}{d_{st}} \right) \right)
+\end{equation}
+where $\Delta d_{st} = d_{st} - 7$. The merchantable height $h_{d7}$ is determined via the relative merchantable height $r$, which is related to the diameter ratio $r_s$ and the exponent $e_{d7}$:
+\begin{align}
+r &= \frac{h_{d7} - h_{st}}{H_{\text{total}} - h_{st}} = r_s^{e_{d7}} \\
+r_s &= 1 - \frac{7 - d_t}{d_{st} - d_t}
+\end{align}
+The absolute merchantable height $h_{d7}$ is then calculated as:
+\begin{equation}
+h_{d7} = r (H_{\text{total}} - h_{st}) + h_{st}
+\end{equation}
+
+\paragraph{Sectional Correction Factors ($\zeta$)}
+Correction factors $\zeta = V_{\text{cone}} / V_{\text{int}}$ were derived to provide a numerically stable alternative to traditional form factors. These factors are particularly robust for trees near or below the \qty{1.3}{m} threshold, where conventional form-factor-based estimates often lose precision. The merchantable correction factor ($\zeta_{merc}$) and the top correction factor ($\zeta_{top}$) are modelled as:
+\begin{align}
+\zeta_{merc} &= \gamma_0 + \frac{\gamma_1}{1 + \exp\left( \gamma_2 + \gamma_3 / l_{merc} \right)} \\
+\zeta_{top} &= \delta_0 + \frac{\delta_1}{1 + \exp\left( \delta_2 l_{top} + \delta_3 \frac{d_r}{H_{\text{total}}} \right)}
+\end{align}
+where $l_{merc} = h_{d7} - h_{st}$ and $l_{top} = H_{\text{total}} - h_{d7}$.
+
+
+\subsection{Software and Implementation}
+
+Data processing, statistical modeling, and numerical integration were performed using the \textsf{Julia} programming language v1.12.6 \citep{Julia-2017}. Stem profile reconstruction was implemented using \texttt{Interpolations.jl} v0.16.2 \citep{juliaInterpolations}, while volume integration was conducted via the \texttt{Integrals.jl} v5.4.0 framework \citep{juliaIntegrals}. Numerical integration specifically utilized the \textsf{QuadGK.jl} method, providing adaptive Gauss-Kronrod quadrature for high-precision results \citep{laurie1997calculation}.
+
+Non-linear parameter estimation was performed using the Levenberg-Marquardt algorithm in \texttt{LsqFit.jl} v0.16.0 \citep{juliaLsqFit}. Generalized Linear Models (GLM) were fitted using \texttt{GLM.jl} v1.9.4 \citep{juliaGLM}. Numerical optimization for determining merchantable height utilized \texttt{Optim.jl} v2.0.1 \citep{juliaOptim}. Data manipulation, weighted quantile analysis, and local smoothing were supported by \texttt{DataFrames.jl} v1.8.2 \citep{juliaDataframes}, \texttt{CSV.jl} v0.10.16 \citep{juliaCsv}, \texttt{Distributions.jl} v0.25.125 \citep{juliaDistributions,JSSv098i16}, \texttt{StatsBase.jl} v0.34.10 \citep{juliaStatsBase}, and \texttt{Loess.jl} v0.6.5 \citep{juliaLoess}. Visualizations and diagnostic plots were generated using \texttt{Plots.jl} v1.41.6 \citep{juliaPlots} in combination with \texttt{LaTeXStrings.jl} v1.4.0 \citep{juliaLaTeXStrings} to ensure consistent mathematical notation.
+
+
+\section{Results}
+
+In line with the biological plausibility criteria defined in the Methods, outlier detection identified 410 cases for $d_{-1\text{m}}$, 47 cases for $d_0$, and 11 cases for $d_{st}$. These anomalous values were replaced with predictions derived from the generalised models, ensuring a robust foundation for further analysis.
+
+The Generalised Linear Model (GLM) for the basal taper slope ($s_0$) demonstrated that both total tree height ($H_{\text{total}}$) and the reference diameter ($d_r$) are highly significant predictors ($p < 0.001$, see Table~\ref{tab:coefficients}). Increasing tree height and reference diameter both lead to a systematic reduction in relative basal taper, indicating that larger trees exhibit more gradual diameter transitions near the stem base. By utilising $h_{\text{D}}$ as a dynamic scaling factor, the model successfully accommodated trees shorter than \qty{1.3}{m} without introducing mathematical discontinuities. Residual analysis (Fig.~\ref{fig:d0Resid}) confirms that the Gamma-distributed model effectively captures the increasing heteroscedasticity associated with larger taper values.
+
+\begin{figure}[!htb]
+  \centering
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{d0ResidPred}
+    \caption{Predicted values}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{d0ResidHeight}
+    \caption{Total tree height}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{d0ResidDAux}
+    \caption{Reference diameter $d_r$}
+  \end{subfigure}
+  \caption{Residual analysis for the basal taper model ($s_0$). The plots show the difference between observed and predicted taper slopes relative to the reference height $h_{\text{D}}$.}
+  \label{fig:d0Resid}
+\end{figure}
+
+For the basal curvature, the non-linear model for the exponent $e_{st}$ reached stable convergence. The negative coefficient ($\gamma_1 = -0.184$) indicates that increasing basal taper results in a less pronounced relative diameter reduction at stump height, reflecting a smoother transition in larger or more tapered stems. The absence of systematic bias in the residuals (Fig.~\ref{fig:eStResid}) confirms that the model accurately captures the transition from ground level to the reference height for both saplings and mature trees.
+
+\begin{figure}[!htb]
+  \centering
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{dEStResidPred}
+    \caption{Predicted exponent $\hat{e}_{st}$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{dEStResidSlp}
+    \caption{Basal taper $s_0$}
+  \end{subfigure}
+  \caption{Residual plots for the non-linear stump curvature model ($e_{st}$). The model captures the diameter reduction at stump height relative to the reference diameter $d_{\text{D}}$.}
+  \label{fig:eStResid}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Estimated coefficients for the basal taper and stump curvature models.}
+  \label{tab:coefficients}
+  \begin{tabular}{l c r r}
+    \toprule
+    Model & Coeff. & Estimate & Std. Err. \\
+    \midrule
+    Basal Taper ($s_0$)      & $\beta_0$  & -0.2745  & 0.0431 \\
+                             & $\beta_1$  & -37.6638 & 2.1431 \\
+                             & $\beta_2$  & -34.7816 & 2.3171 \\
+    \midrule
+    Stump Curvature ($e_{st}$) & $\gamma_0$ & -0.6293  & 0.0139 \\
+                               & $\gamma_1$ & -0.1842  & 0.0094 \\
+                               & $\gamma_2$ &  0.0260  & 0.0039 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The models for the sectional correction factors ($\zeta$) and merchantable taper curvature ($e_{d7}$) also demonstrated high statistical significance (all $p < 0.001$). The estimated coefficients for these models are summarised in Table~\ref{tab:coefficients_extended}. The merchantable correction factor $\zeta_{merc}$ converged to a baseline of approximately 1.06, reflecting the systematic deviation of the integrated stem volume from a truncated cone model. For the top section, the inclusion of the $d_r/H_{\text{total}}$ ratio improved the prediction of $\zeta_{top}$ by accounting for tree slenderness and the developmental stage of the apex.
+
+\begin{table}[htbp]
+\centering
+\caption{Estimated coefficients for the taper curvature model ($e_{d7}$) and sectional correction factors ($\zeta_{merc}$ and $\zeta_{top}$).}
+\label{tab:coefficients_extended}
+\begin{tabular}{l c r r}
+\toprule
+Model & Coeff. & Estimate & Std. Err. \\
+\midrule
+Taper Curvature ($e_{d7}$) & $\beta_0$ & -0.5803 & 0.0029 \\
+                           & $\beta_1$ & 0.0910  & 0.0017 \\
+                           & $\beta_2$ & 0.0399  & 0.0007 \\
+                           & $\beta_3$ & -0.3286 & 0.0078 \\
+\midrule
+Correction Factor ($\zeta_{merc}$) & $\gamma_0$ & 1.0571   & 0.0017 \\
+                                   & $\gamma_1$ & 0.4433   & 0.0249 \\
+                                   & $\gamma_2$ & -4.9835  & 0.3693 \\
+                                   & $\gamma_3$ & 138.2230 & 7.1624 \\
+\midrule
+Correction Factor ($\zeta_{top}$) & $\delta_0$ & 0.8662  & 0.0050 \\
+                                  & $\delta_1$ & 0.1141  & 0.0053 \\
+                                  & $\delta_2$ & 1.2711  & 0.1169 \\
+                                  & $\delta_3$ & -7.7670 & 0.6224 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Numerical Illustration of Model Application}
+
+To facilitate implementation, this section provides a step-by-step calculation for a Norway spruce with $\text{DBH} = \qty{30}{cm}$ and $H_{\text{total}} = \qty{20}{m}$.
+
+\subsection{Reference Parameters}
+
+\paragraph{Terminal Diameter ($d_t$):}
+\begin{equation}
+\begin{aligned}
+  d_t &= \begin{cases} 
+    0.8 & H_{\text{total}} \geq 1.3 \\ 
+    f(H_{\text{total}}) & H_{\text{total}} < 1.3 
+  \end{cases} \\
+  &\implies d_t = \qty{0.8}{cm}
+\end{aligned}
+\end{equation}
+\begin{footnotesize}
+where $f(H) = 0.1 + 0.7 [ 1 - ( \frac{1.3 - H}{1.3} )^2 ]$.
+\end{footnotesize}
+
+\paragraph{Reference Diameter ($d_r$):}
+\begin{equation}
+\begin{aligned}
+  d_r &= \begin{cases} 
+    \text{DBH} + 0.65 & H_{\text{total}} \geq 1.3 \\ 
+    d_t + \frac{H_{\text{total}}}{2} & H_{\text{total}} < 1.3 
+  \end{cases} \\
+  &= 30 + 0.65 = \qty{30.65}{cm}
+\end{aligned}
+\end{equation}
+
+\paragraph{DBH and Height:}
+\begin{equation}
+\begin{aligned}
+  h_{\text{D}} &= \min(1.3, H_{\text{total}}) \\
+  &= \min(1.3, 20) = \qty{1.3}{m}
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+  d_{\text{D}} &= \begin{cases} 
+    \text{DBH} & H_{\text{total}} \geq 1.3 \\ 
+    d_t & H_{\text{total}} < 1.3 
+  \end{cases} \\
+  &\implies d_{\text{D}} = \qty{30}{cm}
+\end{aligned}
+\end{equation}
+
+\subsection{Basal Geometry and Stump Height}
+
+\paragraph{Stump Height ($h_{st}$):}
+\begin{equation}
+\begin{aligned}
+  h_{st} &= \min\left(H_{\text{total}}, 0.08 + 0.3 \cdot \frac{d_r}{30 + d_r}\right)\\
+  &= 0.08 + 0.3 \cdot \frac{30.65}{60.65} \approx \qty{0.23}{m}
+\end{aligned}
+\end{equation}
+
+\paragraph{Basal Taper Slope ($s_0$):}
+\begin{equation}
+\begin{aligned}
+    \ln(s_0 - 0.015) &= \beta_0 + \beta_1 \frac{1}{H_{\text{total}}} + \beta_2 \frac{1}{d_r} \\
+    &= -0.2745 - \frac{37.6638}{20} - \frac{34.7816}{30.65} \\
+    &\approx -3.2925 \\
+    s_0 &= e^{-3.2925} + 0.015 \approx \qty{0.0521}{cm/cm}
+\end{aligned}
+\end{equation}
+
+\paragraph{Ground Diameter ($d_0$):}
+\begin{equation}
+\begin{aligned}
+    d_0 &= d_{\text{D}} + s_0 \cdot (h_{\text{D}} \cdot 100) \\
+        &= 30 + 0.0521 \cdot 130 \approx \qty{36.77}{cm}
+\end{aligned}
+\end{equation}
+
+\paragraph{Stump Curvature ($e_{st}$):}
+\begin{equation}
+\begin{aligned}
+    e_{st} &= \exp\left(\gamma_0 + \gamma_1 \ln(\gamma_2 + s_0)\right) \\
+    &= \exp(-0.6293 - 0.1842 \ln(0.0781)) \\
+    &\approx 0.852
+\end{aligned}
+\end{equation}
+
+\paragraph{Stump Diameter ($d_{st}$):}
+\begin{equation}
+\begin{aligned}
+  d_{st} &= d_0 - \left( \frac{h_{st}}{h_{\text{D}}} \right)^{e_{st}} (d_0 - d_{\text{D}}) \\
+  &= 36.77 - \left( \frac{0.23}{1.3} \right)^{0.852} (6.77) \approx \qty{35.22}{cm}
+\end{aligned}
+\end{equation}
+
+\subsection{Analytical Stump Volume ($V_{st}$)}
+\begin{equation}
+\begin{aligned}
+    V_{st} &= \frac{\pi h_{st}}{40,000} \biggl[ d_0^2 - \frac{2 d_0 (d_0 - d_{\text{D}})}{e_{st}+1} \left(\frac{h_{st}}{h_{\text{D}}}\right)^{e_{st}} \\
+    &\quad + \frac{(d_0 - d_{\text{D}})^2}{2e_{st}+1} \left(\frac{h_{st}}{h_{\text{D}}}\right)^{2e_{st}} \biggr] \\
+    &= \frac{0.23 \pi}{40,000} \biggl[ 1352.0 - \frac{498.5}{1.852} (0.228) \\
+    &\quad + \frac{45.8}{2.704} (0.052) \biggr] \approx \mathbf{0.0233} \, \unit{m^3}
+\end{aligned}
+\end{equation}
+
+\subsection{Merchantable Taper and Lengths}
+\paragraph{Taper Exponent ($e_{d7}$):}
+\begin{equation}
+\begin{aligned}
+    e_{d7} &= \exp \Bigl( \beta_0 + \beta_1 (\ln(\beta_2 \Delta d_{st}))^2 + \beta_3 \ln \frac{H_{\text{total}} - h_{st}}{d_{st}} \Bigr) \\
+    &= \exp \Bigl( -0.5803 + 0.0910 (\ln(0.0399 \cdot 28.22))^2 \\
+    &\quad - 0.3286 \ln\left( \frac{20 - 0.23}{35.22} \right) \Bigr) \approx \mathbf{0.6773}
+\end{aligned}
+\end{equation}
+
+\paragraph{Sectional Lengths:}
+\begin{equation}
+\begin{aligned}
+    r_s &= 1 - \frac{7 - d_t}{d_{st} - d_t} = 1 - \frac{6.2}{34.42} \approx 0.8199 \\
+    r &= r_s^{e_{d7}} = 0.8199^{0.6773} \approx 0.8737 \\
+    l_{merc} &= r (H_{\text{total}} - h_{st}) \approx \qty{17.27}{m} \\
+    l_{top} &= H_{\text{total}} - h_{st} - l_{merc} \approx \qty{2.50}{m}
+\end{aligned}
+\end{equation}
+
+\subsection{Correction Factors and Final Volume}
+\begin{equation}
+\begin{aligned}
+    \zeta_{merc} &= \gamma_0 + \frac{\gamma_1}{1 + \exp\left( \gamma_2 + \gamma_3 / l_{merc} \right)} \\
+    &= 1.0571 + \frac{0.4433}{1 + \exp(-4.9835 + \frac{138.2230}{17.27})} \approx \mathbf{1.0782}
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+    \zeta_{top} &= \delta_0 + \frac{\delta_1}{1 + \exp\left( \delta_2 l_{top} + \delta_3 \frac{d_r}{H_{\text{total}}} \right)} \\
+    &= 0.8662 + \frac{0.1141}{1 + \exp(1.2711 \cdot 2.50 - 7.7670 \cdot \frac{30.65}{20})}\\
+    & \approx \mathbf{0.9785}
+\end{aligned}
+\end{equation}
+
+\paragraph{Sectional and Total Volumes:}
+\begin{equation}
+  \begin{aligned}
+    V_{\text{frust, merc}} &= \frac{\pi \cdot 17.27}{120\,000} \left( 35.22^2 + 35.22 \cdot 7 + 7^2 \right) \\
+    &\approx \mathbf{0.6952\,\text{m}^3} \\
+    V_{merc} &= \frac{V_{\text{frust, merc}}}{\zeta_{merc}} = \frac{0.6952}{1.0782} \approx \mathbf{0.6448 \, \unit{m^3}} \\
+     V_{\text{frust, top}} &= \frac{\pi \cdot 2.50}{120\,000} \left( 7^2 + 7 \cdot 0.8 + 0.8^2 \right) \\
+    &\approx \mathbf{0.0036\,\text{m}^3} \\
+    V_{top} &= \frac{V_{\text{frust, top}}}{\zeta_{top}} = \frac{0.0036}{0.9785} \approx \mathbf{0.0037 \, \unit{m^3}} \\
+    V_{\text{total}} &= V_{st} + V_{merc} + V_{top} \approx \mathbf{0.6718 \, \unit{m^3}}
+\end{aligned}
+\end{equation}
+
+
+\section{Discussion}
+
+The methodology introduced here provides a unified framework for stem volume estimation that remains consistent across all tree sizes. By defining a reference diameter $d_r$, the model successfully avoids the discontinuities typically encountered when modelling small trees. This ensures a smooth transition in the prediction of stem geometry from saplings to mature individuals, offering a methodologically rigorous approach for forest regeneration studies. 
+
+While the combination of $d_D$ and $h_D$ could be considered an alternative, it requires the definition of two separate values—both a diameter and a corresponding height. In contrast, $d_r$ simplifies the model by acting as a single, standalone parameter.
+
+While $d_r$ simplifies the model by acting as a single, standalone parameter, it is important to note that the methodology assumes stems are perfectly circular. In practice, this assumption does not always hold, especially regarding root flares. Such areas often exhibit buttressing and concave shapes (fluting), which must be accounted for to ensure precise volume determination, as these irregular geometries can lead to over- or underestimations.
+
+Additionally, the transition between the stem and the root system presents a practical challenge on slopes. Since tree height and DBH are conventionally measured from the upslope side, treating this point as the definitive ground level is a simplification that ignores the actual volume present on the downslope side. 
+
+A similar problem arises with stump height, which is subject to considerable variability. It is influenced by various factors, such as the harvesting method—ranging from manual chainsaw felling to mechanized harvesting—as well as environmental conditions like slope or snow cover during the harvest. Consequently, what is formally classified as "below ground" or "stump" may not align with the biological reality of the tree's structure.
+
+Another challenge is the inclusion of small trees, which are often underrepresented in datasets and require different measurement protocols than mature trees. For instance, standard procedures—such as measuring diameters at 2 m intervals—are insufficient for small trees, as they would fail to capture the stem's taper and yield inaccurate volume estimations.
+
+A key advantage of defining these factors as the ratio $V_{\text{cone}} / V_{\text{int}}$ is numerical stability. Traditional form factors, which divide by the basal area at breast height, suffer from mathematical singularities as trees approach or fall below the \qty{1.3}{m} threshold. The framework presented here avoids these instabilities by using the truncated cone as a geometric reference.
+
+Furthermore, unlike simpler functions that derive a single form factor for the entire stem, this approach involves greater methodological complexity. However, this trade-off provides significantly more detailed information, enabling the separate estimation of stump volume, merchantable wood, and tip volume, while explicitly accounting for stump height and tip length.
+
+The residual analysis across all sub-models (Figs.~\ref{fig:hd7Resid} and \ref{fig:fzResid}) confirms that the chosen non-linear and logistic functions successfully capture the biological relationships of stem taper. No systematic over- or underestimation was observed across the entire range of tree sizes. This stability is a direct result of the reference diameter $d_r$, $d_D$ and the height $h_{\text{D}}$, which anchor the models and prevent error propagation at the extreme ends of the size distribution.
+
+\begin{figure}[!htb]
+  \centering
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{hd7ResidPred}
+    \caption{Predicted curvature $\hat{e}_{d7}$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{hd7ResidDhstD}
+    \caption{Merchantable diameter difference}
+  \end{subfigure}
+  \caption{Residuals for the merchantable taper model ($e_{d7}$). The model successfully captures the transition to the \qty{7}{cm} threshold across all tree sizes by predicting the specific curvature of the merchantable section.}
+  \label{fig:hd7Resid}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{fzDResidPred}
+    \caption{Merchantable correction factor $\zeta_{merc}$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.95\columnwidth}
+    \includegraphics[width=\textwidth]{fzTResidPred}
+    \caption{Top correction factor $\zeta_{top}$}
+  \end{subfigure}
+  \caption{Diagnostic plots for the sectional correction factors ($\zeta$). The stable residuals across the predicted range indicate that the logistic models effectively bridge the gap between integrated volume and simplified geometric approximations (truncated cones).}
+  \label{fig:fzResid}
+\end{figure}
+
+Notably, the model design ensures that even in cases where the data basis for small trees is sparse or absent, the conceptual framework remains robust. By avoiding lower DBH or height thresholds, the methodology guarantees that the calculated values remain biologically plausible across the entire growth spectrum. Consequently, this framework provides a robust tool for both local stand assessments and large-scale carbon accounting.
+
+
+\section{Conclusions}
+
+This study introduces a continuous and unified framework for estimating tree stem volume across all size classes. By replacing the traditional dependence on diameter at breast height with a height-adaptive reference diameter ($d_r$), the proposed approach eliminates mathematical discontinuities and enables consistent modelling from young saplings to mature trees.
+
+The combination of biologically constrained taper modelling, Steffen monotonic interpolation, and numerical integration provides a robust and unbiased basis for volume estimation. The analytical formulation of stump volume further improves accuracy in the basal section by explicitly accounting for root flare curvature, where conventional geometric approximations typically fail.
+
+A key contribution of this work is the derivation of sectional correction factor models ($\zeta$). These models translate complex geometric information into practical tools for forest inventory, allowing for the reliable estimation of stump, merchantable stem, and top volume using only basic measurements. By defining these factors as the ratio between geometric reference bodies and integrated volumes, the framework ensures numerical stability even for trees shorter than \qty{1.3}{m}, where traditional form factors encounter singularities.
+
+Overall, the presented framework offers a consistent and scalable solution for forest inventory and biomass assessment. It ensures that early growth stages are represented with the same methodological rigor as mature stands, thereby supporting more accurate long-term monitoring of forest dynamics and carbon stocks within a single, unified system.
+
+
+\printbibliography
+
+%Autor: Georg Kindermann
+
+\end{document}
