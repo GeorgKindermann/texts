@@ -1,0 +1,1839 @@
+\documentclass[twocolumn, bibliography=totoc]{scrartcl}
+
+% —  
+
+\usepackage[T1]{fontenc}
+%\usepackage[english]{babel}
+\usepackage[british]{babel}
+\usepackage[autostyle=true]{csquotes}
+
+\usepackage{newpxtext}
+\usepackage{newpxmath}
+\usepackage{microtype}
+
+\usepackage[
+  backend=biber,
+  style=authoryear,
+  natbib=true,
+  maxbibnames=99,
+  maxcitenames=2
+]{biblatex}
+\addbibresource{literatur.bib}
+
+\usepackage{amsmath}
+\usepackage{siunitx}
+
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+\usepackage[pdftitle={An Analytical Stem Taper Model across Tree Sizes with Exact Fitting under Flexible Measurement Protocols}
+, pdfauthor={Georg Kindermann}
+, pdfsubject={Stem taper model, forest inventory, exact anchoring, analytical volume integration, biomass assessment, C1 continuity, inflection point, root flare, forest regeneration, saplings, Picea abies, Baum, Schaft, Volumen, Forestwirtschaft}
+, pdfkeywords={Stem taper model, forest inventory, exact anchoring, analytical volume integration, biomass assessment, C1 continuity, inflection point, root flare, forest regeneration, saplings, Picea abies, Baum, Schaft, Volumen, Forestwirtschaft}
+, pdflang={en}
+, hidelinks
+, pdfpagemode={UseNone}]{hyperref}
+
+\title{An Analytical Stem Taper Model across Tree Sizes with Exact Fitting under Flexible Measurement Protocols}
+\author{Georg Kindermann}
+
+\usepackage{abstract}
+
+\begin{document}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{abstract}
+  Accurate estimation of stem taper and volume is fundamental for forest management, biomass assessment, and timber industries. This study presents a novel, $C^1$-continuous stem profile model for Norway spruce (\textit{Picea abies}), based on a comprehensive dataset of 15,684 stems from Switzerland. The model utilises a composite power function approach, split at a morphologically defined inflection point to separately characterise basal root flare and the main shaft. 
+
+  Using an iterative smoothing algorithm and Steffen monotonic splines as a reference, we developed Generalised Linear Models (GLMs) with a Logit link function to predict shape exponents based on total height and reference diameter. The resulting model allows for fully analytical solutions of volume integration and diameter-height relationships, eliminating the need for numerical quadrature in practical applications. 
+
+  Our results demonstrate that the inflection point stabilizes predictably with tree dimensions, and the shape exponents effectively capture the transition from conical to parabolic forms as trees mature. The model is designed for flexible anchoring at breast height (DBH) and can be individually calibrated if additional diameter measurements are available. This approach provides a mathematically rigorous yet computationally efficient tool for both large-scale forest inventories and precise individual tree volume estimation, from saplings to mature timber.
+  
+  \vspace{0.5em}
+  \noindent \textbf{Keywords:} tem taper model, forest inventory, exact anchoring, analytical volume integration, biomass assessment, C1 continuity, inflection point, root flare, forest regeneration, saplings, \textit{Picea abies}.
+\end{abstract}
+  \end{@twocolumnfalse}
+]
+
+\tableofcontents
+
+\section{Introduction}
+
+A tree’s stem encodes a lifetime of growth, environmental influence, and mechanical adaptation. In practical forest inventories, however, this rich information is typically distilled to two measurements: diameter at breast height (DBH, measured at \qty{1.3}{m} above ground) and total tree height. These simple metrics provide a pragmatic basis for estimating stem volume, biomass, and timber assortments, and they remain the standard in operational forestry. Yet, despite their widespread use, relying solely on DBH and height conceals the subtle variations in stem taper that determine the distribution of wood along the stem.
+
+Accurate quantification of stem form from DBH and height is therefore a central challenge in forest mensuration. Beyond estimating total volume, a robust model must predict diameters at arbitrary heights and allow the calculation of merchantable timber assortments between any two points along the stem. Achieving this from just the standard measurements requires a formulation that is both mathematically precise and biologically plausible, bridging the gap between operational simplicity and detailed stem reconstruction.
+
+Historically, stem form has been represented by a variety of approaches, from simple form factors derived from DBH and height to more complex polynomial or spline models incorporating sectional measurements. While these methods have proven effective, they are often constrained by either computational complexity or additional measurement effort. DBH may be affected by basal swellings, buttresses, or root flare, causing local irregularities to propagate into basal area and form factor estimates, so that apparent taper differences may partly reflect artefacts of the measurement system rather than true stem geometry.
+
+Stem form also reflects ontogeny and environmental factors: young trees typically exhibit near-conical stems, while mature trees develop differentiated profiles with pronounced basal curvature and more cylindrical upper shafts. Stand density, wind exposure, and competition further influence taper. Now, inventories increasingly supplement DBH and height with additional diameter measurements from sectional sampling, terrestrial laser scanning, or photogrammetry, enabling refinement of taper models, albeit at the cost of the operational simplicity of traditional measurements.
+
+In this study, I present a continuous stem taper model that operates primarily from DBH and height while allowing integration of up to two additional diameter measurement where available. The model employs a composite power-function formulation that separates the basal stem from the upper shaft through a transition point. Its $C^1$-continuous profile ensures smooth variation in both diameter and slope, while fully analytical solutions provide exact volume integration and height-at-diameter calculations. This approach provides precise stem reconstruction and allows assortment estimation across the full range of tree sizes.
+
+By replacing fixed reference heights with a height-adaptive reference diameter, the framework unifies DBH- and height-based inputs into a flexible, biologically consistent model. Using an extensive dataset of over 15\,000 stem measurements, the model parameters are shown to relate consistently to standard inventory variables, offering a computationally efficient foundation for modern precision forestry from saplings to mature trees.
+
+
+\section{Data}
+
+This study uses the dataset published by~\cite{Didion2024sectionWiseStemDiametersText,Didion2024sectionWiseStemDiametersData}, which comprises measurements from 15,684 Norway spruce (\textit{Picea abies}) stems. The sampled trees cover a broad range of dimensions, with DBH ranging from \qty{0.6}{cm} to \qty{100.8}{cm} and total height from \qty{1.6}{m} to \qty{48.6}{m}. Most observations are concentrated within a DBH range of \qtyrange{10}{50}{cm} and a height range of \qtyrange{5}{35}{m} (see Figs.~\ref{fig:dhScatter} and \ref{fig:dhCumObs}).
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{dhScatter}
+\caption{Relationship between DBH and total height for the sampled trees.}
+\label{fig:dhScatter}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{dhCumObs}
+\caption{Cumulative distribution of observations across DBH and height classes.}
+\label{fig:dhCumObs}
+\end{figure}
+
+Stem diameters over bark were measured in \qty{2}{m} sections starting at a height of \qty{1}{m}, following standard protocols for merchantable timber ($d \geq \qty{7}{cm}$). For the final merchantable segment shorter than \qty{2}{m}, diameters were recorded at the segment midpoint. Diameters of non-merchantable top sections ($d < \qty{7}{cm}$) were similarly measured at their respective midpoints. In addition, DBH was recorded at \qty{1.3}{m} above ground.
+
+For a subset of 2,964 trees, an additional diameter measurement at \qty{0.65}{m} was available, providing critical information for characterising basal stem flare. The distribution of measurement heights is summarised in Table~\ref{tab:nDiamAtHeight}.
+
+\begin{table}[!htb]
+\centering
+\caption{Number of diameter measurements ($n$) at specific heights ($h$).}
+\label{tab:nDiamAtHeight}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l *{7}{r}}
+  \toprule
+      $h$ & 0.65 & 1.0 & 1.3 & 3.0 & 5.0 & 7.0 & 9.0 \\
+    $n$ & 2\,964 & 15\,177 & 15\,684 & 14\,651 & 13\,930 & 13\,016 & 12\,026 \\
+    \midrule
+    $h$ & 11.0 & 13.0 & 15.0 & 17.0 & 19.0 & 21.0 & 23.0 \\
+    $n$ & 11\,037 & 10\,025 & 8\,939 & 7\,812 & 6\,634 & 5\,604 & 4\,617 \\
+    \midrule
+    $h$ & 25.0 & 27.0 & 29.0 & 31.0 & 33.0 & 35.0 & 37.0 \\
+    $n$ & 3\,649 & 2\,748 & 1\,886 & 1\,045 & 475 & 164 & 58 \\
+    \midrule
+    $h$ & 39.0 & 41.0 & 43.0 & 45.0 & \text{midpt} & \text{d=7} & \text{DTop} \\
+    $n$ & 24 & 8 & 4 & 1 & 10\,063 & 15\,417 & 13\,079 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\raggedright
+\footnotesize{
+\textbf{h}: measurement height [m]; \textbf{n}: number of observations; \\
+\textbf{midpt}: midpoint of the last merchantable section; \\
+\textbf{d=7}: height at which stem diameter reaches \qty{7}{cm}; \\
+\textbf{top}: midpoint of the non-merchantable top section.
+}
+\end{table}
+
+%%
+
+\section{Methods}
+
+\subsection{Data Processing and Complementation}
+
+\subsubsection{Terminal Diameter}
+To avoid a mathematical singularity at the tree tip (a point with a diameter of \qty{0}{cm}), a height-dependent terminal diameter $d_t$ is defined. This diameter scales from \qty{0.1}{cm} for small seedlings to \qty{0.8}{cm} for trees reaching the breast height threshold:
+
+\begin{equation}
+d_t =
+\begin{cases}
+0.8 & \text{for } H_{\text{total}} \geq 1.3 \\
+0.1 + 0.7 \cdot \left[ 1 - \left( \frac{1.3 - H_{\text{total}}}{1.3} \right)^2 \right] & \text{for } H_{\text{total}} < 1.3
+\end{cases}
+\end{equation}
+
+where $d_t$ is the terminal diameter in \unit{cm} and $H_{\text{total}}$ is the total tree height in \unit{m}.
+
+\subsubsection{Reference Diameter}
+
+The reference diameter ($d_r$) replaces the diameter at breast height (DBH) as a continuous reference variable to enable consistent stem profile reconstruction across all tree dimensions. For trees exceeding \qty{1.3}{m} in height, a constant offset of \qty{1.3}{cm} is applied, derived from a theoretical height-to-diameter ratio ($H/D$) of 100:
+
+\begin{equation}
+d_r =
+\begin{cases}
+\text{DBH} + 1.3 & \text{for } H_{\text{total}} \geq \qty{1.3}{m} \\
+d_t + H_{\text{total}} & \text{for } H_{\text{total}} < \qty{1.3}{m}
+\end{cases}
+\end{equation}
+
+where $d_r$ and DBH are given in \unit{cm} and $H_{\text{total}}$ in \unit{m}. 
+
+For trees shorter than \qty{1.3}{m}, $d_r$ is approximated directly from the total height. While this height-dependent approximation does not explicitly capture diameter variations driven by stand density or competition in juvenile individuals, it provides a mathematically consistent size descriptor across the entire dataset.
+
+\subsubsection{Basal Diameter Reconstruction}
+
+To estimate entire stem profile, diameter at ground level ($d_0$) is essential. To stabilise the interpolation at the stem base and ensure a realistic representation of the root flare, a hypothetical diameter at \qty{1}{m} below ground level ($d_{-1m}$) is introduced as a geometric anchor.
+
+\paragraph{Individual Power Functions}
+
+For a subset of 2\,828 trees with sufficient lower-stem measurements, tree-specific power functions were fitted to describe basal taper:
+\begin{equation}
+d(h) = c_0 + c_1 \cdot (5 - h)^{c_2}
+\end{equation}
+where $d(h)$ is the diameter at height $h$, and \qty{5}{m} serves as the upper reference limit for the basal fit. The coefficients $c_0, c_1,$ and $c_2$ were estimated individually for each tree.
+
+To ensure biological plausibility, individual fits were rejected if the extrapolated diameters exceeded the following thresholds relative to the reference diameter $d_r$:
+\begin{itemize}
+\item $d_0 > 2.0 \cdot d_r$ (40 cases rejected)
+\item $d_{-1m} > 3.0 \cdot d_r$ (412 cases rejected)
+\end{itemize}
+These constraints prevent unrealistic basal swells that can arise from extrapolating power functions in trees with sparse measurements near the ground.
+
+\paragraph{Generalised Basal Models}
+
+For trees with missing or rejected individual fits, Generalised Linear Models (GLM) with a Gamma distribution and log-link function were employed. The Gamma distribution was chosen to account for the heteroscedasticity observed in taper slopes, which typically increases with tree size. This distribution is particularly suitable for modelling positive, skewed data with non-constant variance, commonly observed in the basal taper of larger trees.
+
+The basal taper slope ($s_0$) represents the diameter increase per unit of height between the height $h_{\text{D}}$ and the ground.
+\begin{equation}
+h_{\text{D}} = \min(1.3, H_{\text{total}})
+\end{equation}
+The corresponding diameter $d_{\text{D}}$ is defined as the diameter at height $h_{\text{D}}$ , i.e., either the DBH or $d_t$.
+
+To ensure a minimum taper, a baseline of \qty{0.015}{cm/cm} was assumed, and the additional taper was modelled as:
+\begin{equation}
+\ln(s_0 - 0.015) = \beta_0 + \beta_1 \cdot \frac{1}{H_{\text{total}}} + \beta_2 \cdot \frac{1}{d_{\text{D}}}
+\end{equation}
+The ground-level diameter is then reconstructed as:
+\begin{equation}
+d_0 = d_{\text{D}} + s_0 \cdot h_{\text{D}} \cdot 100
+\end{equation}
+where $h_{\text{D}}$ (\unit{m}) is scaled by a factor of 100 to convert the height to centimetres, ensuring unit consistency with the diameters (\unit{cm}) or when $s_0$ is calculated by using height in \unit{m} and diameter in \unit{cm} the factor became 1.
+
+To stabilise the stem profile, an additional taper slope $s_{-1m}$ was modelled to calculate $d_{-1m}$. This slope represents the incremental increase in taper that, when added to $s_0$, defines the total diameter expansion from $d_{\text{D}}$ down to $d_{-1m}$. The model for this slope is:
+\begin{equation}
+\ln(s_{-1m}) = \beta_3 + \beta_4 \cdot \frac{1}{H_{\text{total}}}
+\end{equation}
+The diameter $d_{-1m}$ is reconstructed by applying the combined slopes, accounting for the depth of \qty{1}{m} (\qty{100}{cm}) below ground:
+\begin{equation}
+d_{-1m} = d_{\text{D}} + (s_0 + s_{-1m}) \cdot (h_{\text{D}} \cdot 100 + 100)
+\end{equation}
+
+
+\subsection{Stem Profile}
+
+Tree taper forms vary but remain within a narrow band of possible shapes (Fig.~\ref{fig:relativeTaper}). To ensure biologically consistent stem profiles, monotonicity and taper constraints were enforced. These require that diameters decrease monotonically with height and that the taper rate remains within plausible limits. Measurement noise, branch whorls, or recording errors can otherwise result in non-monotonic sequences, potentially distorting volume integration.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\columnwidth]{relativeTaper.png}
+  \caption{Distribution of taper forms.}
+  \label{fig:relativeTaper}
+\end{figure}
+
+\subsubsection{Analysis of Taper Slope and Curvature}
+
+To detect anomalies, such as measurement errors or morphological inconsistencies, the relative taper slope $s_j$ and the change in slope per unit height $\Delta s_j$ (representing curvature) were analysed for each stem section. Since the measurements are assigned to the centers of the respective height intervals, the parameters are defined as follows:
+
+Let $h_j$ and $d_j$ be the height and diameter of the sorted, unique measurement points, and $H$ the total tree height. The section length is $\Delta h_j = h_{j+1} - h_j$. The taper slope $s_j$ is calculated for the midpoint of the section, $\bar{h}_j = h_j + \frac{\Delta h_j}{2}$:
+
+\begin{equation}
+s_j = \frac{d_{j+1} - d_j}{C \cdot \Delta h_j}, \quad \text{at relative height} \quad z_j = \frac{\bar{h}_j}{H}
+\end{equation}
+
+where $C$ is a constant for unit conversion (e.g., $C = 50$ to account for diameter-to-radius conversion and scale changes). The curvature $\Delta s_j$ is defined as the derivative of the slope with respect to height. It is assigned to the midpoint between two adjacent section centers, $\bar{\bar{h}}_j = \bar{h}_j + \frac{\bar{h}_{j+1} - \bar{h}_j}{2}$:
+
+\begin{equation}
+\Delta s_j = \frac{s_{j+1} - s_j}{\bar{h}_{j+1} - \bar{h}_j}, \quad \text{at relative height} \quad \zeta_j = \frac{\bar{\bar{h}}_j}{H}
+\end{equation}
+
+The distribution of these parameters relative to tree height is shown in Fig.~\ref{fig:taper_corridor}. To characterise the general trend across the dataset of 15\,684 stems, a height-dependent ``plausibility corridor'' was established using weighted 2.5\% and 97.5\% quantiles ($Q_{0.025}$ and $Q_{0.975}$). Section lengths ($\Delta h$) were utilised as weights to ensure the statistical analysis reflects actual stem proportions, giving sections with larger vertical coverage a proportional influence.
+
+The analysis (Fig.~\ref{fig:taper_corridor}) confirms that extreme taper and curvature are concentrated in the lower 15\% of tree height ($h/H_{\text{total}} < 0.15$) due to root flare. Between 20\% and 80\% of the height, both the slope and its rate of change stabilise, reflecting a nearly parabolic mid-section where curvature becomes minimal as the stem transitions from basal flare to uniform taper.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics[width=\textwidth]{slope.png}
+\caption{Taper slope $s$ vs. relative height.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics[width=\textwidth]{dSlope.png}
+\caption{Change in slope $\Delta s$ vs. relative height.}
+\end{subfigure}
+\caption{Distribution of taper parameters. The green line represents the weighted median; red lines indicate the 2.5\% and 97.5\% quantiles. These boundaries are used to identify outliers relative to height-dependent stem morphology.}
+\label{fig:taper_corridor}
+\end{figure}
+
+\subsubsection{Data Smoothing and Outlier Handling}
+
+This step converts raw measurements into biologically consistent stem profiles suitable for robust volume integration. An iterative smoothing algorithm was implemented to rectify data points violating the established quantile boundaries or the monotonicity requirement ($d_{j+1} \leq d_j$). When a violation was detected, adjacent points were merged into a single representative point using a weighted centroid calculation:
+\begin{equation}
+h_{\text{new}} = \frac{h_i w_i + h_{i+1} w_{i+1}}{w_i + w_{i+1}}, \quad d_{\text{new}} = \frac{d_i w_i + d_{i+1} w_{i+1}}{w_i + w_{i+1}}
+\end{equation}
+The weights $w$ were derived from the frequency of points in the merging process to balance the influence of shared nodes. As illustrated in Fig.~\ref{fig:smoothing_example}, this procedure effectively removes spurious oscillations and measurement noise while preserving the characteristic stem taper. Following this refinement, the reconstructed basal diameters ($d_0$ and $d_{-1\text{m}}$) were appended to the dataset, completing the stem profile for subsequent interpolation and volume estimation.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.95\columnwidth]{sampleSmooth.pdf}
+\caption{Illustration of the iterative smoothing and point merging algorithm. The top row shows original diameter measurements with local irregularities (red segments) violating monotonicity or taper constraints. The bottom row displays the resulting biologically consistent profile (green/black) after merging anomalous points into weighted centroids. The grey line provides a reference to the original geometry.}
+\label{fig:smoothing_example}
+\end{figure}
+
+\subsubsection{Identification of the Inflection Point}
+
+To mathematically characterize the transition from the basal root flare to the upper stem wood, the height of the inflection point ($H_{ip}$) of the stem profile was identified. This point represents the height where the change in taper slope transitions from positive to negative values, marking the minimum slope of the stem.
+
+For each stem, the taper slope ($s$) and its derivative ($s'$) with respect to height ($H$) were numerically approximated. The inflection point was located by identifying the interval where the second derivative crosses zero ($s'_j > 0$ and $s'_{j+1} < 0$), provided that the curvature remained positive from the ground up to that point. The exact position was subsequently determined via linear interpolation:
+
+\begin{equation}
+H_{ip} = H_j - s'_j \cdot \frac{H_{j+1} - H_j}{s'_{j+1} - s'_j}
+\end{equation}
+
+To generalize the position of the inflection point across the population, a non-linear model was fitted to describe $H_{ip}$ as a function of the total tree height ($H_{\text{total}}$):
+
+\begin{equation}
+H_{ip} = a \cdot (1 + H_{\text{total}})^b - a
+\end{equation}
+
+This functional form ensures that the model passes strictly through the origin.
+
+
+\subsection{Volume Calculation and Partitioning}
+
+The total stem volume over bark ($V_{\text{total}}$) and its structural components are determined by treating the stem as a solid of revolution. To ensure a biologically realistic and strictly monotonic taper between measurement points, Steffen monotonic cubic spline interpolation is applied to the diameter-height pairs, incorporating the reconstructed basal values ($d_0, d_{-1\text{m}}$). This method ensures that the stem profile remains smooth while strictly respecting the monotonicity constraints between adjacent observations.
+
+The cross-sectional area over bark at any height $h$ is defined as $A(h) = \frac{\pi}{4} d(h)^2$. The volume between two vertical positions is calculated via numerical integration:
+
+\begin{equation}
+  V = \frac{\pi}{40\,000} \int_{h_{\text{start}}}^{h_{\text{end}}} d(h)^2 \, dh
+\end{equation}
+
+where the constant $40\,000$ accounts for the conversion of diameters (\unit{cm}) and heights (\unit{m}) into volume (\unit{m^3}). Numerical integration was performed using adaptive Gauss-Kronrod quadrature.
+
+To further analyze the stem structure, the total volume was partitioned into two components based on the previously identified inflection point ($H_{ip}$). The \emph{basal volume} ($V_{basal}$) represents the portion of the stem between the ground ($h = 0$) and the inflection point ($h = H_{ip}$), capturing the root flare. The \emph{upper volume} ($V_{upper}$) comprises the remaining section from the inflection point to the tree tip ($h = H_{\text{total}}$).
+
+
+\subsection{Analytical Derivation of the Stem Profile Function}
+
+The stem profile is described by a composite model consisting of two power functions joined at the transition height, which corresponds to the previously identified inflection point $H_{ip}$. To ensure a biologically realistic and smooth transition, the model is constructed to be $C^1$-continuous (continuous in both diameter and its first derivative):
+
+\begin{equation}
+d(h) = 
+\begin{cases} 
+a(H_{\text{total}} - h)^b + d_t & \text{for } H_{ip} \le h \le H_{\text{total}} \\
+c_0 + c_1 h^{c_2} & \text{for } 0 \le h < H_{ip} 
+\end{cases}
+\end{equation}
+
+where $h$ is the measurement height, $H_{\text{total}}$ is the total tree height, and $d_t$ is the terminal diameter.
+
+The parameters are determined in a two-stage process. First, for the upper segment ($h \ge H_{ip}$), the scaling parameter $a$ is analytically derived from the diameter at the transition height $d_{ip} = d(H_{ip})$:
+
+\begin{equation}
+  a = \frac{d_{ip} - d_t}{(H_{\text{total}} - H_{ip})^b}
+\end{equation}
+
+This ensures that the upper function strictly passes through $d_{ip}$ and $d_t$. The slope at the transition height ($s_{ip}$) is then calculated as the first derivative of the upper function at $h = H_{ip}$:
+
+\begin{equation}
+  s_{ip} = -a \cdot b \cdot (H_{\text{total}} - H_{ip})^{b-1}
+\end{equation}
+
+Second, for the basal segment ($h < H_{ip}$), the condition of $C^1$-continuity requires the lower function to share both the diameter $d_{ip}$ and the slope $s_{ip}$. By setting $c_0 = d_0$ (diameter at ground level), the exponent $c_2$ is defined by:
+
+\begin{equation}
+c_2 = \frac{s_{ip} \cdot H_{ip}}{d_{ip} - d_0}
+\end{equation}
+
+and the scaling parameter $c_1$ as:
+
+\begin{equation}
+c_1 = \frac{d_{ip} - d_0}{H_{ip}^{c_2}}
+\end{equation}
+
+\subsubsection{Numerical Parameter Estimation and Volume Consistency}
+
+To guarantee absolute volume consistency and geometric integrity between the model estimation and its practical application, a two-stage numerical optimization framework was deployed. This architecture decouples the estimation of biologically plausible stem forms from the rigid mathematical constraints imposed by empirical anchoring at a measured diameter (here the $\text{DBH}$).
+
+In the first stage, the baseline shape parameters---the upper exponent $b_{\text{base}}$ and the ground-level diameter $d_0$---are estimated using an unconstrained fit over the empirical transition measurements ($d_w, h_w$) and reference volume data ($V_{\text{total}}$). This stage leverages the reference parameters to isolate the uncompromised biological shape of the individual stem, from which the baseline basal exponent $c_{2,\text{base}}$ is analytically derived via continuous interface slope matching.
+
+In the second stage, to bridge these biological shapes with the mandatory $\text{DBH}$-anchored application framework, the baseline exponents are fine-tuned using a multiplicative scaling approach. The algorithm optimizes two scaling factors, $f_b$ and $f_{c2}$, defining the calibrated application exponents as $b = b_{\text{base}} \cdot f_b$ and $c_2 = c_{2,\text{base}} \cdot f_{c2}$. For each iteration of this stage, the candidate exponents are passed to the analytical anchoring routine to force an exact intersection with the measured $\text{DBH}$ according to the $C^1$-continuous framework. The multi-objective function minimizes the log-transformed difference of the total integrated volume while enforcing an elastic quadratic penalty that restrains the scaling factors close to unity:
+
+\begin{equation}
+\begin{aligned}
+\min_{f_b, f_{c2}} \Big[ \,&
+\lambda_1 \left( \ln(V_{\text{pred}}) - \ln(V_{\text{total}}) \right)^2 \\
+&+ \lambda_2 \left( (f_b - 1.0)^2 + (f_{c2} - 1.0)^2 \right)
+\Big]
+\end{aligned}
+\end{equation}
+
+where $\lambda_1 = 10^{14}$ acts as a strict preemptive constraint enforcing total volume identity, and $\lambda_2 = 10^3$ serves as an elastic regularization weight that prevents unphysiological deformations of the baseline taper geometry.
+
+The optimization steps are executed sequentially using the Nelder-Mead algorithm. Strict structural boundaries are maintained by applying a high penalty cost ($10^{15}$) if the tuned exponents violate biometrical limits ($b \in [0.01, 1.0]$, $c_2 \in [0.01, 1.0]$). Limiting $c_2 \le 1.0$ mathematically enforces a neiloidic, highly concave expansion near the ground level, ensuring a steep and rapid diameter reduction immediately above the root collar that transitions smoothly into the upper stem profile. This sequential inversion design guarantees that applying the calibrated exponents in subsequent taper applications reproduces the exact empirical target volumes and dimensions simultaneously, eliminating any macro-level volume bias while maintaining full geometric consistency.
+
+
+\subsection{Modeling Shape Exponents using Generalized Linear Models}
+
+To estimate the stem profile for trees where only height ($H$) and reference diameter ($d_r$) are available, the shape exponents $b$ (upper shaft) and $c_2$ (basal swell) were modeled using Generalized Linear Models (GLMs). Since both parameters are theoretically and empirically bounded between 0 and 1, a logit link function was employed. To ensure that all predicted values $\theta \in \{b, c_2\}$ remain within this biologically plausible range, the model is expressed via the logistic function:
+
+\begin{equation}
+\theta = \frac{1}{1 + \exp\left(-\left(\beta_0 + \beta_1 \cdot f(H) + \beta_2 \cdot g(d_r)\right)\right)}
+\end{equation}
+
+The optimal functional forms for the predictors were determined by analyzing residual distributions and the Akaike Information Criterion (AIC). For the upper shaft exponent $b$, an inverse transformation of height and a logarithmic transformation of the reference diameter provided the best fit:
+
+\begin{equation}
+b = \frac{1}{1 + \exp\left(-\left(\beta_{b,0} + \beta_{b,1} \frac{1}{H} + \beta_{b,2} \ln(1 + d_r)\right)\right)}
+\end{equation}
+
+For the basal exponent $c_2$, which describes the intensity of the root flare, a logarithmic transformation for both height and diameter was selected:
+
+\begin{equation}
+c_2 = \frac{1}{1 + \exp\left(-\left(\beta_{c_2,0} + \beta_{c_2,1} \ln(1 + H) + \beta_{c_2,2} \ln(1 + d_r)\right)\right)}
+\end{equation}
+
+
+\subsection{Model Anchoring at a Single Reference Point}
+
+To ensure practical applicability, the composite taper model must be anchored to a single empirical diameter measurement ($d_1$) taken at an arbitrary reference height ($h_1$), forcing the profile curve strictly through this fixed point $(h_1, d_1)$. This formulation generalizes the anchoring routine, accommodating traditional diameter at breast height (DBH, where $h_1 = \qty{1.3}{m}$) as well as any other user-defined sample point. Depending on the tree dimensions and the relative positioning of the measurement height $h_1$ to the transition boundary $H_{ip}$, three distinct cases are resolved.
+
+\subsubsection{Case 1: $h_1 < H_{ip}$ (Anchoring within the Basal Segment)}
+When the empirical reference height lies within the lower segment below the inflection point, the parameters $c_0$, $c_1$, and the transition diameter $d_{ip} = d(H_{ip})$ must be solved simultaneously. To preserve full $C^1$-continuity, the basal function must intersect the coordinates $(h_1, d_1)$ while smoothly matching both the diameter and the slope of the upper shaft model at $H_{ip}$. 
+
+The continuous interface slope is analytically defined as the first derivative of the upper segment evaluated at $H_{ip}$:
+\begin{equation}
+    s_{ip} = -a \cdot b \cdot (H_{\text{total}} - H_{ip})^{b-1}
+\end{equation}
+Substituting the upper scaling parameter $a = (d_{ip} - d_t) / (H_{\text{total}} - H_{ip})^b$ yields $s_{ip}$ as a linear function of the unknown transition diameter $d_{ip}$:
+\begin{equation}
+    s_{ip} = -(d_{ip} - d_t) \cdot \frac{b}{H_{\text{total}} - H_{ip}}
+\end{equation}
+Enforcing the $C^1$-continuity constraints $c_1 = s_{ip} / (c_2 H_{ip}^{c_2-1})$ and $c_0 = d_{ip} - c_1 H_{ip}^{c_2}$ into the lower power function requires that the anchor point satisfies:
+\begin{equation}
+    d_1 = d_{ip} - \frac{s_{ip} \cdot H_{ip}}{c_2} \left[ 1 - \left( \frac{h_1}{H_{ip}} \right)^{c_2} \right]
+\end{equation}
+By substituting the linear expression for $s_{ip}$ into this boundary condition, the system can be resolved entirely in a closed-form analytical equation, eliminating the need for iterative root-finding. We isolate $d_{ip}$ by introducing the structural scaling factor $\Omega$:
+\begin{equation}
+    \Omega = \frac{b \cdot H_{ip}}{c_2 \cdot (H_{\text{total}} - H_{ip})} \left[ 1 - \left( \frac{h_1}{H_{ip}} \right)^{c_2} \right]
+\end{equation}
+The unique transition diameter is then deterministically computed as:
+\begin{equation}
+    d_{ip} = \frac{d_1 + d_t \cdot \Omega}{1 + \Omega}
+\end{equation}
+Once $d_{ip}$ is established, the remaining model parameters $a$, $s_{ip}$, $c_1$, and $c_0$ are resolved sequentially using back-substitution, guaranteeing an exact intersection at $(h_1, d_1)$.
+
+\subsubsection{Case 2: $h_1 \ge H_{ip}$ (Anchoring within the Upper Segment)}
+If the reference measurement height occurs at or above the inflection point, the anchor point resides entirely within the upper shaft segment. The scaling parameter $a$ can therefore be directly isolated from the upper power function using the measured coordinates $(h_1, d_1)$:
+\begin{equation}
+    a = \frac{d_1 - d_t}{(H_{\text{total}} - h_1)^b}
+\end{equation}
+To ensure smooth $C^1$-continuity across the profile, the downstream basal parameters are subsequently determined in a strict sequential order:
+\begin{enumerate}
+    \item The transition diameter: $d_{ip} = a(H_{\text{total}} - H_{ip})^b + d_t$
+    \item The transition slope: $s_{ip} = -a \cdot b \cdot (H_{\text{total}} - H_{ip})^{b-1}$
+    \item The basal scaling parameter: $c_1 = \frac{s_{ip}}{c_2 \cdot H_{ip}^{c_2-1}}$
+    \item The basal intercept (ground-level diameter): $c_0 = d_{ip} - c_1 \cdot H_{ip}^{c_2}$
+\end{enumerate}
+Because $s_{ip}$ and $c_1$ are inherently negative, this explicit sequence mathematically ensures that $c_0 > d_{ip}$, preserving the natural geometric expansion of the root collar.
+
+\subsubsection{Case 3: $n_1 = 0$ (Height-Only Verification for Unmeasured Assets)}
+For seedlings, exceptionally small saplings, or automated database assets where no empirical diameter measurement is available ($n_1 = 0$), a standard geometric anchor point is missing. To enforce model closure down to zero-height dimensions without causing mathematical singularities, a theoretical constant height-to-diameter ratio ($H/D$) of 100 is deployed to define the baseline dimension at the stem base, dynamically shifted by the terminal tip constraint.
+
+Under this convention, the theoretical ground-level diameter ($c_0$) is directly derived from the continuous reference framework for juvenile dimensions, scaling to:
+\begin{equation}
+    c_0 = d_t + H_{\text{total}} \cdot \qty{1}{cm.m^{-1}}
+\end{equation}
+where $H_{\text{total}}$ is given in \unit{m}, and both $d_t$ and $c_0$ are resolved in \unit{cm}. 
+
+With $c_0$ fixed by this combined $H/D = 100$ and terminal tip constraint, the remaining profile parameters must be resolved simultaneously to satisfy both the shape exponents from the regional GLM ($b, c_2$) and the strict condition of $C^1$-continuity at the inflection height $H_{ip}$. Since the transition diameter $d_{ip} = d(H_{ip})$ cannot be derived explicitly in this configuration, a numerical root-finding procedure via the bisection method is deployed to isolate the upper scaling parameter $a$. For each candidate value of $a$, the corresponding interface parameters are sequentially evaluated:
+\begin{equation}
+    d_{ip}(a) = a \cdot (H_{\text{total}} - H_{ip})^b + d_t
+\end{equation}
+\begin{equation}
+    s_{ip}(a) = -a \cdot b \cdot (H_{\text{total}} - H_{ip})^{b-1}
+\end{equation}
+Matching the smooth transition constraints at the inflection point yields an implied continuous basal intercept $c_{0,\text{implied}}$:
+\begin{equation}
+    c_1(a) = \frac{s_{ip}(a)}{c_2 \cdot H_{ip}^{c_2-1}}
+\end{equation}
+\begin{equation}
+    c_{0,\text{implied}}(a) = d_{ip}(a) - c_1(a) \cdot H_{ip}^{c_2}
+\end{equation}
+The algorithm iteratively updates $a$ until the implied intercept converges to the exact theoretical baseline dimension ($c_{0,\text{implied}} = c_0$), eliminating any diameter steps or slope kinks at the segment interface. Once $a$ is established, the profile is uniquely defined, guaranteeing a biologically realistic and monotonically decreasing taper curve across all available tree dimensions.
+
+\subsection{Calibration with Multi-Diameter Measurements}
+
+When additional diameters are available from upper stem sections, the profile can be calibrated to capture tree-specific taper variations. This reduces or eliminates reliance on regional GLM predictions.
+
+\subsubsection{Calibration with Two Diameter Measurements}
+
+Let $(h_1, d_1)$ and $(h_2, d_2)$ represent two measured diameter-height pairs over bark. The calibration routine depends on their positioning relative to the inflection height $H_{ip}$:
+
+\paragraph{Case A: Both measurements within the upper segment ($h_1, h_2 \ge H_{ip}$)}
+
+When both observations lie on the upper shaft, the local shape exponent $b$ and the scaling parameter $a$ can be analytically isolated. Using the two measurement points, the tree-specific coefficients are calculated as:
+\begin{equation}
+b = \frac{\ln\left( \frac{d_2 - d_t}{d_1 - d_t} \right)}{\ln\left( \frac{H_{\text{total}} - h_2}{H_{\text{total}} - h_1} \right)}, \quad a = \frac{d_1 - d_t}{(H_{\text{total}} - h_1)^b}
+\end{equation}
+
+The tree-specific exponent $b$ replaces the regional GLM prediction. The transition diameter $d_{ip}$ is subsequently calculated by evaluating this upper power function at $H_{ip}$. 
+
+\paragraph{Case B: Measurements split across segments ($h_1 < H_{ip} \le h_2$)}
+
+This configuration typically occurs when $h_1$ represents the standard DBH field measurement and $h_2$ is an upper-stem diameter. In this scenario, the shape exponent $b$ is retained from the regional GLM, but the upper scaling parameter $a$ is explicitly solved using the upper measurement:
+\begin{equation}
+  a = \frac{d_2 - d_t}{(H_{\text{total}} - h_2)^b}
+\end{equation}
+The profile is then anchored to the lower measurement $d_1$ by iteratively adjusting $d_{ip}$ until $d(h_1) = d_1$, effectively shifting the curve to satisfy both empirical data points while preserving $C^1$-continuity.
+
+\paragraph{Case C: Both measurements within the basal segment ($h_1, h_2 < H_{ip}$)}
+
+When both points characterize the root flare, a simultaneous numerical optimization is required. However, the algebraic structure allows a significant reduction in dimensionality. To ensure $C^1$-continuity at $H_{ip}$, the basal segment must match both the diameter $d_{ip}$ and the slope $s_{ip}$ of the upper segment:
+\begin{equation}
+s_{ip} = -a \cdot b \cdot (H_{\text{total}} - H_{ip})^{b-1}
+\end{equation}
+
+\noindent If the intercept parameter $c_0$ (representing the theoretical diameter at $h=0$) is selected, the remaining parameters $c_1$ and $c_2$ are fully determined analytically:
+\begin{equation}
+c_2 = \frac{s_{ip} \cdot H_{ip}}{d_{ip} - c_0}, \quad c_1 = \frac{d_{ip} - c_0}{H_{ip}^{c_2}}
+\end{equation}
+
+\noindent Consequently, the simultaneous optimization reduces to a one-dimensional search for $c_0$ that minimizes the residuals of the two basal measurements:
+\begin{equation}
+    \min_{c_0} \left[ (d_{\text{basal}}(h_1) - d_1)^2 + (d_{\text{basal}}(h_2) - d_2)^2 \right]
+\end{equation}
+where $d_{\text{basal}}(h) = c_0 + c_1 h^{c_2}$ uses the conditional updates for $c_1$ and $c_2$ defined above.
+
+
+\subsubsection{Analytical Coefficient Derivation for the Three-Measurement Case}
+
+When three empirical observations $(h_1, d_1)$, $(h_2, d_2)$, and $(h_3, d_3)$ are available such that $h_1 < H_{ip} \le h_2 < h_3$, all model coefficients are derived deterministically in a sequential three-step procedure without requiring multi-dimensional optimization.
+
+\paragraph{Step 1: Upper Shaft Parameters}
+The parameters of the upper segment ($b$ and $a$) are isolated analytically using exclusively the two upper diameter measurements $(h_2, d_2)$ and $(h_3, d_3)$:
+\begin{equation}
+b = \frac{\ln\left( \frac{d_3 - d_t}{d_2 - d_t} \right)}{\ln\left( \frac{H_{\text{total}} - h_3}{H_{\text{total}} - h_2} \right)}
+\end{equation}
+\begin{equation}
+a = \frac{d_2 - d_t}{(H_{\text{total}} - h_2)^b}
+\end{equation}
+
+\paragraph{Step 2: Boundary Conditions at the Inflection Point}
+With $a$ and $b$ established, the target profile diameter ($d_{ip}$) and the first derivative ($s_{ip}$) are evaluated at the transition boundary $H_{ip}$ via the upper segment function:
+\begin{equation}
+d_{ip} = a \cdot (H_{\text{total}} - H_{ip})^b + d_t
+\end{equation}
+\begin{equation}
+s_{ip} = -a \cdot b \cdot (H_{\text{total}} - H_{ip})^{b-1}
+\end{equation}
+
+\paragraph{Step 3: Basal Segment Resolution}
+To enforce $C^1$-continuity at $H_{ip}$, the basal coefficients $c_1$ and $c_2$ are conditioned on the intercept $c_0$. First, the exact value of $c_0$ is resolved by finding the root of the implicit algebraic expression that satisfies the lower measurement $(h_1, d_1)$:
+\begin{equation}
+d_1 = c_0 + (d_{ip} - c_0) \cdot \left( \frac{h_1}{H_{ip}} \right)^{\frac{s_{ip} \cdot H_{ip}}{d_{ip} - c_0}}
+\end{equation}
+Once $c_0$ is determined via numerical root-finding, the remaining shape coefficients $c_2$ and $c_1$ are calculated directly using the closed-form transition constraints:
+\begin{equation}
+c_2 = \frac{s_{ip} \cdot H_{ip}}{d_{ip} - c_0}
+\end{equation}
+\begin{equation}
+c_1 = \frac{d_{ip} - c_0}{H_{ip}^{c_2}}
+\end{equation}
+This sequential framework ensures that the composite profile is perfectly tree-specific, continuous, and computationally highly efficient to solve.
+
+
+\subsection{Analytical Applications: Diameters, Heights, and Volumes}
+
+The mathematical structure of the composite power function allows for direct analytical solutions for both the height of a specific diameter and the integrated volume.
+
+\subsubsection{Height of a Given Diameter}
+
+To determine the height $h(d)$ for a target diameter $d$, the profile function is inverted. Depending on whether the target diameter lies within the basal or the upper segment, the height is calculated as:
+
+\begin{equation}
+  \label{eq:height_at_diameter}
+h(d) = 
+\begin{cases} 
+H - \left( \frac{d - d_t}{a} \right)^{1/b} & \text{for } d < d_{ip} \text{ (upper segment)} \\
+\left( \frac{d - c_0}{c_1} \right)^{1/c_2} & \text{for } d \ge d_{ip} \text{ (basal segment)} 
+\end{cases}
+\end{equation}
+
+This inverse relationship is particularly useful for assessing commercial assortments, such as determining the height at a specific merchantable top diameter.
+
+\subsubsection{Analytical Volume Integration}
+
+The volume $V$ of a stem segment between two heights $h_1$ and $h_2$ is calculated by integrating the cross-sectional area: $V = \frac{\pi}{4} \int_{h_1}^{h_2} d(h)^2 \, dh$. Since the profile consists of two segments, the integral is solved piecewise.
+
+For the \textbf{upper segment} ($h \ge H_{ip}$), substituting $z = (H-h)$ yields the following antiderivative due to the change of variables ($dh = -dz$):
+
+\begin{equation}
+\begin{aligned}
+V_{up}(h_1, h_2) = \frac{\pi}{4} \Bigg[ & d_t^2 h + \frac{2 a d_t (H-h)^{b+1}}{b+1} \\
+& + \frac{a^2 (H-h)^{2b+1}}{2b+1} \Bigg]_{h_1}^{h_2}
+\end{aligned}
+\end{equation}
+
+For the special case of calculating the volume from the transition height $H_{ip}$ to the total height $H$, the expression simplifies significantly as the terms $(H-H)$ vanish at the upper limit:
+
+\begin{equation}
+\begin{aligned}
+  V_{up}(H_{ip}, H) = \frac{\pi}{4} \Big[ & d_t^2 (H - H_{ip}) + \frac{2 a d_t (H-H_{ip})^{b+1}}{b+1} \\
+  & + \frac{a^2 (H-H_{ip})^{2b+1}}{2b+1} \Big]
+  %V_{up}(H_{ip}, H) = \frac{\pi}{4} \left[ d_t^2 (H - H_{ip}) - \frac{2ad_t(H-H_{ip})^{b+1}}{b+1} - \frac{a^2(H-H_{ip})^{2b+1}}{2b+1} \right]
+\end{aligned}
+\end{equation}
+
+
+In practical implementation, the volume of any segment $[h_1, h_2]$ is computed by evaluating the antiderivative $F(h)$ at both boundaries: $V = \frac{\pi}{4} (F(h_2) - F(h_1))$. This analytical approach is computationally efficient and avoids numerical approximation errors.
+
+For the \textbf{basal segment} ($h < H_{ip}$), the integral of the power function is:
+
+\begin{equation}
+V_{low}(h_1, h_2) = \frac{\pi}{4} \left[ c_0^2 h + \frac{2c_0 c_1 h^{c_2+1}}{c_2+1} + \frac{c_1^2 h^{2c_2+1}}{2c_2+1} \right]_{h_1}^{h_2}
+\end{equation}
+
+The total volume over bark $V_{total}$ is obtained by summing the integrals over their respective domains: $V_{low}(0, H_{ip}) + V_{up}(H_{ip}, H)$. For any specific assortment, the boundaries $h_1$ and $h_2$ are derived using the inverse diameter function in Eq.~\eqref{eq:height_at_diameter} and by a known stump hight.
+
+
+\subsection{Bark Thickness and Volume under Bark}
+
+To isolate the commercial wood volume ($V_{ub}$, volume under bark), the double bark thickness ($\text{DBT}$) must be subtracted from the predicted diameter over bark ($d_{ob}$). The double bark thickness (\unit{cm}) along the stem could be modelled as a function of the local diameter over bark ($d_{ob}$ in \unit{cm}) \citep{roessler2008}:
+
+\begin{equation}
+    \text{DBT}(d_{ob}) = \frac{0.85149 + 0.60934 \cdot d_{ob} - 0.00228 \cdot d_{ob}^2}{10}
+\end{equation}
+
+Consequently, the local continuous diameter under bark ($d_{ub}$ in \unit{cm}) is calculated at any given height $h$ as:
+
+\begin{equation}
+    d_{ub}(h) = d_{ob}(h) - \text{DBT}(d_{ob}(h))
+\end{equation}
+
+The actual wood volume without bark ($V_{wood}$) between two vertical positions $h_1$ and $h_2$ is determined by integrating the under-bark cross-sectional area:
+
+\begin{equation}
+    V_{wood} = \frac{\pi}{40\,000} \int_{h_1}^{h_2} d_{ub}(h)^2 \, dh
+\end{equation}
+
+where the constant $40\,000$ accounts for the standard conversion of units to \unit{m^3}. Since $d_{ub}(h)$ is a composite function dependent on the non-linear bark model, this integral is solved via numerical quadrature over the respective segments. 
+
+The total bark volume ($V_{bark}$) contained within the specified section is subsequently quantified as the difference between the total volume over bark ($V_{ob}$) and the clean wood volume:
+
+\begin{equation}
+    V_{bark} = V_{ob} - V_{wood}
+\end{equation}
+
+\subsubsection{Analytical Volume Integration Under Bark}
+
+To avoid the computational overhead of numerical quadrature, an exact analytical solution for the wood volume under bark ($V_{\text{wood}}$) is derived. Let the double bark thickness function be expressed generally as $\text{DBT}(d_{ob}) = \alpha + \beta d_{ob} + \gamma d_{ob}^2$, where $\alpha = 0.085149$, $\beta = 0.060934$, and $\gamma = -0.000228$. The diameter under bark can be formulated as a polynomial function of the local diameter over bark:
+
+\begin{equation}
+    d_{ub}(h) = (1-\beta)d_{ob}(h) - \gamma d_{ob}(h)^2 - \alpha
+\end{equation}
+
+Squaring this expression yields a fourth-order polynomial in terms of $d_{ob}(h)$:
+\begin{equation}
+\begin{aligned}
+d_{ub}(h)^2 = \,& A_0 + A_1 d_{ob}(h) + A_2 d_{ob}(h)^2 \\
+& + A_3 d_{ob}(h)^3 + A_4 d_{ob}(h)^4
+\end{aligned}
+\end{equation}
+
+where the constant coefficients $A_i$ are analytically defined by expanding the trinomial:
+
+\begin{align}
+    A_0 &= \alpha^2 \\
+    A_1 &= -2\alpha(1-\beta) \\
+    A_2 &= (1-\beta)^2 + 2\alpha\gamma \\
+    A_3 &= -2\gamma(1-\beta) \\
+    A_4 &= \gamma^2
+\end{align}
+
+The volume for any stem segment is obtained by substituting the respective segment function for $d_{ob}(h)$ into the polynomial expansion and integrating term by term.
+
+For the \textbf{upper segment} ($h \ge H_{ip}$), the substitution $z = H - h$ is applied to the upper profile function $d_{ob}(z) = a z^b + d_t$. Using an identical binomial expansion for $d_{ob}(z)^n$:
+
+\begin{equation}
+    d_{ob}(z)^n = \sum_{k=0}^{n} \binom{n}{k} d_t^{n-k} a^k z^{k \cdot b}
+\end{equation}
+
+Accounted for by the change of variables ($dh = -dz$), the exact antiderivative $F_{up}(z)$ with respect to $z$ is formulated as:
+
+\begin{equation}
+    F_{up}(z) = \sum_{n=0}^{4} A_n \left[ \sum_{k=0}^{n} \binom{n}{k} d_t^{n-k} a^k \frac{z^{k \cdot b + 1}}{k \cdot b + 1} \right]
+\end{equation}
+
+The upper wood volume between heights $h_1$ and $h_2$ ($h_1 \ge H_{ip}$) is subsequently evaluated using the transformed boundaries $z_1 = H - h_1$ and $z_2 = H - h_2$:
+
+\begin{equation}
+    V_{wood, up}(h_1, h_2) = \frac{\pi}{40\,000} \left[ F_{up}(z_1) - F_{up}(z_2) \right]
+\end{equation}
+
+For the \textbf{basal segment} ($h < H_{ip}$), the diameter is defined by $d_{ob}(h) = c_0 + c_1 h^{c_2}$. The powers of $d_{ob}(h)$ are expanded binomially:
+
+\begin{equation}
+    d_{ob}(h)^n = \sum_{k=0}^{n} \binom{n}{k} c_0^{n-k} c_1^k h^{k \cdot c_2}
+\end{equation}
+
+Substituting these expansions into the volume integral yields the exact antiderivative $F_{low}(h)$ for the basal section:
+
+\begin{equation}
+    F_{low}(h) = \sum_{n=0}^{4} A_n \left[ \sum_{k=0}^{n} \binom{n}{k} c_0^{n-k} c_1^k \frac{h^{k \cdot c_2 + 1}}{k \cdot c_2 + 1} \right]
+\end{equation}
+
+The basal wood volume between heights $h_1$ and $h_2$ ($h_2 \le H_{ip}$) is then calculated directly as:
+
+\begin{equation}
+    V_{wood, low}(h_1, h_2) = \frac{\pi}{40\,000} \left[ F_{low}(h_2) - F_{low}(h_1) \right]
+\end{equation}
+
+
+\subsection{Software, AI Assistance, and Implementation}
+
+Data processing, statistical modeling, and numerical integration were performed using the \textsf{Julia} programming language v1.12.6 \citep{Julia-2017}. Stem profile reconstruction was implemented using \texttt{Interpolations.jl} v0.16.2 \citep{juliaInterpolations}, while volume integration was conducted via the \texttt{Integrals.jl} v5.4.0 framework \citep{juliaIntegrals}. Numerical integration specifically utilized the \textsf{QuadGK.jl} method, providing adaptive Gauss-Kronrod quadrature for high-precision results \citep{laurie1997calculation}.
+
+Non-linear parameter estimation was performed using the Levenberg-Marquardt algorithm in \texttt{LsqFit.jl} v0.16.0 \citep{juliaLsqFit}. Generalized Linear Models (GLM) were fitted using \texttt{GLM.jl} v1.9.4 \citep{juliaGLM}. Numerical optimization for determining merchantable height utilized \texttt{Optim.jl} v2.0.1 \citep{juliaOptim}. Data manipulation, weighted quantile analysis, and local smoothing were supported by \texttt{DataFrames.jl} v1.8.2 \citep{juliaDataframes}, \texttt{CSV.jl} v0.10.16 \citep{juliaCsv}, \texttt{Distributions.jl} v0.25.125 \citep{juliaDistributions,JSSv098i16}, \texttt{StatsBase.jl} v0.34.10 \citep{juliaStatsBase}, and \texttt{Loess.jl} v0.6.5 \citep{juliaLoess}. Visualizations and diagnostic plots were generated using \texttt{Plots.jl} v1.41.6 \citep{juliaPlots} in combination with \texttt{LaTeXStrings.jl} v1.4.0 \citep{juliaLaTeXStrings} to ensure consistent mathematical notation.
+
+Additionally, generative artificial intelligence models were utilized as technical assistants during the preparation of this study. Google Gemini \citep{GoogleGemini} was predominantly used to support Julia code development and debugging, assist in verifying mathematical formulations for the integration steps, and provide language editing and drafting assistance. OpenAI's ChatGPT \citep{OpenAIChatGPT} was also occasionally consulted for complementary technical and editorial support.
+
+
+\section{Results}
+
+\subsection{Stem Profile and Inflection Point}
+
+The numerical identification of the inflection point $H_{ip}$ revealed a consistent morphological transition across the dataset. The fitted model, with its highly significant parameter estimates summarized in Table~\ref{tab:coefficients_shape_models}, is formulated as:
+\begin{equation}
+    H_{ip} = 1.8104 \cdot (1 + H_{\text{total}})^{0.3590} - 1.8104
+\end{equation}
+This functional form demonstrates two critical biomathematical properties that ensure structural realism across all growth stages. First, the predicted inflection height is strictly monotonically increasing with total tree height ($\partial H_{ip} / \partial H_{\text{total}} > 0$). Second, the value of $H_{ip}$ is strictly bounded below the total tree height ($H_{ip} < H_{\text{total}}$) for all $H_{\text{total}} > 0$, preventing any structural collapse near the tip. 
+
+The resulting parameters indicate that the inflection point height increases with total tree height at a decreasing rate, reflecting the relative stabilization of the root flare as trees mature.
+
+Consequently, while the absolute height of the basal flare increases with tree size, its relative position on the stem shifts downwards as trees mature. The residuals exhibit no systematic trend across the predicted values, total heights, or reference diameters (Figure~\ref{fig:residualsHInfl}), confirming the robust generalization of the non-linear origin-enforced framework.
+
+\begin{figure}[!htb]
+    \centering
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{hIpResidPred}
+        \caption{Residuals vs. Predicted}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{hIpResidHoehe}
+        \caption{Residuals vs. Height}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{hIpResidDiameter}
+        \caption{Residuals vs. Reference Diameter $d_{r}$}
+    \end{subfigure}
+     \caption{Residuals for inflection point.}
+     \label{fig:residualsHInfl}
+\end{figure}
+
+
+\subsection{Shape Exponents}
+
+The partitioning of the stem volume into basal and upper components allowed for a estimation of the shape exponents $b$ and $c_2$. The GLM analysis confirmed that both parameters are significantly influenced by tree dimensions, with all calculated parameters summarized in Table~\ref{tab:coefficients_shape_models} ($p < 0.001$ for all coefficients).
+
+The estimated coefficients indicate that the root flare becomes more pronounced as trees grow taller (indicated by a decreasing $c_2$), while an increase in reference diameter tends to moderate this effect. Residual analysis confirmed that the models are free of systematic bias across the entire range of sampled tree dimensions.
+
+Crucially, because both parameters are statistically and biometrically restricted to the interval $(0, 1.0]$, the model guarantees a biologically realistic taper curvature. The upper segment is mathematically bound to a \textbf{convex, parabolic profile}, while the basal segment exhibits a \textbf{concave, neiloidic expansion} near the ground level.
+
+\subsubsection{Upper Shaft Exponent $b$}
+The exponent $b$, governing the upper stem profile, was primarily driven by the inverse of total height ($1/H$). The negative intercept combined with a strong positive coefficient for $1/H$ indicates that smaller trees exhibit a more conical shape, which transitions towards a more full-bodied, convex parabolic form in larger individuals. The reference diameter $d_{r}$ showed a moderate positive effect, suggesting a slight increase in $b$ for thicker stems. Figure~\ref{fig:residualsB} shows the distribution of residuals relative to predicted values, tree height, and reference diameter.
+
+\begin{figure}[!htb]
+    \centering
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{bResidPred}
+        \caption{$b$ vs. Predicted}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=\columnwidth]{bResidH}
+        \caption{$b$ vs. Height}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=\columnwidth]{bResidDref}
+        \caption{$b$ vs. $d_{r}$}
+    \end{subfigure}
+    \caption{Residual analysis for shape exponent $b$.}
+    \label{fig:residualsB}
+\end{figure}
+
+\subsubsection{Basal Swell Exponent $c_2$}
+The intensity of the root flare, captured by the basal exponent $c_2$, followed a structurally contrasting pattern. The negative coefficient for $\ln(1+H)$ demonstrates that the basal swell becomes increasingly concave and pronounced as tree height increases, capturing the steep, rapid diameter reduction immediately above the root collar. However, this mechanical response is partially counterbalanced by the positive influence of $\ln(1+d_r)$, where larger diameters lead to a slightly more filled and stable basal profile. Figure~\ref{fig:residualsC2} shows the distribution of residuals relative to predicted values, tree height, and reference diameter.
+
+\begin{figure}[!htb]
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{c2ResidPred}
+        \caption{$c_2$ vs. Predicted}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{c2ResidH}
+        \caption{$c_2$ vs. Height}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{c2ResidDref}
+        \caption{$c_2$ vs. $d_r$}
+    \end{subfigure}
+    \caption{Residual analysis for shape exponent $c_2$.}
+    \label{fig:residualsC2}
+\end{figure}
+
+The residuals for both $b$ and $c_2$ are symmetrically distributed around zero with no apparent heteroscedasticity or trends across the observed range of $H$ (\qtyrange{1.6}{48.6}{m}) or $d_{r}$ (\qtyrange{0.6}{100.8}{cm}). This confirms that the combination of inverse and logarithmic transformations within the logit-linked GLMs successfully captured the non-linear morphological transitions of Norway spruce stems while preserving critical geometric constraints.
+
+\begin{table}[htbp]
+\centering
+\caption{Estimated coefficients for the shape models ($H_{ip}$, $b$, and $c_2$).}
+\label{tab:coefficients_shape_models}
+\begin{tabular}{l c r r}
+\toprule
+Model & Coeff. & Estimate & Std. Err. \\
+\midrule
+Inflection $H_{ip}$ & $a$ & 1.8104 & 0.2405 \\
+                    & $b$ & 0.3590 & 0.0281 \\
+\midrule
+Shaft exp. $b$      & $\beta_{b,0}$ & -4.3162 & 0.0578 \\
+(Logit link)        & $\beta_{b,1}$ ($1/H$) & 21.7497 & 0.2979 \\
+                    & $\beta_{b,2}$ ($\ln(1+d_r)$) & 1.0813 & 0.0140 \\
+\midrule
+Basal exp. $c_2$    & $\beta_{c_2,0}$ & 7.0974 & 0.0521 \\
+(Logit link)        & $\beta_{c_2,1}$ ($\ln(1+H)$) & -3.1716 & 0.0371 \\
+                    & $\beta_{c_2,2}$ ($\ln(1+d_r)$) & 0.6313 & 0.0281 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Diameter Estimation Performance}
+
+Figure~\ref{fig:d03Est} illustrates the residual analysis for the diameter estimation at $30\%$ of the tree height ($d_{0.3h}$). To account for heteroscedasticity—as absolute errors naturally increase with tree size—the ratio of the observed diameter to the predicted diameter ($d_{0.3h} / \hat{d}_{0.3h}$) is analyzed instead of absolute residuals. This approach scales the errors and provides a robust, size-independent standard deviation of $\sigma \approx 0.045$.
+
+The model demonstrates high overall precision, with the vast majority of predictions deviating by less than $\pm 5\%$ from the actual values. However, the red trend line reveals a slight systematic bias across the diameter spectrum:
+\begin{itemize}
+    \item \textbf{Small-to-medium diameters ($\hat{d}_{0.3h} < 25$\,cm):} The ratio lies slightly above $1.0$, indicating a minor underestimation of the actual diameter.
+    \item \textbf{Large diameters ($\hat{d}_{0.3h} > 30$\,cm):} The trend line drops below $1.0$, signaling a progressive overestimation for thicker stems.
+\end{itemize}
+This behavior points toward a geometric constraint or a minor structural limitation in the taper equation. Despite this slight trend, the model remains robust and tightly clustered around the ideal baseline of $1.0$ across the bulk of the data.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{d03Est}
+\caption{Relative residual analysis ($d_{0.3h} / \hat{d}_{0.3h}$) against predicted diameter $\hat{d}_{0.3h}$. The standard deviation of the central 99\% of the data is $\sigma = 0.045$. The red moving average line highlights a minor systematic bias for small and large diameters.}
+\label{fig:d03Est}
+\end{figure}
+
+For the upper stem section at $65\%$ of the tree height ($d_{0.65h}$), the corresponding relative residual analysis is presented in Figure~\ref{fig:d065Est}. The prediction at this height has a larger standard deviation of $\sigma \approx 0.078$ for the central $99\%$ of the data. This indicates that the relative prediction error remains within roughly $\pm 8\%$ for most trees.
+
+Interestingly, the systematic trend observed in the moving average line is completely inverted compared to the $30\%$ height level:
+\begin{itemize}
+    \item \textbf{Small diameters ($\hat{d}_{0.65h} < 15$\,cm):} The trend line drops below $1.0$ (down to $\approx 0.97$), indicating a slight overestimation by the model.
+    \item \textbf{Larger diameters ($\hat{d}_{0.65h} > 15$\,cm):} The trend line rises above $1.0$ (up to $\approx 1.03$), indicating a mild underestimation of the actual diameter.
+\end{itemize}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{d065Est}
+\caption{Relative residual analysis ($d_{0.65h} / \hat{d}_{0.65h}$) against predicted diameter $\hat{d}_{0.65h}$. The standard deviation of the central 99\% of the data is $\sigma = 0.078$. The red trend line indicates an inverted geometric bias compared to the lower stem section.}
+\label{fig:d065Est}
+\end{figure}
+
+
+\subsection{Volume Estimation Performance}
+
+The ultimate validation of the calibrated stem profile model relies on its capacity to accurately predict true stem volume ($V$) across varying levels of empirical sampling intensity. Figure~\ref{fig:residualsVol} illustrates the residual distribution for the baseline model anchored exclusively at breast height, which serves as the regional standard. The ratio of observed to predicted volume ($V/\hat{V}$) is symmetrically distributed around the ideal identity threshold of 1.0 with a standard deviation of $\sigma = 0.0717$. Residual evaluations against total height ($H_{\text{total}}$) and reference diameter ($d_r$) exhibit no heteroscedastic trends, confirming that the logit-linked shape GLMs capture the average morphological variation of Norway spruce without systematic macro-level volume bias.
+
+\begin{figure}[!htb]
+    \centering
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{VResidPred}
+        \caption{Residuals vs. predicted volume $\hat{V}$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{VResidH}
+        \caption{Residuals vs. total tree height $H_{\text{total}}$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.95\columnwidth}
+        \includegraphics[width=.95\columnwidth]{VResidDRef}
+        \caption{Residuals vs. reference diameter $d_r$}
+    \end{subfigure}
+    \caption{Residual analysis ($V/\hat{V}$) for the baseline model utilizing only a single diameter anchor and total height ($\sigma = 0.0717$). The red solid line represents a locally weighted scatterplot smoothing (LOWESS) trend line.}
+    \label{fig:residualsVol}
+\end{figure}
+
+When incorporating a second upper-stem diameter measurement located at 30\% of the total tree height ($d_{0.3H}$), the residual dispersion narrows to $\sigma = 0.0665$ (Figure~\ref{fig:residualsVol2}). However, the residual diagnostic reveals a distinct, non-linear U-shaped systematic bias across the volume spectrum, indicating local volume overestimation in medium-sized stems and underestimation at the dimensional margins. This morphometric distortion highlights a structural over-constraint by freezing the upper shaft exponent $b$ to the static regional GLM prediction deprives the upper segment of necessary phenotypic flexibility. Consequently, the geometric tension required to force an exact intersection at the lower sampling height $h_2 = 0.3H$ is absorbed entirely by the scaling parameter $a$, causing an unphysiological inflation of the mid-diameter profile. This diagnostic underscores that a reliable two-point calibration necessitates a simultaneous or regularized fine-tuning of both shape exponents to prevent localized volumetric bias.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{VResidPred2}
+\caption{Residual analysis ($V/\hat{V}$) vs. predicted volume $\hat{V}$ for the split-segment calibration framework utilizing two empirical diameter measurements (DBH and $d_{0.3H}$, $\sigma = 0.0665$). The trend line indicates a slight geometric constraint bias.}
+\label{fig:residualsVol2}
+\end{figure}
+
+When relocating this second diameter measurement higher up the stem to 65\% of the total tree height ($d_{0.65H}$), the residual dispersion narrows substantially to $\sigma = 0.0424$ (Figure~\ref{fig:residualsVol2b}). However, the residual diagnostic reveals a systematic downward trend across the volume spectrum rather than a U-shaped bias. For small- to medium-sized stems ($\hat{V} < 0.5\,\text{m}^3$), the routine exhibits a slight, stable volume underestimation ($V/\hat{V} \approx 1.02$). As the tree dimensions increase, this trend progressively shifts into a noticeable volume overestimation for large-dimensional trees ($\hat{V} > 1\,\text{m}^3$), where the ratio drops toward $0.95$. 
+
+This behavior indicates that while moving the calibration point to $0.65H$ successfully captures the upper stem taper and minimizes overall variance, the high-altitude constraint introduces a different geometric tension. In large trees, allowing the upper shaft exponent $b$ to vary freely to force an exact intersection at $h_2 = 0.65H$ appears to cause a slight over-flattening of the calculated profile in the upper stem sections. Consequently, this over-compensation leads to an unphysiological volume inflation at the upper dimensional margin. The diagnostic underscores that even with a highly precise two-point calibration, regularizing the shape exponents is still essential to prevent global monotonic drift in extreme tree sizes.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{VResidPred2b}
+\caption{Residual analysis ($V/\hat{V}$) vs. predicted volume $\hat{V}$ for the split-segment calibration framework utilizing two empirical diameter measurements (DBH and $d_{0.65H}$, $\sigma = 0.0424$). The red trend line illustrates a systematic drift from slight underestimation in smaller stems to overestimation in large-dimensional trees.}
+\label{fig:residualsVol2b}
+\end{figure}
+
+This restriction is completely resolved by deploying the deterministic three-measurement calibration framework, where a lower diameter, an intermediate measurement ($d_{0.3H}$), and an upper measurement ($d_{0.65H}$) are sampled simultaneously. By analytically isolating both the upper exponent $b$ and the complete basal parameter sequence ($c_0, c_1, c_2$), the framework successfully eliminates the localized shape bias for the vast majority of the population. As shown in Figure~\ref{fig:residualsVol3}, the residual scatter is tightly compressed along the reference identity line across the core volume spectrum ($0.05$ to $\qty{2.0}{m^3}$), reducing the residual standard deviation to $\sigma = 0.0285$.
+
+A minor systematic divergence remains observable at the absolute dimensional margins: a slight underestimation occurs in juvenile stems with minimal volumes, and a marginal underestimation appears in hyper-mature individuals. Because the shape exponents are derived fully tree-specifically in this mode, this boundary effect could come ether that the used function can not exactly reproduce the real stem shape and the inflection height model ($H_{ip}$) might be too simple. The relative positioning of the structural transition point might be shifted in extreme phenotypes, introducing a minor structural tension when the composite framework is forced through three deterministic coordinates under a static segment boundary.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{VResidPred3}
+\caption{Residual analysis ($V/\hat{V}$) vs. predicted volume $\hat{V}$ for the deterministic tree-specific calibration framework utilizing three empirical diameter measurements (DBH, $d_{0.3H}$, and $d_{0.65H}$, $\sigma = 0.0285$). The configuration yields complete elimination of shape bias and high volume identity.}
+\label{fig:residualsVol3}
+\end{figure}
+
+
+
+
+\section{Discussion}
+
+%% Kleine Bäume fehlen im Datensatz daher wäre eine Erweiterung des Datensatzte auch um kleine Bäume anzustreben.
+
+% Auch der Durchmesser in Höhe 0m sollte beobachtet werden. Hier wurde er geschätzt und als datengrundlage alle Messungen bis 5m höhe verwendet, obwohl eigentlich nur die Messungen bis zum inflection point besser wären, dadurch aber besonders bei kleinen Bäzuen zu wenig durchmessermessungen je einzelbaum zurverfügung gestanden.
+
+% Auch stellt sich besonders am Hang die Frage was als Oberirdisch gill.
+
+% Das mit d03 von hier muss nich bei anderen Funktionen gelten
+
+% Auswirkungen von Messfehlern? Bleibt Volumen Biasfrei?
+
+
+The composite power function presented in this study provides a robust framework for describing the stem profile of Norway spruce. By anchoring the model at the inflection point ($H_{ip}$), the distinct transition between the concave basal flare and the predominantly parabolic main shaft could be captured. Anyhow the differences in diameter estimate for $d_{0.3h}$ or $d_{0.65h}$ might suggest to spilt the tree in more than two parts. But as the differences are not to large this tapper curve might still be usable.
+
+The flexibility to anchor the model at different heights (Case A--C) makes it a versatile tool for various inventory protocols. The ability to integrate a second diameter measurement ($d_2$) allows for a significant reduction in volume estimation bias, particularly for high-value timber where the exact taper of the first logs is critical for sawmill yield.
+
+\subsection{Biological Interpretation of Shape Exponents}
+
+The shape exponents $b$ and $c_2$ proved to be sensitive to tree dimensions. The observed increase in $b$ with tree height suggests that taller spruces tend towards a more full-bodied, parabolic form in their upper sections. In contrast, the basal exponent $c_2$ highlights the increasing importance of root flare for supporting larger lever arms as trees grow.
+
+\subsection{Relationship to Classical Form Factors}
+
+A significant advantage of the proposed model is its ability to analytically derive the reference diameter form factor ($f_{r} = V_{\text{total}} / (A_{r} \cdot H_{\text{total}})$). The model dynamically adjusts to the individual stem morphology. 
+
+The form factor could be related to any diameter. When utilising e.g. the reference diameter $d_r$, the formulation ensures mathematical stability. Specifically, it prevents the form factor from approaching infinity for small trees ($H_{\text{total}} < \qty{1.3}{m}$), where a classical breast height diameter (DBH) is undefined or approaches zero.
+
+The corresponding reference basal area $A_r$ is given by:
+
+\begin{equation}
+A_r = \frac{\pi}{4} d_r^2
+\end{equation}
+
+The total volume of the tree $V_{\text{total}}$ is obtained by summing the volumes of the lower and upper stem segments based on the inflection point height $H_{ip}$:
+
+\begin{equation}
+V_{\text{total}} = V_{low}(0, H_{ip}) + V_{up}(H_{ip}, H_{\text{total}})
+\end{equation}
+
+Substituting the analytical solutions for $V_{low}$ and $V_{up}$, the total volume expands to:
+
+\begin{align}
+V_{\text{total}} = \frac{\pi}{4} & \left[ c_0^2 h + \frac{2c_0 c_1 h^{c_2+1}}{c_2+1} + \frac{c_1^2 h^{2c_2+1}}{2c_2+1} \right]_{0}^{H_{ip}} \nonumber \\
++ \frac{\pi}{4} & \left[ d_t^2 (H_{\text{total}} - H_{ip}) + \frac{2 a d_t (H_{\text{total}}-H_{ip})^{b+1}}{b+1} + \frac{a^2 (H_{\text{total}}-H_{ip})^{2b+1}}{2b+1} \right]
+\end{align}
+
+Finally, the dynamic reference form factor $f_r$ is derived by dividing the total volume by the volume of the reference cylinder ($V_B = A_r \cdot H_{\text{total}}$). Since the factor $\frac{\pi}{4}$ cancels out, the analytical expression simplifies to:
+
+\begin{equation}
+f_r = \frac{\hat{V}_{low} + \hat{V}_{up}}{d_r^2 \cdot H_{\text{total}}}
+\end{equation}
+
+where $\hat{V}_{low}$ and $\hat{V}_{up}$ represent the bracketed terms from the volume equations without the $\frac{\pi}{4}$ multiplier:
+
+\begin{align}
+\hat{V}_{low} &= c_0^2 H_{ip} + \frac{2c_0 c_1 H_{ip}^{c_2+1}}{c_2+1} + \frac{c_1^2 H_{ip}^{2c_2+1}}{2c_2+1} \\
+\hat{V}_{up} &= d_t^2 (H_{\text{total}} - H_{ip}) + \frac{2 a d_t (H_{\text{total}}-H_{ip})^{b+1}}{b+1} + \frac{a^2 (H_{\text{total}}-H_{ip})^{2b+1}}{2b+1}
+\end{align}
+
+
+\subsection{Parameter Efficiency and Model Versatility}
+
+A key strength of the proposed model lies in its high parameter efficiency. It uses eight core parameters ($a, b, c_1, c_2, d_0, d_{ip}, H_{ip}, d_t$) to provide a complete, $C^1$-continuous representation of the stem. It avoids "jumps" or oscillations. As the volume integration is derived analytically, the model remains as computationally efficient while providing much information. It allows to calculate not only total wood volume but also any specific timber assortment, biomass distribution, or bark-to-wood ratios post-hoc, without requiring additional measurements.
+
+While the parameter determination requires a brief numerical iteration to anchor the model at measured diameters, the subsequent application of the model---such as calculating volumes or diameters---is entirely analytical.
+
+The approach treats the DBH as a strict geometric constraint. This ensures that inventory data is fully preserved in the resulting stem profile.
+
+
+\subsection{Discussion of Taper Model Behavior and Optimization Objectives}
+
+The residual analyses at different relative heights ($30\%$ and $65\%$ of tree height) reveal an inversion of the systematic bias. While the model slightly underestimates small diameters and overestimates large diameters at the lower stem ($d_{0.3h}$), the opposite behavior occurs further up the stem ($d_{0.65h}$). 
+
+This localized shifting of bias is closely linked to the chosen optimization strategy and the model's structural simplicity. To capture the biological shape profile, the stem volume was partitioned into a lower and an upper section, separated by the stem curve's inflection point. The model coefficients were estimated using a weighted objective function: while the primary priority was to eliminate any bias in the total cumulative volume, the optimization simultaneously aimed to maximize the fit of both sub-volumes. 
+
+Because of the parsimonious mathematical structure of the model, a flawless fit for all diameters and sub-volumes simultaneously is mathematically constrained. Therefore, the minor localized diameter distortions at $30\%$ and $65\%$ height levels represent the accepted trade-off under this specific weighting scheme. The localized errors effectively compensate for each other during integration, satisfying the strict constraint of overall volume unbiasedness while maintaining a balanced fit across the two morphological stem segments for the entire population.
+
+%%%
+
+The trade-off between empirical sampling intensity and the remaining geometric flexibility of the taper function represents a core biometric paradigm, visually demonstrated by the varying envelope spaces in Figure~\ref{fig:nMesspunkte}. When utilizing only a single diameter measurement (typically the classic DBH), the mathematical framework exhibits maximum phenotypic flexibility. While the anchoring routine forces every candidate profile strictly through the fixed coordinates at \qty{1.3}{m}, the upper and basal shape exponents ($b$ and $c_2$) are free to vary across their regional biological boundaries. This unconstrained parameter space permits a wide array of structurally plausible taper paths---ranging from strongly neiloidic basal flares to highly full-bodied, convex upper shafts---which subsequently introduces a high variance in the integrated target volumes. Relying solely on regional GLM predictions for these exponents inevitably introduces localized volume errors if the specific tree deviates from the population average.
+
+This morphological uncertainty is drastically constrained upon the inclusion of a second diameter measurement. As structurally visualized in the two central panels of Figure~\ref{fig:nMesspunkte}, forcing the composite profile through two independent empirical coordinates sharply seals the directional envelope of the shaft. Because the scaling parameter is now tied to a real taper trajectory, the remaining volumetric variance is compressed into the narrow mathematical boundaries. However, the exact geometric impact depends heavily on the vertical placement of this second measurement. 
+
+When positioned lower on the stem at 30\% height ($d_{0.3H}$), freezing the shape parameters overstrains the basal root flare adjustment. The geometric tension required to force intersection at $h_2 = 0.3H$ is absorbed entirely by the scaling parameter $a$, explaining the non-linear U-shaped residual bias observed in Figure~\ref{fig:residualsVol2}. Conversely, relocating this second measurement higher up to 65\% height ($d_{0.65H}$) shifts this geometric tension. By allowing the upper shaft exponent $b$ to vary freely, the routine successfully captures the upper stem taper and minimizes overall variance. However, this high-altitude constraint introduces a different trade-off, forcing a slight over-flattening of the profile in large trees that manifests as a systematic monotonic overestimation trend at the upper dimensional margins (Figure~\ref{fig:residualsVol2b}).
+
+Ultimately, the deterministic three-point calibration architecture ($n_1 = 3$) achieves absolute geometric closure. By extracting all critical shape parameters ($a, b, c_0, c_1, c_2$) sequentially and tree-specifically from three empirical coordinates, the mathematical flexibility of the composite power function collapses to zero. There exists only one unique, mathematically continuous, and $C^1$-smooth profile line that can simultaneously intersect the root collar swell ($d_1$), the intermediate shaft thickness ($d_{0.3H}$), and the merchantable top boundary ($d_{0.65H}$). The shrinkage of the profile envelope down to a single deterministic line accounts for the dramatic halving of the residual standard deviation ($\sigma = 0.0285$) and the complete elimination of localized volume trends (Figure~\ref{fig:residualsVol3}). 
+
+While this progression shifts the biometric framework from a regional, stochastic approximation to a true, tree-specific analytical volume derivation, providing maximum inventory precision under ideal conditions, this geometric rigidity introduces a profound vulnerability. As subsequent sensitivity diagnostics reveal, squeezing the parameter space down to a zero-variance deterministic line exposes the calibration pipeline to severe parameter distortion and mathematical over-constraints when confronted with real-world field measurement noise.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{nMesspunkte}
+\caption{Geometric flexibilities and structural envelope of the composite stem taper model under varying sampling intensities ($n_1 = 1, 2$ ($d_{0.3H}$ vs. $d_{0.65H}$), or $3$ measured diameters).}
+\label{fig:nMesspunkte}
+\end{figure}
+
+\subsection{Analysis of Measurement Error Propagation and Volumetric Bias}
+
+While increasing the sampling intensity structurally constraints the shape envelope, it simultaneously introduces a critical trade-off regarding error propagation. Squeezing the parameter space down to a zero-variance deterministic line exposes the calibration pipeline to severe parameter distortion and mathematical over-constraints when confronted with real-world field measurement noise. To systematically isolate these geometric mechanics, separate empirical noise scenarios are evaluated against a reference individual ($H_{\text{total}} = \qty{25}{m}$, base $\text{DBH} = \qty{25}{cm}$).
+
+\subsubsection{Sensitivity to Lower-Stem Errors (DBH Noise)}
+
+Figure~\ref{fig:dbhMeasurementError} illustrates the morphometric and volumetric consequences of a standard $\pm\qty{1}{cm}$ measurement error introduced exclusively at breast height ($h_1 = \qty{1.3}{m}$) around the reference baseline ($\text{DBH} = \qty{25.0}{cm}$, $V = \qty{0.6162}{m^3}$). 
+
+The single-diameter baseline configuration exhibits a damped and stable response to the input error. Because the shape exponents are derived from regional GLM trends, the curve absorbs the diameter shift smoothly down to the root collar. In this baseline configuration, volume scales near-linearly with diameter inflation ($\Delta V \approx \qty{0.0435}{m^3\cdot cm^{-1}}$), varying from $\qty{0.5733}{m^3}$ at $\text{DBH} = \qty{24.0}{cm}$ up to $\qty{0.6604}{m^3}$ at $\text{DBH} = \qty{26.0}{cm}$. However, due to the underlying cross-sectional integration, even this single-diameter model is not strictly linear, though it closely approximates a linear trend over this narrow error margin.
+
+In contrast, the multi-point calibration routines demonstrate differentiated and sometimes counter-intuitive sensitivities to lower-stem measurement noise. Because the intermediate ($d_{0.3H}$) and upper ($d_{0.65H}$) diameter anchors remain structurally fixed, any empirical error introduced at the base creates a geometric tension. To satisfy the strict $C^1$-continuity and intersect all deterministic coordinates, the profile curve is deformed, which---depending on the anchoring strategy---can either damp or invert the volumetric error propagation.
+
+This interaction uncovers distinct geometric paradoxes across the multi-point sampling intensities. When utilizing the two-diameter configuration with an intermediate-stem anchor at 30\% height ($d_{0.3H}$), the model exhibits a severe negative correlation driven by a mathematical leverage effect between the DBH and $d_{0.3H}$. An underestimation of the lower diameter ($\text{DBH} = \qty{24.0}{cm}$) acts as a pivot point: it forces the trajectory solver to drastically flatten the upper shaft exponent $b$ to intersect the rigid anchor, paradoxically inflating the mid-stem profile and causing a volume expansion to $\qty{0.6364}{m^3}$. Conversely, an overestimation of the DBH ($\text{DBH} = \qty{26.0}{cm}$) constricts the mid-shaft, dropping the volume to $\qty{0.6048}{m^3}$. 
+
+Relocating the upper anchor to 65\% height ($d_{0.65H}$) in the alternative two-diameter variant, or utilizing the full deterministic three-diameter framework, effectively lengthens this leverage arm, providing an error-dampening effect compared to the single-diameter baseline. For instance, at $\text{DBH} = \qty{26.0}{cm}$, the upper anchor in the $d_{0.65H}$ two-diameter variant restricts the overestimation to $\qty{0.6439}{m^3}$ (compared to $\qty{0.6604}{m^3}$ in the baseline), allowing the system to scale monotonically while successfully buffering the lower-stem noise.
+
+Most notably, the deterministic three-diameter framework unmasks a complete mathematical breakdown when confronted with positive diameter noise. As the empirical lower anchor shifts upward toward $\qty{26.0}{cm}$ while the remaining two anchors remain static, it becomes geometrically impossible to force the specific composite power function used here to simultaneously intersect all three coordinates. While a valid three-point trajectory could theoretically be achieved using different mathematical frameworks (e.g., unconstrained splines or higher-order polynomials), the rigid biological boundary conditions inherent to this specific taper equation system---specifically the neiloidic lower-stem constraint ($c_2 \le 1.0$)---prevent a valid mathematical solution. 
+
+Consequently, at a critical threshold of $\text{DBH} \ge \qty{25.4}{cm}$, the optimization algorithm encounters a mathematical asymptote. Rather than satisfying the exact lower coordinate, the routine deforms the taper curve as far as permissible toward the inflated DBH until hitting the rigid parameter boundaries. This maximum geometric distortion results in a stable volume ceiling of $\qty{0.6219}{m^3}$. This definitive numerical capping proves that within this biometric framework, the parameter-tight calibration architecture lacks the mathematical elasticity to absorb real-world lower-stem noise, whereas the strategically anchored $d_{0.65H}$ variant provides a robust, error-dampening alternative.
+
+Due to the quadratic nature of diameter within the cross-sectional area integration ($V \propto \int d(h)^2 \, dh$), the propagation of these identical diameter shifts is inherently asymmetrical. The volume inflation caused by positive measurement errors systematically deviates from the volume reduction of equivalent negative errors. In large-scale forest inventories where diameter field measurements are subject to symmetrical noise, these multi-point geometric distortions do not cancel out, introducing a systematic macro-level overestimation bias.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{dbhMeasurementError}
+\includegraphics[width=.95\columnwidth]{dbhMeasurementErrorV}
+\caption{Propagation of a $\pm\qty{1}{cm}$ empirical measurement error at breast height for a reference individual ($H_{\text{total}} = \qty{25}{m}$, base $\text{DBH} = \qty{25}{cm}$): (top) morphometric deformations across the sampling intensities; (bottom) non-linear error envelopes of the integrated stem volumes across the single-, two- (utilizing either $d_{0.3H}$ or $d_{0.65H}$), and three-diameter configurations, where the shaded areas highlight the asymmetrical volume divergence driven by non-linear parameter leverage.}
+\label{fig:dbhMeasurementError}
+\end{figure}
+
+
+\subsubsection{Sensitivity to Upper-Stem Errors (Mid- and High-Shaft Noise)}
+
+To isolate the mechanics of upper-stem measurement noise, Figure~\ref{fig:d03MeasurementError} simulate the impact of a $\pm\qty{1}{cm}$ experimental measurement error applied exclusively to the respective upper sampling heights, while the baseline DBH and total height remain strictly fixed. For the routines utilizing a mid-stem anchor, the error is introduced at $d_{0.3H}$ (affecting the corresponding two-diameter variant and the deterministic three-diameter framework), whereas for the high-stem routine, the error is simulated via a shifting $d_{0.65H}$ coordinate. As expected, the single-diameter baseline configuration remains completely invariant to upper-stem variations, maintaining a constant volume of $\qty{0.6162}{m^3}$ due to its strict reliance on static population trends.
+
+In contrast, the multi-point configurations reveal structurally opposing error propagation dynamics under their respective noise scenarios. The two-diameter configuration utilizing the intermediate-stem anchor ($d_{0.3H}$) exhibits progressive vulnerability to mid-stem measurement noise, with integrated volumes surging non-linearly from $\qty{0.5466}{m^3}$ to $\qty{0.7032}{m^3}$ across the $\qty{2}{cm}$ error bracket (from $\qty{19.76}{cm}$ to $\qty{21.76}{cm}$). Because the upper exponent $b$ is held rigid, the mathematical engine forces the lower segment to absorb the entire geometric displacement required to intersect the shifting $d_{0.3H}$ coordinate, causing severe artificial over-scaling of the high-volume root collar zone when the mid-diameter is overestimated.
+
+Relocating this single upper anchor to the higher boundary ($d_{0.65H}$) in the alternative two-diameter variant substantially improves the model's resilience against its respective high-shaft noise. Under an equivalent $\pm\qty{1}{cm}$ diameter variation at $0.65H$ (ranging from $\qty{13.60}{cm}$ to $\qty{15.60}{cm}$), the integrated volume spans a significantly narrower and more stable corridor, ranging from $\qty{0.5795}{m^3}$ to $\qty{0.6552}{m^3}$. Because the high-altitude anchor operates in a section of the stem with lower absolute volume density, forcing the profile through a shifting $d_{0.65H}$ coordinate exerts less mathematical leverage on the critical middle and lower log sections, preventing the drastic volumetric runaway seen when distorting the lower $d_{0.3H}$ anchor.
+
+This structural vulnerability is also mitigated within the deterministic three-diameter framework when subjected to intermediate sampling noise. When $d_{0.3H}$ is erroneously shifted while $d_{0.65H}$ remains fixed at its reference state ($\qty{14.60}{cm}$), the simultaneous anchoring at the upper merchantable boundary acts as a geometric counter-lever. Because the upper segment parameters are dynamically co-estimated, the mathematical tension is distributed across the entire length of the shaft rather than being driven entirely into the ground collar. This structural damping effect linearizes the error propagation and dampens the volumetric variance significantly compared to the unconstrained two-point routine, keeping the calculated volume strictly bounded between $\qty{0.5732}{m^3}$ and $\qty{0.6425}{m^3}$. 
+
+However, a distinct geometric inflection occurs within this progression. Much like the breakdown observed under lower-stem noise, it becomes mathematically impossible for the specific taper equation system to maintain a perfect trajectory through all three rigid coordinates under extreme $d_{0.3H}$ distortions. Beyond these structural limits, the optimization algorithm sacrifices the lower DBH constraint, failing to intersect the breast-height coordinate exactly. Yet, unlike the complete numerical freeze seen in the DBH sensitivity analysis, the volume continues to shift---manifesting as a visible bend or kink in the error trajectory---as the mathematical engine continues to deform the remaining shaft profile to its maximum capacity. This establishes that while the three-diameter architecture provides superior geometric buffering against intermediate sampling noise, it does so by internalizing localized profile misfits.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{d03MeasurementError}
+\includegraphics[width=.95\columnwidth]{d03MeasurementErrorV}
+\caption{Propagation of a $\pm\qty{1}{cm}$ empirical measurement error at the upper stem heights ($h = \qty{7.5}{m}$ for $d_{0.3H}$ and $h = \qty{16.25}{m}$ for $d_{0.65H}$) for a reference individual ($H_{\text{total}} = \qty{25}{m}$, base $\text{DBH} = \qty{25}{cm}$): (top) morphometric adjustments under static baseline anchors; (bottom) non-linear error envelopes of the integrated stem volumes across the single-, two- (utilizing either $d_{0.3H}$ or $d_{0.65H}$), and three-diameter configurations, showcasing the geometric buffering and structural inflection trends against upper-stem sampling noise.}
+\label{fig:d03MeasurementError}
+\end{figure}
+
+However, a critical biometric nuance must be addressed regarding the behavior of the deterministic three-diameter framework under upper-stem distortion. Even when subjected to diameter shifts that force the system to compromise its lower breast-height coordinate, the presence of a third empirical anchor inherently functions as a structural constraint that limits the unmitigated error propagation seen in the less constrained multi-point configurations. While the two-diameter calibration utilizing $d_{0.3H}$ allows the mathematical leverage to swing freely across the remaining length of the shaft and forces the entire structural tension into the basal profile, the three-diameter system establishes a secondary rigid segment interval. This split-segment clamping restricts the unphysiological deformation of the taper curve locally, ensuring that the volume estimation remains relatively buffered compared to the unconstrained geometric fluctuations of lower sampling intensities.
+
+Consequently, these mathematical dynamics suggest that a structural optimum exists between the total number of empirical sample points and their strategic vertical placement along the stem profile. While this optimization framework exceeds the scope of the present study, it outlines a vital trajectory for future research: identifying the exact configuration of measurement heights that minimizes both regional shape bias and operational field-level error propagation. Strategically decoupling the selection of sampling protocols from rigid standard intervals---such as preferring the robust $d_{0.65H}$ two-diameter configuration over the $d_{0.3H}$ variant when restricted to two diameters---could significantly enhance the resilience of multi-point analytical volume derivations in large-scale forest inventories.
+
+
+\subsubsection{Compounded Systematic Errors and Morphological Over-Constraints}
+
+To expose the absolute limits of geometric stability, a compounded simulation is executed where measurement errors are introduced simultaneously across multiple inventory coordinates. First, Figure~\ref{fig:bhdUd03MeasurementErrorG} evaluate a co-directional systematic error where both DBH and the respective upper diameters ($d_{0.3H}$ for the corresponding multi-point routines; $d_{0.65H}$ for the alternative high-stem routine) shift synchronously in the same parallel direction (ranging from $\qty{24.0}{cm}$ to $\qty{26.0}{cm}$ at breast height). 
+
+Under this parallel distortion, the single-diameter baseline configuration exhibits a volumetric deflection (ranging from $\qty{0.5733}{m^3}$ to $\qty{0.6604}{m^3}$) that is completely identical to the initial single-variable DBH noise scenario. Because this regional architecture completely isolates upper-stem dimensions, any synchronous shifts in $d_{0.3H}$ or $d_{0.65H}$ exert zero mathematical influence on its integration engine. In comparison, both two-diameter configurations react with a wider volumetric deflection across the error spectrum. However, they stabilize significantly compared to their volatile counter-directional behavior, recovering a strictly monotonic response curve where the intermediate-stem variant scales to $\qty{0.6801}{m^3}$.
+
+Notably, the alternative two-diameter variant utilizing $d_{0.65H}$ exhibits the highest total volumetric expansion, peaking at $\qty{0.6830}{m^3}$. This maximum deflection is a direct consequence of its extended leverage arm: because the mobile anchor is located high up the stem, forcing the trajectory through an inflated $d_{0.65H}$ coordinate violently pushes the entire upper profile outward, an effect that remains tightly constrained in the lower-altitude architectures. 
+
+Interestingly, the deterministic three-diameter framework achieves the narrowest and most tightly constrained volume corridor ($\qty{0.5732}{m^3}$ to $\qty{0.6538}{m^3}$), slightly outperforming the single-diameter baseline. However, this apparent resilience is a direct mathematical artifact of the experimental design rather than inherent model elasticity. Because the uppermost anchor ($d_{0.65H}$) is held strictly static at its true reference value, it acts as a stabilizing geometric anchor. Paired with the system's propensity to systematically compromise the lower DBH coordinate when boundary limits are violated, the three-diameter routine heavily benefits from this unvaried high-altitude constraint, artificially buffering the parallel error propagation across the remaining shaft profile.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{bhdUd03MeasurementErrorG}
+\includegraphics[width=.95\columnwidth]{bhdd03MeasurementErrorGV}
+\caption{Propagation of simultaneous $\pm\qty{1}{cm}$ diameter measurement errors in the same parallel direction on DBH and upper diameters for a reference tree ($H_{\text{total}} = \qty{25}{m}$, base $\text{DBH} = \qty{25}{cm}$): (top) morphometric taper deformations across the sampling intensities; (bottom) integrated volumetric error envelopes plotted against dual horizontal axes, showcasing the geometric stabilization of the two-diameter routines and the restrictive truncation bias of the three-diameter framework.}
+\label{fig:bhdUd03MeasurementErrorG}
+\end{figure}
+
+Second, Figure~\ref{fig:bhdUd03MeasurementError} evaluate the far more volatile counter-directional scenario. Here, the systematic $\pm\qty{1}{cm}$ shifts move in opposite directions, pairing a constricting DBH (from $\qty{26.0}{cm}$ down to $\qty{24.0}{cm}$) with expanding upper dimensions, representing a severe localized sampling distortion that heavily destabilizes the cross-segment transitions. 
+
+The empirical data in this configuration uncovers a profound mathematical paradox and highlights a massive divergence in resilience between the two-diameter strategies. The two-diameter configuration utilizing the intermediate-stem anchor exhibits a severe geometric inversion: when the tree is recorded at its minimal DBH ($\qty{24.0}{cm}$) but paired with an artificially inflated mid-diameter ($d_{0.3H} = \qty{21.76}{cm}$), the integrated volume comes to its maximum value of $\qty{0.7404}{m^3}$. 
+
+This phenomenon is a direct consequence of the short geometric leverage arm---the narrow vertical distance---between the breast height and the 30\% sampling threshold. Because these two diagnostic coordinates are located relatively close to one another, minor opposing measurement errors exert an amplified mathematical leverage on the trajectory solver. The combination of a constricted ground collar and an expanded mid-shaft falsely signals an exceptionally cylindrical, full-bodied stem form with minimal tapering. To satisfy this strict, non-tapering coordinate pair under a rigid upper shaft exponent $b$, the numerical engine is forced to artificially distend the profile across the high-volume lower log sections, maximizing the integrated volume.
+
+Remarkably, the alternative high-altitude two-diameter routine ($d_{0.65H}$) completely neutralizes this catastrophic failure mode. Across the exact same volatile counter-directional shear, this configuration remains astonishingly stable, spanning a narrow corridor from $\qty{0.6071}{m^3}$ to just $\qty{0.6286}{m^3}$. This exceptional resilience is achieved because lengthening the vertical distance to the upper anchor significantly extends the mathematical leverage arm, reducing the system's sensitivity to localized data conflicts and successfully dampening the volumetric integration against cross-segment noise.
+
+The deterministic three-diameter framework also buffers this spatial shear, bounding the volumetric response within a stable range from $\qty{0.5732}{m^3}$ to $\qty{0.6353}{m^3}$. Crucially, the identical numerical outputs generated across both the single-variable and compounded noise scenarios unmask the absolute boundary collapse of this architecture: because the combination of a constricted base and expanded mid-shaft completely violates the biometrical limits ($c_2 \le 1.0$), the optimization algorithm entirely sacrifices the lower breast-height coordinate. Since the true DBH anchor is completely dropped by the trajectory solver to maintain mathematical continuity through the remaining upper points, any subsequent variations or systematic errors introduced at breast height exert exactly zero leverage on the integrated volume. This total decoupling explains the rigid replication of the volume vector and results in abrupt slope changes in the error trajectory, underscoring that while the three-diameter architecture achieves numerical stability through total segment isolation, the high-altitude two-diameter variant achieves a comparable---and often superior---error-absorbing effect through targeted mathematical elasticity.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.95\columnwidth]{bhdUd03MeasurementError}
+\includegraphics[width=.95\columnwidth]{bhdd03MeasurementErrorV}
+\caption{Propagation of simultaneous $\pm\qty{1}{cm}$ diameter measurement errors in opposite directions on DBH and upper diameters for a reference tree ($H_{\text{total}} = \qty{25}{m}$, base $\text{DBH} = \qty{25}{cm}$): (top) morphometric taper deformations across the sampling intensities; (bottom) integrated volumetric error envelopes plotted against dual horizontal axes, showcasing the severe geometric leverage of the intermediate two-diameter routine versus the remarkable error-absorbing elasticity of the high-altitude configuration.}
+\label{fig:bhdUd03MeasurementError}
+\end{figure}
+
+This analysis highlights a critical trade-off between intrinsic model precision and field-data sensitivity. After truncating extreme outliers using a strict quantile filter ($q \in [0.005, 0.995]$), the remaining relative residuals exhibit a standard deviation ($\sigma_R$) of $0.0725$. This indicates that the fundamental model predictions scatter with a residual standard error of approximately $7.25\%$. The errors of either $\text{DBH}$ or height might remain within or exceed this empirical variance envelope. While the two-diameter method effectively cuts the intrinsic model error, it could exhibits a heightened vulnerability to propagation errors in the field.
+
+From a practical inventory perspective, this vulnerability is further exacerbated by operational constraints in field data collection. While the measurement location for the $\text{DBH}$ ($1.3\,\text{m}$) can be easily and permanently marked on the stem to ensure highly reproducible multi-temporal measurements, the measurement height for $d_{0.3}$ is fluid. Because it is strictly coupled to the total tree height ($H_{\text{total}}$), any height measurement error directly shifts the absolute position of the 30\% measurement threshold along the stem. 
+
+Furthermore, measuring a diameter at upper stem sections from the ground might be less precise than a direct caliper measurement at breast height. For repeated measurements in long-term forest monitoring (e.g., to determine volume increments), this lack of reproducibility becomes a critical limitation. Even if a marked $\text{DBH}$ measurement exhibits a slight systematic bias, this bias remains consistent over time, allowing for a reliable tracking of incremental changes. In contrast, the dynamic and maybe less precise nature of the $d_{0.3}$ measurement introduces random noise into sequential inventories, which can severely distort calculated volume increments.
+
+\subsubsection{Inventory Design Guidelines and Height-Error Interactions}
+
+Ultimately, it must be emphasized that this multidimensional sensitivity analysis evaluates isolated and compounded diameter noise under a static, error-free height framework. In operational forest inventories, total tree height ($H_{\text{total}}$) represents an additional, frequently highly volatile source of non-systematic measurement error. Within the $C^1$-continuous composite taper function used here, any distortion in the recorded height directly shifts the relative vertical positions of the intermediate ($0.3H_{\text{total}}$) and upper ($0.65H_{\text{total}}$) sampling heights. More critically, it alters the mathematical evaluation of the upper parabolic stem segment $a(H_{\text{total}} - h)^b + d_t$ and simultaneously displaces the non-linear inflection boundary ($H_{ip}$) where the function transitions to the basal power system $c_0 + c_1 h^{c_2}$. This height-induced spatial displacement introduces a secondary layer of complex parameter leverage that interacts non-linearly with the diameter noise, further exacerbating the operational risk of over-constraining the calibration pipeline.
+
+Regarding the persistent residual bias observed across the volume spectrum in both two-diameter calibration routines (Figure~\ref{fig:residualsVol2} and\ref{fig:residualsVol2b}), a critical biometric nuance must be clarified. This systematic distortion does not represent an inherent flaw of the split-segment architecture itself, but rather a structural legacy of its parameterization: the underlying regional GLM predictions for the upper shaft exponent $b$ and the basal exponent $c_2$ were originally fitted and optimized exclusively for the single-diameter baseline configuration. Freezing these exponents to baseline population expectations deprives the two-diameter routines of the specific mathematical alignment needed to smoothly integrate a second empirical coordinate into the segmented framework.
+
+Crucially, this diagnostic suggests that the observed volumetric bias could be systematically eliminated by refitting and calibrating separate, dedicated GLM equations for $b$ and $c_2$. It must be emphasized that no single, generalized two-diameter GLM parameterization exists; instead, separate equations must be tailored specifically to the exact height-combination layout utilized, distinguishing strictly between a $\text{DBH}+d_{0.3H}$ configuration and a $\text{DBH}+d_{0.65H}$ configuration to account for the fundamentally distinct geometric leverage at different relative sampling heights.
+
+However, a vital mathematical limitation must be noted: certain sampling configurations may remain fundamentally prone to persistent bias despite customized GLM tuning. If the two empirical coordinates are positioned in too close vertical proximity, such as a clustered lower stem setup, the capacity of the exponents to modulate the transition through $H_{ip}$ is structurally restricted, and the system suffers from a critical lack of geometric leverage. In such poorly spaced layouts, the mathematical elasticity of the exponents is insufficient to map the unmeasured stem sections accurately, underscoring that a bias-free two-diameter calibration strictly requires a minimal, strategic vertical separation between the anchors.
+
+It is worth noting that while this validation focuses primarily on integrated volumetric outputs, the mathematical design of the $C^1$-continuous composite power function inherently guarantees highly localized diameter precision along the entire stem profile. Because the deterministic multi-point frameworks enforce exact interpolation at their empirical coordinates while minimizing localized shape curvature, the low integrated volume variances act as a geometric proxy confirming the absence of internal diameter oscillations or cumulative taper drift. Unlike traditional polynomial splines, which frequently suffer from unphysiological mathematical swinging between structural anchors, the strict parameter boundaries of this parabolic and power function framework successfully suppress localized diameter deviations without requiring dense section-by-section empirical measurements.
+
+These comprehensive insights establish a critical guideline for forest inventory design. In large-scale forest inventories or national forest inventories, field measurements are inherently subject to stochastic, symmetrical noise where individual diameter deviations follow a zero-mean distribution. For the single-diameter baseline configuration, which scales near-linearly with diameter inflation, these random errors largely cancel out in the aggregate, introducing negligible systematic drift at the population level. However, because the multi-point geometric engines introduce severe, highly non-linear parameter leverage, this error symmetry breaks down. Whether the random sampling errors happen to manifest as co-directional or counter-directional shifts in a given tree, the asymmetric volumetric response under extreme non-linear distortions ensures that positive and negative errors do not compensate for each other. 
+
+Consequently, propagating purely random field noise through these rigid architectures translates into a systematic macro-level bias when aggregating data across entire forest stands. It must be explicitly constrained, however, that this severe non-linear amplification is a distinct characteristic of the specific segmented power and parabolic function framework developed here. It does not automatically apply to all multi-point biometric methods; alternative mathematical approaches, such as unconstrained smoothing splines or generalized additive models, may possess fundamentally different error propagation profiles and could potentially maintain near-linear error symmetries under identical sampling noise. 
+
+Nevertheless, within the context of the present biometrical framework, to safeguard inventory resilience against such stochastically induced drift, the robust and near-linear single-diameter baseline configuration or the strategically cushioned, two-diameter variant utilizing $d_{0.65H}$ remain the most viable choices for operational large-scale applications. The rigid three-diameter framework, by contrast, must be strictly reserved for scenarios where rigorous instrumental calibration and strict quality assurance can completely suppress operational scattering.
+
+
+\section{Conclusion}
+
+This study introduces a $C^1$-continuous stem profile model that combines the flexibility of segmented calibration with the geometric stability of analytical power functions. The key findings and biometric advantages are:
+\begin{itemize}
+    \item \textbf{Mathematical Rigour:} The model offers exact, closed-form analytical solutions for both height-at-diameter derivations and volume integration up to the fourth order. This eliminates the need for computationally expensive numerical quadrature, ensuring maximum efficiency in data-heavy pipeline applications.
+    \item \textbf{Morphological Accuracy:} By explicitly incorporating the inflection point ($H_{ip}$) as a dynamic geometric anchor, the model maintains high biological plausibility. It successfully maps the structural transitions between the lower neiloidic root flare and the upper parabolic shaft.
+    \item \textbf{Flexible Calibration Architecture:} The underlying framework provides reliable regional baseline profiles using standard DBH and total height measurements, while its multi-point extensions allow for tree-specific calibrations whenever intermediate or upper-stem coordinates are available.
+    \item \textbf{Differentiated Error Propagation:} Sensitivity diagnostics unmask a critical trade-off between sampling intensity and mathematical elasticity. While the single-diameter baseline configuration scales near-linearly and effectively cancels out stochastic field noise in large-scale aggregates, over-constrained multi-point frameworks are highly non-linear. Closer vertical proximity between anchors triggers severe leverage effects, and the rigid three-diameter framework can even compromise its lower coordinates under data conflicts, resulting in systematic population-level biases.
+\end{itemize}
+In conclusion, the proposed taper function serves as a mathematically closed, precise, and computationally efficient tool for both large-scale forest inventories and individual tree modeling. For practical applications, the robust and near-linear single-diameter configuration or a strategically spaced two-diameter variant utilizing high-altitude coordinates ($d_{0.65H}$) are recommended to safeguard inventory resilience against operational measurement noise, providing a modern and robust update to classical forest biometrics.
+
+
+
+%%
+
+\iffalse
+
+The stem is divided into an upper segment ($H_{ip} \leq h \leq H$) and a lower segment ($0 \leq h < H_{ip}$). We use volume integration and transition constraints to determine the coefficients.
+
+\subsection*{1. Upper Segment Analysis}
+The diameter function is defined as:
+\begin{equation}
+d(h) = a(H - h)^b + d_{top}
+\end{equation}
+
+Given the measured diameter $d_{ip}$ at height $H_{ip}$, we express $a$ as a function of $b$:
+\begin{equation}
+a = \frac{d_{ip} - d_{top}}{(H - H_{ip})^b}
+\end{equation}
+
+The volume of the upper segment $V_{up}$ is given by:
+\begin{equation}
+V_{up} = \frac{\pi}{4} \int_{H_{ip}}^{H} [a(H-h)^b + d_{top}]^2 \, dh
+\end{equation}
+
+Expanding the binomial and integrating yields:
+\begin{equation}
+V_{up} = \frac{\pi}{4} \left[ \frac{a^2 (H-H_{ip})^{2b+1}}{2b+1} + \frac{2 a d_{top} (H-H_{ip})^{b+1}}{b+1} + d_{top}^2 (H-H_{ip}) \right]
+\end{equation}
+
+\textbf{Step 1:} Substitute $a$ from Eq. (2) into Eq. (4). This results in an equation where $b$ is the only unknown. Since $b$ appears in both the exponents and the denominators, solve for $b$ numerically (e.g., Newton-Raphson or Brent's method). Once $b$ is found, calculate $a$ using Eq. (2).
+
+\subsection*{2. Transition Constraints}
+To ensure a smooth transition (differentiability) at $H_{ip}$, the slope $s_{ip}$ is calculated from the upper segment:
+\begin{equation}
+s_{ip} = \frac{d}{dh} [a(H-h)^b + d_{top}] \Big|_{h=H_{ip}} = -a \cdot b \cdot (H - H_{ip})^{b-1}
+\end{equation}
+
+\subsection*{3. Lower Segment (Butt Swell)}
+The lower diameter function is:
+\begin{equation}
+d(h) = c_0 + c_1 h^{c_2}
+\end{equation}
+
+Using your assumptions for continuity and slope matching:
+\begin{itemize}
+    \item $c_0 = d_0$ (Diameter at $h=0$)
+    \item $c_2 = \frac{s_{ip} \cdot H_{ip}}{d_{ip} - d_0}$
+    \item $c_1 = \frac{d_{ip} - d_0}{H_{ip}^{c_2}}$
+\end{itemize}
+
+The volume of the lower segment $V_{low}$ is:
+\begin{equation}
+V_{low} = \frac{\pi}{4} \int_{0}^{H_{ip}} [d_0 + c_1 h^{c_2}]^2 \, dh = \frac{\pi}{4} \left[ d_0^2 H_{ip} + \frac{2 d_0 c_1 H_{ip}^{c_2+1}}{c_2+1} + \frac{c_1^2 H_{ip}^{2c_2+1}}{2c_2+1} \right]
+\end{equation}
+
+\textbf{Step 2:} Substitute $c_1$ and $c_2$ (which are functions of $d_0$) into Eq. (7). Solve for the unknown $d_0$ numerically until the calculated volume matches the measured $V_{low}$. Finally, calculate $c_1$ and $c_2$ using the determined $d_0$.
+
+\subsection*{4. Parameter Estimation via Global Optimization}
+While $b$ and $d_0$ could theoretically be solved in a step-wise analytical-numerical procedure, we employ a global optimization approach to ensure robustness against measurement noise and to prioritize total stem volume.
+
+We define a cost function $J(b, d_0)$ that minimizes the weighted squared residuals:
+\begin{equation}
+J(b, d_0) = w_1 (V_{calc} - V_{target})^2 + w_2 (d_0 - d_{0,meas})^2 + \text{Penalty}(b, c_2)
+\end{equation}
+where $V_{calc} = V_{up} + V_{low}$ is the total calculated volume. The parameters $a, s_{ip}, c_1,$ and $c_2$ are derived within each iteration using equations (2), (5), and the lower segment constraints to guarantee a $C^1$-continuous transition (no "kink") at $H_{ip}$.
+
+\textbf{Final Step:} The optimization problem is solved using the Nelder-Mead algorithm. This ensures that even if the interpolated volumes $V_{up}$ or $V_{low}$ slightly contradict the theoretical taper shape, the model finds the most plausible physical representation of the entire tree stem.
+
+
+\section*{Deriving Coefficients $a$ and $c_1$ from DBH}
+
+If the shape exponents $b$ and $c_2$ are known (e.g., from a regional model or mean values), and a single diameter measurement at $1.3\,m$ (DBH, $d_{1.3}$) is provided, the scaling coefficients $a$ and $c_1$ can be derived analytically while maintaining $C^1$-continuity at $H_{ip}$.
+
+\subsection*{Case 1: Wendepunkt above DBH ($H_{ip} > 1.3$)}
+In this case, the DBH measurement lies within the lower segment ($d(h) = d_0 + c_1 h^{c_2}$). To solve for $a$ without knowing $d_0$, we utilize the transition constraints:
+\begin{equation}
+d_{ip} = a(H-H_{ip})^b + d_{top} \quad \text{and} \quad s_{ip} = -a \cdot b (H-H_{ip})^{b-1}
+\end{equation}
+Substituting these into the lower segment equations and solving for $a$:
+\begin{equation}
+a = \frac{d_{1.3} - d_{top}}{(H - H_{ip})^b \left( 1 + \frac{b \cdot H_{ip}}{c_2 (H - H_{ip})} \left[ 1 - \left( \frac{1.3}{H_{ip}} \right)^{c_2} \right] \right)}
+\end{equation}
+Once $a$ is determined, $c_1$ is calculated via the slope matching:
+\begin{equation}
+c_1 = \frac{s_{ip}}{c_2 \cdot H_{ip}^{c_2-1}} = \frac{-a \cdot b (H-H_{ip})^{b-1}}{c_2 \cdot H_{ip}^{c_2-1}}
+\end{equation}
+
+\subsection*{Case 2: Wendepunkt below or at DBH ($H_{ip} \leq 1.3$)}
+If the transition height $H_{ip}$ is below $1.3\,m$, the DBH measurement lies within the upper segment ($d(h) = a(H-h)^b + d_{top}$). In this scenario, $a$ can be calculated directly:
+\begin{equation}
+a = \frac{d_{1.3} - d_{top}}{(H - 1.3)^b}
+\end{equation}
+The lower coefficient $c_1$ is then derived using the same slope matching condition at $H_{ip}$ as in Case 1 (Eq. 11).
+
+\subsection*{Special Case: Trees smaller than $1.3\,m$}
+If a tree's total height $H$ is less than $1.3\,m$, a DBH does not exist. To define the taper curve, an alternative reference diameter is required (e.g., $d_0$ at the base or $d_{0.5}$ at half-height). 
+If $d_0$ is measured, the system is solved as follows:
+\begin{itemize}
+    \item $d_{ip}$ and $s_{ip}$ are expressed as functions of $a$ (Eq. 9).
+    \item $c_1$ is expressed as a function of $a$ and $d_0$ via $c_1 = (d_{ip} - d_0) / H_{ip}^{c_2}$.
+    \item $a$ is found by matching the slopes: $s_{ip} = c_1 c_2 H_{ip}^{c_2-1}$.
+\end{itemize}
+This results in:
+\begin{equation}
+a = \frac{d_0 - d_{top}}{(H-H_{ip})^b \left( 1 + \frac{b \cdot H_{ip}}{c_2 (H-H_{ip})} \right)}
+\end{equation}
+
+
+\section*{Parameter Estimation with Two Diameter Measurements}
+If two diameter measurements $d_1$ at $h_1$ and $d_2$ at $h_2$ are available (e.g., $d_{1.3}$ and $d_{0.3H}$), the model's flexibility increases as one shape exponent can be determined empirically.
+
+\subsection*{Scenario: Both points in the upper segment ($h_1, h_2 \ge H_{ip}$)}
+If both measurements are taken above the butt swell transition, the exponent $b$ is calculated by isolating it from the ratio of the diameters:
+\begin{equation}
+b = \frac{\ln\left( \frac{d_{2} - d_{top}}{d_1 - d_{top}} \right)}{\ln\left( \frac{H - h_{2}}{H - h_1} \right)}
+\end{equation}
+This allows the model to adapt perfectly to the individual taper of the main shaft. The lower segment is then appended using the $C^1$-continuity rules described in previous sections.
+
+\subsection*{Scenario: Points in different segments ($h_1 < H_{ip} \le h_2$)}
+This is the most common case for large trees (e.g., $h_1 = 1.3$ and $h_2 = 0.3H$). Here, the system becomes a transcendental problem:
+\begin{enumerate}
+    \item $b$ is assumed or iteratively optimized.
+    \item $a$ is determined by $d_2$: $a = (d_2 - d_{top}) / (H - h_2)^b$.
+    \item $d_{ip}$ and $s_{ip}$ are derived from $a$ and $b$.
+    \item $d_0$ and $c_1$ are calculated to pass through $d_1$ (DBH) while matching $s_{ip}$.
+\end{enumerate}
+In this case, the second diameter ($d_{0.3H}$) serves as a "calibration point" that fixes the absolute scale ($a$) of the upper shaft, while the DBH fixes the butt swell intensity.
+
+
+\subsection{Impact of Multi-Diameter Calibration on Volume Estimation Accuracy}
+\label{subsec:discussion_calibration}
+
+The integration of an additional upper-stem diameter measurement ($d_{65}$ at $65\%$ of total tree height) highlights the limitations of purely regional, Generalized Linear Model (GLM) based taper predictions. Traditional global or regional taper equations rely heavily on the average stem form of the population, thereby failing to capture individual tree-level variations induced by stand density, social position, or localized competition \citep{Kozak2004}.
+
+In the presented numerical illustration (Section \ref{subsec:numerical_example}), the regional GLM predicted an expected over-bark diameter of \qty{16.83}{cm} at a height of \qty{13.00}{m} for a sample tree with $\text{DBH} = \qty{30.0}{cm}$ and $H = \qty{20.0}{m}$. This standard profile yielded a gross stem volume over bark ($V_{\text{Standard}}$) of \qty{0.6964}{m^3}. However, introducing an empirically measured upper diameter of \qty{15.00}{cm}---representing a tree with greater taper (neloid/abholzige form)---revealed a significant volume overestimation by the baseline model. 
+
+By utilizing the newly developed $C^1$-continuous Case B calibration routine (Eq. \ref{eq:case_b_calibration}), the upper scaling parameter $a$ and the basal exponent $c_2$ were dynamically adjusted to encapsulate both the exact measured DBH and the upper-stem anchor point. This localized tree-specific calibration caused the total gross volume to drop to \qty{0.5663}{m^3}, exposing a systematic form error of \qty{-18.68}{\%}.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of over-bark stem volume estimation models for the sample tree ($H=\qty{20}{m}$, $\text{DBH}=\qty{30}{cm}$).}
+\label{tab:volume_comparison_metrics}
+\begin{tabular}{l c c r}
+\toprule
+Calibration Level & Upper Anchor $d(13.0)$ & Estimated Volume & Relative Deviation \\
+\midrule
+Standard (1-Point DBH via GLM) & \qty{16.83}{cm} & \qty{0.6964}{m^3} & Base Line \\
+Calibrated (2-Point via $d_{65}$) & \qty{15.00}{cm} & \qty{0.5663}{m^3} & \qty{-18.68}{\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This severe discrepancy emphasizes that even minor physical deviations from the expected regional mean shape exert a disproportionate mathematical effect on volume analytics due to the geometric nature of the solid of revolution, which scales quadratically with radius:
+\begin{equation}
+    V \propto \int d(h)^2 \, dh
+\end{equation}
+Consequently, using the single-point baseline model in operational forest inventories for stand types that systematically deviate from the reference population (e.g., heavily thinned stands or open-grown individuals) will introduce substantial cumulative errors in stock and biomass reporting.
+
+The proposed composite framework demonstrates its high operational utility by seamlessly converting a regional baseline model into a flexible, tree-specific profile whenever upper-stem data becomes available (e.g., via terrestrial laser scanning or optical dendrometers). Because the anchoring mechanism restricts parameter adjustments to logical biological bounds, $C^1$-continuity is strictly preserved at the inflection point ($H_{ip}$) without provoking the mathematical oscillations or unnatural swelling often encountered in high-order polynomial or unconstrained variable-exponent taper models \citep{Sterba1980}.
+
+
+\appendix
+\section{Analytical Antiderivatives for Volume Integration Over Bark}
+\label{app:antiderivatives_ob}
+
+To provide a fully deterministic and computationally efficient volume calculation, the volume integrals are solved via explicit analytical antiderivatives. The general solid of revolution volume between two heights $h_1$ and $h_2$ is defined by:
+\begin{equation}
+    V = \frac{\pi}{40\,000} \int_{h_1}^{h_2} d(h)^2 \, dh
+\end{equation}
+
+\subsection{Basal Segment ($h < H_{ip}$)}
+For the lower stem portion characterized by the root flare, the diameter follows the power function $d(h) = c_0 + c_1 h^{c_2}$. Squaring this binomial function yields:
+\begin{equation}
+    d(h)^2 = c_0^2 + 2c_0 c_1 h^{c_2} + c_1^2 h^{2c_2}
+\end{equation}
+Integrating each term individually with respect to $h$ defines the exact basal antiderivative $F_{\text{low}}(h)$:
+\begin{equation}
+    F_{\text{low}}(h) = c_0^2 h + \frac{2c_0 c_1 h^{c_2+1}}{c_2+1} + \frac{c_1^2 h^{2c_2+1}}{2c_2+1}
+\end{equation}
+The gross volume over bark is then computed directly as:
+\begin{equation}
+    V_{\text{low}}(h_1, h_2) = \frac{\pi}{40\,000} \left[ F_{\text{low}}(h_2) - F_{\text{low}}(h_1) \right]
+\end{equation}
+
+\subsection{Upper Segment ($h \ge H_{ip}$)}
+For the main shaft up to the tree tip, the profile function is $d(h) = a(H - h)^b + d_t$. Introducing the variable substitution $z = H - h$ implies $dh = -dz$. The limits of integration transform from $h$ to $z$, where $z_1 = H - h_1$ and $z_2 = H - h_2$. The squared diameter becomes:
+\begin{equation}
+    d(z)^2 = d_t^2 + 2ad_t z^b + a^2 z^{2b}
+\end{equation}
+Accounting for the negative differential ($dh = -dz$), the integration boundaries swap, yielding the antiderivative $F_{\text{up}}(z)$ defined as:
+\begin{equation}
+    F_{\text{up}}(z) = d_t^2 z + \frac{2ad_t z^{b+1}}{b+1} + \frac{a^2 z^{2b+1}}{2b+1}
+\end{equation}
+The gross volume over bark for the upper section is subsequently evaluated via:
+\begin{equation}
+    V_{\text{up}}(h_1, h_2) = \frac{\pi}{40\,000} \left[ F_{\text{up}}(H - h_1) - F_{\text{up}}(H - h_2) \right]
+\end{equation}
+
+
+\section{Trinomial Expansion for Analytical Wood Volume Integration Under Bark}
+\label{app:binomial_bark}
+
+Isolating the net wood volume requires integrating the squared continuous diameter under bark: $d_{ub}(h) = d_{ob}(h) - \text{DBT}(d_{ob}(h))$. Given the non-linear double bark thickness model $\text{DBT}(d) = \alpha + \beta d + \gamma d^2$, the local under-bark diameter is a second-order polynomial of the over-bark diameter:
+\begin{equation}
+    d_{ub}(h) = (1-\beta)d_{ob}(h) - \gamma d_{ob}(h)^2 - \alpha
+\end{equation}
+Squaring this trinomial expression results in a fourth-order polynomial:
+\begin{equation}
+    d_{ub}(h)^2 = \sum_{n=0}^{4} A_n \cdot d_{ob}(h)^n = A_0 + A_1 d_{ob}(h) + A_2 d_{ob}(h)^2 + A_3 d_{ob}(h)^3 + A_4 d_{ob}(h)^4
+\end{equation}
+where the constant coefficients $A_n$ are deterministically mapped from the bark parameters:
+\begin{align}
+    A_0 &= \alpha^2 \\
+    A_1 &= -2\alpha(1-\beta) \\
+    A_2 &= (1-\beta)^2 + 2\alpha\gamma \\
+    A_3 &= -2\gamma(1-\beta) \\
+    A_4 &= \gamma^2
+\end{align}
+
+To resolve the integral analytically for both segments, the powers of the respective segment profile functions, $d_{ob}(h)^n$, must be expanded before gliedweise integration.
+
+\subsection{Expanded Basal Integration Under Bark}
+Substituting the basal profile function $d_{ob}(h) = c_0 + c_1 h^{c_2}$ into the polynomial requires a binomial expansion for each power $n$:
+\begin{equation}
+    d_{ob}(h)^n = \sum_{k=0}^{n} \binom{n}{k} c_0^{n-k} c_1^k h^{k \cdot c_2}
+\end{equation}
+Distributing the trinomial coefficients $A_n$ and integrating term by term results in the final exact net basal antiderivative $\mathcal{G}_{\text{low}}(h)$:
+\begin{equation}
+    \mathcal{G}_{\text{low}}(h) = \sum_{n=0}^{4} A_n \left[ \sum_{k=0}^{n} \binom{n}{k} c_0^{n-k} c_1^k \frac{h^{k \cdot c_2 + 1}}{k \cdot c_2 + 1} \right]
+\end{equation}
+
+\subsection{Expanded Upper Integration Under Bark}
+Applying the height transformation $z = H - h$ to the upper segment function $d_{ob}(z) = a z^b + d_t$, the binomial expansion for each power $n$ yields:
+\begin{equation}
+    d_{ob}(z)^n = \sum_{k=0}^{n} \binom{n}{k} d_t^{n-k} a^k z^{k \cdot b}
+\end{equation}
+Integrating with respect to $z$ and tracking the change of variables differential ($dh = -dz$) results in the final exact net upper antiderivative $\mathcal{G}_{\text{up}}(z)$:
+\begin{equation}
+    \mathcal{G}_{\text{up}}(z) = \sum_{n=0}^{4} A_n \left[ \sum_{k=0}^{n} \binom{n}{k} d_t^{n-k} a^k \frac{z^{k \cdot b + 1}}{k \cdot b + 1} \right]
+\end{equation}
+The net solid wood volume under bark between any two points is evaluated by subtracting the respective primitive boundary values, completely avoiding numerical approximation routines.
+
+
+
+\section{Volume Integration}
+The volume is derived from $V = \frac{\pi}{4} \int d(h)^2 dh$. The antiderivatives are:
+\begin{align}
+I_{low}(h) &= c_0^2 h + \frac{2 c_0 c_1}{c_2 + 1} h^{c_2 + 1} + \frac{c_1^2}{2 c_2 + 1} h^{2 c_2 + 1} \\
+I_{up}(h) &= -\left( \frac{a^2 (H-h)^{2b+1}}{2b+1} + \frac{2 a d_{top} (H-h)^{b+1}}{b+1} + d_{top}^2 (H-h) \right)
+\end{align}
+
+The section volume $V_{[h_1, h_2]}$ is calculated using clipped limits:
+\begin{equation}
+V = \frac{\pi}{4} \left( [I_{low}(\min(h_2, H_{ip})) - I_{low}(\min(h_1, H_{ip}))] + [I_{up}(\max(h_2, H_{ip})) - I_{up}(\max(h_1, H_{ip}))] \right)
+\end{equation}
+
+\section{Bark and Under-Bark Volume}
+To determine the wood volume (under bark $V_{ub}$) and bark volume ($V_{bark}$), two approaches are integrated:
+
+\subsection{Diameter Reduction Method}
+If a bark thickness function $th(h)$ is available, the under-bark diameter is defined as $d_{ub}(h) = d(h) - 2 \cdot th(h)$. By re-calculating the coefficients $(a, b, c_i)$ using under-bark measurements at the support points, the wood volume $V_{ub}$ is obtained through the same integration logic.
+
+\subsection{Bark Volume Calculation}
+The volume of the bark itself is the difference between the over-bark ($V_{ob}$) and under-bark volume:
+\begin{equation}
+V_{bark} = V_{ob} - V_{ub}
+\end{equation}
+
+\section{Height at a Given Diameter}
+The height $h$ for a target diameter $d_{target}$ is found by inverting the respective segment:
+\begin{equation}
+h = 
+\begin{cases} 
+\left( \frac{d_{target} - c_0}{c_1} \right)^{1/c_2} & \text{if } d_{target} \ge d_{ip} \\
+H - \left( \frac{d_{target} - d_{top}}{a} \right)^{1/b} & \text{if } d_{target} < d_{ip} 
+\end{cases}
+\end{equation}
+
+
+\section{Model Definition}
+The stem profile is defined by a flexible power function for the butt swell and a second power function for the main shaft, joined at transition height $H_{ip}$ to ensure a smooth, $C^1$-continuous profile:
+\begin{equation}
+d(h) = 
+\begin{cases} 
+c_0 + c_1 h^{c_2} & 0 \le h < H_{ip} \\
+a(H - h)^b + d_{top} & H_{ip} \le h \le H 
+\end{cases}
+\end{equation}
+where $H$ is the total height and $d_{top}$ the diameter at the tip.
+
+\section{Parameter Estimation}
+\subsection{Upper Segment (Shaft)}
+Using two measurement points $(H_{ip}, d_{ip})$ and $(h_{high}, d_{high})$ in the upper part, the coefficients are:
+\begin{equation}
+b = \frac{\ln\left( \frac{d_{high} - d_{top}}{d_{ip} - d_{top}} \right)}{\ln\left( \frac{H - h_{high}}{H - H_{ip}} \right)}, \quad a = \frac{d_{ip} - d_{top}}{(H - H_{ip})^b}
+\end{equation}
+
+\subsection{Lower Segment (Butt Swell)}
+To ensure no "kink" at $H_{ip}$, we match the slope $s_{ip}$ of the upper segment. With $d_0$ as the diameter at $h=0$:
+\begin{align}
+s_{ip} &= -a \cdot b \cdot (H - H_{ip})^{b-1} \\
+c_0 &= d_0 \\
+c_2 &= \frac{s_{ip} \cdot H_{ip}}{d_{ip} - d_0} \\
+c_1 &= \frac{d_{ip} - d_0}{H_{ip}^{c_2}}
+\end{align}
+
+\section{Volume Integration}
+The volume is derived from $V = \frac{\pi}{4} \int d(h)^2 dh$. The antiderivatives are:
+\begin{align}
+I_{low}(h) &= c_0^2 h + \frac{2 c_0 c_1}{c_2 + 1} h^{c_2 + 1} + \frac{c_1^2}{2 c_2 + 1} h^{2 c_2 + 1} \\
+I_{up}(h) &= -\left( \frac{a^2 (H-h)^{2b+1}}{2b+1} + \frac{2 a d_{top} (H-h)^{b+1}}{b+1} + d_{top}^2 (H-h) \right)
+\end{align}
+
+\subsection{Total Stem Volume}
+The total volume $V_{total}$ is obtained by evaluating the integrals from $h=0$ to $h=H$. Utilizing the fact that $I_{low}(0) = 0$ and $I_{up}(H) = 0$, the formula simplifies to:
+\begin{equation}
+V_{total} = \frac{\pi}{4} \left( I_{low}(H_{ip}) + \left[ \frac{a^2 (H-H_{ip})^{2b+1}}{2b+1} + \frac{2 a d_{top} (H-H_{ip})^{b+1}}{b+1} + d_{top}^2 (H-H_{ip}) \right] \right)
+\end{equation}
+
+\section{Bark and Under-Bark Volume Estimation}
+To calculate the wood volume (under-bark, $V_{ub}$) and the bark volume ($V_{bark}$), two distinct methodologies can be applied:
+
+\subsection{Method 1: Diameter Reduction (Geometric Adaptation)}
+This method accounts for the biological fact that bark thickness varies with height and diameter.
+\begin{itemize}
+    \item \textbf{Process:} Subtract the double bark thickness ($2 \cdot th$) from the measured diameters at all support points ($d_0, d_{ip}, d_{high}, d_{top}$).
+    \item \textbf{Calculation:} Re-estimate the coefficients $a, b, c_0, c_1, c_2$ using these reduced diameters.
+    \item \textbf{Result:} Integrating this new "wood-only" taper curve yields the precise under-bark volume $V_{ub}$. This method is superior for trees with significant bark taper (e.g., thick-barked species).
+\end{itemize}
+
+\subsection{Method 2: Bark Reduction Factor (Linear Scaling)}
+If the under-bark diameter is assumed to be a constant fraction $k$ of the over-bark diameter ($d_{ub} = k \cdot d_{ob}$), the volume scales quadratically:
+\begin{equation}
+V_{ub} = k^2 \cdot V_{ob} \quad \text{and} \quad V_{bark} = (1 - k^2) \cdot V_{ob}
+\end{equation}
+This approach is computationally simpler but assumes a constant bark percentage throughout the stem.
+
+\section{Height at a Given Diameter (Inversion)}
+The height $h$ for a target diameter $d_{target}$ is found by inverting the respective segment:
+\begin{equation}
+h = 
+\begin{cases} 
+\left( \frac{d_{target} - c_0}{c_1} \right)^{1/c_2} & \text{if } d_{target} \ge d_{ip} \\
+H - \left( \frac{d_{target} - d_{top}}{a} \right)^{1/b} & \text{if } d_{target} < d_{ip} 
+\end{cases}
+\end{equation}
+
+
+%%%
+
+\section{Numerical Illustration of Model Application}
+
+To facilitate implementation, this section provides a step-by-step calculation for a Norway spruce with $\text{DBH} = \qty{30}{cm}$ and $H_{\text{total}} = \qty{20}{m}$.
+
+\subsection{Reference Parameters}
+
+\paragraph{Terminal Diameter ($d_t$):}
+\begin{equation}
+\begin{aligned}
+  d_t &= \begin{cases} 
+    0.8 & H_{\text{total}} \geq 1.3 \\ 
+    f(H_{\text{total}}) & H_{\text{total}} < 1.3 
+  \end{cases} \\
+  &\implies d_t = \qty{0.8}{cm}
+\end{aligned}
+\end{equation}
+\begin{footnotesize}
+where $f(H_{\text{total}}) = 0.1 + 0.7 [ 1 - ( \frac{1.3 - H}{1.3} )^2 ]$.
+\end{footnotesize}
+
+\paragraph{Reference Diameter ($d_r$):}
+\begin{equation}
+\begin{aligned}
+  d_r &= \begin{cases} 
+    \text{DBH} + 1.3 & H_{\text{total}} \geq 1.3 \\ 
+    d_t + H_{\text{total}} & H_{\text{total}} < 1.3 
+  \end{cases} \\
+  &= 30 + 1.3 = \qty{31.3}{cm}
+\end{aligned}
+\end{equation}
+
+\paragraph{DBH and Height:}
+\begin{equation}
+\begin{aligned}
+  h_{\text{D}} &= \min(1.3, H_{\text{total}}) \\
+  &= \min(1.3, 20) = \qty{1.3}{m}
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+  d_{\text{D}} &= \begin{cases} 
+    \text{DBH} & H_{\text{total}} \geq 1.3 \\ 
+    d_t & H_{\text{total}} < 1.3 
+  \end{cases} \\
+  &\implies d_{\text{D}} = \qty{30}{cm}
+\end{aligned}
+\end{equation}
+
+\subsection{Shape Exponents}
+
+\paragraph{Inflection Point Height ($H_{ip}$):}
+
+\begin{equation}
+\begin{aligned}
+  H_{ip} &= 1.8 \cdot (1 + 20)^{0.36} - 1.8 \\
+  &\approx 1.8 \cdot 3 - 1.8 = \qty{3.6}{m}
+\end{aligned}
+\end{equation}
+
+\paragraph{Exponents $b$ and $c_2$:}
+First, calculate the logit values, then transform back to the unit interval:
+\begin{equation}
+\begin{aligned}
+  \text{logit}(b) &= -2.2669 + 24.715 \cdot \frac{1}{20} + 0.3964 \cdot \ln(1 + 31.3) \\
+  &= -2.2669 + 1.23581 + 1.3775 = 0.3464 \\
+  &\implies b = \frac{e^{0.3464}}{1 + e^{0.3464}} \approx 0.5857
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+  \text{logit}(c_2) &= 6.7586 - 3.1627 \cdot \ln(20) + 0.6820 \cdot \ln(1 + 31.3) \\
+  &= 6.7586 - 9.4746 + 2.2370 = -0.479 \\
+  &\implies c_2 = \frac{e^{-0.479}}{1 + e^{-0.479}} \approx 0.3825
+\end{aligned}
+\end{equation}
+
+
+\subsection{Solving for Diameters $d_{ip}$ and $d_0$}
+
+For a tree with known parameters ($H$, $\text{DBH}$) and estimated exponents ($b, c_2$), the profile is determined by finding the inflection point diameter $d_{ip}$ and the basal diameter $d_0$. 
+
+This requires satisfying two boundary and continuity conditions:
+\begin{enumerate}
+    \item \textbf{Condition 1 (Upper Segment Slope):} The slope at the inflection height $H_{ip}$ is determined by the upper taper function:
+    \begin{equation}
+        s_{ip} = -a \cdot b \cdot (H - H_{ip})^{b - 1} \quad \text{with} \quad a = \frac{d_{ip} - d_t}{(H - H_{ip})^b}
+    \end{equation}
+    \item \textbf{Condition 2 ($C^1$-Continuity):} The derivative of the basal function $d(h) = d_0 + c_1 \cdot h^{c_2}$ at $H_{ip}$ must match $s_{ip}$, and the function must pass through the measured $\text{DBH}$:
+    \begin{equation}
+        c_1 = \frac{s_{ip} \cdot H_{ip}^{1 - c_2}}{c_2}
+    \end{equation}
+    \begin{equation}
+        d_0 = \text{DBH} - c_1 \cdot 1.3^{c_2}
+    \end{equation}
+\end{enumerate}
+
+Since $s_{ip}$ depends on $d_{ip}$, this system of equations has no analytical solution and is solved iteratively:
+\begin{equation}
+    d_{w, \text{new}} = d_0 + c_1 \cdot H_{ip}^{c_2}
+\end{equation}
+\begin{equation}
+    d_{w}^{(k+1)} = d_{w}^{(k)} + 0.5 \cdot \left(d_{w, \text{new}} - d_{w}^{(k)}\right)
+\end{equation}
+The iteration stops once $|d_{w, \text{new}} - d_{w}^{(k)}| < 10^{-6}$.
+
+\paragraph{Numerical Result for the Example:}
+Using the previously calculated parameters ($H = \qty{20}{m}$, $\text{DBH} = \qty{30}{cm}$, $H_{ip} = \qty{3.6}{m}$, $b = 0.5857$, $c_2 = 0.3825$) and a starting value of $d_{ip}^{(0)} = d_r \cdot 0.75 = \qty{23.5}{cm}$, the iteration converges to:
+\begin{equation}
+  d_{ip} = \qty{27.14}{cm}, \quad d_0 = \qty{36.00}{cm}
+\end{equation}
+
+
+\subsection{Stem Profile Parameters}
+
+Using the previously calculated parameters ($H = \qty{20}{m}$, $\text{DBH} = \qty{30}{cm}$, $H_{ip} = \qty{3.6}{m}$, $b = 0.5857$, $c_2 = 0.3825$), the transition diameter $d_{ip} = \qty{27.14}{cm}$, and the ground diameter $d_0 = \qty{36.00}{cm}$, the remaining shape parameters are derived:
+\begin{itemize}
+    \item \textbf{Upper Segment ($h \ge H_{ip}$):} The scaling parameter $a$ and the transition slope $s_{ip}$ are determined by:
+    \begin{equation}
+    \begin{aligned}
+      a &= \frac{d_{ip} - d_t}{(H - H_{ip})^b} = \frac{27.14 - 0.8}{(20 - 3.6)^{0.5857}} \approx 5.1183 \\
+      s_{ip} &= -a \cdot b \cdot (H - H_{ip})^{b-1} = -5.1183 \cdot 0.5857 \cdot 16.4^{-0.4143} \approx -0.9408
+    \end{aligned}
+    \end{equation}
+    \item \textbf{Basal Segment ($h < H_{ip}$):} The smooth transition condition yields the basal scaling parameter $c_1$:
+    \begin{equation}
+      c_1 = \frac{s_{ip} \cdot H_{ip}^{1-c_2}}{c_2} = \frac{-0.9408 \cdot 3.6^{0.6175}}{0.3825} \approx -5.4248
+    \end{equation}
+\end{itemize}
+
+\paragraph{Verification:}
+To verify the model's calibration, we first check the calculated diameter at breast height ($h = \qty{1.3}{m}$):
+\begin{equation}
+  d(1.3) = d_0 + c_1 \cdot 1.3^{c_2} = 36.00 - 5.4248 \cdot 1.3^{0.3825} = 36.00 - 6.00 = \qty{30.0}{cm}
+\end{equation}
+Furthermore, the $C^1$-continuity at the inflection point ($H_{ip} = \qty{3.6}{m}$) is verified by evaluating the diameter and slope from both the basal (lower) and upper segments:
+\begin{itemize}
+  \item \textbf{Diameter Equality ($d_{ip}$):}
+  \begin{equation}
+  \begin{aligned}
+    d_{\text{basal}}(3.6) &= d_0 + c_1 \cdot 3.6^{c_2} = 36.00 - 5.4248 \cdot 3.6^{0.3825} \approx \qty{27.14}{cm} \\
+    d_{\text{upper}}(3.6) &= a \cdot (20 - 3.6)^b + d_t = 5.1183 \cdot 16.4^{0.5857} + 0.8 \approx \qty{27.14}{cm}
+  \end{aligned}
+  \end{equation}
+  \item \textbf{Slope Equality ($s_{ip}$):}
+  \begin{equation}
+  \begin{aligned}
+    s_{\text{basal}}(3.6) &= c_1 \cdot c_2 \cdot 3.6^{c_2 - 1} = -5.4248 \cdot 0.3825 \cdot 3.6^{-0.6175} \approx -0.9408 \\
+    s_{\text{upper}}(3.6) &= -a \cdot b \cdot (20 - 3.6)^{b - 1} = -5.1183 \cdot 0.5857 \cdot 16.4^{-0.4143} \approx -0.9408
+  \end{aligned}
+  \end{equation}
+\end{itemize}
+This complete match confirms that the profile is perfectly anchored at the measured DBH while ensuring a mathematically seamless, smooth transition between both stem segments.
+
+
+\subsubsection{Analytical Volume Integration}
+
+The volume $V$ of a stem segment between two heights $h_1$ and $h_2$ is calculated by integrating the cross-sectional area: $V = \frac{\pi}{40\,000} \int_{h_1}^{h_2} d(h)^2 \, dh$. Since the profile consists of two segments, the integral is solved piecewise.
+
+For the \textbf{upper segment} ($h \ge H_{ip}$), substituting $z = (H-h)$ simplifies the integration:
+\begin{equation}
+\begin{aligned}
+  V_{\text{up}}&(h_1, h_2) = \frac{\pi}{40\,000} \cdot \\
+  &\left[ d_t^2 h - \frac{2ad_t(H-h)^{b+1}}{b+1} \right. \\
+  &\left. - \frac{a^2(H-h)^{2b+1}}{2b+1} \right]_{h_1}^{h_2}
+\end{aligned}
+\end{equation}
+
+For the special case of calculating the volume from the transition height $H_{ip}$ to the total height $H$, the expression simplifies significantly as the terms $(H-H)$ vanish at the upper limit:
+\begin{equation}
+\begin{aligned}
+  V_{\text{up}}&(H_{ip}, H) = \frac{\pi}{40\,000} \cdot \\
+  &\left[ d_t^2 (H - H_{ip}) + \frac{2ad_t(H-H_{ip})^{b+1}}{b+1} \right. \\
+  &\left. + \frac{a^2(H-H_{ip})^{2b+1}}{2b+1} \right]
+\end{aligned}
+\end{equation}
+In practical implementation, the volume of any segment $[h_1, h_2]$ is computed by evaluating the antiderivative $F(h)$ at both boundaries: $V = \frac{\pi}{40\,000} (F(h_2) - F(h_1))$. This analytical approach avoids the rounding errors associated with numerical approximation methods.
+
+For the \textbf{basal segment} ($h < H_{ip}$), the integral of the power function is:
+\begin{equation}
+\begin{aligned}
+  V_{\text{low}}&(h_1, h_2) = \frac{\pi}{40\,000} \cdot \\
+  &\left[ d_0^2 h + \frac{2d_0 c_1 h^{c_2+1}}{c_2+1} + \frac{c_1^2 h^{2c_2+1}}{2c_2+1} \right]_{h_1}^{h_2}
+\end{aligned}
+\end{equation}
+
+The total volume $V_{\text{total}}$ is obtained by summing the integrals over their respective domains: $V_{\text{low}}(0, H_{ip}) + V_{\text{up}}(H_{ip}, H)$. For any specific assortment, the boundaries $h_1$ and $h_2$ are derived using the inverse diameter function.
+
+\paragraph{Application to the Numerical Example:}
+Inserting our specific parameters ($H = 20, H_{ip} = 3.6, b = 0.5857, c_2 = 0.3825, a = 5.1183, c_1 = -5.4248, d_t = 0.8, d_0 = 36.00$) into these analytical solutions yields:
+
+\begin{itemize}
+  \item \textbf{Total Stem Volume:}
+  \begin{equation}
+  \begin{aligned}
+    V_{\text{basal}} &= V_{\text{low}}(0, 3.6) \\
+    &= \frac{\pi}{40\,000} \left[ 36.00^2 \cdot (3.6) \right. \\
+    &\quad + \frac{2 \cdot 36.00 \cdot (-5.4248) \cdot 3.6^{1.3825}}{1.3825} \\
+    &\quad \left. + \frac{(-5.4248)^2 \cdot 3.6^{1.765}}{1.765} \right] \\
+    &\quad - \frac{\pi}{40\,000} \left[ 0 \vphantom{36.0^2}\right] \approx \qty{0.249}{m^3}
+  \end{aligned}
+  \end{equation}
+  \begin{equation}
+  \begin{aligned}
+    V_{\text{upper}} &= V_{\text{up}}(3.6, 20) \\
+    &= \frac{\pi}{40\,000} \left[ 0.8^2 \cdot (20 - 3.6) \right. \\
+    &\quad + \frac{2 \cdot 5.1183 \cdot 0.8 \cdot (20-3.6)^{1.5857}}{1.5857} \\
+    &\quad \left. + \frac{5.1183^2 \cdot (20-3.6)^{2.1714}}{2.1714} \right] \\
+    &\approx \qty{0.447}{m^3}
+  \end{aligned}
+  \end{equation}
+  $$\implies V_{\text{total}} = 0.249 + 0.447 = \qty{0.696}{m^3}$$
+
+  \item \textbf{Merchantable Volume ($V_{d \ge 7}$ from $h_1 = 0.3$ to $h_2 = 18.61$):}
+  \begin{equation}
+  \begin{aligned}
+    V_{\text{merc}} &= V_{\text{low}}(0.3, 3.6) + V_{\text{up}}(3.6, 18.61) \\
+    &= \frac{\pi}{40\,000} \left[ 36.00^2 \cdot h \right. \\
+    &\quad + \frac{2 \cdot 36.00 \cdot (-5.4248) \cdot h^{1.3825}}{1.3825} \\
+    &\quad \left. + \frac{(-5.4248)^2 \cdot h^{1.765}}{1.765} \right]_{0.3}^{3.6} \\
+    &\quad + \frac{\pi}{40\,000} \left[ 0.8^2 \cdot h \right. \\
+    &\quad - \frac{2 \cdot 5.1183 \cdot 0.8 \cdot (20-h)^{1.5857}}{1.5857} \\
+    &\quad \left. - \frac{5.1183^2 \cdot (20-h)^{2.1714}}{2.1714} \right]_{3.6}^{18.61} \\
+    &\approx (0.249 - 0.027) + (0.447 - 0.003) \\
+    &= 0.222 + 0.444 = \qty{0.666}{m^3}
+  \end{aligned}
+  \end{equation}
+\end{itemize}
+
+%%
+
+\subsubsection{Analytical Volume Integration Over Bark}
+
+The volume $V$ of a stem segment between two heights $h_1$ and $h_2$ is calculated by integrating the cross-sectional area: $V = \frac{\pi}{40\,000} \int_{h_1}^{h_2} d(h)^2 \, dh$. Since the profile consists of two segments, the integral is solved piecewise.
+
+For the \textbf{upper segment} ($h \ge H_{ip}$), substituting $z = (H-h)$ simplifies the integration:
+\begin{equation}
+\begin{aligned}
+  V_{\text{up}}&(h_1, h_2) = \frac{\pi}{40\,000} \cdot \\
+  &\left[ d_t^2 h + \frac{2ad_t(H-h)^{b+1}}{b+1} + \frac{a^2(H-h)^{2b+1}}{2b+1} \right]_{h_1}^{h_2}
+\end{aligned}
+\end{equation}
+
+For the special case of calculating the volume from the transition height $H_{ip}$ to the total height $H$, the expression simplifies significantly as the terms $(H-H)$ vanish at the upper limit:
+\begin{equation}
+\begin{aligned}
+  V_{\text{up}}&(H_{ip}, H) = \frac{\pi}{40\,000} \cdot \\
+  &\left[ d_t^2 (H - H_{ip}) - \frac{2ad_t(H-H_{ip})^{b+1}}{b+1} - \frac{a^2(H-H_{ip})^{2b+1}}{2b+1} \right]
+\end{aligned}
+\end{equation}
+In practical implementation, the volume of any segment $[h_1, h_2]$ is computed by evaluating the antiderivative $F(h)$ at both boundaries: $V = \frac{\pi}{40\,000} (F(h_2) - F(h_1))$.
+
+For the \textbf{basal segment} ($h < H_{ip}$), the integral of the power function is:
+\begin{equation}
+\begin{aligned}
+  V_{\text{low}}&(h_1, h_2) = \frac{\pi}{40\,000} \cdot \\
+  &\left[ d_0^2 h + \frac{2d_0 c_1 h^{c_2+1}}{c_2+1} + \frac{c_1^2 h^{2c_2+1}}{2c_2+1} \right]_{h_1}^{h_2}
+\end{aligned}
+\end{equation}
+
+The total volume over bark $V_{\text{total}}$ is obtained by summing the integrals over their respective domains: $V_{\text{low}}(0, H_{ip}) + V_{\text{up}}(H_{ip}, H)$.
+
+\paragraph{Application to the Over-Bark Numerical Example:}
+Inserting our specific parameters ($H = 20, H_{ip} = 3.6, b = 0.5857, c_2 = 0.3825, a = 5.1183, c_1 = -5.4248, d_t = 0.8, d_0 = 36.00$) into these analytical solutions yields:
+\begin{itemize}
+  \item \textbf{Total Stem Volume Over Bark:}
+  \begin{equation}
+    V_{\text{basal}} = V_{\text{low}}(0, 3.6) \approx \qty{0.249}{m^3}
+  \end{equation}
+  \begin{equation}
+    V_{\text{upper}} = V_{\text{up}}(3.6, 20) \approx \qty{0.447}{m^3}
+  \end{equation}
+  $$\implies V_{\text{total, ob}} = 0.249 + 0.447 = \qty{0.696}{m^3}$$
+\end{itemize}
+
+
+\subsubsection{Numerical Application of Bark and Under-Bark Volume Integration}
+
+To determine the merchantable wood volume without bark ($V_{\text{wood}}$), the polynomial expansion coefficients $A_i$ are calculated first using the model coefficients $\alpha = 0.085149$, $\beta = 0.060934$, and $\gamma = -0.000228$:
+\begin{align*}
+    A_0 &= 0.085149^2 \approx 0.00725 \\
+    A_1 &= -2 \cdot 0.085149 \cdot (1 - 0.060934) \approx -0.15992 \\
+    A_2 &= (1 - 0.060934)^2 + 2 \cdot 0.085149 \cdot (-0.000228) \approx 0.88181 \\
+    A_3 &= -2 \cdot (-0.000228) \cdot (1 - 0.060934) \approx 0.00043 \\
+    A_4 &= (-0.000228)^2 \approx 5.198 \cdot 10^{-8}
+\end{align*}
+
+Using these constants, the antiderivatives $F_{\text{low}}(h)$ and $F_{\text{up}}(z)$ are solved term by term using the binomial expansion from the ground ($h=0$) to the tip ($z=0$).
+
+\begin{itemize}
+  \item \textbf{Basal Wood Volume Under Bark ($V_{\text{wood, low}}$):}
+  Evaluating the expanded polynomial for the basal segment function from $h_1 = 0$ to $h_2 = \qty{3.6}{m}$ results in:
+  \begin{equation}
+      V_{\text{wood, low}} = \frac{\pi}{40\,000} \left[ F_{\text{low}}(3.6) - F_{\text{low}}(0) \right] \approx \qty{0.221}{m^3}
+  \end{equation}
+
+  \item \textbf{Upper Wood Volume Under Bark ($V_{\text{wood, up}}$):}
+  Evaluating the upper segment function using the height-transformed boundaries $z_1 = 20 - 3.6 = 16.4$ and $z_2 = 20 - 20 = 0$ yields:
+  \begin{equation}
+      V_{\text{wood, up}} = \frac{\pi}{40\,000} \left[ F_{\text{up}}(16.4) - F_{\text{up}}(0) \right] \approx \qty{0.394}{m^3}
+  \end{equation}
+
+  \item \textbf{Total Wood and Bark Volumes:}
+  Summing both sections determines the total solid wood volume under bark and isolates the exact bark volume via subtraction:
+  \begin{equation}
+      V_{\text{wood, total}} = 0.221 + 0.394 = \qty{0.615}{m^3}
+  \end{equation}
+  \begin{equation}
+      V_{\text{bark}} = V_{\text{total, ob}} - V_{\text{wood, total}} = 0.696 - 0.615 = \qty{0.081}{m^3}
+  \end{equation}
+\end{itemize}
+This demonstrates that for the sample tree, bark accounts for approximately \qty{11.6}{\%} of the total gross stem volume.
+
+
+\subsection{Numerical Illustration of Advanced Calibration and Bark Isolation}
+
+To demonstrate the application of multi-diameter calibrations, the Norway spruce example ($H = \qty{20}{m}$, $\text{DBH} = \qty{30}{cm}$, GLM-derived $H_{ip} = \qty{3.6}{m}$) is expanded under different measurement scenarios.
+
+\paragraph{Example 1: Two Upper Measurements (Case A)}
+An upper diameter of $d_2 = \qty{20.0}{cm}$ is measured at $h_2 = \qty{10.0}{m}$ in addition to a measurement of $d_1 = \qty{25.0}{cm}$ at $h_1 = \qty{5.0}{m}$. Since both heights exceed $H_{ip} = \qty{3.6}{m}$, Eq. (34) is evaluated:
+\begin{equation}
+    b_{ind} = \frac{\ln(25.0 - 0.8) - \ln(20.0 - 0.8)}{\ln(20 - 5) - \ln(20 - 10)} = \frac{3.18635 - 2.95491}{2.70805 - 2.30259} = \frac{0.23144}{0.40546} \approx 0.5708
+\end{equation}
+Substituting $b_{ind} = 0.5708$ into the breast-height anchoring algorithm yields the updated profile parameters: $d_{ip} = \qty{26.85}{cm}$, $d_0 = \qty{35.85}{cm}$, $a = 5.4851$, and $c_1 = -5.5841$. 
+
+Integrating this calibrated over-bark profile yields a gross upper volume of $V_{\text{up}}(3.6, 20) = \qty{0.435}{m^3}$. Applying the bark polynomial expansion ($A_i$) to this tree-specific curve determines the clean wood volume under bark for the upper segment:
+\begin{equation}
+    V_{\text{wood, up}} = \frac{\pi}{40\,000} \left[ F_{\text{up}}(16.4) - F_{\text{up}}(0) \right] \approx \qty{0.383}{m^3}
+\end{equation}
+The isolated bark volume for this section is $V_{\text{bark, up}} = 0.435 - 0.383 = \qty{0.052}{m^3}$.
+
+\paragraph{Example 2: Split Measurements (Case B)}
+A routine field measurement provides the standard $\text{DBH} = \qty{30}{cm}$ at $h_1 = \qty{1.3}{m}$, and a commercial top-diameter sorting threshold is measured as $d_2 = \qty{7.0}{cm}$ at $h_2 = \qty{18.5}{m}$. Using the regional GLM exponent $b = 0.5857$, the upper scaling parameter $a$ is explicitly calibrated via Eq. (35):
+\begin{equation}
+    a = \frac{7.0 - 0.8}{(20 - 18.5)^{0.5857}} = \frac{6.2}{1.5^{0.5857}} \approx 4.8856
+\end{equation}
+The anchoring routine is then executed with $a = 4.8856$ to preserve the lower DBH measurement, converging to $d_{ip} = \qty{25.43}{cm}$ and $d_0 = \qty{35.47}{cm}$. 
+
+\paragraph{Example 3: Full Profile Calibration via Three Measurements}
+The tree is evaluated using three observed data points: a basal diameter $d_1 = \qty{34.0}{cm}$ at $h_1 = \qty{0.5}{m}$ (stump level), a mid-diameter $d_2 = \qty{24.0}{cm}$ at $h_2 = \qty{6.0}{m}$, and an upper diameter $d_3 = \qty{15.0}{cm}$ at $h_3 = \qty{14.0}{m}$. 
+\begin{enumerate}
+    \item The individual main-shaft exponent is solved using the two upper points ($h_2, h_3 \ge H_{ip}$):
+    \begin{equation}
+        b_{ind} = \frac{\ln(24.0 - 0.8) - \ln(15.0 - 0.8)}{\ln(20 - 6) - \ln(20 - 14)} = \frac{3.14415 - 2.65324}{2.63906 - 1.79176} = \frac{0.49091}{0.84730} \approx 0.5794
+    \end{equation}
+    \item The upper scaling parameter $a$ is fixed using the middle point $(6.0, 24.0)$:
+    \begin{equation}
+        a = \frac{24.0 - 0.8}{(20 - 6)^{0.5794}} = \frac{23.2}{14^{0.5794}} \approx 5.0118
+    \end{equation}
+    Evaluating the upper function at $H_{ip} = \qty{3.6}{m}$ establishes the fixed junction boundary conditions: $d_{ip} = 5.0118 \cdot (16.4)^{0.5794} + 0.8 = \qty{26.17}{cm}$, and the derivative $s_{ip} = -5.0118 \cdot 0.5794 \cdot (16.4)^{-0.4206} = -0.8933$.
+    \item The basal exponent $c_2$ and parameter $d_0$ are solved simultaneously to pass through the basal measurement $(0.5, 34.0)$ while meeting the $C^1$-continuity requirements ($d_{\text{basal}}(3.6) = 26.17$ and $s_{\text{basal}}(3.6) = -0.8933$), yielding $c_2 \approx 0.3541$ and $d_0 \approx 36.81$.
+\end{enumerate}
+
+The final total stem volume over bark for this fully customized profile is calculated analytically:
+\begin{equation}
+    V_{\text{total, ob}} = V_{\text{low}}(0, 3.6) + V_{\text{up}}(3.6, 20) = 0.238 + 0.422 = \qty{0.660}{m^3}
+\end{equation}
+Applying the analytical under-bark integration to both custom segments yields a total wood volume $V_{\text{wood, total}} = \qty{0.584}{m^3}$ and an isolated bark volume of $V_{\text{bark}} = 0.660 - 0.584 = \qty{0.076}{m^3}$.
+
+\fi
+
+\printbibliography
+ 
+%Autor: Georg Kindermann
+
+\end{document}
