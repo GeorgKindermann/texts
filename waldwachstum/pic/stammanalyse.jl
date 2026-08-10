@@ -119,7 +119,9 @@ savefig("stammanalyseDGHV.pdf")
 idx = 11:10:size(SA, 1)
 S1 = [filter(>(0), SA[i,:]) for i in idx]
 
-f = [extrapolate(interpolate([0.; hs[2:length(S1[i])+1]; h[idx[i]]], [d0[idx[i]]; S1[i]; 0.], SteffenMonotonicInterpolation()), 0.) for i in 1:length(S1)]
+#f = [extrapolate(interpolate([0.; hs[2:length(S1[i])+1]; h[idx[i]]], [d0[idx[i]]; S1[i]; 0.], SteffenMonotonicInterpolation()), 0.) for i in 1:length(S1)]
+f = [interpolate([0.; hs[2:length(S1[i])+1]; h[idx[i]]], [d0[idx[i]]; S1[i]; 0.], SteffenMonotonicInterpolation()) for i in 1:length(S1)]
+f = [extrapolate(x, 0.) for x in f]
 f = [x->0; f]
 
 p1 = plot([-d0[101]; -S1[end]; 0; reverse(S1[end]); d0[101]], [hs[1:end-1]; h[101]; reverse(hs[1:end-1])], color=:black, fillrange=0, aspect_ratio=200, label=nothing, ylabel="Höhe [m]", xticks=false, xaxis=false, grid=false, yticks=([0; 1.3; 10:10:hs[end-1]]), lw=0.1)
@@ -166,80 +168,123 @@ savefig("stammanalyse.pdf")
 
 
 # Schaftform
-using LambertW, Statistics
+using LambertW, Statistics, Interpolations, Optim, Plots, QuadGK, Integrals, LaTeXStrings
+
+hm = hs
+dm = [d0[end]; SA[end,:]; 0.0]
+H  = hm[end]
+
+f_messung = interpolate(hm, dm, SteffenMonotonicInterpolation())
+hr = range(0, H, length=200)
+dr_messung = f_messung.(hr)
+
 ff(c0, c1, h, x) = c0 * (h - x)^c1
 fob = function(c1, h, H, V)
-  c3 = 2 * c1
-  c2 = optimize(c2->(c2[1] * H^(c3+1) / (c3 + 1) - V)^2, [.001]).minimizer
-  c0 = sqrt(c2[1] * 40000 / pi)
-  (ff.(c0, c1, H, h), c0)
+    c3 = 2 * c1
+    c2 = optimize(c2->(c2[1] * H^(c3+1) / (c3 + 1) - V)^2, [.001]).minimizer
+    c0 = sqrt(c2[1] * 40000 / pi)
+    (ff.(c0, c1, H, h), c0)
 end
-hm = hs
-dm = [d0[end]; SA[end,:]; 0]
-f = interpolate(hm, dm, SteffenMonotonicInterpolation())
-V = solve(IntegralProblem((x, p)->f(x)^2*pi/40000., 0, hm[end]), QuadGKJL()).u
-hr = range(0, hm[end], 100)
-dr = f.(hr)
-PS = plot(dr, hr, xlab="Durchmesser [cm]", ylab="Höhe [m]", label="Messung", color=:darkgray, lw=3, linestyle=:dash)
 
-#Durch bhd und v ident
+V = solve(IntegralProblem((x, p)->f_messung(x)^2*pi/40000., 0, hm[end]), QuadGKJL()).u
+
+function schaftkurve_komplex(x, p)
+    c0, c1, c2, c3, c4, h_wp = p
+    if x >= h_wp
+        return c0 * (H - x)^c1
+    else
+        return c2 + c3 * x^c4
+    end
+end
+schaftkurve_komplex_vec(hr_vec, p) = [schaftkurve_komplex(x, p) for x in hr_vec]
+
+function objective(p)
+    c0, c1, c2, c3, c4, h_wp = p
+    error = 0.0
+    for (h_i, d_i) in zip(hr, dr_messung)
+        d_pred = schaftkurve_komplex(h_i, p)
+        error += (d_pred - d_i)^2
+    end
+    wert_oben = c0 * (H - h_wp)^c1
+    wert_unten = c2 + c3 * h_wp^c4
+    stetigkeit_penalty = 5000.0 * (wert_oben - wert_unten)^2
+    
+    abl_oben = -c0 * c1 * (H - h_wp)^(c1 - 1)
+    abl_unten = (h_wp > 1e-3 && c4 > 0) ? (c3 * c4 * h_wp^(c4 - 1)) : 0.0
+    knick_penalty = 5000.0 * (abl_oben - abl_unten)^2
+    
+    return error + stetigkeit_penalty + knick_penalty
+end
+
+lower = [0.001, 0.05, 0.0, -100.0, 0.01, 1.5]
+upper = [100.0, 5.0, 200.0, 0.0, 10.0, 0.5 * H]
+p_start = [1.0, 0.5, dm[1], -0.05, 2.0, 8.0]
+
+res = optimize(objective, lower, upper, p_start, Fminbox(LBFGS()))
+p_opt = res.minimizer
+h_wp_opt = p_opt[6]
+dr_komplex = schaftkurve_komplex_vec(hr, p_opt)
+
 i = findfirst(==(1.3f0), hm)
 G = (dm[i]/200)^2*pi
-H = hm[end]
 b = lambertw(G*(H-1.3)*log(1-1.3/H)/(V)) / log(1 - 1.3/H) - 1
 gM = G / (1-1.3/H)^b
-plot!(sqrt(gM/pi)*200/H^(b/2) .* (hr[end] .- hr) .^(b/2), hr, label="Durch BHD, V ident", lw=2, color=:red, linealpha=.8)
-#c1 = optimize(c1->(fob(c1[1], 1.3, H, V)[1] - dm[i])^2, [1.]).minimizer[1]
-#plot!(fob(c1, hr, H, V)[1], hr)
+dr_bhd_ident = sqrt(gM/pi)*200/H^(b/2) .* (H .- hr) .^(b/2)
 
-#Durch d03
-c1a = c1 = optimize(c1->(fob(c1[1], .3*H, H, V)[1] - f(.3*H))^2, [1.5]).minimizer[1]
-plot!(fob(c1, hr, H, V)[1], hr, label="Durch d03, V ident", lw=2, color=:green, linealpha=.8)
-c1b = c1 = optimize(c1->(fob(c1[1], .3*H, H, V)[1] - f(.3*H))^2, [.4]).minimizer[1]
-plot!(fob(c1, hr, H, V)[1], hr, label=nothing, lw=2, color=:green, linealpha=.8)
+c1a = optimize(c1->(fob(c1[1], .3*H, H, V)[1] - f_messung(.3*H))^2, [1.5]).minimizer[1]
+dr_d03_a = fob(c1a, hr, H, V)[1]
+c1b = optimize(c1->(fob(c1[1], .3*H, H, V)[1] - f_messung(.3*H))^2, [.4]).minimizer[1]
+dr_d03_b = fob(c1b, hr, H, V)[1]
 
-#Geringe d Abweichungen V ident
-#c1 = optimize(c1->quantile((fob(c1[1], hr, H, V)[1] .- dr).^2, .8), [0.5]).minimizer[1]
-#c1c= c1 = optimize(c1->sum(sort((fob(c1[1], hr, H, V)[1] .- dr).^2)[1:Int(.8*length(hr))]), [0.5]).minimizer[1]
-c1c= c1 = optimize(c1->sum(sort((fob(c1[1], hr, H, V)[1] .- dr).^2) .* range(1, 0, length(hr)).^.5), [0.5]).minimizer[1]
-plot!(fob(c1, hr, H, V)[1], hr, label="Nahe Messung, V ident", lw=2, color=:blue, linealpha=.8)
+c1c = optimize(c1->sum(sort((fob(c1[1], hr, H, V)[1] .- dr_messung).^2) .* range(1, 0, length(hr)).^.5), [0.5]).minimizer[1]
+dr_nahe_v_ident = fob(c1c, hr, H, V)[1]
 
-#Geringe d Abweichungen
-c1d = c01 = optimize(x->sum(sort((ff.(x[1], x[2], H, hr) .- dr).^2) .* range(1, 0, length(hr)).^.5), [1., 1.]).minimizer
-plot!(ff.(c01[1], c01[2], H, hr), hr, label="Nahe Messung", lw=2, color=:black, linealpha=.8)
+c1d = optimize(x->sum(sort((ff.(x[1], x[2], H, hr) .- dr_messung).^2) .* range(1, 0, length(hr)).^.5), [1., 1.]).minimizer
+dr_nahe_messung = ff.(c1d[1], c1d[2], H, hr)
 
-PD = plot([0, 0], hr[[1, end]], color=:darkgray, linestyle=:dash, lw=3, xlab="Messung - Kurve [cm]", label=nothing)
-plot!(dr .- sqrt(gM/pi)*200/H^(b/2) .* (hr[end] .- hr) .^(b/2), hr, label=nothing, lw=2, color=:red, linealpha=.8)
-plot!(dr .- fob(c1a, hr, H, V)[1], hr, label=nothing, lw=2, color=:green, linealpha=.4)
-plot!(dr .- fob(c1b, hr, H, V)[1], hr, label=nothing, lw=2, color=:green, linealpha=.4)
-plot!(dr .- fob(c1c, hr, H, V)[1], hr, label=nothing, lw=2, color=:blue, linealpha=.8)
-plot!(dr .- ff.(c1d[1], c1d[2], H, hr), hr, label=nothing, lw=2, color=:black, linealpha=.8)
+PS = plot(dr_messung, hr, label="Messung (Spline)", color=:lightgray, lw=5, linestyle=:solid,
+          xlab="Durchmesser [cm]", ylab="Höhe [m]", legend=:topright, fontfamily="sans-serif")
+
+plot!(dr_bhd_ident, hr, label="Durch BHD, V ident", lw=1.5, color=:red, linealpha=.7)
+plot!(dr_d03_a, hr, label="Durch d03, V ident", lw=1.5, color=:green, linealpha=.7)
+plot!(dr_d03_b, hr, label=nothing, lw=1.5, color=:green, linealpha=.7)
+plot!(dr_nahe_v_ident, hr, label="Nahe Messung, V ident", lw=1.5, color=:blue, linealpha=.7)
+plot!(dr_nahe_messung, hr, label="Nahe Messung", lw=1.5, color=:black, linealpha=.7)
+
+plot!(dr_komplex, hr, label="Zweiteilige Funktion", color=:purple, lw=3, linestyle=:dot)
+
+hline!([h_wp_opt], label=L"\mathsf{h}_{\mathsf{wp}}", color=:orange, linestyle=:dot, lw=1.5)
+
+PD = plot([0, 0], hr[[1, end]], color=:lightgray, lw=5, linestyle=:solid, 
+          xlab="Messung - Kurve [cm]", label=nothing, fontfamily="sans-serif")
+
+plot!(dr_messung .- dr_bhd_ident, hr, label=nothing, lw=1.5, color=:red, linealpha=.7)
+plot!(dr_messung .- dr_d03_a, hr, label=nothing, lw=1.5, color=:green, linealpha=.4)
+plot!(dr_messung .- dr_d03_b, hr, label=nothing, lw=1.5, color=:green, linealpha=.4)
+plot!(dr_messung .- dr_nahe_v_ident, hr, label=nothing, lw=1.5, color=:blue, linealpha=.7)
+plot!(dr_messung .- dr_nahe_messung, hr, label=nothing, lw=1.5, color=:black, linealpha=.7)
+
+plot!(dr_messung .- dr_komplex, hr, label=nothing, lw=3, color=:purple, linestyle=:dot)
+
+hline!([h_wp_opt], label=nothing, color=:orange, linestyle=:dot, lw=1.5)
 xlims!((-2.5, 2.5))
-plot!(PD, yticks=(yticks(PS)[1][1], []))
 
-plot(PS, PD, layout = grid(1, 2), link=:y)
-savefig("schaftkurve.pdf")
+plot(PS, PD, layout = grid(1, 2), link=:y, guidefontsize=10, tickfontsize=9, legendfontsize=7, legend=:topright)
+savefig("schaftkurven_vergleich.pdf")
+
 
 
 # Verschiedene Durchmesser
-#d00e = map((d,h)-> if(h<1.3) 3h else d+3*1.3 end, d, h)
-d00e = Vector{Float64}(undef, length(d))
-d00e[1] = 0
-for i in 2:length(d)
-  x = SA[i,:]
-  x = x[x .> 0]
-  hm = [hs[1:length(x)+1]; h[i]]
-  dm = [d0[i]; x; 0]
-  f = interpolate(hm, dm, SteffenMonotonicInterpolation())
-  hr = range(0, hm[end], 100)
-  dr = f.(hr)
-  #c1 = optimize(c1->quantile((fob(c1[1], hr, hm[end], v[i])[1].^2 .- dr.^2).^2, .8), [.5]).minimizer[1]  # quantil 0.8 minimieren
-  #c1 = optimize(c1->sum(sort((fob(c1[1], hr, hm[end], v[i])[1] .- dr).^2)[1:Int(.8*length(hr))]), [.7]).minimizer[1]  # Abweichungssume von 80% minimieren
-  #c1 = optimize(x->sum(sort((fob(c1[1], hr, hm[end], v[i])[1] .- dr).^2) .* range(1, 0, length(hr))), [max(.6, c1)]).minimizer[1]
-  #d00e[i] = fob(c1, 0, hm[end], v[i])[1]
-  #c01 = optimize(x->sum(sort((ff.(x[1], x[2], H, hr) .- dr).^2)[1:Int(.8*length(hr))]), [.5, .5]).minimizer  # V nicht ident
-  c01 = optimize(x->sum(sort((ff.(x[1], x[2], hm[end], hr) .- dr).^2) .* range(1, 0, length(hr)).^.5), [4., .7]).minimizer
-  d00e[i] = ff(c01[1], c01[2], hm[end], 0)[1]
+dr = Vector{Float64}(undef, length(d))
+for i in 1:length(d)
+    H_total = h[i]
+    if H_total >= 1.3
+        dt = 0.8
+        dr[i] = d[i] + 1.3
+    else
+        dt = 0.1 + 0.7 * (1.0 - ((1.3 - H_total) / 1.3)^2)
+        dr[i] = dt + H_total
+    end
 end
 df = sqrt.(v ./ h .* (4/pi)) .* 100
 df[1] = 0
@@ -258,7 +303,8 @@ using LaTeXStrings
 PD = plot(t, d, label="BHD", xlabel="", ylabel="Durchmesser [cm]", lw=2, color=:black, legend=(.5, .32), legend_columns=4, fg_legend = :false, background_color_legend = nothing)
 plot!(t, d03, label=L"\mathrm{d_{03}}", lw=2, color=:red)
 plot!(t, df, label=L"\mathrm{d_{f}}", lw=2, color=:blue)
-plot!(t, d00e, label=L"\mathrm{d_{00e}}", lw=2, color=:green)
+#plot!(t, d00e, label=L"\mathrm{d_{00e}}", lw=2, color=:green)
+plot!(t, dr, label=L"\mathrm{d_{r}}", lw=2, color=:green)
 tp = twinx()
 plot!(tp, t, 1.3 ./ h, label=nothing, ylabel="Messhöhe d / Höhe", lw=2, color=:black, linestyle=:dash)
 plot!(tp, t[[1, end]], [.3, .3], label=nothing, lw=2, color=:red, linestyle=:dash)
@@ -272,14 +318,16 @@ plot!(tp, [], label="Messhöhe", lw=2, color=:gray, linestyle=:dash)
 PHD = plot(t, h ./ d .* 100, label="BHD", xlabel="Alter [Jahre]", ylabel="h/d-Wert [1]", lw=2, color=:black, legend=(.35, .12), legend_columns=4, fg_legend = :false, background_color_legend = nothing)
 plot!(t, h ./ d03 .* 100, label=L"\mathrm{d_{03}}", lw=2, color=:red)
 plot!(t, h ./ df .* 100, label=L"\mathrm{d_{f}}", lw=2, color=:blue)
-plot!(t, h ./ d00e .* 100, label=L"\mathrm{d_{00e}}", lw=2, color=:green)
+#plot!(t, h ./ d00e .* 100, label=L"\mathrm{d_{00e}}", lw=2, color=:green)
+plot!(t, h ./ dr .* 100, label=L"\mathrm{d_{r}}", lw=2, color=:green)
 ylims!((ylims()[1], 150))
 # Formzahl
 tp = twinx()
 plot!(tp, t, v ./ (d.^2 .* pi ./ 40000 .* h), label=nothing, ylabel="Formzahl", lw=2, color=:black, linestyle=:dash)
 plot!(tp, t, v ./ (d03.^2 .* pi ./ 40000 .* h), label=nothing, lw=2, color=:red, linestyle=:dash)
 plot!(tp, t[[1, end]], [1, 1], label=nothing, lw=2, color=:blue, linestyle=:dash)
-plot!(tp, t, v ./ (d00e.^2 .* pi ./ 40000 .* h), label=nothing, lw=2, color=:green, linestyle=:dash)
+#plot!(tp, t, v ./ (d00e.^2 .* pi ./ 40000 .* h), label=nothing, lw=2, color=:green, linestyle=:dash)
+plot!(tp, t, v ./ (dr.^2 .* pi ./ 40000 .* h), label=nothing, lw=2, color=:green, linestyle=:dash)
 ylims!(tp, (0.15, 1.15))
 plot!(tp, [], label="h/d-Wert", lw=2, color=:gray, legend=(.35, .05), legend_columns=2, fg_legend = :false, background_color_legend = nothing)
 plot!(tp, [], label="Formzahl", lw=2, color=:gray, linestyle=:dash)
@@ -290,46 +338,102 @@ plot(PD, PHD, layout = grid(2, 1), link=:x)
 savefig("stammanalyseDfz.pdf")
 
 
-#Entwicklung der Schaftform
-b0 = Vector{Float64}(undef, length(d))
-b0[1] = NaN
-b1 = Vector{Float64}(undef, length(d))
-b1[1] = NaN
-b2 = Vector{Float64}(undef, length(d))
-b2[1] = NaN
-for i in 2:length(b0)
-  x = SA[i,:]
-  x = x[x .> 0]
-  hm = [hs[1:length(x)+1]; h[i]]
-  dm = [d0[i]; x; 0]
-  f = interpolate(hm, dm, SteffenMonotonicInterpolation())
-  hr = range(0, hm[end], 100)
-  dr = f.(hr)
-  G = (d[i]/200)^2*pi
-  H = hm[end]
-  V = v[i]
-  if(G > .001 && H > 1.3 && V > .01)
-    b0[i] = (lambertw(G*(H-1.3)*log(1-1.3/H)/(V)) / log(1 - 1.3/H) - 1) / 2.
-  else
-    b0[i] = NaN
-  end
-  #b1[i] = optimize(c1->sum(sort((fob(c1[1], hr, hm[end], v[i])[1] .- dr).^2)[1:Int(.8*length(hr))]), [.5]).minimizer[1]
-  #b2[i] = optimize(x->sum(sort((ff.(x[1], x[2], hr[end], hr) .- dr).^2)[1:Int(.8*length(hr))]), [.5, .5]).minimizer[2]
-  b1[i] = optimize(c1->sum(sort((fob(c1[1], hr, hm[end], v[i])[1] .- dr).^2) .* range(1, 0, length(hr)).^.5), [0.7]).minimizer[1]
-  b2[i] = optimize(x->sum(sort((ff.(x[1], x[2], hr[end], hr) .- dr).^2) .* range(1, 0, length(hr)).^.5), [1., .7]).minimizer[2]
+#Entwicklung der Stammform
+using LambertW, Statistics, Interpolations, Optim, Plots, QuadGK, Integrals, LaTeXStrings
+using Plots.Measures
+
+b0 = Vector{Float64}(undef, length(d)); b0 .= NaN
+b1 = Vector{Float64}(undef, length(d)); b1 .= NaN
+b2 = Vector{Float64}(undef, length(d)); b2 .= NaN
+
+h_wp_vec = Vector{Float64}(undef, length(d)); h_wp_vec .= NaN
+d_wp_vec = Vector{Float64}(undef, length(d)); d_wp_vec .= NaN
+c1_upper = Vector{Float64}(undef, length(d)); c1_upper .= NaN
+c4_lower = Vector{Float64}(undef, length(d)); c4_lower .= NaN
+
+last_stable_rel_wp = 0.15 
+
+for i in 2:length(d)
+    x_data = SA[i,:]
+    x_data = x_data[x_data .> 0]
+    hm = [hs[1:length(x_data)+1]; h[i]]
+    dm = [d0[i]; x_data; 0.0]
+    H  = hm[end]
+    G  = (d[i]/200)^2*pi
+    V  = v[i]
+
+    f = interpolate(hm, dm, SteffenMonotonicInterpolation())
+    hr = range(0, H, length=100)
+    dr = f.(hr)
+
+    if (G > .001 && H > 1.3 && V > .01)
+        b0[i] = (lambertw(G*(H-1.3)*log(1-1.3/H)/(V)) / log(1 - 1.3/H) - 1) / 2.
+    else
+        b0[i] = NaN
+    end
+
+    b1[i] = optimize(c1->sum(sort((fob(c1[1], hr, H, V)[1] .- dr).^2) .* range(1, 0, length(hr)).^.5), [0.7]).minimizer[1]
+    b2[i] = optimize(x->sum(sort((ff.(x[1], x[2], H, hr) .- dr).^2) .* range(1, 0, length(hr)).^.5), [1., .7]).minimizer[2]
+    
+    if H > 3.0
+        X = [ones(length(hm)) hm hm.^2 hm.^3]
+        beta = X \ dm  
+        c_koeff = beta[3]
+        d_koeff = beta[4]
+        
+        h_wp_analytisch = -c_koeff / (3.0 * d_koeff)
+        rel_wp_aktuell = h_wp_analytisch / H
+        
+        if 0.10 <= rel_wp_aktuell <= 0.30 && abs(rel_wp_aktuell - last_stable_rel_wp) < 0.05
+            h_wp_opt = h_wp_analytisch
+            last_stable_rel_wp = rel_wp_aktuell 
+        else
+            h_wp_opt = last_stable_rel_wp * H
+        end
+        
+        d_wp_opt = f(h_wp_opt)
+        
+        mask_up = (hr .>= h_wp_opt) .& (hr .< H)
+        hr_up   = hr[mask_up]
+        dr_up   = dr[mask_up]
+        
+        loss_upper(c1) = sum((( (d_wp_opt / (H - h_wp_opt)^c1) .* (H .- hr_up).^c1 ) .- dr_up).^2)
+        res_up = optimize(loss_upper, 0.1, 3.0)
+        c1_o = res_up.minimizer
+        
+        d0_eff = d0[i]
+        mask_low = hr .< h_wp_opt
+        hr_low   = hr[mask_low]
+        dr_low   = dr[mask_low]
+        
+        loss_lower(c4) = sum(((d0_eff .+ ((d_wp_opt - d0_eff) / (h_wp_opt^c4)) .* hr_low.^c4) .- dr_low).^2)
+        res_low = optimize(loss_lower, 0.5, 5.0)
+        c4_o = res_low.minimizer
+        
+        h_wp_vec[i] = h_wp_opt
+        d_wp_vec[i] = d_wp_opt
+        c1_upper[i] = c1_o
+        c4_lower[i] = c4_o
+    end
 end
-PS = plot(t, b0, label="Durch BHD, V ident", xlabel="Alter [Jahre]", ylabel="Formfaktor " * L"  \mathrm{c_1 : d_x = c_0 * (h - x)^{c_1}}", lw=2, color=:red, alpha=.6)
+
+PS = plot(t, b0, label="Durch BHD, V ident", xlabel="Alter [Jahre]", 
+          ylabel="Formfaktor " * L"  \mathrm{c_1 : d_x = c_0 * (h - x)^{c_1}}", 
+          lw=2, color=:red, alpha=.6, legend=:topright, legendfontsize=6.0, fontfamily="sans-serif")
 plot!(t, b1, label="Nahe Messung, V ident", lw=2, color=:blue, alpha=.6)
 plot!(t, b2, label="Nahe Messung", lw=2, color=:black, alpha=.6)
 
-hr = 0:.01:1
-dr = ff.(1., 2.0, hr[end], hr)
-P2 = plot([-dr; reverse(dr)], [hr; reverse(hr)], lw=2, label="c1=2.0", legend=:bottom, xlabel="Durchmesser", ylabel="\nHöhe", ticks = false)
-dr = ff.(1., 1., hr[end], hr)
-plot!([-dr; reverse(dr)], [hr; reverse(hr)], lw=2, label="c1=1.0")
-dr = ff.(1., .5, hr[end], hr)
-plot!([-dr; reverse(dr)], [hr; reverse(hr)], lw=2, label="c1=0.5")
+plot!(t, c1_upper, label="Zweiteilige Schaftfunktion (oberer Teil)", lw=3, color=:purple, linestyle=:dot)
+
+hr_geo = 0:.01:1
+dr_geo = ff.(1., 2.0, hr_geo[end], hr_geo)
+P2 = plot([-dr_geo; reverse(dr_geo)], [hr_geo; reverse(hr_geo)], lw=2, label="c1=2.0", 
+          legend=:bottom, legendfontsize=6, xlabel="Durchmesser", ylabel="\nHöhe", ticks=false, fontfamily="sans-serif")
+dr_geo = ff.(1., 1., hr_geo[end], hr_geo)
+plot!([-dr_geo; reverse(dr_geo)], [hr_geo; reverse(hr_geo)], lw=2, label="c1=1.0")
+dr_geo = ff.(1., .5, hr_geo[end], hr_geo)
+plot!([-dr_geo; reverse(dr_geo)], [hr_geo; reverse(hr_geo)], lw=2, label="c1=0.5")
 hline!([0], label=nothing, color=:gray, lw=2)
 
 plot(PS, P2, layout = grid(1, 2))
-savefig("stammanalyseForm.pdf")
+savefig("stammanalyse_kompakt.pdf")

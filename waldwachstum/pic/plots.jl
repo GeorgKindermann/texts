@@ -177,7 +177,7 @@ vline!([[xi/x[end]]], label=nothing, color=:gray, linestyle=:dash, z_order=:back
 savefig("zuwachsBestockungsgrad.pdf")
 
 
-pythonplot()  # arrow groese veraendern geht derzeit mit gr (noch) nicht
+#pythonplot()  # arrow groese veraendern geht derzeit mit gr (noch) nicht
 x = 0:.025:.6
 f(x) = x - (x^1.8)
 y = f.(x)
@@ -192,10 +192,18 @@ f(x) = x - (x^2.5)
 y1 = f.(x)
 plot!(x[1:23]./x[end], 1.15 .* y1[1:23]./y1[end], label="Zukunft hohe Dichte", color=:black, lw=3, linestyle=:dot)
 scatter!([x[23]/x[end]], [1.15 * y1[23]/y1[end]], label=nothing, color=:gray)
-plot!([x[12]/x[end], x[15]/x[end]], [y[12]/y[end], 1.2*y0[15]/y0[end]], label=nothing, color=:gray, lw=2, arrow=(:closed, 1, 0.7))
-plot!([x[20]/x[end], x[23]/x[end]], [y[20]/y[end], 1.15*y1[23]/y1[end]], label=nothing, color=:gray, lw=2, arrow=(:closed, 1, 0.7))
+#plot!([x[12]/x[end], x[15]/x[end]], [y[12]/y[end], 1.2*y0[15]/y0[end]], label=nothing, color=:gray, lw=2, arrow=(:closed, 1, 0.7))
+#plot!([x[20]/x[end], x[23]/x[end]], [y[20]/y[end], 1.15*y1[23]/y1[end]], label=nothing, color=:gray, lw=2, arrow=(:closed, 1, 0.7))
+using GR: setarrowsize
+setarrowsize(2.5) 
+y3, y4 = y[20]/y[end], 1.15*y1[23]/y1[end]
+x1, x2 = x[12]/x[end], x[15]/x[end]
+y1, y2 = y[12]/y[end], 1.2*y0[15]/y0[end]
+x3, x4 = x[20]/x[end], x[23]/x[end]
+quiver!([x1], [y1], quiver=([x2 - x1], [y2 - y1]), label=nothing, color=:gray, lw=2)
+quiver!([x3], [y3], quiver=([x4 - x3], [y4 - y3]), label=nothing, color=:gray, lw=2)
 savefig("zuwachsveraenderungBestockungsgrad.pdf")
-gr()
+#gr()
 
 
 x = .6 ./ (1 .+ [0:1/6:1.5; 2])
@@ -320,25 +328,24 @@ end
 savefig("bestandesdichteDN.pdf")
 
 using Interpolations
-x = [550., 600., 500., 400] .* .8
-y = [0.15, 0.8, 4., 10.]
-jr = y[1]:.1:y[end]
-f = interpolate(y, x, FiniteDifferenceMonotonicInterpolation())
-plot(jr, f.(jr), label="Nadelholz", xlabel="Jahrringbreite [mm]", ylabel="Darrdichte ρ₀ [kg/m³]", legend=:bottomleft, lw=3, color=:black)
 #x = [600., 680., 700.]
 #y = [0.5, 4., 10.]
 x = [550., 630., 680., 700.]
 y = [0.5, 2., 4., 10.]
 jr = y[1]:.1:y[end]
-f = interpolate(y, x, FiniteDifferenceMonotonicInterpolation())
-plot!(jr, f.(jr), label="Ringporig", lw=3, linestyle=:dot, color=:black)
+F = interpolate(y, x, FiniteDifferenceMonotonicInterpolation())
+plot(jr, F.(jr), label="Ringporig", xlabel="Jahrringbreite [mm]", ylabel="Darrdichte ρ₀ [kg/m³]", legend=:bottomleft, lw=3, linestyle=:dot, color=:black)
 x = [510., 530., 550, 550.]
 y = [0.25, 0.5, 1., 10.]
 jr = y[1]:.1:y[end]
-f = interpolate(y, x, SteffenMonotonicInterpolation())
-plot!(jr, f.(jr), label="Zerstreutporig", lw=3, linestyle=:dash, color=:black)
+F = interpolate(y, x, SteffenMonotonicInterpolation())
+plot!(jr, F.(jr), label="Zerstreutporig", lw=3, linestyle=:dash, color=:black)
+x = [550., 600., 500., 400] .* .8
+y = [0.15, 0.8, 4., 10.]
+jr = y[1]:.1:y[end]
+F = interpolate(y, x, FiniteDifferenceMonotonicInterpolation())
+plot!(jr, F.(jr), label="Nadelholz", lw=3, color=:black)
 savefig("holzdichteJahrringbreite.pdf")
-
 
 h = [ 1.3, 4.3, 8.3,12.3,16.3,19.3,21.3,23.3,25.3,27.3,29.3]
 d = [1.06 0.97 0.91 0.98 1.05 1.07 1.19 1.18 1.30 1.36 2.02
@@ -381,15 +388,19 @@ hTa2 = [58 75 93 107 140
 0 4.2 11.9 16.8 23.4]
 
 t = 0:140
-f = interpolate(hKi[1,:], hKi[2,:], SteffenMonotonicInterpolation())
+F = interpolate(hKi[1,:], hKi[2,:], SteffenMonotonicInterpolation())
 f2 = interpolate(hKaKi[1,:], hKaKi[2,:], SteffenMonotonicInterpolation())
-plot(t, f2.(t), fillrange = f.(t), fillalpha = 0.3, color=:green, label="Krone Kiefer", lw=2, xlabel="Alter [Jahre]", ylabel="Höhe [m]", xticks = ([0:25:125; 58]))
-plot!(t, f.(t), lw=2, label="Höhe Kiefer", color=:black)
-f = interpolate(hKi2[1,:], hKi2[2,:], SteffenMonotonicInterpolation())
-plot!(t, f.(t), lw=2, label="Höhe Kiefer erwartet", linestyle=:dash, color=:black)
+plot(t, f2.(t), fillrange = F.(t), fillalpha = 0.3, color=:green, label="Krone Kiefer", lw=2, xlabel="Alter [Jahre]", ylabel="Höhe [m]", xticks = ([0:25:125; 58]))
+plot!(t, F.(t), lw=2, label="Höhe Kiefer", color=:black)
+F = interpolate(hKi2[1,:], hKi2[2,:], SteffenMonotonicInterpolation())
+plot!(t, F.(t), lw=2, label="Höhe Kiefer erwartet", linestyle=:dash, color=:black)
 t = 58:140
-f = interpolate(hTa[1,:], hTa[2,:], SteffenMonotonicInterpolation())
-plot!(t, f.(t), lw=2, label="Höhe Tanne beschirmt", color=:red)
-f = interpolate(hTa2[1,:], hTa2[2,:], SteffenMonotonicInterpolation())
-plot!(t, f.(t), lw=2, label="Höhe Tanne frei", color=:red, linestyle=:dash)
+F = interpolate(hTa[1,:], hTa[2,:], SteffenMonotonicInterpolation())
+plot!(t, F.(t), lw=2, label="Höhe Tanne beschirmt", color=:red)
+F = interpolate(hTa2[1,:], hTa2[2,:], SteffenMonotonicInterpolation())
+plot!(t, F.(t), lw=2, label="Höhe Tanne frei", color=:red, linestyle=:dash)
 savefig("hoeheKonkVonUnten.pdf")
+
+
+plot([.01, 60], [7.5, 105], label=nothing, axis=:log, xlabel="(Ober)-Höhe [m]", ylabel="Maximale Grundfläche [m²/ha]", minorticks=9, xticks=10.0 .^ (-2:2), yticks= [10, 100], lw=2, color=:black)
+savefig("bestandesdichteHG.pdf")
