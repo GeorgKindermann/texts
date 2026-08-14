@@ -16,7 +16,7 @@ PICTURES := $(FIG_AS_PDF) $(RPLOTS_AS_PDF)
 all: $(PAPER).pdf
 
 $(PAPER).pdf: $(PICTURES) $(wildcard *.tex) $(PAPER).bbl
-	pdflatex $(PAPER)
+	lualatex -shell-escape -interaction=nonstopmode $(PAPER).tex
 	if grep "Citation.*undefined" $(PAPER).log; then bibtex $(PAPER); pdflatex $(PAPER); fi
 	if grep "Writing index file" $(PAPER).log; then makeindex $(PAPER); pdflatex $(PAPER) ; fi
 	LATEX_COUNT=0; \
@@ -28,10 +28,10 @@ $(PAPER).pdf: $(PICTURES) $(wildcard *.tex) $(PAPER).bbl
 
 $(PAPER).bbl: literature.bib
 	if [ ! -f "$(PAPER).aux" ] ; then pdflatex $(PAPER) ; fi
-	bibtex $(PAPER)
+	biber $(PAPER)
 
 #$(PAPER).ind: $(PAPER).idx
-#	makeindex $(PAPER)
+#	xindy -L german-duden -C utf8 $(PAPER).idx
 
 $(PICTURES): | $(PICDIR)
 
@@ -45,7 +45,7 @@ $(PICDIR)/%.pdf : $(RPLOTDIR)/%.plot.r
 	Rscript --vanilla $< PDFNAME=$@
 
 purge:
-	$(RM) $(PAPER).aux $(PAPER).bbl $(PAPER).blg $(PAPER).log $(PAPER).out $(PAPER).toc $(PAPER).idx $(PAPER).ilg $(PAPER).ind
+	$(RM) $(PAPER).aux $(PAPER).bbl $(PAPER).blg $(PAPER).log $(PAPER).out $(PAPER).toc $(PAPER).idx $(PAPER).ilg $(PAPER).ind $(PAPER).run.xml $(PAPER).bcf
 	$(RM) $(PICTURES)
 #	if [ -d "$(PICDIR)" ] && [ `ls -A "$(PICDIR)" | wc -l` -eq 0 ]; then rmdir $(PICDIR); fi
 	if [ -d "$(PICDIR)" ] && [ ! -f "$(PICDIR)/"* ]; then rmdir $(PICDIR); fi

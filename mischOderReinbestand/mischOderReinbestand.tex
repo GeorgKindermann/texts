@@ -1,52 +1,51 @@
-\documentclass[twocolumn]{scrartcl}
-%\documentclass{scrartcl}
+\documentclass[twocolumn, paper=a4, fontsize=10pt, bibliography=totoc, index=totoc]{scrartcl}
 
-\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
 \usepackage[ngerman]{babel}
+\usepackage[babel=true, german=guillemets]{csquotes}
+
+\usepackage{microtype}
+
+\usepackage{newpxtext} 
+\usepackage{newpxmath} 
+
 \usepackage{amsmath}
+%\usepackage{breqn}    
+\usepackage{siunitx}
+\sisetup{locale = DE, per-mode = repeated-symbol, mode = match} % mode = text
+\DeclareSIUnit\festmeter{fm}
+\DeclareSIUnit\jahr{Jahr}
 
-\usepackage{makeidx}
-\makeindex
-
-\usepackage{fancyvrb}
-\usepackage{fvextra}
-
-% \usepackage{palatino}
-%
-% \usepackage{newpxtext,newpxmath}
-%
-\usepackage[sc]{mathpazo} % or option osf
-\usepackage{newpxmath}
-\usepackage[output-decimal-marker={,}]{siunitx}
-
-\usepackage[comma,authoryear]{natbib}
-\bibliographystyle{natdin}
+\usepackage{fvextra}  
+\usepackage{enumitem} 
 
 \usepackage{adjustbox}
-\usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
-%\usepackage[a4paper, margin=20mm, includefoot, footskip=15pt]{geometry}
-\usepackage{afterpage}
+\usepackage{pdflscape} 
+\usepackage{afterpage} 
 
-\usepackage[pdftitle={Misch- oder Reinbestand?}
-, pdfauthor={Georg Kindermann}
-, pdfsubject={Waldbau, Waldwachstum}
-, pdfkeywords={Waldbau, Waldwachstum, Wald, Forst}
-, pdflang={de-AT-1996}
-, hidelinks
-, pdfpagemode=None]{hyperref}
+\usepackage[xindy]{imakeidx}
+\makeindex[options=-L german-duden -C utf8]
+\renewcaptionname{ngerman}{\indexname}{Stichwortverzeichnis}
+
+%\usepackage[backend=bibtex, style=authoryear, natbib=true, maxcitenames=2, uniquename=false, uniquelist=false]{biblatex}
+%\bibliography{literature}
+\usepackage[backend=biber, style=authoryear, maxcitenames=2, natbib=true, uniquename=false, uniquelist=false, mincrossrefs=99, loadfiles=true]{biblatex}
+\addbibresource{literature.bib}
+
+\usepackage[margin=1mm, includefoot, footskip=12pt]{geometry}
+
+\usepackage[pdftitle={Misch- oder Reinbestand?},
+            pdfauthor={Georg Kindermann},
+            pdfsubject={Waldbau, Waldwachstum},
+            pdfkeywords={Waldbau, Waldwachstum, Wald, Forst},
+            pdflang={de-AT}, 
+            hidelinks,
+            pdfpagemode=UseNone]{hyperref}
 
 \nonfrenchspacing
-\sloppy
-\usepackage{breqn}
-\usepackage{enumitem}
-%\usepackage{rotating}
-\usepackage{pdflscape}
 
-\title{Misch-- oder Reinbestand?}
+\title{Misch- oder Reinbestand?}
 \author{Georg Kindermann}
-%\date{13. März 2022}
 
 \listfiles
 \begin{document}
@@ -55,15 +54,15 @@
   \begin{@twocolumnfalse}
     \maketitle
     \begin{abstract}
-      Weder Misch-- noch Reinbestand sollen erzwungen werden. Wenn sich
+      Weder Misch- noch Reinbestand sollen erzwungen werden. Wenn sich
       natürlich eine Verjüngung aus mehreren Baumarten einstellt, soll diese
-      zwar in Richtung der gewünschten Bestockung geführt, dabei aber nicht, mit
-      übertriebenem Eifer, alle anderen Baumarten ausgemerzt werden. Wenn
-      künstlich gemischt verjüngt wird, müssen die beteiligten Baumarten, in der
-      Mischung, bestimmte Aufgaben erfüllen. Andernfalls sollte auf der
+      zwar in Richtung der gewünschten Bestockung geführt, dabei aber nicht mit
+      übertriebenem Eifer alle anderen Baumarten ausgemerzt werden. Wenn
+      künstlich gemischt verjüngt wird, müssen die beteiligten Baumarten in der
+      Mischung bestimmte Aufgaben erfüllen. Andernfalls sollte auf der
       Schlagfläche die Kunstverjüngung nur mit einer Baumart durchgeführt werden
-      und die Baumartenmischung auf regionaler Ebene, durch ein Mosaik von
-      Reinbeständen, unterschiedlicher Baumarten, gefunden werden. Bei Kleinstwaldbesitzer ist diese räumliche Trennung nicht immer möglich.
+      und die Baumartenmischung auf regionaler Ebene durch ein Mosaik von
+      Reinbeständen unterschiedlicher Baumarten gefunden werden. Bei Kleinstwaldbesitzern ist diese räumliche Trennung nicht immer möglich.
     \end{abstract}
   \end{@twocolumnfalse}
 ]
@@ -72,139 +71,143 @@
 
 \section{Einleitung}
 
-Die Frage, ob Misch-- oder Reinbestand, muss, \emph{allgemein} gestellt,
+Die Frage, ob Misch- oder Reinbestand, muss, \emph{allgemein} gestellt,
 \emph{offen bleiben}. Wenn in einer Region beide Typen möglich sind, ist es in
 der Regel wünschenswert, beide auch real verwirklicht zu sehen. Es soll also
-sowohl Misch-- als auch Reinbestände geben, wobei deren Anteile und die
-beteiligten Baumarten, so gewählt werden, damit die waldbaulichen Zielsetzungen
+sowohl Misch- als auch Reinbestände geben, wobei deren Anteile und die
+beteiligten Baumarten so gewählt werden, damit die waldbaulichen Zielsetzungen
 optimal erfüllt werden können. Hingegen auf \emph{Bestandesebene} muss bei der
-Bestandeszielformulierung, der Weg zu diesem Ziel, klar vorgegeben werden und
-somit auch die Entscheidung, für oder gegen Misch-- oder Reinbestand, gefällt
+Bestandeszielformulierung der Weg zu diesem Ziel klar vorgegeben werden und
+somit auch die Entscheidung für oder gegen Misch- oder Reinbestand gefällt
 werden. Um diese Entscheidung zu unterstützen, werden hier Beobachtungen und mit
-Argumenten untermauerte Empfehlungen zusammen getragen. Zusätzlich soll die
-Vielfalt von Rein-- aber insbesondere von Mischwäldern verdeutlicht und
+Argumenten untermauerte Empfehlungen zusammengetragen. Zusätzlich soll die
+Vielfalt von Rein-, aber insbesondere von Mischwäldern verdeutlicht und
 empfehlenswerte Formen herausgearbeitet werden.
 
-\section{Charakterisierung von Misch-- und Reinbestand}
+\section{Charakterisierung von Misch- und Reinbestand}
 \label{sec:charakterisierung}
 
 Um sich für oder gegen etwas entscheiden zu können, müssen die beiden Typen klar
-voneinander trennbar sein. Bei Misch-- und Reinbeständen handelt es sich jedoch
-nicht um zwei gegenüberliegende Pole, ohne dazwischenliegende Übergänge, sondern
-um ein Kontinuum, das von Monokulturen, mit ausschließlich einer vertretenen
-Baumart, hin zu Wäldern, die aus so vielen Baumarten bestehen, dass jede Baumart
+voneinander trennbar sein. Bei Misch- und Reinbeständen handelt es sich jedoch
+nicht um zwei gegenüberliegende Pole ohne dazwischenliegende Übergänge, sondern
+um ein Kontinuum, das von Monokulturen\index{Monokultur} mit ausschließlich einer vertretenen
+Baumart hin zu Wäldern, die aus so vielen Baumarten bestehen, dass jede Baumart
 nur mit wenigen Exemplaren vertreten ist, reicht. Zur Charakterisierung von
 Mischbeständen dient die Auflistung der beteiligten Baumarten, deren Anteile,
-deren Größen (meist Höhen-- und Durchmesserverteilungen) und deren räumliche Verteilung.
+deren Größen (meist Höhen- und Durchmesserverteilungen) und deren räumliche Verteilung.
 
 \subsection{Definition}
 \label{ssec:definition}
 
-Zunächst soll die Definition von Rein-- und Mischbestand nach
+Zunächst soll die Definition von Rein- und Mischbestand nach
 \cite{bruenig1980WaldbaulicheTerminologi} wiedergegeben werden.
+
 \begin{description}
-\item[Mischbestand:\index{Deffinition!Mischbestand}] Ein Bestand aus zwei oder
+\item[Mischbestand:]\index{Mischbestand!Definition}  Ein Bestand aus zwei oder
   mehr Baumarten, die jede einzeln und besonders im Zusammenwirken die
-  Bestandesökologie signifikant beeinflussen. Die Bauarten können stamm--,
-  trupp--, gruppen-- oder kleinhorstweise miteinander gemischt sein. Größere
+  Bestandesökologie signifikant beeinflussen. Die Baumarten können stamm-,
+  trupp-, gruppen- oder kleinhorstweise miteinander gemischt sein. Größere
   Horste verlieren den Mischbestandscharakter; Gegensatz Reinbestand.
-\item[Reinbestand:\index{Deffinition!Reinbestand}] Bestand, der aus einer
-  Baumart (mindestens 90\,\%) gebildet wird. Vorkommen anderer eingemischter
+\item[Reinbestand:]\index{Reinbestand!Definition} Bestand, der aus einer
+  Baumart (mindestens \qty{90}{\percent}) gebildet wird. Vorkommen anderer eingemischter
   Baumarten, die keinen gewichtigen ökologischen Einfluss ausüben, verändert
   nicht den Charakter als Reinbestand.
 \end{description}
 
-Es wird, neben allen möglichen Varianten der Mischung, auch beim Reinbestand
-eine Beimischung von bis zu 10\,\% von anderen Baumarten toleriert. Und dabei
-stellt sich bereits die Frage, worauf sich diese 10\,\% beziehen. Meist wird
+Es wird neben allen möglichen Varianten der Mischung auch beim Reinbestand
+eine Beimischung von bis zu \qty{10}{\percent} von anderen Baumarten toleriert. Und dabei
+stellt sich bereits die Frage, worauf sich diese \qty{10}{\percent} beziehen. Meist wird
 dabei wohl ein Anteil an der Bestandesfläche gemeint sein. Allerdings, wie lässt
 sich der Anteil an der Bestandesfläche für eine Baumart bestimmen? In der Praxis
-der Forsteinrichtung wird dieser gutachtlich, etwa über den Schirmflächenanteil,
-geschätzt. Gelegentlich wird auch der Anteil am Volumen, an der Biomasse, oder,
-da dies oft einfacher zu bestimmen ist, der Grundflächenanteil verwendet. Dabei
-kann zusätzlich z.B.\ mit der Holzdichte oder dem Bestockungsgrad einer
-Ertragstafel gewichtet werden. Auch für den Wuchsleistungsvergleich, zwischen
-Misch-- und Reinbeständen, muss die Frage, wie groß der \emph{Anteil} der
-Baumarten, im Mischbestand, ist, realitätsnah beantwortet werden können und wird
-sich wohl auf den Ressourcenverbrauch beziehen müssen. Selbst wenn der Anteil,
-der beteiligten Mischbaumarten, ohne Unsicherheiten bestimmt werden könnte,
-spielen, neben anderen Faktoren, auch die Bestandesstruktur, die Mischungsart,
-die Dimension der Einzelbäume und deren Relation zu ihren Nachbarn, eine Rolle.
+der Forsteinrichtung wird dieser gutachtlich, etwa über den Schirmflächenanteil\index{Schirmflächenanteil},
+geschätzt. Gelegentlich wird auch der Anteil am Volumen, an der Biomasse oder,
+da dies oft einfacher zu bestimmen ist, der Grundflächenanteil\index{Grundflächenanteil} verwendet. Dabei
+kann zusätzlich z.\,B.\ mit der Holzdichte oder dem Bestockungsgrad einer
+Ertragstafel gewichtet werden. Auch für den Wuchsleistungsvergleich zwischen
+Misch- und Reinbeständen muss die Frage, wie groß der \emph{Anteil} der
+Baumarten im Mischbestand ist, realitätsnah beantwortet werden können und wird
+sich wohl auf den Ressourcenverbrauch beziehen müssen. Selbst wenn der Anteil
+der beteiligten Mischbaumarten ohne Unsicherheiten bestimmt werden könnte,
+spielen neben anderen Faktoren auch die Bestandesstruktur, die Mischungsart,
+die Dimension der Einzelbäume und deren Relation zu ihren Nachbarn eine Rolle.
 
 \subsection{Anzahl an Baumarten}
 \label{ssec:anzahlBaumarten}
 
 Laut Definition bedarf es für einen Mischbestand \emph{mindestens zwei}
-Baumarten, wobei keine einen Anteil von 90\,\% erreichen oder überschreiten
+Baumarten, wobei keine einen Anteil von \qty{90}{\percent} erreichen oder überschreiten
 darf. Ein Mindestanteil einer Baumart ist insofern gefordert, da sie laut
-Definition des Mischbestandes, die Bestandesökologie signifikant beeinflussen
+Definition des Mischbestandes die Bestandesökologie signifikant beeinflussen
 sollte. Ob sie dies tatsächlich tut und ab welchem Anteil diese Forderung
 erfüllt wird, wird in den seltensten Fällen beantwortbar sein. Daher kann als
-Untergrenze einer Mischbaumart, das in der Forsteinrichtung übliche 1/10, als
-Richtwert, für ihren Anteil, empfohlen werden, um überhaupt von einem
+Untergrenze einer Mischbaumart das in der Forsteinrichtung übliche 1/10 als
+Richtwert für ihren Anteil empfohlen werden, um überhaupt von einem
 nennenswerten Effekt ihrer Beimischung ausgehen zu können. Dieses 1/10 kann
-natürlich auch auf mehrere Baumarten aufgeteilt sein. Geringere Beimischungen,
-von einer oder mehreren Baumarten, können dennoch sinnvoll sein, beispielsweise
-wenn von diesen einzeln beigemischten Bäumen, in der Folgegeneration, ein
-Baumartenwechsel über Naturverjüngung geplant ist. Bei Naturverjüngung ergeben
+natürlich auch auf mehrere Baumarten aufgeteilt sein. Geringere Beimischungen
+von einer oder mehreren Baumarten können dennoch sinnvoll sein, beispielsweise
+wenn von diesen einzeln beigemischten Bäumen in der Folgegeneration ein
+Baumartenwechsel über Naturverjüngung geplant ist.
+
+Bei Naturverjüngung ergeben
 sich die Baumarten und deren Anteile zu Beginn von selbst und werden im Zuge der
-Mischwuchsregulierung zum Bestockungsziel geführt. Aber auch bei Naturverjüngung
-kann es oft nötig sein unbestockte Flächen, mittels Ausbessern, zu ergänzt und
+Mischwuchsregulierung\index{Mischwuchsregulierung} zum Bestockungsziel geführt. Aber auch bei Naturverjüngung
+kann es oft nötig sein, unbestockte Flächen mittels Ausbessern zu ergänzen und
 damit die Baumartenzusammensetzung schon in der Verjüngungsphase zu
-beeinflussen. Bei Kunstverjüngung muss die Anzahl an Baumarten vorgegeben
-werden. Wobei die Baumartenanzahl von der Bestandesgröße abhängig sein kann. Da
-ein Charakteristikum des Bestandes dessen Einheitlichkeit ist, ist seiner Größe,
-nach oben hin, eine Grenze gesetzt und damit auch gleichzeitig der Wechsel von
-Baumarten, aufgrund von standörtlichen Unterschieden, innerhalb eines Bestandes
+beeinflussen.
+
+Bei Kunstverjüngung muss die Anzahl an Baumarten vorgegeben
+werden, wobei die Baumartenanzahl von der Bestandesgröße abhängig sein kann. Da
+ein Charakteristikum des Bestandes dessen Einheitlichkeit ist, ist seiner Größe
+nach oben hin eine Grenze gesetzt und damit auch gleichzeitig der Wechsel von
+Baumarten aufgrund von standörtlichen Unterschieden innerhalb eines Bestandes
 zumindest eingeschränkt, da eben diese standörtlichen Unterschiede eine
 Ausscheidung in einen eigenen Bestand zur Folge haben sollten. Kleinflächige
 Standortsunterschiede, die aufgrund ihrer Größe eine Ausscheidung als eigenen
-Bestand kaum rechtfertigen, können bzw. sollten selbstverständlich mit der / den
+Bestand kaum rechtfertigen, können bzw.\ sollten selbstverständlich mit der / den
 dort am besten geeigneten Baumart(en) bestockt werden.
 
-\citet[S.~218\,f.]{wiedemann1951Ertragskunde} fordert für Mischkulturen \frqq
-eine klare Planung, welche \emph{Aufgaben} jede Baumart zu erfüllen hat, und
+\citet[S.~218\,f.]{wiedemann1951Ertragskunde} fordert für Mischkulturen \enquote{eine klare Planung, welche \emph{Aufgaben} jede Baumart zu erfüllen hat, und
 wieweit jede unter den gegebenen Standortsverhältnissen begünstigt werden soll,
 was meist nur bei Beschränkung der Mischung auf \emph{2--3~Arten} möglich ist.
-Bei Buntmischungen von 5 oder noch mehr Baumarten können die besonderen
+Bei Buntmischungen\index{Buntmischung} von 5 oder noch mehr Baumarten können die besonderen
 Bedürfnisse der einzelnen Arten nicht beachtet werden. Diese Mischungen stellen
 hohe Ansprüche an Läuterung und Durchforstung, welche oft unerfüllbar bleiben,
 mit der Folge, dass mehrere Baumarten spätestens im Dickungsalter absterben oder
 vollständig untertauchen und dass die vorwüchsigen Holzarten keine genügende
-Stammzahl zur Astreinigung unter sich selbst haben.\flqq{}
+Stammzahl zur Astreinigung unter sich selbst haben.}
 
-Hier sei ausdrücklich darauf hingewiesen das sich diese Empfehlung von zwei bis
+Hier sei ausdrücklich darauf hingewiesen, dass sich diese Empfehlung von zwei bis
 maximal drei Baumarten auf den \emph{Bestand} und nicht auf die Region bezieht.
 Aber auch auf regionaler Ebene wird es gelegentlich schwerfallen, mehrere,
-wirtschaftlich optimale, Baumarten zu finden. Wie schon erwähnt, schließt dies
-nicht aus bzw.\ ist es wünschenswert, dass vereinzelt weitere Baumarten,
-im Bestand vertreten sind, von denen ausgehend, bei Bedarf, deren Anteil im
-Folgebestand, über Naturverjüngung, kostengünstig erhöht werden kann.
+wirtschaftlich optimale Baumarten zu finden. Wie schon erwähnt, schließt dies
+nicht aus bzw.\ ist es wünschenswert, dass vereinzelt weitere Baumarten
+im Bestand vertreten sind, von denen ausgehend bei Bedarf deren Anteil im
+Folgebestand über Naturverjüngung kostengünstig erhöht werden kann.
 
-Eine Ausnahme, bezüglich beteiligter Baumarten, bilden Site--Index--Benchmark
-Beispielsbestände, auf denen möglichst viele Baumarten als Subreinbestand, bzw.\
-gruppen-- bis horstweise gemischt, gepflanzt werden. Die Subbestands-- bzw.\
-Gruppen--/Horstgröße wird so gewählt, dass im Abtriebsalter etwa 10--12 Bäume,
-der jeweiligen Baumart, Platz finden und diese Flächen einen möglichst geringen
+Eine Ausnahme bezüglich beteiligter Baumarten bilden Site--Index--Benchmark-Beispielsbestände\index{Site-Index-Benchmark-Beispielsbestände}, auf denen möglichst viele Baumarten als Subreinbestand bzw.\
+gruppen- bis horstweise gemischt gepflanzt werden. Die Subbestands- bzw.\
+Gruppen-/Horstgröße wird so gewählt, dass im Abtriebsalter etwa 10--12 Bäume
+der jeweiligen Baumart Platz finden und diese Flächen einen möglichst geringen
 Umfang aufweisen (Bienenwabenform), um die Interaktion mit Nachbarbaumarten zu
 minimieren, aber gleichzeitig eine Interaktion mit sechs Nachbarbaumarten
-beobachten zu können. In diesen Beständen kann unter anderem die Wuchsleistung,
-verschiedenster Baumarten, am selben Standort, verglichen werden, wie dies
-beispielsweise \cite{mayer1970anbauversuch} zeigten. Die Baumarten können auf
-solchen Flächen direkt vor Ort, ohne viel Aufwand, alleine durch Betrachten,
-vergleichen werden. Charakteristisch für diese Bestände ist, dass viele
+beobachten zu können. In diesen Beständen kann unter anderem die Wuchsleistung
+verschiedener Baumarten am selben Standort verglichen werden, wie dies von
+\citet[S.~300]{reaumur1721ertragstafel} schon vor über 300~Jahren gefordert wurde und
+wie es beispielsweise \citet{mayer1970anbauversuch} zeigten. Die Baumarten können auf
+solchen Flächen direkt vor Ort ohne viel Aufwand, alleine durch Betrachten,
+verglichen werden. Charakteristisch für diese Bestände ist, dass viele
 Baumarten versagen und oft nicht einmal eine Handvoll als empfehlenswert für
 diesen Standort übrig bleiben wird. Aber eben diese sollen eine Anregung für
-weitere, in einer Region weniger übliche, aber möglicherweise vielversprechende,
-Baumarten geben und somit mithelfen die Baumartenvielfalt zu steigern. Aber auch
+weitere, in einer Region weniger übliche, aber möglicherweise vielversprechende
+Baumarten geben und somit mithelfen, die Baumartenvielfalt zu steigern. Aber auch
 die Baumarten, die auf diesen Standorten nicht überzeugen konnten,
 dokumentieren, dass es ihnen überlegene Baumarten gibt und sie somit für
 Wirtschaftswälder weniger infrage kommen. Um eine kleine Vorstellung über
 mögliche Baumarten einer Region zu bekommen, wurden im Jahr~2017 am Wechsel
-($47,4999^{\circ}$\,Nord, $15,9741^{\circ}$\,Ost) auf 1340\,m 31~Baumarten, und
-im Jahr~2019 der Klimaforschungswald in der Nähe von Matzen mit 15~Baumarten,
+(\qty{47.4999}{\degree}\,Nord, \qty{15.9741}{\degree}\,Ost) auf \qty{1340}{\metre} 31~Baumarten, und
+im Jahr~2019 der Klimaforschungswald in der Nähe von Matzen mit 15~Baumarten
 auf Versuchsflächen gepflanzt. Ein weiterer Ausbau dieses Versuchsnetzes könnte
-die sonst üblichen Möglichkeiten, bei der Baumartenwahl, erweitern und auf eine
+die sonst üblichen Möglichkeiten bei der Baumartenwahl erweitern und auf eine
 sicherere Grundlage stellen.
 
 Jede Baumart unterscheidet sich und hat ihre eigenen Charakteristiken und selbst innerhalb der Baumart gibt es, je nach genetischer Heterogenität, unterschiedlich starke Unterschiede, die gelegentlich in Unterarten, Varietäten oder Herkünfte untergliedert werden. Demgemäß sollten Mischwälder auch mit einer Baumart, allerdings zusammengesetzt aus unterschiedlichen Herkünften, möglich erscheinen. Auch zwischen den Baumarten gibt es unterschiedliche Ähnlichkeitsgrade. Diese können beispielsweise in folgende Gruppen eingeteilt werden.
@@ -212,7 +215,7 @@ Jede Baumart unterscheidet sich und hat ihre eigenen Charakteristiken und selbst
 \begin{description}
   \item[Belaubung:] ~
   \begin{itemize}
-    \item Laubabwerfend Sommergrün
+    \item Laubabwerfend sommergrün
     \item Immergrün
   \end{itemize}
   \item[Schattenerträgnis:] ~
@@ -220,7 +223,7 @@ Jede Baumart unterscheidet sich und hat ihre eigenen Charakteristiken und selbst
     \item Lichtbaumart
     \item Schattenbaumart
   \end{itemize}
-  \item[Duchwurzelung:] ~
+  \item[Durchwurzelung:] ~
   \begin{itemize}
     \item Flachwurzler
     \item Herzwurzler
@@ -229,29 +232,28 @@ Jede Baumart unterscheidet sich und hat ihre eigenen Charakteristiken und selbst
 \end{description}
 
 Damit ist zu erwarten, dass ein Bestand zusammengesetzt aus vier ähnlichen
-Baumarten (z.B.\ Lärche, Birke, Weißkiefer, Grauerle) weniger Mischcharakter
-aufweisen wird, als einer mit zwei unterschiedlichen (z.B. Lärche, Rotbuche).
-Wobei wiederum eine Mischung von ähnlichen Baumarten, meist unproblematischer
-sein wird, als eine mit sehr unterschiedlichen. Umgekehrt könnten aber die
+Baumarten (z.\,B.\ Lärche, Birke, Weißkiefer, Grauerle) weniger Mischcharakter
+aufweisen wird als einer mit zwei unterschiedlichen (z.\,B.\ Lärche, Rotbuche).
+Wobei wiederum eine Mischung von ähnlichen Baumarten meist unproblematischer
+sein wird als eine mit sehr unterschiedlichen. Umgekehrt könnten aber die
 Aufgaben, die ähnliche Baumarten erfüllen sollen, wenig voneinander abweichen
-und damit, der mit einer heterogeneren Mischung erreichbare Effekt, nicht
-erreicht werden. Damit soll gezeigt werden, dass die Anzahl an Baumarten, ohne
-weitere Informationen, nur eine geringe Aussagekraft über den Mischcharakter
-hat.
+und damit der mit einer heterogeneren Mischung erreichbare Effekt nicht
+erreicht werden. Damit soll gezeigt werden, dass die Anzahl an Baumarten ohne
+weitere Informationen nur eine geringe Aussagekraft über den Mischcharakter hat.
 
 \subsection{Mischungsart}
 \label{ssec:mischugnsart}
 
 Die Mischungsart gibt an, wie sehr die Baumarten untereinander gemischt bzw.\
 wie stark sie in den Mischbeständen voneinander getrennt aufwachsen. Auch wenn
-es für die Frage \glqq Misch-- oder Reinbestand?\grqq{} nicht wesentlich
+es für die Frage \enquote{Misch- oder Reinbestand?} nicht wesentlich
 scheint, wie der Mischbestand aufgebaut ist, soll dargestellt werden, dass es
 innerhalb der Gruppe der Mischbestände fließende Übergänge in Richtung
 Reinbestand gibt. Nicht nur über die \emph{Anteile} der beteiligten Baumarten,
-von \glqq nicht vertreten\grqq{} bis zu \glqq mit gleichen Anteilen
-vertreten\grqq{}, kann der Übergang vom Rein-- zum Mischbestand beobachtet
+von \enquote{nicht vertreten} bis zu \enquote{mit gleichen Anteilen
+vertreten}, kann der Übergang vom Rein- zum Mischbestand beobachtet
 werden, sondern auch über die \emph{Mischungsform} von einzeln bis hin zu
-horst-- und flächenweiser Mischung. Die Mischungsform kann sich im Lauf der
+horst- und flächenweiser Mischung. Die Mischungsform kann sich im Lauf der
 Bestandesentwicklung ändern. Aus einer truppweisen Mischung im Jungbestand kann
 im Altbestand eine Einzelmischung werden.
 
@@ -262,28 +264,28 @@ Die Mischungsform beschreibt die Ausdehnung und Verteilung der
 Baumarten:
 
 \begin{description}
-\item[Einzel:] Buntmischung. Baumweise Verteilung. Baum ist nicht von gleicher Art umgeben.
-\item[Trupp:] Einige, weniger als etwa 5~Bäume im Baumholzalter. Durchmesser maximal halbe Baumlänge des Altbestandes.
-\item[Gruppe:] Durchmesser maximal Baumlänge des Altbestandes.
-\item[Horst:] Kleinfläche mit teilweise ökologischer und wirtschaftlicher Selbständigkeit, die aber waldbaulich nicht selbständig behandelt werden kann. Etwa 0,1--0,5 Hektar.
-\item[Fläche:] Fläche, die waldbaulich selbständig behandelt wird.
-\item[Reihe:] Wechsel der Baumart von Reihe zu Reihe.
-\item[Streifen:] Mehrere Reihen derselben Baumart.
+\item[Einzel:]\index{Mischungsform!Einzel} Buntmischung. Baumweise Verteilung. Baum ist nicht von gleicher Art umgeben.
+\item[Trupp:]\index{Mischungsform!Trupp} Einige, weniger als etwa 5~Bäume im Baumholzalter. Durchmesser maximal halbe Baumlänge des Altbestandes.
+\item[Gruppe:]\index{Mischungsform!Gruppe} Durchmesser maximal Baumlänge des Altbestandes.
+\item[Horst:]\index{Mischungsform!Horst} Kleinfläche mit teilweise ökologischer und wirtschaftlicher Selbständigkeit, die aber waldbaulich nicht selbständig behandelt werden kann. Etwa \qtyrange{0.1}{0.5}{\hectare}.
+\item[Fläche:]\index{Mischungsform!Fläche} Fläche, die waldbaulich selbständig behandelt wird.
+\item[Reihe:]\index{Mischungsform!Reihe} Wechsel der Baumart von Reihe zu Reihe.
+\item[Streifen:]\index{Mischungsform!Streifen} Mehrere Reihen derselben Baumart.
 \end{description}
 
 Auch wenn in der Natur die Verjüngung immer wieder in Form von Einzelmischungen
-beobachtet werden kann, wird diese, aufgrund der dadurch in der Regel
-entstehenden Mehraufwände, kaum für die Kunstverjüngung empfohlen. Reihen-- oder
+beobachtet werden kann, wird diese aufgrund der dadurch in der Regel
+entstehenden Mehraufwände kaum für die Kunstverjüngung empfohlen. Reihen- oder
 Streifenmischung ist arbeitstechnisch bei der Kunstverjüngung auf größeren
-Kahlflächen relativ einfach zu realisieren. Bei kleinflächigen Nutzungen, sowie
-bei vorübergehenden Fehlstellen in der Verjüngung, kann Trupp--, Gruppen-- oder
-Horstweisemischung sowohl durch Natur-- als auch durch Kunstverjüngung
-entstehen. Auf Kahlflächen kann auch die \emph{Clusterpflanzung} in Form von
-\emph{Nesterpflanzung} (auf ca.\ 1\,m$^2$ werden etwa 20~Bäume gepflanzt) oder
-\emph{Trupppflanzung} (je Trupp werden ca.\ 20~Bäume mit einem Abstand von ca.\
-1\,m zueinander, gelegentlich auch mit 2~Baumarten, gepflanzt) erfolgen, wobei
+Kahlflächen relativ einfach zu realisieren. Bei kleinflächigen Nutzungen sowie
+bei vorübergehenden Fehlstellen in der Verjüngung kann Trupp-, Gruppen- oder
+horstweise Mischung sowohl durch Natur- als auch durch Kunstverjüngung
+entstehen. Auf Kahlflächen kann auch die \emph{Clusterpflanzung}\index{Clusterpflanzung} in Form von
+\emph{Nesterpflanzung}\index{Nesterpflanzung} (auf ca.\ \qty{1}{\square\metre} werden etwa 20~Bäume gepflanzt) oder
+\emph{Trupppflanzung}\index{Trupppflanzung} (je Trupp werden ca.\ 20~Bäume mit einem Abstand von ca.\
+\qty{1}{\metre} zueinander, gelegentlich auch mit 2~Baumarten, gepflanzt) erfolgen, wobei
 die Nester bzw.\ Trupps zueinander den Abstand der Bäume des Endbestands, oder
-die Hälfte, Drittel, \dots davon, haben. Die dazwischenliegende Bestandesfläche
+die Hälfte, Drittel, \dots{} davon, haben. Die dazwischenliegende Bestandesfläche
 wird der Naturverjüngung überlassen.
 
 Obwohl von der Einzelmischung in der Verjüngungsphase generell
@@ -294,72 +296,70 @@ eingesetzt werden kann:
   Verjüngungsphase bis in den Altbestand sind in Mitteleuropa
   selten. Je nach Standort teilweise geeignet wären Fichte, Tanne und
   Buche.
-\item Bei einer Mischung von Schatt-- und Lichbaumarten muss die
+\item Bei einer Mischung von Schatt- und Lichtbaumarten muss die
   Lichtbaumart vorwüchsig sein oder die Schattbaumart später
   eingebracht werden.
 \item Mischungen von Lichtbaumarten, da es selten zu Entmischungen
   kommt.
 \item Der Pflanzverband wurde so weit gewählt, dass die
-  konkurrenzstärkere Baumart die konkurrenzschwächere, während der
-  Bestandesentwicklung, nicht verdrängen kann. Dabei sollte die
+  konkurrenzstärkere Baumart die konkurrenzschwächere während der
+  Bestandesentwicklung nicht verdrängen kann. Dabei sollte die
   dadurch bedingte geringe Selektionsmöglichkeit bei Durchforstungen,
   der Einfluss auf die Astreinigung und deren Auswirkungen auf die
   Qualität beachtet werden.
 \item Wenn die Funktion am besten bei Einzelmischung erfüllt wird
-  (Vorwald, Schaftreinigung), wobei dann eine Bauart eine dienende
+  (Vorwald, Schaftreinigung), wobei dann eine Baumart eine dienende
   Funktion übernimmt.
-\item Bei Zeitmischungen: Eine Baumart wird früher als die andere
-  geerntet und/oder später als eine andere Verjüngt (Vorwald,
+\item Bei Zeitmischungen\index{Zeitmischung}: Eine Baumart wird früher als die andere
+  geerntet und/oder später als eine andere verjüngt (Vorwald,
   Voranbau, Unterbau). Es ist die früher hiebsreife Art einzeln mit
   geringen Anteilen beizumischen, wenn keine Lücken im Bestand
   verbleiben sollen.
 \end{itemize}
-\frqq Die Einzelmischung in gleichaltrigen Bestand stellt Ansprüche an
+\enquote{Die Einzelmischung in gleichaltrigen Bestand stellt Ansprüche an
 die einzelnen Holzarten, welche ihrer Natur in der größten Mehrzahl
 der Fälle zuwider sind, und diese bei der großen Verschiedenheit in
 ihren Ansprüchen an den Standort, den Lichtgenuß und den
-Entwickelungsraum im gleichförmigen Schlusse unserer Bestände nicht
-erfüllen \emph{können}\flqq{}
+Entwickelungsraum im gleichförmigen Schlusse unserer Bestände \emph{nicht erfüllen können}}
 \citep[S.~147]{gayer1886DerGemischteWald}. Gayer sieht im gemischten
 Wald überwiegend Vorteile, betont aber, dass die Mischung in
 hinreichend großen Horsten, welche im Idealfall ungleichaltrig sind,
-erfolgen muss. Einen Hinweis was unter hinreichend groß zu verstehen ist
-findet man auf Seite 78\,f., wo für Eiche mindestens 1/2~ha gefordert
+erfolgen muss. Einen Hinweis, was unter hinreichend groß zu verstehen ist,
+findet man auf Seite 78\,f., wo für Eiche mindestens $1/2$\,\unit{\hectare} gefordert
 wird. Anscheinend wurden viele dieser wichtigen Hinweise zu wenig
-beachtet, denn schon sein Nachfolger berichtet: \frqq Gayers Methode
+beachtet, denn schon sein Nachfolger berichtet: \enquote{Gayers Methode
 hat, da die Bestände für ihre Verjüngung nicht erzogen wurden,
 vielfach ganz versagt, vielfach nur Stückwerk ergeben; der langsame
 Verjüngungsgang hat schwere Nachteile für die Rentabilität gebracht
-\dots was heute, kurz nach seiner Begründung, als kleingruppenweiser
+\dots{} was heute, kurz nach seiner Begründung, als kleingruppenweiser
 oder stammweiser Mischbestand erscheint, wird im kritischen Alter des
 Stangenholzes ohne fortgesetzte Hilfe und Kostenaufwand wieder reiner
-Bestand werden\flqq{}
+Bestand werden}
 \citep[S.~547]{mayr1909WaldbauAufNaturgesetzlicherGrundlage}. Er
-schlägt daher als besser Alternative den \emph{Kleinbestandswald} mit
-Größen von 0,3 bis 3~Hektar vor. Jeder Kleinbestand kann von einer
+schlägt daher als bessere Alternative den \emph{Kleinbestandswald}\index{Kleinbestandswald} mit
+Größen von \qtyrange{0.3}{3}{\hectare} vor. Jeder Kleinbestand kann von einer
 \emph{anderen} Baumart gebildet werden, ist selbst aber ein
 Reinbestand. Damit entstehen wohl Mischungen und Bestandesmuster, die
 denen, welche Gayer vorgeschlagen hatte, recht ähnlich sein werden. Er
-vermeidet aber dadurch, dass er die Bezeichnung kleine Reinbestände,
-anstatt horstweiser Mischbestände, verwendet, das fatalerweise als
-Mischbestand ein, in der Verjüngung, stammweiser gemischter Bestand
+vermeidet aber dadurch, dass er die Bezeichnung kleine Reinbestände anstatt horstweiser Mischbestände verwendet, dass fatalerweise als
+Mischbestand ein in der Verjüngung stammweise gemischter Bestand
 gemeint wird. Einen anderen Weg beschreibt
-\cite{wagner1923DerBlendersaumschlagUndSeinSystem} mit dem
-\emph{Blendersaumschlag}, wo durch Aneinanderreihung langgestreckter,
+\citet{wagner1923DerBlendersaumschlagUndSeinSystem} mit dem
+\emph{Blendersaumschlag}\index{Blendersaumschlag}, wo durch Aneinanderreihung langgestreckter,
 also saumweiser Schläge, die nutzungstechnische Vorteile bringen,
-streifenweise eine Baumartenmsichung, wen möglich über
+streifenweise eine Baumartenmischung, wenn möglich über
 Naturverjüngung, verwirklicht werden kann.
 
-Baumarten können in bestandesbildende und nicht bestandesbildende
+Baumarten können in bestandesbildende\index{Baumart!bestandesbildend} und nicht bestandesbildende\index{Baumart!nicht bestandesbildend}
 Baumarten unterteilt werden, wobei letzteren gelegentlich unterstellt
 wird, dass sie für Reinbestände ungeeignet und ausschließlich in
 Mischbeständen vertreten sein können. Nicht bestandesbildende
-Baumarten sind gegenüber bestandesbildenenden konkurrenzschwach und
+Baumarten sind gegenüber bestandesbildenden konkurrenzschwach und
 kommen damit natürlich entweder auf kleinräumigen Sonderstandorten
-beschränkt rein vor (z.B. Schwarzerle) oder sind durch, für sie in der
-Bestandesenwicklung günstige Zufälle, vereinzelt im Bestand vertreten
-(z.B. Bergahorn im Buchenbestand). Bei der Bestandesbegründung ist es
-sehr wohl möglich Reinbestände auch mit in der Natur nicht bestandesbildenden
+beschränkt rein vor (z.\,B.\ Schwarzerle) oder sind durch für sie in der
+Bestandesentwicklung günstige Zufälle vereinzelt im Bestand vertreten
+(z.\,B.\ Bergahorn im Buchenbestand). Bei der Bestandesbegründung ist es
+sehr wohl möglich, Reinbestände auch mit in der Natur nicht bestandesbildenden
 Baumarten zu schaffen. In der Regel geht jedoch die Eigenschaft
 konkurrenzschwach mit zuwachsschwach Hand in Hand und deshalb werden,
 solange diese Zuwachsschwäche nicht durch den Holzpreis aufgewogen
@@ -368,24 +368,24 @@ wird, diese Baumarten auf kleinere Anteile beschränkt bleiben.
 \subsubsection{Struktur}
 \label{sssec:struktur}
 
-Sowohl im Rein-- als auch im Mischbestand kann, durch Veränderung der
-\emph{Altersstruktur}, ein Übergang vom einschichtigen, gleichaltrigen zum
+Sowohl im Rein- als auch im Mischbestand kann durch Veränderung der
+\emph{Altersstruktur} ein Übergang vom einschichtigen, gleichaltrigen zum
 ungleichaltrigen, mehrschichtigen Bestand verwirklicht werden. Auch hier kann,
 wie bei der Baumartenmischung, die Alterskohorte von einzeln bis zu horstweise
-gemischt, realisiert sein. Sowohl in Rein-- als auch in Mischbeständen kann das
+gemischt realisiert sein. Sowohl in Rein- als auch in Mischbeständen kann das
 Abtriebsalter bzw.\ die \emph{Zieldimension} in weiten Bereichen gewählt werden
 und steht im Wechselspiel zur durchschnittlichen \emph{Bestandesdichte} bzw.\
-der Eingriffsstärke und --frequenz, welche ebenfalls in weiten Bereichen gewählt
+der Eingriffsstärke und -frequenz, welche ebenfalls in weiten Bereichen gewählt
 werden kann. Auch können die Bäume des Bestandes in regelmäßigen Abständen
 zueinander oder in Gruppen angeordnet sein, wobei regelmäßige Abstände zu
 bevorzugen sind, da dort die Bäume eher symmetrische Kronen haben, deren
-Lastverteilung im Stamm gleichmäßigen ist und deshalb kaum eine Bildung von,
-üblicherweise qualitätsminderndem, Reaktionsholz (Druckholz oder Buchs bei
-Nadelhölzern, Zugholz bei Laubhölzern) erfolgt. Gruppen entstehen meist aufgrund
+Lastverteilung im Stamm gleichmäßiger ist und deshalb kaum eine Bildung von,
+üblicherweise qualitätsminderndem Reaktionsholz\index{Reaktionsholz} (Druckholz\index{Reaktionsholz!Druckholz} oder Buchs\index{Reaktionsholz!Buchs} bei
+Nadelhölzern, Zugholz\index{Reaktionsholz!Zugholz} bei Laubhölzern) erfolgt. Gruppen entstehen meist aufgrund
 der Betriebsart (Stockausschlag im Niederwald) oder aufgrund der Auslese von
 seltenen guten Stammqualitäten
-\citep{kato1969Buchendurchforstung,kato1988Gruppendurchforstung} wobei sich
-letztere als wenig erfolgreich herausstellte da eben durch die unregelmäßige
+\citep{kato1969Buchendurchforstung,kato1988Gruppendurchforstung}, wobei sich
+letztere als wenig erfolgreich herausstellte, da eben durch die unregelmäßige
 Baumverteilung asymmetrische Kronen entstehen, die einseitige Belastungen im
 Stamm hervorrufen und dadurch Reaktionsholz entsteht.
 
@@ -397,17 +397,17 @@ vertreten sein. Diese Höhendifferenzierung geht meist Hand in Hand mit
 einer Durchmesserdifferenzierung.
 
 \begin{description}
-\item[Vertikale Struktur] (Abb.~\ref{fig:vertikaleStruktur})
+\item[Vertikale Struktur]\index{Bestandestruktur!vertikal} (Abb.~\ref{fig:vertikaleStruktur})
   \begin{description}
   \item[Einschichtig:] Kronenraum des Bestandes besteht aus einer Schicht.
-  \item[Mehrschichtig:] Kronenraum des Bestandes besteht aus mehreren übereinanderliegenden Höhenschichten.
-  \item[Stufig:] Kronenraum des Bestandes besteht aus mehreren nebeneinanderliegenden Höhenstufen.
+  \item[Mehrschichtig:] Kronenraum des Bestandes besteht aus mehreren \emph{übereinanderliegenden} Höhenschichten.
+  \item[Stufig:] Kronenraum des Bestandes besteht aus mehreren \emph{nebeneinanderliegenden} Höhenstufen.
   \end{description}
-\item[Horizontale Struktur] (Abb.~\ref{fig:horizontaletruktur})
+\item[Horizontale Struktur]\index{Bestandestruktur!horizontal} (Abb.~\ref{fig:horizontalestruktur})
   \begin{description}
   \item[Regelmäßig:] Die Bäume stehen möglichst weit voneinander entfernt.
   \item[Zufällig:] Es gibt sowohl weit, mittel als auch eng beieinander stehende Bäume.
-  \item[Geklumpt:] auch Rottenstruktur. Bäume stehen gedrängt in Gruppen.
+  \item[Geklumpt:] Auch Rottenstruktur\index{Rottenstruktur}. Bäume stehen gedrängt in Gruppen.
   \end{description}
 \end{description}
 
@@ -415,14 +415,16 @@ einer Durchmesserdifferenzierung.
   \centering
   \begin{minipage}{0.9\linewidth}
     \begin{minipage}{0.3\linewidth}
+      \centering
       \includegraphics[width=\linewidth]{./pic/lichtNebenSchattenBa.pdf}
       \textit{Einschichtig}
     \end{minipage}\hfill
     \begin{minipage}{0.65\linewidth}
+      \centering
       \includegraphics[width=\linewidth]{./pic/lichtUeberSchattenBa.pdf}
       \null\hfill\textit{Zweischichtig}
     \end{minipage}
-  \end{minipage}
+  \end{minipage}\\[1em]
   \begin{minipage}{0.9\linewidth}
     \centering
     \includegraphics[width=\linewidth]{./pic/stufig.pdf}
@@ -441,11 +443,11 @@ einer Durchmesserdifferenzierung.
   \includegraphics[width=.8\linewidth]{./pic/geklumpt.pdf}\\
   \textit{Geklumpt}
   \caption{Horizontale Struktur}
-  \label{fig:horizontaletruktur}
+  \label{fig:horizontalestruktur}
 \end{figure}
 
 Zu einer Mischung in zwei Bestandesschichten kommt es oft bei
-Vergesellschaftung einer Haupt-- und einer dienenden Baumart, also
+Vergesellschaftung einer Haupt- und einer dienenden Baumart\index{dienende Baumart}, also
 beispielsweise Eiche (Haupt) und Hainbuche (dienend im Unterstand)
 oder Tanne (Haupt) und Erle (dienend im Vorwald). Zu einer stufigen
 Struktur kommt es, wenn die Baumarten räumlich getrennt sind und eine
@@ -454,11 +456,11 @@ unterschiedliche Höhenentwicklung haben oder unterschiedlich alt sind.
 \subsection{Baumartenanteile}
 \label{ssec:Baumartenanteile}
 
-Die Anteile der Baumarten an der Bestandesfäche sind entsprechend der Menge, der
+Die Anteile der Baumarten an der Bestandesfläche sind entsprechend der Menge der
 von ihnen \emph{aufgenommenen Standortsressourcen} zu bestimmen. Daher sind ihre
-Anteile nicht zu einem Zeitpunkt, sondern für einen \emph{Zeitraum}, zu
+Anteile nicht zu einem Zeitpunkt, sondern für einen \emph{Zeitraum} zu
 bestimmen. Wenn es um den Vergleich der Ertragsleistung geht, ist dieser
-Zeitraum idealerweise die Umtriebszeit, mit der \emph{höchsten}
+Zeitraum idealerweise die Umtriebszeit mit der \emph{höchsten}
 durchschnittlichen \emph{Gesamtertragsleistung}. Die Aufnahme der
 Standortsressourcen:
 \begin{itemize}
@@ -468,8 +470,8 @@ Standortsressourcen:
 \item CO$_2$
 \end{itemize}
 kann in der Regel nicht direkt für die beteiligten Baumarten bestimmt werden.
-Die zugewachsene Biomasse sollte, solange die Nutzungseffizienz der Ressourcen,
-durch die verschiedenen Baumarten, in etwa gleich ist, in recht guter Relation
+Die zugewachsene Biomasse sollte, solange die Nutzungseffizienz der Ressourcen
+durch die verschiedenen Baumarten in etwa gleich ist, in recht guter Relation
 zu ihr stehen. Andernfalls ist eben mit dieser Nutzungseffizienz zu gewichten.
 Aber auch die zugewachsene Gesamtbiomasse (Wurzel, Stamm, Äste, Blätter,
 Früchte) lässt sich schwer beobachten und somit wird man sich auf Herleitungen
@@ -479,46 +481,46 @@ Ressourcenausnutzung wird nicht nur zwischen verschiedenen Baumarten, sondern
 auch zwischen verschiedenen Baumaltern und Dimensionen unterschiedlich sein. Man
 braucht also einen \emph{Referenzwert}. Dieser wird sich zwischen verschiedenen
 Standorten unterscheiden. Daher muss der Standort bei der Bestimmung des
-Referenzwertes einfließen, und wird in der Regel mittels Oberhöhenbonität und
+Referenzwertes einfließen und wird in der Regel mittels Oberhöhenbonität und
 Ertragsniveau ausreichend charakterisiert. Der Referenzwert wird abhängig von Baumart, Alter, BHD, Höhe, Kronenlänge,
-Blattmasse, \dots sein. Damit müssen auch diese Informationen in die Bestimmung
-eines Referenzwertes mit einfließen. Der Referenzwert gibt an, wie groß die
-\emph{Fläche} sein muss, um auf gleichem Standort, von identen Bäumen in einem
-Reinbestand, den beobachteten \emph{Zuwachs} zu erzielen. Solange es keine
+Blattmasse, \dots{} sein. Damit müssen auch diese Informationen in die Bestimmung
+eines Referenzwertes mit einfließen. Der Referenzwert\index{Referenzwert!Flächenbedarf} gibt an, wie groß die
+\emph{Fläche} sein muss, um auf gleichem Standort von identen Bäumen in einem
+Reinbestand den beobachteten \emph{Zuwachs} zu erzielen. Solange es keine
 unproduktiven Lücken oder Baumschädigungen gibt, sollte in homogenen
-Reinbeständen, die Summe dieser Referenzflächen der einzelnen Bäume, der
+Reinbeständen die Summe dieser Referenzflächen der einzelnen Bäume der
 Bestandesfläche entsprechen. Im heterogenen Reinbestand oder im Mischbestand
-kann über die Relation, Summe der Referenzflächen zur Bestandesfläche,
+kann über die Relation \enquote{Summe der Referenzflächen zur Bestandesfläche}
 abgeleitet werden, ob die Produktivität höher oder niedriger als im homogenen
 Reinbestand ist.
 
-An dieser Stelle stell sich die berechtigte Frage, ob nicht die
+An dieser Stelle stellt sich die berechtigte Frage, ob nicht die
 Anteilsbestimmung nach den Wertzuwächsen erfolgen sollte, da ja im
 Wirtschaftswald meist nicht ein Mehrzuwachs an Biomasse, sondern ein Mehrzuwachs
 an Erträgen von Bedeutung ist. Das Problem dabei ist, dass die Flächenanteile
 aufgrund des Ressourcenverbrauchs und nicht aufgrund eines Wertzuwachses
-erfolgen muss. Die Bewertung kann erst anschließend durchgeführt werden. Dazu
-bedarf es, neben dem Referenzwert des Flächenbedarfs, zusätzlich auch einen des
-Wert--, Schaftholz--, Derbholzzuwachses oder einer anderen Zielgröße, mit dem,
-der zu untersuchende Bestand, verglichen werden kann. Wobei insbesondere zur
+erfolgen müssen. Die Bewertung kann erst anschließend durchgeführt werden. Dazu
+bedarf es neben dem Referenzwert des Flächenbedarfs zusätzlich auch eines des
+Wert-, Schaftholz-, Derbholzzuwachses\index{Referenzwert!Wert- und Holzzuwachs} oder einer anderen Zielgröße, mit der
+der zu untersuchende Bestand verglichen werden kann, wobei insbesondere zur
 Beschreibung des Wertzuwachses weitere Baumkriterien angegeben werden müssten.
 Entsprechend anzupassen ist allerdings die Umtriebszeit, bei der der gewählte
 Zielwert kulminiert.
 
 Zu der Frage, wie groß der Anteil einer Baumart im Revier werden kann,
-schrieb \citet[S.~233]{wiedemann1951Ertragskunde} sich dabei auf
-gebietsfremde Baumarten beziehend: \frqq Trotz der 50jährigen
-Erprobung sind wir \dots bei diesen ausländischen Holzarten nie davor
+schrieb \citet[S.~233]{wiedemann1951Ertragskunde}, sich dabei auf
+gebietsfremde Baumarten beziehend: \enquote{Trotz der 50jährigen
+Erprobung sind wir \dots{} bei diesen ausländischen Holzarten nie davor
 sicher, daß irgendwelche Krankheiten oder Schädlinge eingeschleppt
 werden, die schweren Schaden anrichten können. Daher sollte keine
 einzige ausländische Holzart in irgendeinem Revier in so großen
 Flächen angebaut werden, daß ihr Ausfall die Ertragsfähigkeit des
 Reviers entscheidend schädigt, die Grenze liegt vielleicht bei
-20~Prozent der Revierfläche. Gewisse, oft sogar sehr große Einbußen
+\qty{20}{\percent} der Revierfläche. Gewisse, oft sogar sehr große Einbußen
 durch Insekten und andere Waldkrankheiten nehmen wir ja auch bei
-unseren einheimischen Holzarten als selbstverständlich hin.\flqq{}
-Zwar ohne konkrete Zahlen und auf die Fichte konzentriert, beschreibt
-\citet[S.~394]{assmann1961Waldertraskunde} die Problematik: \frqq Weit
+unseren einheimischen Holzarten als selbstverständlich hin.}
+Zwar ohne konkrete Zahlen und auf die Fichte konzentriert beschreibt
+\citet[S.~394]{assmann1961Waldertraskunde} die Problematik: \enquote{Weit
 ernster und gewichtiger als die Folgen echter Bodendegradation, die
 nach Ausmaß und zeitlichem Fortschreiten noch exakt zu untersuchen
 bleibt, sind die Gefährdungen der Betriebssicherheit und der
@@ -529,170 +531,177 @@ würde, wenn eines Tages in unsern Fichtenbeständen eine Pilzkrankheit
 oder ein Schädling von so fataler Wirkung auftreten sollte, wie etwa
 Graphium ulmi oder so schwer zu bekämpfen wie Phylloxera vastatrix,
 die Reblaus! Schon solche Überlegungen sollten uns vor zu ausgedehntem
-Reinanbau der Fichte zurückhalten.\flqq{} Dass der großräumige
-\emph{Totalausfall} einer Baumart durchaus nichts Ungewöhnliches ist,
-zeigen, neben dem erwähnten Ulmensterben, auch Blasenrost oder
+Reinanbau der Fichte zurückhalten.} Dass der großräumige
+\emph{Totalausfall}\index{Totalausfall} einer Baumart durchaus nichts Ungewöhnliches ist,
+zeigen neben dem erwähnten Ulmensterben auch Blasenrost oder
 Eschentriebsterben. Da es nicht immer der Fall sein wird, aus einer
-großen Anzahl, von wirtschaftlich vielversprechenden Baumarten
+großen Anzahl von wirtschaftlich vielversprechenden Baumarten
 auswählen zu können, würde ich, soweit möglich, empfehlen, den
 regionalen Anteil einer Baumart von 1/3 nicht zu überschreiten.
 
 \section{Unterschiede}
 \label{sec:unterschiede}
 
-Eine Entscheidung, für oder gegen Misch-- oder Reinbestand, wird darauf beruhen,
-dass in einem konkreten Bestand von dem Einen relevante Vorteile gegenüber dem
-Anderen erwartet werden. Darum werden einige, bisher beobachtete, Unterschiede
-Misch-- und Reinbestand aufgezählt. Dabei ist zu beachten, dass es kaum Vorteile
-gibt, die immer und überall zutreffen und es oft vorkommt, dass die Vorteile des
-Einen, auf einem anderen Standort, zu Nachteilen werden.
+Eine Entscheidung für oder gegen Misch- oder Reinbestand wird darauf beruhen,
+dass in einem konkreten Bestand von dem einen relevante Vorteile gegenüber dem
+anderen erwartet werden. Darum werden einige bisher beobachtete Unterschiede
+zwischen Misch- und Reinbestand aufgezählt. Dabei ist zu beachten, dass es kaum Vorteile
+gibt, die immer und überall zutreffen, und es oft vorkommt, dass die Vorteile des
+einen auf einem anderen Standort zu Nachteilen werden.
 
 \subsection{Zuwachsleistung}
 \label{ssec:zuwachs}
 
-Bei der Baumartenwahl, und auch bei der Entscheidung zwischen Misch--
-oder Reinbestand, ist die erwartete Ertragsleistung ein wesentlicher
+Bei der Baumartenwahl und auch bei der Entscheidung zwischen Misch-
+oder Reinbestand ist die erwartete Ertragsleistung ein wesentlicher
 Punkt im Wirtschaftswald. Der Ertrag hängt unter anderem von der
-Holzmarktlage, der Stammqualität und --dimension, dem Ausfallrisiko
+Holzmarktlage, der Stammqualität und -dimension, dem Ausfallrisiko
 und dem zugewachsenen, verwertbaren Holzvolumen ab.
 
 Untersuchungen zum Wachstum von Mischbeständen sind zusammenfassend schon seit
-längerer Zeit in Lehrbüchern z.B.\ \cite{wiedemann1951Ertragskunde},
-\cite{assmann1961Waldertraskunde} oder \cite{mitscherlich1978WaldWachstumUmwelt}
-sowie in Fachartikeln z.B.\ \cite{baader1942WasLeistetDerMischbestand},
-\cite{kennel1965MischbestandFichteBuche},
-\cite{mitscherlich196566ReinUndMischbestand}, \cite{guericke2001mischungBuLae},
-\cite{pretzsch2003mischwald}, \cite{bauhus2004mischung} oder
-\cite{kelty2006mischwald} publiziert. Generell kann man die Produktivität von
-Beständen mit Lichtbaumarten, durch Einbringen von Schattbaumarten im
-Unterbestand steigern. Die Produktivität von Beständen mit Schattbaumarten kann
-man steigern, wenn die derzeit verwendete bestandesbildende Schattbaumart, eine
-geringere Produktivität hat, als diejenige, die man beimischen will, wobei es
+längerer Zeit in Lehrbüchern z.\,B.\ \citet{wiedemann1951Ertragskunde},
+\citet{assmann1961Waldertraskunde} oder \citet{mitscherlich1978WaldWachstumUmwelt}
+sowie in Fachartikeln z.\,B.\ \citet{baader1942WasLeistetDerMischbestand},
+\citet{kennel1965MischbestandFichteBuche},
+\citet{mitscherlich196566ReinUndMischbestand}, \citet{guericke2001mischungBuLae},
+\citet{pretzsch2003mischwald}, \citet{bauhus2004mischung} oder
+\citet{kelty2006mischwald} publiziert.
+
+Auf Standorten mit günstiger Ressourcenverfügbarkeit kann meist die
+Produktivität von Beständen mit Lichtbaumarten durch das Einbringen
+von Schattbaumarten im Unterbestand gesteigert werden. Auf wasser-
+oder nährstofflimitierten Standorten kann die zusätzliche
+Mischungskomponente hingegen zu einer stärkeren Konkurrenz um Wasser
+und Nährstoffe führen, wodurch sich der Trockenstress oder
+Nährstoffmangel im Oberbestand erhöhen und den Zuwachs verringern
+kann. Die Produktivität von Beständen mit Schattbaumarten kann
+man steigern, wenn die derzeit verwendete bestandesbildende Schattbaumart eine
+geringere Produktivität hat als diejenige, die man beimischen will, wobei es
 dann in Hinblick auf die Gesamtwuchsleistung zielführender erscheint, die
 schlechterwüchsige mit der besserwüchsigen zu ersetzen, als mit ihr zu mischen.
 Die Mischung einer Schattbaumart mit einer vorwüchsigen Lichtbaumart entspricht
 der zuvor erwähnten Situation, der Beimischung einer Schattbaumart zu einer
-Lichtbaumart. Eine Zeitmischung zwischen Pionier-- und Klimaxbaumarten kann
-ebenfalls zu einer Steigerung der Wuchsleistung führen, wobei ein, zu
-erwartender, höherer Aufwand, für Pflege und Ernte, dem Mehrzuwachs
+Lichtbaumart. Eine Zeitmischung zwischen Pionier- und Klimaxbaumarten kann
+ebenfalls zu einer Steigerung der Wuchsleistung führen, wobei ein zu
+erwartender höherer Aufwand für Pflege und Ernte dem Mehrzuwachs
 gegenüberzustellen wäre.
 
-Auch scheint es möglich auf Standorten mit wenig Stickstoff durch die
-Beimischung von stickstofffixierenden Baum-- und Straucharten, wie
-etwas Robinie, Erle, Geweihbaum, Gleditschie, Gelbholz, Schnurbaum,
-Goldregen, Sanddorn, Ölweide, Blasenstrauch, Ginster oder andern, zum
-Teil nicht verholzenden, Leguminosen, die Zuwachsleistung zu
-erhöhen. Baumarten die in der Lage sind den Wurzelraum zu vergrößern,
-wie dies bei Tanne, Lärche, Traubeneiche oder Schwarzerle
-\cite[S.~114, 130, 150, 180]{koestler1969WurzelnDerWaldbaeume}
+Auch scheint es möglich, auf Standorten mit wenig Stickstoff durch die
+Beimischung von stickstofffixierenden Baum- und Straucharten wie
+etwa Robinie, Erle, Geweihbaum, Gleditschie, Gelbholz, Schnurbaum,
+Goldregen, Sanddorn, Ölweide, Blasenstrauch, Ginster oder anderen, zum
+Teil nicht verholzenden Leguminosen die Zuwachsleistung zu
+erhöhen. Baumarten, die in der Lage sind, den Wurzelraum zu vergrößern,
+wie dies bei Tanne, Lärche, Traubeneiche oder Schwarzerle von
+\citet[S.~114, 130, 150, 180]{koestler1969WurzelnDerWaldbaeume}
 beobachtet wurde, können Nährstoffe oder im Boden gespeichertes Wasser
-erschließen und damit die Wuchsleistung steigern. Wobei dieser Effekt, zumindest
-teilweise, auch zu erwarten ist, wenn diese Arten den Vorbestand bilden. So warf
-etwa \cite{jentsch1911fruchtwechsel} die Frage auf, ob ein Fruchtwechsel auch in
-der Forstwirtschaft Sinn mache. Was von \cite{sieber1919Holzartenwechsel} und
-\cite{fabricius1924Holzartenwechsel} nochmals aufgegriffen, aber nie eindeutig
-beantwortet, wurde. Allerdings beobachtete \cite{simak1951Baumartenwechsel},
+erschließen und damit die Wuchsleistung steigern, wobei dieser Effekt zumindest
+teilweise auch zu erwarten ist, wenn diese Arten den Vorbestand bilden. So warf
+etwa \citet{jentsch1911fruchtwechsel} die Frage auf, ob ein Fruchtwechsel\index{Fruchtwechsel} auch in
+der Forstwirtschaft Sinn mache, was von \citet{sieber1919Holzartenwechsel} und
+\citet{fabricius1924Holzartenwechsel} nochmals aufgegriffen, aber nie eindeutig
+beantwortet wurde. Allerdings beobachtete \citet{simak1951Baumartenwechsel},
 dass es in natürlichen Plenterwäldern durchaus zu einem gegenseitigen Wechsel
-des Standortes, zwischen Baumarten, kommt.
+des Standortes zwischen Baumarten kommt.
 
-\cite{pretzsch2017mischwald} beobachteten, dass in einigen
-Mischbeständen, zusammengesetzt aus zwei Baumarten, deren laufender Zuwachs größer war, als die Summer zweier proportional gleich großer Reinbestände dieser beiden Baumarten. Diese Aussage bedeutet aber
-keinesfalls, dass der Mischbestand je Fläche und Zeit mehr produziert,
-als der Reinbestand der produktiveren, der beiden verglichenen,
+\citet{pretzsch2017mischwald} beobachteten, dass in einigen
+Mischbeständen, zusammengesetzt aus zwei Baumarten, deren laufender Zuwachs größer war als die Summe zweier proportional gleich großer Reinbestände dieser beiden Baumarten. Diese Aussage bedeutet aber
+keinesfalls, dass der Mischbestand je Fläche und Zeit mehr produziert
+als der Reinbestand der \emph{produktiveren} der beiden verglichenen
 Mischbaumarten.\\
-Z.B. sei der laufende Zuwachs:\\
+Z.\,B.\ sei der laufende Zuwachs:\\
 \begin{tabular}{lr@{\,}l}
-    Fichte:                      & 10,0 & fm/ha/Jahr\\
-    Buche:                       &  8,0 & fm/ha/Jahr\\
-    50\,\% Fichte + 50\,\% Buche: &  9,3 & fm/ha/Jahr\\
-\end{tabular}\\
+    Fichte:                      & \qty{10.0}{\festmeter\per\hectare\per\jahr}\\
+    Buche:                       &  \qty{8.0}{\festmeter\per\hectare\per\jahr}\\
+    \qty{50}{\percent} Fichte + \qty{50}{\percent} Buche: &  \qty{9.3}{\festmeter\per\hectare\per\jahr}\\
+\end{tabular}\\[0.5em]
 In dem fiktiven Beispiel produziert der Mischbestand aus Fichte und
-Buche mehr als die erwarteten 9,0\,fm, aber weniger als Fichte
+Buche mehr als die erwarteten \qty{9.0}{\festmeter}, aber weniger als Fichte
 rein. Ähnliches gilt auch für die Biomasseproduktion.
-\cite{sterba2018struktur} führen den Effekt der Mehrleistung
+\citet{sterba2018struktur} führen den Effekt der Mehrleistung
 hauptsächlich auf die unterschiedliche Struktur der Bestände und
 weniger auf die Baumartenmischung zurück. Gleichzeitig gibt es aber
-auch Beobachtungen, das der Mischbestand weniger leistet als zwei
+auch Beobachtungen, dass der Mischbestand weniger leistet als zwei
 gleich große Reinbestände.
 
-\cite{vospernik2021grundflaechenzuwachs} konnte positive als auch
+\citet{vospernik2021grundflaechenzuwachs} konnte positive als auch
 negative Auswirkungen der Mischungen auf die Zuwachsleistung
 feststellen. So wurden Zuwachssteigerungen der Fichte bei Beimischung
 von Tanne oder Lärche, Zuwachsverluste bei der Mischung mit Buche
-beobachtet. Nach \cite{kindermann2018siteIndex} zeigte Fichte bei
+beobachtet. Nach \citet{kindermann2018siteIndex} zeigte Fichte bei
 Beimischung von Schwarzerle eine Steigerung der Oberhöhenbonität, bei
-Beimischung von Esche und Lärche eine gering, bei Birke und Tanne eine
+Beimischung von Esche und Lärche eine geringe, bei Birke und Tanne eine
 stärkere, bei Buche eine noch stärkere und bei Beimischung von
 Weißkiefer die größte Reduzierung der Oberhöhenbonität. Dabei wird
 aber darauf hingewiesen, dass diese Bonitätsveränderung durch
 \begin{itemize}
 \item die \emph{beigemischten Baumarten}
-\item die Etablierung von Mischbeständen auf, von den berücksichtigten
+\item die Etablierung von Mischbeständen auf von den berücksichtigten
   Standortsfaktoren nicht erfassten, weiteren \emph{abweichenden
-    Standortsfaktoren}, gegenüber den Reinbeständen
-\item von Reinbeständen \emph{abweichende Behandlung}, der Baumarten
-  in den Mischbeständen,
+    Standortsfaktoren} gegenüber den Reinbeständen
+\item von Reinbeständen \emph{abweichende Behandlung} der Baumarten
+  in den Mischbeständen
 \end{itemize}
-hervorgerufen werden kann. \cite{vanclay2022competitioninMixedSpecies}
-beobachteten auf, eigens zur Untersuchung des Effektes von Baumartenmischungen
+hervorgerufen werden kann. \citet{vanclay2022competitioninMixedSpecies}
+beobachteten auf eigens zur Untersuchung des Effektes von Baumartenmischungen
 angelegten Versuchsflächen, dass die Auswirkungen von Baumartenmischungen
 keinesfalls ausschließlich positiv sind, sondern vom jeweiligen Kontext
-(Standort und beteiligten Baumarten) abhängig, positiv, neutral aber auch
+(Standort und beteiligten Baumarten) abhängig positiv, neutral, aber auch
 negativ sein können.
 
 \citet[S.~259]{muench1928KlimarassenDerDouglasie} berichtet, dass zwischen
 Douglasienparzellen Buchen als Trennungsreihen gepflanzt wurden und sich deren
-Höhenwuchs nach demjenigen der benachbarten Douglasienherkunft und deren Höhe,
-richtete. Dies wird im Waldbau gelegentlich als treibende Baumart beschrieben.
+Höhenwuchs nach demjenigen der benachbarten Douglasienherkunft und deren Höhe
+richtete. Dies wird im Waldbau gelegentlich als treibende Baumart\index{treibende Baumart} beschrieben.
 Teilweise kann dieser Effekt auch durch die Bestandesdichte bedingt sein.
-\cite{boehmerle1903BestandesdichteUndBestandeshoehe},
-\cite{schmied1928UeberDenEinflussDerBestandesdichteAufDieBestandeshoeheInJuengerenBuchenbestaenden},
+\citet{boehmerle1903BestandesdichteUndBestandeshoehe},
+\citet{schmied1928UeberDenEinflussDerBestandesdichteAufDieBestandeshoeheInJuengerenBuchenbestaenden},
 \citet[S.~75\,f.]{wiedemann1951Ertragskunde} oder
-\citet[S.~46\,f.]{assmann1961Waldertraskunde} berichten von einem, bis zu einem
-bestimmten Grad, mit der Zunahme der Bestandesdichte zunehmenden Höhenzuwachs,
+\citet[S.~46\,f.]{assmann1961Waldertraskunde} berichten von einem bis zu einem
+bestimmten Grad mit der Zunahme der Bestandesdichte zunehmenden Höhenzuwachs,
 der bei besonders hohen Bestandesdichten wieder abfallen kann.
-\cite{zundel1960ErtragskundlicheUntersuchungenInZweialtrigenBestaendenNordwuerttembergs}
+\citet{zundel1960ErtragskundlicheUntersuchungenInZweialtrigenBestaendenNordwuerttembergs}
 berichtet, dass ein Kiefernaltbestand, dessen Höhenwachstum schon
 recht gering war, zu dem Zeitpunkt, als der Unterbestand in seine
 Krone einzuwachsen begann, plötzlich wieder seinen Höhenzuwachs steigern
-konnte. Demnach wird die Höhenentwicklung zumindest vom Standort, der Baumart und seinen Konkurrenten mitbestimmt. Eine Zuordnung, wie stark der Einfluss der einzelnen Komponente ist, kann nur im Experiment beantwortet werden, bei dem immer nur einer dieser Einflussfaktoren verändert und seine Auswirkung beobachtet wird.
+konnte. Demnach wird die Höhenentwicklung zumindest vom Standort, der Baumart und seinen Konkurrenten mitbestimmt. Eine Zuordnung, wie stark der Einfluss der einzelnen Komponenten ist, kann nur im Experiment beantwortet werden, bei dem immer nur einer dieser Einflussfaktoren verändert und seine Auswirkung beobachtet wird.
 
 Das \emph{Hauptproblem} bei derartigen Untersuchungen ist die \emph{Aufteilung
 der Bestandesfläche} auf die beteiligten Mischbaumarten, die Beurteilung, ob der
-\emph{Standort} der verglichenen Rein-- und Mischbestände wirklich \emph{gleich}
+\emph{Standort} der verglichenen Rein- und Mischbestände wirklich \emph{gleich}
 ist und die Problematik, ob die \emph{Bäume} und deren Konkurrenzsituationen in
 den Beständen \emph{vergleichbar} sind (gleiches Alter, gleiche Dimension,
 gleiche Blattmasse, gleiches Durchwurzelungsvolumen, \dots), da bisher meist
 laufende Zuwächse und nicht die Gesamtwuchsleistung verglichen werden.
-\cite{vanclay2013mixedSpecies,vanclay2021ExperimentsMixedSpecies}
-stellen ein überzeugendes, bisher aber leider selten verwendetes, Design von
-Probeflächen, zur Untersuchung der Zuwachsleistung von Mischbeständen gegenüber Reinbeständen, vor, dass diese von der Verjüngungsphase bis zum Abtriebsalter begleitet und fließende Übergänge vom Reinbestand bis hin zur Einzelmischung beinhaltet. Dennoch wird es auch hier schwerfallen die Behandlung zwischen den Baumarten im Reinbestand und in den Mischungsformen vergleichbar zu halten, da ja die Behandlung auf die Entwicklung der Bäume reagieren sollte, und zu erwarten ist, dass sich die beiden Baumarten unterschiedlich, in den Reinbeständen, als auch in ihrer Mischung, entwickeln werden. Als Ausweg bietet sich hier an, dass man versucht die Behandlung zuwachsoptimal zu gestalten, was wiederum eine aktive Verschiebung der Baumartenanteile zur Folge haben kann. Als Ziel kann eine zuwachsoptimale Behandlung vorgegeben werden, doch ob man in der Lage sein wird, eine zuwachsoptimale Behandlung, insbesondere für Mischbestände, operational zu definieren, bleibt fraglich.
+\citet{vanclay2013mixedSpecies,vanclay2021ExperimentsMixedSpecies}
+stellen ein überzeugendes, bisher aber leider selten verwendetes Design von
+Probeflächen\index{Probeflächendesign!Mischbestände} zur Untersuchung der Zuwachsleistung von Mischbeständen gegenüber Reinbeständen vor, das diese von der Verjüngungsphase bis zum Abtriebsalter begleitet und fließende Übergänge vom Reinbestand bis hin zur Einzelmischung beinhaltet. Dennoch wird es auch hier schwerfallen, die Behandlung zwischen den Baumarten im Reinbestand und in den Mischungsformen vergleichbar zu halten, da ja die Behandlung auf die Entwicklung der Bäume reagieren sollte, und zu erwarten ist, dass sich die beiden Baumarten unterschiedlich in den Reinbeständen als auch in ihrer Mischung entwickeln werden. Als Ausweg bietet sich hier an, dass man versucht, die Behandlung zuwachsoptimal\index{zuwachsoptimale Behandlung} zu gestalten, was wiederum eine aktive Verschiebung der Baumartenanteile zur Folge haben kann. Als Ziel kann eine zuwachsoptimale Behandlung vorgegeben werden, doch ob man in der Lage sein wird, eine zuwachsoptimale Behandlung, insbesondere für Mischbestände, operational zu definieren, bleibt fraglich.
 
 \subsection{Qualität}
 \label{ssec:qualitaet}
 
-Beim Holzverkauf entscheidet, neben der Menge, die Qualität den
-Preis. Mischungen zwischen dienender-- und Hauptbaumart werden oft
+Beim Holzverkauf entscheidet neben der Menge die Qualität über den
+Preis. Mischungen zwischen dienender und Hauptbaumart werden oft
 aufgrund einer erwarteten Steigerung der Holzqualität (Eiche,
-Hainbuche) begründet. Umgekehrt gibt es aber auch Beobachtungen das
+Hainbuche) begründet. Umgekehrt gibt es aber auch Beobachtungen, dass
 die Qualität durch die Mischung leidet. So beschreibt
-\cite{burger1925plenterwald}, dass Laubbäume im Mischbestand
+\citet{burger1925plenterwald}, dass Laubbäume im Mischbestand
 schlechtere Schaftformen haben als im Reinbestand. Nach
-\cite{tiebel2016qualitaet} ist bei der Mischung von Fichte und Buche
+\citet{tiebel2016qualitaet} ist bei der Mischung von Fichte und Buche
 die Astreinigung und die Ausbildung gerader Schäfte im Horst
 begünstigt, nicht jedoch in der Kontaktzone zwischen den
-Arten. \cite{rais2019MischungQualitaet} beschreibt, dass besonders die
+Arten. \citet{rais2019MischungQualitaet} beschreibt, dass besonders die
 Mischung der Buche mit den Lichtbaumarten Eiche oder Kiefer zu
 signifikanten Qualitätsminderungen bzw.\ Festigkeitsverlusten
 führt. Buchen in Reinbeständen besaßen die höchsten
-Steifigkeiten. Nach \cite{pretzsch2016holzqualitaetMischRein} halten
-sich die Beobachtung von Festigkeitszu-- und --abnahme zwischen
-Misch-- und Reinbestand die Waage, die Astigkeit war in Mischbeständen
+Steifigkeiten. Nach \citet{pretzsch2016holzqualitaetMischRein} halten
+sich die Beobachtungen von Festigkeitszu- und -abnahme zwischen
+Misch- und Reinbestand die Waage, die Astigkeit war in Mischbeständen
 höher, die Holzdichte bleibt unverändert. Reaktionsholz war in
 Mischbeständen höher und wurde meist durch exzentrische Kronen,
 Schiefstand oder unregelmäßige Jahrringbreiten verursacht. Ursache für
 den Qualitätsverlust soll die Heterogenität der Bestandesstruktur
-sein, die in Misch-- und ungleichaltrigen Beständen höher ist als in
+sein, die in Misch- und ungleichaltrigen Beständen höher ist als in
 gleichaltrigen Reinbeständen.
 
 \subsection{Stabilität}
@@ -700,313 +709,314 @@ gleichaltrigen Reinbeständen.
 
 Forstliche Planung kann nur dann zielführend sein, wenn die Wälder das gesteckte
 Ziel erreichen können. Eine Grundvoraussetzung dafür ist deren Stabilität.
-Wesentliche stabilitätsbeeinflussende Faktoren sind die Bestandesbehandlung
-(Durchforstungsstärke und Häufigkeit), die Umtriebszeit, der Standort, der die
-Wuchsleistung (z.B.\ Einfluss der Baumhöhe auf Windwurfrisiko), die
-Durchwurzelungsintensität (z.B.\ oft weniger auf Pseudogley), die Exponiertheit
-(Windstärke, Nassschneelage), aber auch Gefährdung durch Trockenheit oder
-Überflutung, Frost und Hitze bedingt. Diese Faktoren kommen bei verschiedenen
-Baumarten unterschiedlich zur Ausprägung. Leider leisten stabile Baumart nicht
-immer gleichzeitig auch den höchsten Ertrag. So liegt es nahe stabile Baumarten
+Wesentliche stabilitätsbeeinflussende Faktoren sind die
+Bestandesbehandlung (Durchforstungsstärke und -häufigkeit), die
+Umtriebszeit, der Standort und dessen Einfluss auf die Wuchsleistung
+(z.,B.\ der Einfluss der Baumhöhe auf das Windwurfrisiko), die
+Durchwurzelungsintensität (z.,B.\ häufig geringere Durchwurzelung auf
+Pseudogley), die Exponiertheit (Windstärke, Nassschneelage) sowie die
+Gefährdung durch Trockenheit, Überflutung, Frost und Hitze.
+Diese Faktoren kommen bei verschiedenen
+Baumarten unterschiedlich zur Ausprägung. Leider leisten stabile Baumarten nicht
+immer gleichzeitig auch den höchsten Ertrag. So liegt es nahe, stabile Baumarten
 mit ertragreichen zu mischen, um beides gleichzeitig zu erreichen.
 
-\cite{molisch1937allelopathie} zeigte, dass sich Pflanzen nicht nur gegenseitig
+\citet{molisch1937allelopathie} zeigte, dass sich Pflanzen nicht nur gegenseitig
 Ressourcen entziehen können, sondern auch in der Lage sind, durch Abgabe von
 chemischen Verbindungen Wechselbeziehungen auszulösen, was allgemein als
-\emph{Allelopathie} bezeichnet wird. Beispielsweise verhindert die Walnuss, mit
-diesem Mechanismus, das Keimen anderer Pflanzen. Im Gartenbau sind einige
-Mischkulturen mit positiven Wirkungen bekannt. Beispielsweise wird bei der,
-meist streifenweisen, Mischung von Karotte und Zwiebel die Möhrenfliege durch
+\emph{Allelopathie}\index{Allelopathie} bezeichnet wird. Beispielsweise verhindert die Walnuss mit
+diesem Mechanismus das Keimen anderer Pflanzen. Im Gartenbau sind einige
+Mischkulturen mit positiven Wirkungen bekannt. Beispielsweise wird bei der
+meist streifenweisen Mischung von Karotte und Zwiebel die Möhrenfliege durch
 den Geruch der Zwiebel überwiegend ferngehalten. Hingegen sollen beispielsweise
 Mischungen von Radieschen und Gurken vermieden werden. Dazu gibt es Tabellen, in
-denen die Mischungseignung, von einigen Pflanzen, dargestellt sind. Solche
+denen die Mischungseignungen von einigen Pflanzen dargestellt sind. Solche
 positiven oder negativen Wechselwirkungen sind zwischen Baumarten kaum bekannt.
-Und auch in der Landwirtschaft wird, aufgrund des erhöhten Arbeitsaufwandes,
-davon gelegentlich kleinflächig, aber kaum im großen Stil, Gebrauch gemacht.
+Und auch in der Landwirtschaft wird aufgrund des erhöhten Arbeitsaufwandes
+davon gelegentlich kleinflächig, aber kaum im großen Stil Gebrauch gemacht.
 
-\cite{schmidtVogt1987Sturmstabilitaet} zeigt, dass
+\citet{schmidtVogt1987Sturmstabilitaet} zeigt, dass
 Fichten--Tannen--Mischbestände gegenüber \emph{Windwurf stabiler} sind
-als reine Fichtenbestände. \cite{schuetz2006stabilitaetMischbestand}
+als reine Fichtenbestände. \citet{schuetz2006stabilitaetMischbestand}
 beobachteten, dass die Windwurfgefährdung gegenüber
 Fichtenreinbeständen in Fichte + Lärche, Fichte + Kiefer etwas, in
 Fichte + Tanne, Fichte + Laubholz, Fichte + Douglasie bedeutend
 abnahm. Leider wurde hier nicht untersucht, ob sich gleichzeitig mit
-der Mischung, andere Eigenschaften, gegenüber dem Reinbestand,
+der Mischung andere Eigenschaften gegenüber dem Reinbestand
 veränderten. Also beispielsweise, wenn die untersuchten
 Fichten-Buchen-Mischwälder niedriger waren als die
 Fichtenreinbestände, würde aufgrund des Höhenunterschiedes die
 Windwurfwahrscheinlichkeit im Reinbestand höher sein.
 
-Die Mischung von Baumarten, mit einem unterschiedlichen
-Wasserhaushaltsregime, kann den Stress einer Baumart erhöhen. So
-zeigten \cite{schume2004wasserFichteBuche}, dass die Beimischung von
-Buche zur Fichte den \emph{Wasserstress} der Fichte
-\emph{steigert}. Nach \cite{nothdurft2020mischbestand} wurde die
+Die Mischung von Baumarten mit einem unterschiedlichen
+Wasserhaushaltsregime kann den Stress einer Baumart erhöhen. So
+zeigten \citet{schume2004wasserFichteBuche}, dass die Beimischung von
+Buche zur Fichte den \emph{Wasserstress}\index{Wasserstress} der Fichte
+\emph{steigert}. Nach \citet{nothdurft2020mischbestand} wurde die
 Resistenz der Fichte durch die Beimischung der Buche reduziert und bei
-der Mischung von Eiche und Weißkiefer wurde bei beiden, sowohl deren
-Produktivität, als auch deren Resistenz, verglichen mit den
-Reinbeständen, verringert. \cite{thurm2016mischungDougBuStress}
+der Mischung von Eiche und Weißkiefer wurde bei beiden sowohl deren
+Produktivität als auch deren Resistenz, verglichen mit den
+Reinbeständen, verringert. \citet{thurm2016mischungDougBuStress}
 beobachteten, dass auf einem Standort mit
-Rotbuchen--Douglasien--Mischung der Trockenstress für die Douglasie,
-in der Mischung, geringer war als im Reinbestand, hingegen litt die
-Rotbuche, in der Mischung, stärker unter dem Trockenstress als im
-Reinbestand. \cite{neuner2015FichteAusfall} beobachteten, dass Fichte
+Rotbuchen--Douglasien--Mischung der Trockenstress für die Douglasie
+in der Mischung geringer war als im Reinbestand, hingegen litt die
+Rotbuche in der Mischung stärker unter dem Trockenstress als im
+Reinbestand. \citet{neuner2015FichteAusfall} beobachteten, dass Fichte
 im Mischbestand eine höhere Überlebenschance
-hatte. \cite{schnabel2022mischwaldTrockenstress} zeigen, dass eine
+hatte. \citet{schnabel2022mischwaldTrockenstress} zeigen, dass eine
 Mischung nicht automatisch zu einer Reduktion des Wasserstresses führt.
-\cite{streel2022Mischbestand} zeigen, dass die Mischung von Buche und Kiefer
+\citet{streel2022Mischbestand} zeigen, dass die Mischung von Buche und Kiefer
 gegenüber deren Reinbeständen keinen signifikanten Effekt auf die
 Trockenheitsresistenz hat.
 
-\cite{sylvie2021mischwaldInsekten} zeigten, dass eine
+\citet{sylvie2021mischwaldInsekten} zeigten, dass eine
 Baumartenmischung das \emph{Borkenkäferrisiko} für anfällige Baumarten
 (Fichte, Lärche) reduzieren konnte. Gleichzeitig wurde aber das Risiko
 für weniger attraktive Baumarten (Kiefer) erhöht. Krankheitserreger
-mit obligatorischem \emph{Wirtswechsel}, beispielsweise
+mit obligatorischem \emph{Wirtswechsel}\index{Wirtswechsel (Krankheitserreger)}, beispielsweise
 Kieferndrehrost zwischen Kiefer und Pappel, können sich in
-Mischbeständen besser verbreiten. Es mag sein, dass Mischungen die Ausbreitungsgeschwindigkeit von Krankheiten und Schädlingen verringern können, was ein enormer Vorteil beim Anfall und der Aufarbeitung von Schadholz sowie der Waldhygiene darstellt, umgekehrt erschwert gerade diese großräumige Verteilung die effiziente Aufarbeitung und führt wohl dazu, dass einzelne befallene übersehen werden, aufhalten dürften sie sie jedoch kaum. Man denke nur an das Ulmensterben, Eschentriebsterben, Blasenrost, Kastanienminiermotte oder den Buchsbaumzünsler, wo die betroffenen Baum-- und Straucharten so gut wie nie in ausgedehnten Reinbeständen vorkommen, und dennoch fast alle von diesen Schäden massiv betroffen sind.
+Mischbeständen besser verbreiten. Es mag sein, dass Mischungen die Ausbreitungsgeschwindigkeit von Krankheiten und Schädlingen verringern können, was einen enormen Vorteil beim Anfall und der Aufarbeitung von Schadholz sowie der Waldhygiene darstellt, umgekehrt erschwert gerade diese großräumige Verteilung die effiziente Aufarbeitung und führt wohl dazu, dass einzelne befallene übersehen werden, aufhalten dürften sie sie jedoch kaum. Man denke nur an das Ulmensterben, Eschentriebsterben, Blasenrost, Kastanienminiermotte oder den Buchsbaumzünsler, wo die betroffenen Baum- und Straucharten so gut wie nie in ausgedehnten Reinbeständen vorkommen und dennoch fast alle von diesen Schäden massiv betroffen sind.
 
-In Zeiten, möglicherweise drastischer Standortsveränderungen, ist man bestrebt
-das \emph{Risiko, des Versagens} von Baumarten, zu \emph{reduzieren}. Neben
+In Zeiten möglicherweise drastischer Standortsveränderungen ist man bestrebt,
+das \emph{Risiko des Versagens}\index{Risiko Ausfall} von Baumarten zu \emph{reduzieren}. Neben
 abiotischen Faktoren (Trockenheit) können auch biotische (Krankheiten, Wild,
 Rüsselkäfer, Mäuse, \dots) bestimmte Baumarten ausfallen lassen. Diese
 Ungewissheit, ob eine Baumart versagt oder nicht, hat man insbesondere, wenn man
-neue, in der Region noch nicht oder kaum vertretene Baumarten, verwenden will.
-Eine in der Natur zu beobachtende Lösung besteht darin, dass mehrere Baumarten,
-in der Verjüngung, in Form von kleinflächiger-- oder Einzelmischung, eine Chance
-gegeben wird und sich im Laufe der Bestandesentwicklung die konkurrenzstärkste
-durchsetzt. Bei einer künstlichen Bestandesbegründung ergibt sich das Problem,
+neue, in der Region noch nicht oder kaum vertretene Baumarten verwenden will.
+Eine in der Natur zu beobachtende Lösung besteht darin, mehreren Baumarten
+in der Verjüngung durch kleinflächige Mischungsformen oder Einzelmischung eine Chance
+zu geben, sodass sich im Laufe der Bestandesentwicklung die konkurrenzstärkste 
+Baumart durchsetzt.
+Bei einer künstlichen Bestandesbegründung ergibt sich das Problem,
 dass die Verjüngung, wenn man ja damit rechnet, dass eine Baumart ausfällt, so
-dicht sein sollte, wie sie ohne weiterer Baumart wäre, was Kosten verursacht.
+dicht sein sollte, wie sie ohne weitere Baumart wäre, was Kosten verursacht.
 Auch ist es möglich, dass eine Baumart zwar in der Jugend konkurrenzstark ist
 und die restlichen Baumarten verdrängt, dann aber dennoch frühzeitig ausfällt,
-oder das ein Reinbestand dieser konkurrenzstarken Baumart nicht das
+oder dass ein Reinbestand dieser konkurrenzstarken Baumart nicht das
 Bestandesziel darstellt und mit (kostspieligen) Eingriffen das Überleben der
 anderen Baumarten erst ermöglicht wird.
 
-Dadurch, dass der Zeitpunkt, wenn eine Baumart ausfällt, im Vorhinein nicht
+Dadurch, dass der Zeitpunkt, wann eine Baumart ausfällt, im Vorhinein nicht
 bekannt ist, ist die Planung dieser Zeitmischung nicht möglich. Gelegentlich
-hört man das Argument, das der, beim Ausfallen einer Baumart, \emph{frei
-werdende Raum}, von der verbleibenden Baumart, in einem relativ kurzen Zeitraum
-\emph{übernommen} wird. Dies ist nur möglich, wenn die ausgefallene Baumart, zum
-Ausfallzeitpunkt, keinen zu großen Wuchsraum beansprucht hat und möglichst
+hört man das Argument, dass der beim Ausfallen einer Baumart \emph{frei
+werdende Raum} von der verbleibenden Baumart in einem relativ kurzen Zeitraum
+\emph{übernommen} wird. Dies ist nur möglich, wenn die ausgefallene Baumart zum
+Ausfallzeitpunkt keinen zu großen Wuchsraum beansprucht hat und möglichst
 einzeln beigemischt war. Andernfalls entstehen zu große Lücken, die vom
-verbleibenden Bestand nie, oder erst nach sehr langer Zeit, geschlossen werden
-können. Die Bedingung, dass eine Baumart über die gesamte Bestandesentwicklung,
-oder zumindest über einen Großteil dieser, einzeln beigemischt ist, kann nur bei
-sehr geringen Anteilen, dieser potenziell ausfallenden Baumart, realisiert
-werden. Bei höheren Anteilen, kann die dafür nötige Einzelmischung, nicht über
+verbleibenden Bestand nie oder erst nach sehr langer Zeit geschlossen werden
+können. Die Bedingung, dass eine Baumart über die gesamte Bestandesentwicklung
+oder zumindest über einen Großteil dieser einzeln beigemischt ist, kann nur bei
+sehr geringen Anteilen dieser potentiell ausfallenden Baumart realisiert
+werden. Bei höheren Anteilen kann die dafür nötige Einzelmischung nicht über
 die gesamte Bestandesentwicklung aufrechterhalten werden. Wenn die ausgefallene
 oder im Absterben begriffene Baumart geerntet werden soll, ist dies bei einer
 Einzelmischung in der Regel mehr Arbeit und kann zu Rückeschäden beim
-verbleibenden Bestandes führen. Die dabei entstehenden Lücken können das Risiko
-des verbleibenden Bestandes z.B.\ hinsichtlich Windwurf oder Sonnenbrand
-erhöhen. Eine durch die Lücke erhöhte Wasserreiserbildung kann die Qualität
-mindern. Bei größeren Lücken kann eine erwünschte Verjüngung z.B.\ durch
-vermehrte Schneeablagerung erschwert werden oder nötige Verbisschutzmaßnahmen,
-durch die Kleinflächigkeit, unverhältnismäßig teuer werden lassen. Auch ist es
+verbleibenden Bestand führen. Die dabei entstehenden Lücken können das Risiko
+des verbleibenden Bestandes z.\,B.\ hinsichtlich Windwurf oder Sonnenbrand
+erhöhen. Eine durch die Lücke erhöhte Wasserreiserbildung\index{Wasserreiserbildung} kann die Qualität
+mindern. Bei größeren Lücken kann eine erwünschte Verjüngung z.\,B.\ durch
+vermehrte Schneeablagerung erschwert werden oder nötige Verbissschutzmaßnahmen
+durch die Kleinflächigkeit unverhältnismäßig teuer werden lassen. Auch ist es
 möglich, dass erst durch die beigemischte Baumart die Stresssituation der
 anderen Baumart derart gesteigert wird, dass sie ausfällt. Die horstweise oder
 kleinbestandesweise Trennung der Baumarten vermeidet viele dieser Nachteile,
-kann aber den frei werdenden Raum, einer ausfallenden Baumart, nicht, oder nur
-in sehr eingeschränktem Ausmaß, übernehmen. Das Ausfallrisiko einer Baumart
-kann, durch die Verwendung mehrerer Baumarten, meist nur in dem Ausmaß reduziert
+kann aber den frei werdenden Raum einer ausfallenden Baumart nicht oder nur
+in sehr eingeschränktem Ausmaß übernehmen. Das Ausfallrisiko einer Baumart
+kann durch die Verwendung mehrerer Baumarten meist nur in dem Ausmaß reduziert
 werden, wie ihr Flächenanteil reduziert wird. Die verschiedenen Baumarten
-sollten, \emph{für diesen Zweck}, räumlich getrennt aufwachsen.
+sollten \emph{für diesen Zweck} räumlich getrennt aufwachsen.
 
-Die Streuung des Risikos, durch die Verwendung mehrerer Baumarten, ist zu
+Die Streuung des Risikos durch die Verwendung mehrerer Baumarten ist zu
 begrüßen. Dabei ist, wie schon erwähnt, zu erwarten, dass der gewünschte Effekt
-bei der Wahl von z.B.\ Stieleiche und Traubeneiche geringer sein wird, als bei
+bei der Wahl von z.\,B.\ Stieleiche und Traubeneiche geringer sein wird als bei
 der Wahl von Schwarzkiefer und Traubeneiche. Die Auswahl mehrerer Baumarten, die
 annähernd dieselbe Leistung erbringen, wird, insbesondere wenn die Auswahl auf
 die derzeitigen Hauptbaumarten beschränkt ist, schwerfallen. Dies wird zur Folge
 haben, dass entweder nur eine Baumart gewählt wird, mit der Folge, dass das
-Risiko nicht gestreut wird, oder dass, bei der Wahl von weiteren Baumarten,
+Risiko nicht gestreut wird, oder dass bei der Wahl von weiteren Baumarten
 Leistungsverluste in Kauf genommen werden. Selbst in Zeiten, in denen keine
 langfristige Klimaveränderung unterstellt wurde, war die Baumartenwahl des
 Folgebestandes schwierig. Umso schwerer ist die Baumartenwahl bei sich ändernden
-Standortsverhältnissen, insbesondere wenn, von der möglichen Größe der
-Veränderung, nur ein relativ weiter Rahmen bekannt ist. Wenn mehrere Baumarten
-ausgewählt wurden, ist die Entscheidung, ob diese besser in Reinbeständen oder
+Standortsverhältnissen, insbesondere wenn von der möglichen Größe der
+Veränderung nur ein relativ weiter Rahmen bekannt ist. Wenn mehrere Baumarten
+ausgewählt wurden, ist die Frage, ob diese besser in Reinbeständen oder
 in Mischbeständen stocken sollen, und wie groß deren Anteile sein sollen,
-individuell zu beantworten. Dabei spielt, neben den ausgewählten Baumarten, der
+individuell zu beantworten. Dabei spielen neben den ausgewählten Baumarten der
 Standort, die Größe und Qualität der bereitstellbaren Arbeitsleistung vonseiten
-des Besitzers sowie dessen voraussichtlichen Nachbesitzern aber auch
+des Besitzers sowie dessen voraussichtlichen Nachbesitzern, aber auch die
 Berücksichtigung von Naturschutzinteressen und gesetzlichen Rahmenbedingungen,
-ob das Produkt nachgefragt (werden) wird als auch die Bestände der gesamten
-umgebenden Region und deren zu erwartende Bewirtschaftung, eine Rolle.
+ob das Produkt nachgefragt werden wird, als auch die Bestände der gesamten
+umgebenden Region und deren zu erwartende Bewirtschaftung eine Rolle.
 
 \subsection{Biodiversität}
 \label{ssec:biodiversitaet}
 
 Auch die Biodiversität sollte berücksichtigt werden, wobei
-\cite{heinrichs2019Reinbestand} oder \cite{schall2017Reinbestand} zu dem
-Ergebnis kommen, das gleichaltrige Reinbestände, verschiedener Baumarten, auf
-regionaler Ebene oft eine höher Biodiversität aufweisen als ungleichaltrige
+\citet{heinrichs2019Reinbestand} oder \citet{schall2017Reinbestand} zu dem
+Ergebnis kommen, dass gleichaltrige Reinbestände verschiedener Baumarten auf
+regionaler Ebene oft eine höhere Biodiversität aufweisen als ungleichaltrige
 Mischbestände. Auch wenn Reinbestände überwiegend von einer Baumart gebildet
-werden, ist bei einer Aneinanderreihung von Reinbeständen, mit verschiedenen
-Baumarten, dennoch eine gewisse \emph{Artenvielfalt} auf Baumartenebene in einer
-Region zu erzielen. Wobei zu erwarten ist, dass der Charakter beispielsweise
-zwischen Fichten-- und Buchenreinbeständen unterschiedlicher sein wird, als
-zwischen Fichten--Buchen--Mischbeständen. Am meisten Variation ist wohl zu
-erwarten, wenn sowohl Fichten-- und Buchenreinbeständen als auch
+werden, ist bei einer Aneinanderreihung von Reinbeständen mit verschiedenen
+Baumarten dennoch eine gewisse \emph{Artenvielfalt} auf Baumartenebene in einer
+Region zu erzielen. Dabei ist zu erwarten, dass der Charakter beispielsweise
+zwischen Fichten- und Buchenreinbeständen deutlicher variiert als innerhalb
+von Fichten--Buchen--Mischbeständen. Am meisten Variation ist wohl zu
+erwarten, wenn sowohl Fichten- und Buchenreinbestände als auch
 Fichten--Buchen--Mischbestände vertreten sind. Meist stehen nicht nur zwei,
 sondern wesentlich mehr Baumarten für einen Standort zur Auswahl und es gibt
 unzählige Abwandlungen hinsichtlich Struktur und Mischungsform. Diese Fülle an
-Möglichkeiten wird im \emph{Wirtschaftswald}, in der Regel durch das Ziel,
+Möglichkeiten wird im \emph{Wirtschaftswald} in der Regel durch das Ziel,
 \emph{Erträge} zu erbringen, eingeschränkt.
 
-Einen weiteren Aspekt zeigen \cite{zhang2022MischwaldDeposition} in
-ihrer Beobachtung, dass die Deposition mit der Baumartendiversität
+\citet{zhang2022MischwaldDeposition} zeigen in
+ihrer Beobachtung, dass die Deposition\index{Deposition} mit der Baumartendiversität
 zunahm. Dies kann zu einer erhöhten Eutrophierung und Bodenversauerung
 führen, was sich auf die Biodiversität und Artenzusammensetzung der
-Bodenvegetation auswirken kann. Eine Steigerung der Deposition ist beispielsweise zu erwarten, wenn das Kronendach rau ist. Dies ist insbesondere im Winter, bei einer Mischung von immergrünen und sommergrünen Baumarten, der Fall. Zusätzlich ist im Winter, aufgrund von Hausbrand, die Luft oft stärker belastet, als im Sommer.
+Bodenvegetation auswirken kann. Eine Steigerung der Deposition ist beispielsweise zu erwarten, wenn das Kronendach rau ist. Dies ist insbesondere im Winter bei einer Mischung von immergrünen und sommergrünen Baumarten der Fall. Zusätzlich ist im Winter aufgrund von Hausbrand die Luft oft stärker belastet als im Sommer.
 
 \subsection{Bewirtschaftung}
 \label{ssec:bewirtschaftung}
 
 In der Regel ist die Bewirtschaftung in Mischbeständen komplexer als
-in Reinbeständen. Daher muss, selbst bei gut ausgebildeten
-Fachkräften, häufiger mit Fehlentscheidungen oder auch mit Opfern,
-zugunsten der Mischung, gerechnet werden, welche zu Ertragseinbußen und
+in Reinbeständen. Daher muss selbst bei gut ausgebildeten
+Fachkräften häufiger mit Fehlentscheidungen oder auch mit Opfern
+zugunsten der Mischung gerechnet werden, welche zu Ertragseinbußen und
 zur Erhöhung eines Risikos führen können. Wenn Zuwachssteigerungen
 durch Mischungen möglich sind, sind diese den damit möglicherweise
 höheren Aufwendungen bei Verjüngung, Pflege und Ernte
 gegenüberzustellen. So sind die größten Synergien zwischen Baumarten
 dann zu erwarten, wenn die eine Baumart stets nur andere Baumarten als
 Nachbar hat, also Einzelmischung vorliegt. Bei einer Mischung von
-herrschender und dienender Baumart (z.B.\ Stieleiche mit Hainbuche)
-sind die beiden Baumarten meist gegenseitig Nachbarn. Wenn man aber noch nach Schichten trennt, sind in der herrschenden Schicht nur Eichen Vertreten und es sind daher in diesem Kronenraum Eichen ausschließlich Nachbarn von Eichen.
+herrschender und dienender Baumart (z.\,B.\ Stieleiche mit Hainbuche)
+sind die beiden Baumarten meist gegenseitig Nachbarn. Wenn man aber noch nach Schichten trennt, sind in der herrschenden Schicht nur Eichen vertreten und es sind daher in diesem Kronenraum Eichen ausschließlich Nachbarn von Eichen.
 Bei Mischungen von zwei herrschenden Baumarten
 wird von der Einzelmischung üblicherweise abgeraten und die
 horstweise Mischung empfohlen. Somit liegen damit aber eher zwei
-Reinbestände, mit einem, mehr oder weniger langen, gemeinsamen
-Bestandesrand, vor.
+Reinbestände mit einem mehr oder weniger langen gemeinsamen
+Bestandesrand vor.
 
-\cite{knoke2007mischwald} betont, dass bei der Bewirtschaftung
+\citet{knoke2007mischwald} betont, dass bei der Bewirtschaftung
 insbesondere die Risiken zu senken sind. Dies kann durch Erhaltung
 oder Steigerung der \emph{Flexibilität} erreicht werden. Eine
 Möglichkeit wäre die Verkürzung der Produktionszeit, wie beim
-Schnellwuchsbetrieb
+Schnellwuchsbetrieb\index{Schnellwuchsbetrieb}
 \citep{bohdanecky1890worlik,schiffel1904Wuchsgestze,schwappach1905durchforstungFichte,eulefeld1922schnellwuchs,gehrhardt1924StammzahlhaltungInJungenFichtenbestaenden},
-eine Andere, die Verwendung mehrerer, möglichst diverser,
+eine andere die Verwendung mehrerer, möglichst diverser
 Baumarten. Diese Diversifizierung kann sich sowohl auf die Preise
-(entwickeln sich parallel, unabhängig oder gegenläufig), als auch auf
-die Risiken (Wind, Schnee, Insekten, Pilze), beziehen. Günstig sind
+(entwickeln sich parallel, unabhängig oder gegenläufig) als auch auf
+die Risiken (Wind, Schnee, Insekten, Pilze) beziehen. Günstig sind
 Mischungen von Baumarten, deren Preise sich unabhängig oder
-gegenläufig entwickeln und deren Risiken sich nicht überschneidenden. Bei
-einer großflächigen Mischung, d.h.\ kleine Reinbestände, aus Fichte
-und Buche soll das Risiko eines Verlustes von 30\,\% im Fichtenbetrieb
-auf 22\,\% in Fichten--Buchen--Betrieb absinken. Gleichzeitig sinken
+gegenläufig entwickeln und deren Risiken sich nicht überschneiden. Bei
+einer großflächigen Mischung, d.\,h.\ kleine Reinbestände aus Fichte
+und Buche, soll das Risiko eines Verlustes von \qty{30}{\percent} im Fichtenbetrieb
+auf \qty{22}{\percent} im Fichten--Buchen--Betrieb absinken. Gleichzeitig sinken
 aber auch die Ertragschancen im Mischbetrieb gegenüber dem
 Fichtenbetrieb. Das geringere Risiko wird mit einer Reduktion des
-erzielbaren Ertrages erkauft. \cite{knoke2007mischwaldB} erwartet sich
+erzielbaren Ertrages erkauft. \citet{knoke2007mischwaldB} erwartet sich
 eine ökonomische Überlegenheit von der kleinflächigen Mischung
-(25\,x\,40\,m) von Fichten und Buchen gegenüber großflächigen
-Mischungen, was wohl auf die, hier vom Mischungsanteil der Baumarten
-unabhängige, Annahme, dass bei der kleinflächigen nur 20\,\% bei der
-großflächigen hingegen 40\,\% der Fichten ausfallen werden,
+(\qtyproduct{25 x 40}{\metre}) von Fichten und Buchen gegenüber großflächigen
+Mischungen, was wohl auf die hier vom Mischungsanteil der Baumarten
+unabhängige Annahme, dass bei der kleinflächigen nur \qty{20}{\percent}, bei der
+großflächigen hingegen \qty{40}{\percent} der Fichten ausfällen werden,
 zurückzuführen ist. Dies soll dazu führen, dass der erwartete Ertrag
-der kleinflächigen Mischung, mit den reduzierten Ausfällen, bei einem
-hohen Fichtenanteil, jenen der großflächigen Mischung übersteigt. Wie
+der kleinflächigen Mischung mit den reduzierten Ausfällen bei einem
+hohen Fichtenanteil jenen der großflächigen Mischung übersteigt. Wie
 im Abschnitt~\ref{ssec:stabilitaet} beschrieben, kann eine Mischung
-die Stabilität sowohl steigern aber auch herabsetzen und damit den
-Ertrag positiv aber auch negativ beeinflussen.
+die Stabilität sowohl steigern als auch herabsetzen und damit den
+Ertrag positiv als auch negativ beeinflussen.
 
-\citet[S.~126, 146 u.~152]{moser1966Weinbau} warnt im Weinbau selbst vor Mischungen von verschiedenen Weinsorten aufgrund der zu komplizierten Behandlung und der unterschiedlichen Konkurrenzstärke, die zur Entmischung führt: \frqq Wichtig ist nur, daß die Bestände reinsortig gepflanzt werden, da jede Sorte ihren besonderen Schnitt verlangt und es praktisch unmöglich ist, in gemischten Beständen richtig zu schneiden. Es kann vorkommen, daß einzelne Stöcke ganz zurückgehen, also von den Nachbarn unterdrückt werden. Ich machte z.\,B.\ in meinen Anlagen die Erfahrung, daß Sylvaner, unter Grünem Veltliner gemischt, schon mit zehn Jahren vollkommen unterdrückt wird. \dots Solche Stöcke werden dann einfach ausgehackt. Der frei werdende Platz wird durch Verbreiterung der gesunden Stöcke ausgefüllt. \dots Gerade \emph{in dieser Beziehung werden beim Schnitt die größten Fehler gemacht.} Viele Weinbauern schneiden nämlich aus einer unrichtigen Überlegung heraus, vielleicht auch aus Mitleid, den starken und gesunden Stock, welcher den \emph{danebenstehenden schwächeren ganz offensichtlich unterdrückt, sehr stark zurück.} \dots \emph{Wenn ein Stock einmal von seinen Nachbarn unterdrückt wird, so ist ihm nicht mehr zu helfen} \dots Es ist ein großer Vorteil, wenn die Weingärten reinsortig ausgepflanzt werden. Wir können dann die Richtlinien für die eine Sorte festlegen und ziemlich gleichmäßig weiterarbeiten. Stehen jedoch viele Sorten nebeneinander, so werden viele Stöcke schlecht geschnitten.\flqq{}
+\citet[S.~126, 146 u.~152]{moser1966Weinbau} warnt selbst im Weinbau vor Mischungen von verschiedenen Weinsorten aufgrund der zu komplizierten Behandlung und der unterschiedlichen Konkurrenzstärke, die zur Entmischung führt: \enquote{Wichtig ist nur, daß die Bestände reinsortig gepflanzt werden, da jede Sorte ihren besonderen Schnitt verlangt und es praktisch unmöglich ist, in gemischten Beständen richtig zu schneiden. Es kann vorkommen, daß einzelne Stöcke ganz zurückgehen, also von den Nachbarn unterdrückt werden. Ich machte z.\,B.\ in meinen Anlagen die Erfahrung, daß Sylvaner, unter Grünem Veltliner gemischt, schon mit zehn Jahren vollkommen unterdrückt wird. \dots\@ Solche Stöcke werden dann einfach ausgehackt. Der frei werdende Platz wird durch Verbreiterung der gesunden Stöcke ausgefüllt. \dots\@ Gerade \emph{in dieser Beziehung werden beim Schnitt die größten Fehler gemacht.} Viele Weinbauern schneiden nämlich aus einer unrichtigen Überlegung heraus, vielleicht auch aus Mitleid, den starken und gesunden Stock, welcher den \emph{danebenstehenden schwächeren ganz offensichtlich unterdrückt, sehr stark zurück.} \dots\@ \emph{Wenn ein Stock einmal von seinen Nachbarn unterdrückt wird, so ist ihm nicht mehr zu helfen} \dots\@ Es ist ein großer Vorteil, wenn die Weingärten reinsortig ausgepflanzt werden. Wir können dann die Richtlinien für die eine Sorte festlegen und ziemlich gleichmäßig weiterarbeiten. Stehen jedoch viele Sorten nebeneinander, so werden viele Stöcke schlecht geschnitten.}
 
 \section{Schlussfolgerungen}
 \label{sec:schlussfolgerungen}
 
-Liegen gute Erfahrungen, egal ob mit Misch-- oder Reinbeständen, vor, so werden
-diese Typen, in den überwiegenden Fällen, richtigerweise auch in den
-Folgebeständen zu finden sein. Dennoch sollten diese Erfahrung nach Möglichkeit,
-im kleinen Rahmen, sowohl mit anderen Mischbeständen als auch mit Reinbeständen
-aus verschiedenen Baumarten, erweitert werden. Dem Kleinstwaldbesitzer steht die Möglichkeit der räumlichen Trennung nur in sehr eingeschränkter Form zur Verfügung. Dort mag es Sinn machen, Trupp oder sogar Einzelstammweise, zu mischen. Je nach Zielsetzung könnte beim Kleinstwaldbesitzer auch ein verschieben der Betriebsart von Hochwald in Richtung Mittelwald bis Niederwald oder auch vom schlagweisen Hochwald in Richtung Saumschlag, Femelbetrieb bis Plenterwald die Bedürfnisse eher abdecken und gleichzeitig eine kleinräumige Baumartenmischung erleichtern.
+Liegen gute Erfahrungen, egal ob mit Misch- oder Reinbeständen, vor, so werden
+diese Typen in den überwiegenden Fällen richtigerweise auch in den
+Folgebeständen zu finden sein. Dennoch sollten diese Erfahrungen nach Möglichkeit
+im kleinen Rahmen sowohl mit anderen Mischbeständen als auch mit Reinbeständen
+aus verschiedenen Baumarten erweitert werden. Dem Kleinstwaldbesitzer steht die Möglichkeit der räumlichen Trennung nur in sehr eingeschränkter Form zur Verfügung. Dort mag es Sinn machen, trupp- oder sogar einzelstammweise zu mischen. Je nach Zielsetzung könnte beim Kleinstwaldbesitzer auch ein Verschieben der Betriebsart von Hochwald in Richtung Mittelwald bis Niederwald oder auch vom schlagweisen Hochwald in Richtung Saumschlag, Femelbetrieb bis Plenterwald die Bedürfnisse eher abdecken und gleichzeitig eine kleinräumige Baumartenmischung erleichtern.
 
-Weder Misch-- noch Reinbestand sollen erzwungen werden. Wenn sich
+Weder Misch- noch Reinbestand sollen erzwungen werden. Wenn sich
 natürliche Verjüngung aus mehreren Baumarten einstellt, soll diese zwar
-in Richtung der gewünschten Bestockung geführt, dabei aber nicht, mit
-übertriebenem Eifer, alle anderen Baumarten ausgemerzt werden. Oft
-scheint es sogar angebracht, der natürlichen Entmischung
-entgegenzuwirken und nicht, der in der jeweiligen Entwicklungsphase
-konkurrenzstärksten Baumart, die Oberhand gewinnen zu lassen, solange
+in Richtung der gewünschten Bestockung geführt, dabei aber nicht mit
+übertriebenem Eifer alle anderen Baumarten ausgemerzt werden. Oft
+scheint es sogar angebracht zu sein, der natürlichen Entmischung
+entgegenzuwirken und nicht der in der jeweiligen Entwicklungsphase
+konkurrenzstärksten Baumart die Oberhand gewinnen zu lassen, solange
 dies nicht dem Bewirtschaftungsziel entspricht. In der
-Naturverjüngung, mit Einzelmischung, ist es ausreichend, die
-gewünschten Baumarten, im Zuge von Pflegemaßnahmen, von den stärksten
-Bedrängern, zu befreien, anstatt, mit hohem Aufwand, alle nicht
+Naturverjüngung mit Einzelmischung ist es ausreichend, die
+gewünschten Baumarten im Zuge von Pflegemaßnahmen von den stärksten
+Bedrängern zu befreien, anstatt mit hohem Aufwand alle nicht
 erwünschten Baumarten zu entfernen.
 
-Insbesondere, wenn auf künstlichem Weg eine gemischte Verjüngung
-angestrebt wird, müssen die, an der Mischung beteiligten, Baumarten
-bestimmte \emph{Aufgaben} erfüllen. Z.B.\ übernimmt im Eichen
-Hainbuchenwald hauptsächlich die Eiche die Wertleistung und die
-Hainbuche hilft, als dienende Baumart, dieses Ziel, in Form von
-Schaftreinigung, zu erreichen. Als Aufgaben können Erhöhung der
-Wuchs-- bzw.\ Wertleistung, Verbesserung der Stoffkreisläufe durch
+Insbesondere wenn auf künstlichem Weg eine gemischte Verjüngung
+angestrebt wird, müssen die an der Mischung beteiligten Baumarten
+bestimmte \emph{Aufgaben} erfüllen. Z.\,B.\ übernimmt im Eichen-Hainbuchenwald hauptsächlich die Eiche die Wertleistung und die
+Hainbuche hilft als dienende Baumart, dieses Ziel in Form von
+Schaftreinigung zu erreichen. Als Aufgaben können Erhöhung der
+Wuchs- bzw.\ Wertleistung, Verbesserung der Stoffkreisläufe durch
 unterschiedliche Wurzelenergie und Verbesserung des Streuumsatzes,
-Erhöhung der Stabilität (z.B.\ gegen Sturm), Verminderung der
-Gefährdung (z.B.\ durch Insekten, Pilze oder Feuer), \dots den
+Erhöhung der Stabilität (z.\,B.\ gegen Sturm), Verminderung der
+Gefährdung (z.\,B.\ durch Insekten, Pilze oder Feuer), \dots{} den
 Baumarten zugeschrieben werden. Dass diese Aufgaben von den gewählten
-Baumarten tatsächlich erfüllt werden kann, sollte in der Praxis öfter
+Baumarten tatsächlich erfüllt werden können, sollte in der Praxis öfter
 beobachtet worden und idealerweise durch Messungen quantifizierbar
-sein. Eine Abwägung der Vorteile mit den Nachteilen, die durch die Mischung entstehenden können, darf nicht unterblieben.
+sein. Eine Abwägung der Vorteile mit den Nachteilen, die durch die Mischung entstehen können, darf nicht unterbleiben.
 
 Da jede Baumart eine Aufgabe erfüllen muss und ohnedies meist nur
 wenige optimale Baumarten für einen Standort existieren, sollten nur
-\emph{zwei bis höchsten drei Baumarten} einen Mischbestand
+\emph{zwei bis höchstens drei Baumarten} einen Mischbestand
 bilden. Dies schließt nicht aus bzw.\ ist es wünschenswert, dass
-vereinzelt \emph{weitere Baumarten}, im Bestand vertreten sind. Damit
-wird die Möglichkeit geschaffen, diese eingesprengten Baumarten, im
-Folgebestand, über Naturverjüngung, horstweise einzubringen.
+vereinzelt \emph{weitere Baumarten} im Bestand vertreten sind. Damit
+wird die Möglichkeit geschaffen, diese eingesprengten Baumarten im
+Folgebestand über Naturverjüngung horstweise einzubringen.
 
-Eine Mischung muss nicht über die gesamte Bestandesentwicklung, in
-gleichen Anteilen, bestehen. Verschiebungen von einer zur anderen
+Eine Mischung muss nicht über die gesamte Bestandesentwicklung in
+gleichen Anteilen bestehen. Verschiebungen von einer zur anderen
 Baumart bis hin zu \emph{Zeitmischungen}, also eine Baumart wird
 früher als die andere geerntet und/oder eine Baumart wird später als
 eine andere verjüngt (Vorwald, Voranbau, Unterbau), sind
 möglich. Wesentlich ist, dass die Entwicklung des Mischbestandes im
 Vorhinein \emph{geplant} wird. Diese Entwicklung sollte sich zum
 überwiegenden Teil aus \emph{natürlichen Entwicklungsprozessen}
-ergeben, welche durch moderate Eingriffe, zur Erreichung der
-Zielbestockung, modifiziert werden. Dies erfordert eine gewisse
-Ausbildung bzw.\ Erfahrung des Planenden.
+ergeben, welche durch moderate Eingriffe zur Erreichung der
+Zielbestockung modifiziert werden. Dies erfordert eine gewisse
+Ausbildung bzw.\ Erfahrung sowohl des Planenden als auch des Ausführenden.
 
 In Mischbeständen spielt die \emph{Mischungsform} (Einzel, Trupp,
 Gruppe, Horst, Fläche, Reihe, Streifen) eine entscheidende Rolle, die
 neben den beteiligten Baumarten und deren Aufgaben auch durch das
-Alter und die Bestandesstruktur beeinflusst wird. So kann eine trupp--
-bis gruppenweise Mischung in der Jugend, im Alter in eine
+Alter und die Bestandesstruktur beeinflusst wird. So kann eine trupp-
+bis gruppenweise Mischung in der Jugend im Alter in eine
 Einzelmischung übergehen. Damit die Hainbuche im Unterstand ihre
 Funktion der Schaftreinigung bei den Eichen erfüllen kann, müssen
-die beiden möglichst einzelstamweise gemischt sein. Betrachtet man
-hingegen im Altbestand den Kronenraum sind lediglich Eichen die
+die beiden möglichst einzelstammweise gemischt sein. Betrachtet man
+hingegen im Altbestand den Kronenraum, sind lediglich Eichen die
 Nachbarn von Eichen. Solange es die Funktion nicht erfordert, sind in
 der Verjüngungsphase Einzelmischungen zu vermeiden, da es insbesondere, wenn konkurrenzstarke Schattbaumarten beteiligt sind, im Laufe der Zeit
-zu konkurrenzbedingter Entmischung kommt. Die Schlagfläche mit jeweils
+zu konkurrenzbedingter Entmischung\index{Entmischung} kommt. Die Schlagfläche mit jeweils
 einer Baumart zu verjüngen, wird in vielen Fällen eine praktikable
 Lösung darstellen. Die Größe der Schlagfläche wird sich in der Regel
 an die Besitzgröße und das typische Nutzungsverhalten anpassen. Dies
-wird, zur oft zielführendsten Baumartenmischung nicht auf Bestandes--,
-sondern auf Schlag-- bzw.\ regionaler Ebene, durch ein \emph{Mosaik von Reinbeständen
-unterschiedlicher Baumarten}, führen. Diese Reinbestände sollten
+wird zur oft zielführendsten Baumartenmischung nicht auf Bestandes-,
+sondern auf Schlag- bzw.\ regionaler Ebene durch ein \emph{Mosaik von Reinbeständen
+unterschiedlicher Baumarten} führen. Diese Reinbestände sollten
 nicht zu groß sein, um im Folgebestand die Möglichkeit zu haben,
 diesen zum Großteil mit den Baumarten der Nachbarbestände natürlich zu
-verjüngen und damit einen \emph{Baumartenwechsel} zu realisieren. Je
+verjüngen und damit einen \emph{Baumartenwechsel}\index{Baumartenwechsel} zu realisieren. Je
 nach beteiligter Baumart sollte damit der überwiegende Teil der
-Bestandesfläche nicht weiter als 30--70\,m vom Bestandesrand entfernt
-liegen, was bei quadratischer Form 1/3--2\,Hektar entspricht.
+Bestandesfläche nicht weiter als \qtyrange{30}{70}{\metre} vom Bestandesrand entfernt
+liegen, was bei quadratischer Form \qtyrange[parse-numbers=false]{1/3}{2}{\hectare} entspricht.
 
 Wie groß die \emph{Anteile der Baumarten} im Bestand bzw.\ in der
 Region sein sollen, kann nicht pauschal beantwortet
 werden. Reinbestände sind aufgrund ihrer geringen Größe weniger
-problematisch. Sobald jedoch eine ganze Region von einer, durch die
-Bewirtschaftung geförderten, Baumart dominiert wird, muss mit einer
-Erhöhung des Ausfallsrisikos gerechnet werden. Daher sollte nach
+problematisch. Sobald jedoch eine ganze Region von einer durch die
+Bewirtschaftung geförderten Baumart dominiert wird, muss mit einer
+Erhöhung des Ausfallrisikos gerechnet werden. Daher sollte nach
 Möglichkeit der Anteil einer Baumart in einer Region 1/3 nicht
 überschreiten, also mindestens drei in etwa gleich häufig vorkommende
-Baumarten vertreten sein, wobei der Begriff Region nicht zu groß (500
-ha Wald) gefasst und gesondert nach Höhenstufen betrachtet werden
+Baumarten vertreten sein, wobei der Begriff Region nicht zu groß (\qty{500}{\hectare} Wald) gefasst und gesondert nach Höhenstufen betrachtet werden
 muss. Dieses 1/3 darf natürlich in Regionen, die von Natur aus von
 einer Baumart dominiert werden, überschritten werden.
 
@@ -1018,10 +1028,10 @@ Baumartenmischung gestellt werden. Es wird auf fast jedem Standort eine
 Baumartenmischung geben, die dem besten Reinbestand überlegen sein wird.
 Allerdings wird diese Mischung (beteiligte Baumarten, deren Anteile,
 Altersstruktur und Mischungsform) in den seltensten Fällen bekannt sein und
-selbst wenn sie annähernd gefunden wurde, an der aufwändigeren Behandlung
-scheitern. Dieser Umstand ist in vielen anderen Fällen ähnlich. Ein aufwändig
+selbst wenn sie annähernd gefunden wurde, aufgrund der meist aufwändigeren Behandlung nicht umgesetzt werden.
+Dieser Umstand ist in vielen anderen Fällen ähnlich. Ein aufwändig
 zubereitetes Mittagessen wird in der Regel besser schmecken als Spiegeleier mit
-Pommes frites. Dafür muss aber ein höherer Aufwand betreiben werden, der Koch
+Pommes frites. Dafür muss aber ein höherer Aufwand betrieben werden, der Koch
 Übung haben und dennoch besteht eine höhere Gefahr des Scheiterns. So dürfte es
 oft sinnvoller sein, einfachere, aber robuste Lösungen anzubieten. Diese
 einfachen Ansätze werden meist nur wenig hinter der perfekten Lösung liegen und
@@ -1029,23 +1039,24 @@ in der Praxis dann besser abschneiden, da ihre Umsetzung leichter ist und daher
 seltener scheitern wird.
 
 Dieses Thema kann nie generell beantwortet werden, sondern muss von
-Bestand zu Bestand entscheiden werden. Genauso wie es keine
+Bestand zu Bestand entschieden werden. Genauso wie es keine
 universelle Baumart und kein universelles Waldbausystem gibt, darf
-auch keine Baumart, kein System kategorisch, im Vorhinein, als
-unbrauchbar, bei der Entscheidungsfindung, ausgeschlossen werden. Von
+auch keine Baumart und kein System kategorisch im Vorhinein als
+unbrauchbar bei der Entscheidungsfindung ausgeschlossen werden. Von
 Einzelmischung bis Reinbestand, von ungleichaltrig zu gleichaltrig,
 von einschichtig zu mehrschichtig, vom Kurzumtrieb bis zur natürlichen
 Mortalität, von der Einzelstammnutzung zum Kahlschlag, von der
 Naturverjüngung zur Containerflanzung fremdländischer Hybriden, von
-der außer Nutzung Stellung bis hin zur Produktion von Furnierholz
+der Außernutzungstellung bis hin zur Produktion von Furnierholz
 sollte zunächst alles als Möglichkeit in Betracht gezogen werden
 dürfen.
 
 %\addcontentsline{toc}{section}{Stichwortverzeichnis}
-%\printindex
+\printindex
 
-\addcontentsline{toc}{section}{Literatur}
-\bibliography{literature}
+%\addcontentsline{toc}{section}{Literatur}
+%\bibliography{literature}
+\printbibliography
 
 %Autor: Georg Kindermann
 
