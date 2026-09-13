@@ -1,13 +1,15 @@
 \documentclass[10pt,twocolumn]{scrartcl}
 
-\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+
+%\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
 
-\usepackage{lmodern}
-\usepackage[sc]{mathpazo} % or option osf
+\usepackage{textcomp}
+\usepackage{newpxtext}
 \usepackage{newpxmath}
-\usepackage[scaled = 0.85]{beramono}
+\usepackage[scaled = 0.75]{beramono}
 
 \usepackage{xpatch}
 \usepackage{xcolor}
@@ -23,14 +25,29 @@
 {ü}{{\"u}}1
 {ä}{{\"a}}1
 {ö}{{\"o}}1
+{×}{{\texttimes}}1
+{├}{{\textSFviii}}1
+{─}{{\textSFx}}1
+{└}{{\textSFii}}1
+{│}{{\textbar}}1
+{─}{{-}}1 
+{┼}{{+}}1
 ,basicstyle=\ttfamily
 ,backgroundcolor=\color{mygray}
 ,commentstyle=\emph
 ,language=commentonly
 ,upquote=true
 }
+
+\usepackage{soul}
+\sethlcolor{mygray}
+%\newcommand{\code}[1]{\hl{\small\ttfamily#1}}
+%\newcommand{\code}[1]{\hl{\ttfamily\spaceskip=0.45em #1}}
+\newcommand{\codeformat}[1]{\hl{\ttfamily\spaceskip=0.45em #1}}
 \makeatletter
-\xpretocmd\lstinline{\Colorbox{mygray}\bgroup\appto\lst@DeInit{\egroup}}{}{}
+\newcommand{\code}{\begingroup\catcode`\|=12 \catcode`\?=12 \@ifnextchar\bgroup{\@codeBrace}{\@codeDelim}}
+\newcommand{\@codeBrace}[1]{\codeformat{#1}\endgroup}
+\def\@codeDelim#1{\def\@tempDelim##1#1{\codeformat{##1}\endgroup}\@tempDelim}
 \makeatother
 
 \usepackage{enumitem}
@@ -72,468 +89,422 @@
 \href{https://julialang.org/}{Julia} kann mit
 \href{https://github.com/JuliaLang/juliaup}{juliaup} installiert werden und
 besitzt eine \href{https://docs.julialang.org/en/v1/}{ausführliche Anleitung}.
-Dieser Überblick und orientiert sich am
+Dieser Überblick orientiert sich am
 \href{https://github.com/bkamins/The-Julia-Express}{Julia Express} von Bogumił
 Kamiński.
 
-Mithilfe der REPL (read-eval-print loop) kann Julia interaktiv benutzt werden.
-Als IDE (integrierte Entwicklungsumgebung) wird
-\href{https://code.visualstudio.com/}{Visual Studio Code} mit der
-\href{https://www.julia-vscode.org/}{Julia Erweiterung}
-empfohlen. Die gezeigten Codeabschnitte wurden mit Julia Version  1.9.3
-(2023-08-24) getestet.
+Mithilfe der REPL (Read-Eval-Print Loop) lässt sich Julia direkt interaktiv
+nutzen. Als vollwertige Entwicklungsumgebung (IDE) wird
+\href{https://visualstudio.com}{Visual Studio Code} mit der offiziellen
+\href{https://www.julia-vscode.org/}{Julia-Erweiterung} empfohlen. Für das
+Arbeiten mit interaktiven Dokumenten und Notebooks sind zudem das reaktive
+\href{https://plutojl.org/}{Pluto.jl} sowie das klassische
+\href{https://github.com/JuliaLang/IJulia.jl}{Jupyter (IJulia.jl)} vorhanden.
+Es gibt auch Erweiterungen für
+\href{https://github.com/JuliaEditorSupport/julia-vim}{Vim},
+\href{https://github.com/JuliaEditorSupport/julia-emacs}{Emacs},
+\href{https://github.com/JuliaEditorSupport/zed-julia}{Zed-Editor} oder über das
+\href{https://plugins.jetbrains.com/plugin/29356-flexible-julia}{Flexible Julia Plugin}
+für JetBrains.
+
+Die gezeigten Codeabschnitte wurden mit der Julia-Version 1.13.0 (2026-09-09) getestet.
 
 \section{REPL}
 \label{sec:repl}
 
-Wenn man \lstinline|julia| startet, kommt man in den interaktiven Modus (REPL).
-Deren wichtigsten Kommandos sind:
-\begin{description}[style=multiline,leftmargin=2cm,nolistsep]
-  \item[CTRL+d] Beendet Julia
-  \item[CTRL+c] Bricht Berechnungen ab
-  \item[?] Hilfe--Modus
-  \item[;] Shell--Modus
-  \item[{]}] Packetmanager--Modus
-  \item[{]?}] Hilfe zum Packetmanager
-  \item[Backspace] Modus verlassen
-  \item[CTRL+l] Bildschirm löschen
-\end{description}
-In der REPL wird nach jedem Befehl dessen Wert ausgegeben. Wenn man
-\lstinline|;| am Ende des Befehls setzt, wird der Wert nicht ausgegeben. Mit
-\lstinline|?cos| bekommt man die Hilfe zu \lstinline|cos|. Mit
-\lstinline|]add [package name]| wird das Paket
-\lstinline|[package name]| installiert und mit
-\lstinline|]up| werden alle bereits installierten Pakete aktualisiert.
+Wenn man \code|julia| startet, gelangt man in den interaktiven Modus (REPL).
+Die wichtigsten Tastenkombinationen und Modi sind:
 
-Ein paar wichtige Funktionen sind:
+\begin{description}[style=multiline,leftmargin=2cm,nolistsep]
+  \item[Strg + d] Beendet die Julia-Sitzung
+  \item[Strg + c] Bricht laufende Berechnungen ab
+  \item[?] Aktiviert den Hilfe-Modus
+  \item[;] Aktiviert den Shell-Modus
+  \item[{]}] Aktiviert den Paketmanager-Modus
+  \item[{]?}] Zeigt die Hilfe zum Paketmanager
+  \item[Backspace] Verlässt den aktuellen Modus (zurück zu \code|julia> |)
+  \item[Strg + l] Löscht den Bildschirminhalt
+\end{description}
+
+In der REPL wird nach jedem Befehl dessen Rückgabewert ausgegeben. Setzt man ein
+\code|;| am Ende eines Befehls, wird die Ausgabe unterdrückt. 
+
+Mit \code|?cos| wird direkt die Dokumentation zu \code|cos| aufgerufen. 
+Über den Paketmanager-Modus lässt sich mit \code|]add Paketname| ein neues 
+Paket installieren, während \code|]up| alle installierten Pakete im aktuellen 
+Environment aktualisiert.
+
+Einige grundlegende Funktionen für die interaktive Arbeit sind:
 
 \begin{lstlisting}
 versioninfo()       # Zeigt Version
-varinfo()           # Zeigt globale Variablen
+varinfo()           # Listet globale Variablen auf
 pwd()               # Aktuelles Verzeichnis
-cd("D:/")           # Wechsle Verzeichnis
-include("file.jl")  # Führt Datei aus
-exit()              # Beendet Julia
-@edit sin(1)        # Zeigt definition von sin
+cd("src")           # Wechsle Verzeichnis
+include("file.jl")  # Führt ein Julia-Skript aus
+exit()              # Beendet die Julia-Sitzung
+@edit sin(1)        # Zeigt Quelltext der Funktion
 \end{lstlisting}
 
-Skripts können mit \lstinline|julia script.jl| ausgeführt werden.
+Ganze Skripte können außerhalb der REPL direkt über das Terminal mit 
+\code|julia script.jl| ausgeführt werden.
 
 \section{Grundtypen}
 \label{sec:grundtypen}
 
-Mit \lstinline|x::Type| wird \lstinline|x| mit dem Typ \lstinline|Type| erzeugt.
-Integer sind auf 32~Bit Systemen 32~Bit und auf 64~Bit Systemen 64~Bit.
-\lstinline|1::Int32| geht nur auf 32 \lstinline|1::Int64| auf 64~Bit Systemen. 
+In Julia bestimmt die Systemarchitektur die Standard-Bitbreite von Integern: Auf 32-Bit-Systemen ist \code|Int| standardmäßig \code|Int32|, auf 64-Bit-Systemen \code|Int64|.
+
+Der Operator \code|::| dient zur Typannotation oder Typprüfung, jedoch nicht zur Typkonvertierung. Eine Typerzwingung wie \code|1::Int32| wirft auf einem 64-Bit-System einen \code|TypeError|.
 
 \begin{lstlisting}
-1             # Integer
-1::Int        # Integer Explizit
-1.0           # Float
-1.0::Float64  # Float Explizit
-true::Bool    # Boolean false
-'c'::Char     # Character 1 Zeichen
-"s"::String   # String n Zeichen
+1             # Int (systemabhaengig)
+1.0           # Float64
+true          # Bool
+'c'           # Char (1 Zeichen, Unicode)
+"s"           # String (n Zeichen)
 \end{lstlisting}
 
-Mit \lstinline|T(x)| wird ein Wert \lstinline|x| vom Typ \lstinline|T| erzeugt.
+Explizite Typkonvertierungen erfolgen über Konstruktoren \code|T(x)|, die bei Informationsverlust einen \code|InexactError| werfen.
 
 \begin{lstlisting}
-Int32(1)           # 32 Bit Integer
-Int64(1)           # 64 Bit Integer
-Int64(2.0)         # Float als Integer
+Int32(1)           # Konvertierung in Int32
+Int64(2.0)         # Float64 zu Int64
 #Int64(1.3)        ## InexactError
-floor(Int64, 1.3)  # Abrunden
-ceil(Int64, 1.3)   # Aufrunden
-round(Int64, 1.3)  # Runden
+floor(Int64, 1.3)  # Abrunden zu Int64
+ceil(Int64, 1.3)   # Aufrunden zu Int64
+round(Int64, 1.3)  # Runden zu Int64
 \end{lstlisting}
 
-Es gibt
-\lstinline|Char|,
-\lstinline|string| (kleingeschrieben),
-\lstinline|Bool|,
-\lstinline|Int|,
- \lstinline|Int8|,
-\lstinline|Int16|,
-\lstinline|Int32|,
-\lstinline|Int64|,
-\lstinline|Int128|,
-\lstinline|UInt|,
-\lstinline|UInt8|,
-\lstinline|UInt16|,
-\lstinline|UInt32|,
-\lstinline|UInt64|,
-\lstinline|UInt128|,
-\lstinline|Float|,
-\lstinline|Float16|,
-\lstinline|Float32| und
-\lstinline|Float64|.
+Julia bietet folgende eingebene Primitivtypen:
+\code|Bool|,
+\code|Char|,
+\code|String|,
+\code|Int8| bis \code|Int128|,
+\code|UInt8| bis \code|UInt128| sowie
+\code|Float16|, \code|Float32| und \code|Float64|.
+Die systemabhängigen Aliase \code|Int| und \code|UInt| verweisen auf die jeweilige native Bitbreite.
 
-\lstinline|string| hängt Argumente zu einem String zusammengehängt.
-\lstinline|string(1, true)| ergibt \lstinline|1true|. Einzelnen Zeichen, nicht
-aber Zeichenketten, können mit \lstinline|Int64('a')| in einen Integerwert
-umgewandelt werden. Mit \lstinline|Char(89)| kann ein Integerwert in ein Zeichen
-umgewandelt werden. \lstinline|Bool(0)| ergibt \lstinline|false| und
-\lstinline|Bool(1)| \lstinline|true|. Andere Zahlen können nicht nach Bool
-umgewandelt werden. Zusätzlich kann auch mit \lstinline|convert(Int64, 1.0)|
-oder \lstinline|parse(Int64, "1")| umgewandelt bzw.\ erzeugt werden.
+Die Funktion \code|string()| verkettet Argumente zu einem \code|String| (z.\,B. \code|string(1, true)| ergibt \code|"1true"|). 
+Konstruktoren konvertieren zudem Zeichen und Zahlen: \code|Int64('a')| liefert den Unicode-Codepoint, \code|Char(89)| erzeugt das entsprechende Zeichen. 
+\code|Bool(0)| ergibt \code|false|, \code|Bool(1)| ergibt \code|true|; andere Zahlenwerte werfen einen \code|InexactError|. 
+Für die gezielte Konvertierung existieren zudem \code|convert(T, x)| (\code|convert(Int64, 1.0)|) sowie \code|parse(T, "string")| (\code|parse(Int64, "1")|) für Textparsen.
 
-Zusätzlich gibt es noch:
+Für mathematische Spezialanwendungen existieren weitere Typen:
 \begin{lstlisting}
-123 // 456    # Rationale Zahl
-1 + 1im       # Komplexe Zahl
-big"1"        # BigInt
-BigInt(1)     # BigInt
-big"1.5"      # BigFloat
+1 // 456      # Rational (Rationale Zahl)
+1 + 1im       # Complex{Int64} (Komplexe Zahl)
+big"1"        # BigInt (Beliebige Praezision)
+BigInt(1)     # BigInt via Konstruktor
+big"1.5"      # BigFloat (Beliebige Praezision)
 BigFloat(10)  # BigFloat
 \end{lstlisting}
 
-Die Genauigkeit von \lstinline|BigFloat| kann mit \lstinline|setprecision| eingestellt werden.
+Die globale Genauigkeit von \code|BigFloat| wird mit \code|setprecision(Bits)| definiert.
 
-Mit \lstinline|zero(10.0)| wird eine $0$ vom gleichen Typ wie $10.0$ erzeugt.
-Mit \lstinline|one(Int64)| wird eine $1$ vom Typ Int64 erzeugt.
-\lstinline|promote(true, 1 // 3, 2, 1.0)| erzeugt, solange eine Konvertierung
-möglich ist, einen Tuple vom gleichen Typ - hier von Float. Einige Operatoren
-(Arithmetisch, Zuweisung) machen eine automatische Typumwandlung. So wird bei
-\lstinline|1 + 1.0| die Integer $1$ in Float umgewandelt. Hingegen wird Bool z.\,B.\ in \lstinline|true + true| direkt als Integer verwendet. 
+Die Funktionen \code|zero(x)| und \code|one(x)| liefern die additive bzw. multiplikative Identität (Null oder Eins) des Typs von \code|x|.
+Die Funktion \code|promote(args...)| gleicht alle Argumente an den kleinsten gemeinsamen Supertyp an (z.\,B. liefert \code|promote(true, 1 // 3, 2, 1.0)| ein Tuple vom Typ \code|Float64|).
+Julia führt bei arithmetischen Operationen eine automatische Typaufweitung (\textit{Promotion}) durch: Bei \code|1 + 1.0| wird der Integer in ein \code|Float64| umgewandelt. \code|Bool|-Werte werden in Berechnungen (z.\,B. \code|true + true|) direkt als Integer (\code|1|) behandelt.
 
-Den Typ kann man feststellen mit:
+Typen und Hierarchien lassen sich wie folgt prüfen:
 \begin{lstlisting}
-typeof("abc")      # String
-isa(1.0, Float64)  # true
-1.0 isa Number     # Alternative Syntax
-supertype(Int64)   # supertype von Int64
-subtypes(Real)     # subtypes von Real
-Int <: Real        # Ist Int subtyp von Real
+typeof("abc")      # Gibt den Typ aus (String)
+isa(1.0, Float64)  # true (Typfuehrung)
+1.0 isa Number     # Alternative Infix-Syntax
+supertype(Int64)   # Liefert den direkten Supertyp
+subtypes(Real)     # Liefert direkte Subtypen
+Int <: Real        # Subtyp-Pruefung (true)
 \end{lstlisting}
 
 \section{Weitere Typen}
 \label{sec:weitereTypen}
 
 \begin{lstlisting}
-Any                      # Typ: Alle Objekte
-Nothing                  # Typ: Nichts
-nothing                  # Nichts
-Missing                  # Typ: Fehlender Wert
-missing                  # Fehlender Wert
+Any                      # Supertyp aller Objekte
+Nothing                  # Typ von nothing
+nothing                  # Wert für "kein Ergebnis/Wert"
+Missing                  # Typ von missing
+missing                  # Wert für fehlende Daten (Statistik)
 ismissing(missing)       # true
-coalesce(missing, 1, 2)  # 1; Erster nicht missing Wert
+coalesce(missing, 1, 2)  # 1 (erster Nicht-missing Wert)
 \end{lstlisting}
 
-\lstinline|undef| kann zur Erzeugung eines Arrays verwendet werden, dessen Werte
-nicht initialisiert sind z\,B.\ \lstinline|Array{Float64}(undef, 3)|.
+Das Keyword \code|undef| signalisiert, dass Speicherplatz für ein Array uninitialisiert reserviert werden soll: \code|Array{Float64}(undef, 3)|.
 
 \subsection{Tuple und NamedTuple}
 \label{ssec:tuple}
 
-In einem \emph{Tuple} werden unveränderbare, statische Werte von unterschiedlichen Typen abgelegt. Der Index des ersten Elements ist 1.
+Ein \emph{Tuple} speichert eine unveränderliche, geordnete Sequenz von Elementen beliebigen Typs. Die Indizierung beginnt bei 1.
 
 \begin{lstlisting}
-()              # Leerer tuple
-(1,)            # Tuple mit einem Element
-("a", 1)        # Tuple mit zwei Element
-('a', false)::Tuple{Char, Bool}  # Mit Typ
+()              # Leeres Tuple
+(1,)            # Tuple mit einem Element (Komma zwingend)
+("a", 1)        # Tuple mit zwei Elementen
+('a', false)::Tuple{Char, Bool}  # Typannotation
 x = (1, 2, 3)
-x[1]            # 1; element
-x[1:2]          # (1, 2); tuple
-x[[1, 3]]       # (1, 3); tuple
-x[begin]        # Erster Wert in x
-x[end]          # Letzter Wert in x
+x[1]            # 1 (Element)
+x[1:2]          # (1, 2) (Sub-Tuple)
+x[[1, 3]]       # (1, 3) (Sub-Tuple per Array-Index)
+x[begin]        # Erstes Element
+x[end]          # Letztes Element
 lastindex(x)    # Letzter Index von x
 x[begin:2:end]  # Jedes zweite Element
 #x[4]           ## BoundsError
-#x[1] = 1       ## error - tuple ist statisch
-a, b = x        # unpacking a=1, b=2
+#x[1] = 1       ## MethodError (Tuple ist immutable)
+a, b = x        # Unpacking (a = 1, b = 2)
 \end{lstlisting}
 
-Tuple Elemente können einen Namen haben (\lstinline|NamedTuple|) und sind
-vergleichbar mit einer \hyperref[ssec:composite]{anonymen \lstinline|struct|}.
+\emph{NamedTuples} weisen den Elementen zusätzlich Namen zu. Sie verhalten sich funktional wie Instanzen anonymer Strukturen (\hyperref[ssec:composite]{\code|struct|}).
 
 \begin{lstlisting}
-NamedTuple()  # Empty named Tuple
-(x="a", y=1)  # Named Tuple mit 2 Elementen
+NamedTuple()  # Leeres NamedTuple
+(x="a", y=1)  # NamedTuple mit zwei Elementen
 x = (p=1, q=2, r=3)
-x.p           # 1; Element p von Tuple x
+x.p           # 1 (Zugriff via Name)
 a = 0; b = 1
-# Named Tuple mit a, b und deren Werten
-(; a, b)  # (a = 0, b = 1)
+(; a, b)      # (a = 0, b = 1) (implizite Namenszuweisung)
 \end{lstlisting}
 
 \subsection{Array}
 \label{ssec:array}
 
-Werte eines Arrays sind veränderbar und vom selben Typ, wobei es auch den Typ
-\lstinline|Any| gibt. Die erste Dimension ist Vertikal, die zweite Horizontal.
-Mit folgenden Befehlen kann ein Array mit Werten erzeugt werden.
+Die Elemente eines Arrays sind veränderbar und standardmäßig homogen, sofern nicht der Typ \code|Any| genutzt wird. In Julia ist die erste Dimension vertikal (Zeilen), die zweite horizontal (Spalten).
 
 \begin{lstlisting}
-[1]            # Vektor mit einem Element
-[1;]           # Vektor mit einem Element
+[1]            # 1-element Vector{Int64}
+[1;]           # Gleichbedeutend (vcat-Syntax)
 [1;;]          # 1x1 Matrix
 [1;;;]         # 1x1x1 Array
-[(1, 2)]       # Vektor mit einem Element
-[1, 2]         # Vertikaler Vektor (concatenation)
-[1; 2]         # Vertikaler Vektor (vcat Funktion)
-[1;
- 2]            # Vertikaler Vektor (vcat Funktion)
+[(1, 2)]       # Vektor mit Tuple-Element
+[[1, 2]]       # 1-element Vecto
+[1, 2]         # Spaltenvektor (vcat)
+[1; 2]         # Spaltenvektor via vcat-Funktion
 [1
- 2]            # Vertikaler Vektor (vcat Funktion)
-[[1,2], 3]     # 2-element Vector{Any}
-[[1;2], 3]     # 2-element Vector{Any}
-[[1,2]; 3]     # 3-element Vector{Int64}
-[[1;2]; 3]     # 3-element Vector{Int64}
-[[1,2]
- 3]            # 3-element Vector{Int64}
-[[1 2] 3]      # 1x3 Matrix (hcat)
-[1, 2]'        # Horizontaler "Vektor" adjoint 1x2
-[1 2]          # 1x2 Matrix (hcat Funktion)
-[1 2]::Array{Int64, 2}  # Int64 2D Array
-[1 2]::Matrix{Int64}    # Das gleiche
-[1;;2]         # 1x2 Matrix
-[1;;
- 2]            # 1x2 Matrix
-[1 2]'         # 2x1 Adjoint Matrix (gleicher Speicher)
-[1, 2]' == [1 2]    # true Dimension 1x2 gleich 1x2
-[1, 2] == [1 2]'    # false Dimension 2 nicht gleich 2x1
-permutedims([1 2])  # 2x1 Matrix (neuer Speicher)
-[1 3 5; 2 4 6]         # 2x3 Matrix (hvcat Function)
-[1 3 5
- 2 4 6]                # 2x3 Matrix
-[1 2 4;;
- 5 7 8]                # 1x6 Matrix
-#[1 2 4;;5 7 8]        ## Error mix Space und ;;
-[[1,2]  [3,4]  [5,6]]  # 2x3 Matrix
-[[1 2]; [4 5]; [7 8]]  # 3x2 Matrix
-[[1 2]  [4 5]  [7 8]]  # 1x6 Matrix
-[1 3 5
- 2 4 6;;;
- 7 9 11
- 8 10 12]              # 2x3x2 Array
+ 2]            # Spaltenvektor via Umbruch
+[[1, 2], 3]    # 2-element Vector{Any}
+[[1, 2]; 3]    # 3-element Vector{Int64} flach
+[[1 2] 3]      # 1x3 Matrix{Any} (hcat)
+[1 2]          # 1x2 Matrix (hcat)
+[1 2]::Matrix{Int64}  # Typannotation
+[1;; 2]        # 1x2 Matrix
+[1 2]'         # 2x1 Adjoint (shared memory)
+permutedims([1 2])    # 2x1 Matrix (kopiert)
+[1 3 5; 2 4 6]        # 2x3 Matrix (hvcat)
+[[1 2]; [4 5]]        # 2x2 Matrix (Zeilen)
+[1 3
+ 2 4;;;
+ 5 7
+ 6 8]                  # 2x2x2 Array (3. Dim.)
 \end{lstlisting}
 
-Mit \lstinline|,| werden Elemente, so wie sie sind, zu einem Vektor aneinander
-gehängt. Mit \lstinline| | (Space) und neuen Zeilen wird eine Matrix, wie sie
-ist, erzeugt. Mit \lstinline|;| werden Elemente zu einem gemeinsamen Vektor
-zusammengefügt, wobei \lstinline|;| entlang der \emph{ersten} Dimension
-(Vertikal), \lstinline|;;| entlang der \emph{zweiten} Dimension (Horizontal),
-\lstinline|;;;| entlang der \emph{dritten} Dimension (hintereinander), \dots
-zusammenfügt.
+Ein \code|,| verkettet Elemente direkt zu einem Vektor. Ein Leerzeichen oder Zeilenumbruch erzeugt Matrizen entlang der Spalten bzw. Zeilen. Das Semikolon steuert die Dimension der Verkettung: \code|;| verkettet vertikal (1. Dimension), \code|;;| horizontal (2. Dimension), \code|;;;| nach hinten (3. Dimension) usw.
 
-Mit folgenden Befehlen kann ein Array uninitialisiert bzw.\ mit regelhaften
-Werten erzeugt werden.
+Vordefinierte Funktionen erlauben die Erzeugung uninitialisierter oder regelmäßiger Arrays:
 
 \begin{lstlisting}
-Array{Int}(undef, 2)        # 2-element Vector{Int64}
-Vector{Int}(undef, 2)       # 2-element Vector{Int64}
-Array{Int}(undef, 2, 3)     # 2x3 Matrix{Int64}:
-Matrix{Int}(undef, 2, 3)    # 2x3 Matrix{Int64}:
-Array{Int}(undef, 2, 3, 4)  # 2x3x4 Array{Int64, 3}
-falses(3)            # Vektor mit 3 false
-trues(3)             # Vektor mit 3 true
-zeros(3)             # Vektor mit 3 Float64 Nuller
-ones(3)              # Vektor mit 3 Float64 Einser
-ones(Int64, 2, 3)    # 2x3 Matrix Int64 Einser
-x = range(0, 1, 11)  # Iterator 0 bis 1 mit 11 Elementen
-collect(x)           # Wandelt Iterator in Vector um
+Array{Int}(undef, 2)        # Uninit. Int64-Vektor
+Vector{Int}(undef, 2)       # Uninit. Int64-Vektor
+Array{Int}(undef, 2, 3)     # Uninit. 2x3 Matrix
+Matrix{Int}(undef, 2, 3)    # Uninit. 2x3 Matrix
+Array{Int}(undef, 2, 3, 4)  # Uninit. 3D-Array
+falses(3)            # BitVector mit 3x false
+trues(3)             # BitVector mit 3x true
+zeros(3)             # Vector{Float64} mit 0.0
+ones(Int64, 2, 3)    # 2x3 Matrix{Int64} mit 1
+range(0, 1, 11)      # Iterator 0 bis 1 (11 El.)
 1:10                 # Iterator 1 bis 10
-1:2:10               # Iterator 1 bis 10 in 2er Schritten
-reshape(1:12, 3, 4)  # 3x4 "Matrix" spaltenweise gefüllt
-fill(7, 2, 3)        # 2x3 Matrix gefüllt mit 7
-repeat([[1,2] [3,4]], 2, 3) # 2x2 Matrix 2x3 mal -> 4x6
-stack([[1,2], [3,4]])  # Mehrere Arrays kombinieren
+1:2:10               # Schritt-Iterator (1,3,..)
+collect(1:10)        # Wandelt Iterator in Vector
+collect((1, 2))      # unpacking Vektor aus Tuple
+reshape(1:12, 3, 4)  # 3x4-Matrix aus Range
+fill(7, 2, 3)        # 2x3 Matrix gefuellt mit 7
+repeat([1 2], 2, 3)  # Kachelt (ergibt 2x6 Matrix)
+stack([[1, 2], [3, 4]]) # Baut Spaltenmatrix
 stack([[1,2], [3,4]], dims=1) # Horizontal
-x = [1, 2]       # 2-element Vector
-resize!(x, 5)    # Hängt 3 uninitialisiert Elemente an
-collect((1, 2))  # unpacking Vektor aus Tuple
-tuple([1,2,3])   # 1-Element Tuple mit dem Vektor
-Tuple([1,2,3])   # unpacking Tuple aus Vektor
+x = [1, 2]           # 2-element Vector
+resize!(x, 5)        # In-place Groessenaenderung
+tuple([1,2,3])       # 1-Element Tuple mit dem Vektor
+Tuple([1, 2, 3])     # Wandelt Vector in Tuple
 \end{lstlisting}
 
-Mit \emph{Comprehensions} können Arrays mithilfe von Schleifen und Funktionen erzeugt werden.
+\emph{Comprehensions} generieren Arrays mittels Schleifen und optionalen Bedingungen:
 
 \begin{lstlisting}
-[x * y for x in 1:2, y in 1:3]    # 2x3 Array
-[x * y for x in 1:2 for y in 1:3] # 6-element Vektor
-Float64[x^2 for x in -2:2]        # Typecast nach Float64
-[x * y for x in 1:2, y in 1, z in 1:3]   # 2x3 Array
-[x * y for x in 1:2, y in 1:1, z in 1:3] # 2x1x3 Array
-[x * y for x=1:3 for y=1:x if x+y == 4]  # Mit Bedingung
+[x * y for x in 1:2, y in 1:3]    # 2x3 Matrix
+[x * y for x in 1:2 for y in 1:3] # 6-el. Vector
+Float64[x^2 for x in -2:2]        # Typisierter Vector
+[x * y for x=1:3 for y=1:x if x+y == 4]  # Mit if
 \end{lstlisting}
 
-Eine Dimension mit nur einem Element wird automatisch entfernt. Falls sie
-erhalten bleiben soll, muss z.\,B.\ statt \lstinline|1| \lstinline|1:1|
-geschrieben werden.
+Wird bei der Index-Generierung eine Dimension mit nur einem Element deklariert (z.\,B. \code|1|), bricht Julia diese Dimension ab. Um sie als Dimension der Länge 1 zu erhalten, nutzt man eine Range (z.\,B. \code|1:1|).
 
-Weitere wichtige Funktionen im Umgang mit Arrays sind:
 \begin{lstlisting}
-A = rand(2,1,3)      # 2x1x3 Array{Int64, 3}
-ndims(A)             # Anzahl Dimensionen: 3
-eltype(A)            # Type der Elemente: Float64
-length(A)            # Anzahl Elemente: 6
-size(A)              # Tuple mit Dim. Längen: (2, 1, 3)
+[x * y for x in 1:2, y in 1]    # 2-element Vector
+[x * y for x in 1:2, y in 1:1]  # 2×1 Matrix
+\end{lstlisting}
+
+Wichtige Funktionen zur Array-Analyse und Reduktion:
+\begin{lstlisting}
+A = rand(2, 1, 3)    # 2x1x3 Matrix{Float64, 3}
+ndims(A)             # Anzahl Dimensionen (3)
+eltype(A)            # Elementtyp (Float64)
+length(A)            # Gesamte Elementanzahl (6)
+size(A)              # Dimensionslaengen ((2,1,3))
 axes(A)              # Tuple mit Ranges der Dimensionen
- # (Base.OneTo(2), Base.OneTo(1), Base.OneTo(3))
-eachindex(A)     # Eindimensionaler Index: Base.OneTo(6)
-CartesianIndices(A)  # Lazy Index Iterator von A
- # CartesianIndices((2, 1, 3))
+eachindex(A)         # Linearer Index-Iterator (1:6)
+CartesianIndices(A)  # Lazy Mehrdim. Index-Iterator
 LinearIndices(A)     # Lazy linear Iterator von A
- # 2x1x3 LinearIndices{3, Tuple{Base.OneTo{Int64},
- #  Base.OneTo{Int64}, Base.OneTo{Int64}}}:
-vec(A)               # Array als Vector reuse memory
- # 6-element Vector{Float64}
-dropdims(A, dims=2)  # Zweite Dim. ist 1 lang
- # 2x3 Matrix{Float64}
-sum(A, dims=3)       # Summe über die 3 Dimension
- # 2x1x1 Array{Float64, 3}:
+vec(A)               # Abflachen (shared memory)
+dropdims(A, dims=2)  # Entfernt 2. Dim die 1 lang ist
+sum(A, dims=3)       # Summe laengs 3. Dimension
 sum(A, dims=(1,2))   # 1x1x3 Array{Float64, 3}
 sum(A, dims=[1,2])   # 1x1x3 Array{Float64, 3}
-count(>(0.5), A)     # Anzahl Werte in A > 0.5
- # Mit der anonymen Funktion >(0.5)
-any(>(0.5), A)       # Irengt ein Wert > 0.5: true/false
+count(>(0.5), A)     # Zaehlt Elemente > 0.5
+any(>(0.5), A)       # true, wenn ein Element > 0.5
 all(>(0.5), A)       # Alle Werte > 0.5: true/false
 \end{lstlisting}
 
-Auf Array--Elemente kann genauso zugegriffen werden wie auf
-\hyperref[ssec:tuple]{Tuple--Elemente}. Auch wenn mehrere Dimensionen bestehen,
-gibt es die Möglichkeit auf die einzelnen Elemente linear zuzugreifen, so als ob
-es sich um einen Vektor handeln würde. Zusätzlich gibt es noch folgende
-Zugriffsmöglichkeiten:
+Der Zugriff auf Array-Elemente erfolgt primär wie bei \hyperref[ssec:tuple]{Tuples}. Mehrdimensionale Arrays erlauben zudem einen rein linearen Zugriff (als wäre es ein Vektor). Weitere Indizierungsoptionen:
 
 \begin{lstlisting}
-A = reshape(collect(1:24), (2, 3, :))  # 2x3x4 Array
-A[[true, false], [3, 1], 1]            # 1x2 Matrix
-A[1, :, 1:2]          # : für alles: 3x2 Matrix
-A[1:1, 1, :]          # 1x4 Matrix
-A[1, 1, :]            # 4-element Vector
-A[1, 1, :, [true]]    # 4x1 Matrix
-A[1, 1, :, [false]]   # 4x0 Matrix
-A[[1, 7, 3]]          # Als Vektorindex: 3-element Vector
-A[[1 7 3]]            # Gleiche Daten aber: 1x3 Matrix
-A[[1 7 3; 2 5 7]]     # 2x3 Matrix
-A[2, [1 2; 3 1], 4]   # 2x2 Matrix
-A[1, 1, 2:3]          # 2-element Vector
-A[1, 1, 2:end-1]      # Hier das Gleiche wie zuvor
+A = reshape(collect(1:24), (2, 3, :)) # 2x3x4 Array
+A[[true, false], [3, 1], 1]   # Logischer Index
+A[1, :, 1:2]         # : waehlt ganze Dimension
+A[1:1, 1, :]         # 1x4 Matrix
+A[1, 1, :]           # 4-element Vector
+A[1, 1, :, [true]]   # 4x1 Matrix
+A[1, 1, :, [false]]  # 4x0 Matrix
+A[[1, 7, 3]]         # Linearer Vektor-Index
+A[[1 7 3]]           # Gleiche Daten aber: 1x3 Matrix
+A[[1 7 3; 2 5 7]]    # Output-Form folgt Index-Form
+A[1, 1, 2:end-1]     # end ist der letzte Index
 view(A, [1, 9])  # SubVektor von A, Zeigt auf Daten von A
-view(A, 1:2, 2:3, 4)  # Subarray-View
+view(A, 1:2, 2:3, 4) # View (shared memory)
 \end{lstlisting}
 
-Daten eines Arrays verändern.
+Modifikation von Array-Daten:
 
 \begin{lstlisting}
-A = reshape(Vector(1:12), (3, 4))  # 3x4 Matrix
-A[2, 1] = 3         # Element 2, 1 wird auf 3 gesetzt
+A = reshape(Vector(1:12), (3, 4))
+A[2, 1] = 3          # In-place Einzelwert
 #A[:, 2:3] = 3      ## Error size mismatch
-A[:, 2:3] .= 3      # OK, broadcasting mit .
+A[:, 2:3] .= 3       # In-place Broadcasting
 A[:, 2:3] .= [1 2]  # Automatisch wiederholt
 A[:, 2:3] = repeat([1 2], 3)  # das gleiche
-x = A[:, 2:3]       # Macht ein neues Array x
-x .= 4              # Werte in x aber nicht in A geändert
-y = view(A, :, 2:3) # Zeigt auf Daten in A
-y .= 5              # Werte in A geändert
+x = A[:, 2:3]        # Erstellt unabhaengige Kopie
+y = view(A, :, 2:3)  # View auf Originaldaten
+y .= 5               # Modifiziert A implizit
 \end{lstlisting}
 
-Ein Array wird als \emph{Referenz} übergeben, d.\,h.\ wenn Werte verändert
-werden, ist dies in allen Referenzen zu sehen. Mit \lstinline|copy| kann die
-äußere Struktur, mit \lstinline|deepcopy| alle Daten rekursiv kopiert werden. 
+Arrays verhalten sich wie \emph{Referenzen}. Die Zuweisung \code|x = A| kopiert nicht die Daten. Flache Kopien erzeugt \code|copy|, rekursive Tiefenkopien liefert \code|deepcopy|.
 
 \begin{lstlisting}
-A = [[2, 1], 1]  # 2-element Vector{Any}
-x = A            # Referenz auf A
-y = copy(A)      # Struktur von A
-z = deepcopy(A)  # Rekursive Kopie von A
-A[1][1] = 0      # Inplace Veränderung
-A[2] = 3.        # Neues Element
+A = [[2, 1], 1]  # Vektor mit Sub-Vektor
+x = A            # Referenz-Zuweisung
+y = copy(A)      # Kopiert nur aeussere Struktur
+z = deepcopy(A)  # Kopiert alle Daten rekursiv
+A[1][1] = 0      # Modifiziert A, x und y
+A[2] = 3.0       # y und z bleiben unberuehrt
 x                # Identisch mit neuem A
 y                # Nur Veränderung von A[1][1]
 z                # Inhalt wie ursprüngliches A
 \end{lstlisting}
 
-Zahlen werden wie Vektoren mit genau einem Element verarbeitet.
+Skalare Zahlen lassen sich formal wie 0-dimensionale Arrays oder Ein-Element-Vektoren indizieren:
+
 \begin{lstlisting}
 x = 10
-x[]       # 10
+x[]       # 10 (0-D Zugriff)
 x[1]      # 10
-x[1, 1]   # 10, alle 1 am Ende werden ignoriert
+x[1, 1]   # 10 (Folge-Indizes von 1 ignoriert)
 only(x)   # 10
-size(x)   # (), Leerer Tuple
+size(x)   # () (Leeres Tuple fuer Skalare)
 y = [10]  # 1-element Vector
-y[]       # 10, Geht nur bei Arrays mit genau 1 element
-only(y)   # 10, Geht nur bei Arrays mit genau 1 element
+y[]       # 10 (Geht nur bei genau 1 Element)
 size(y)   # (1,)
-x = 1.5   # Wechsel von Int auf Float
 \end{lstlisting}
 
-Beliebige Werte können mit \lstinline|Ref| in einem 0-dimensionalen Container gespeichert werden.
+Beliebige Objekte können mittels \code|Ref| in einen expliziten, veränderbaren 0-dimensionalen Container gekapselt werden:
 
 \begin{lstlisting}
-x = Ref("a")  # 0-dimensionaler Container
-x[]           # "a"
-x[] = 2       # Error Cannot `convert`
-x[] = "b"     # OK
+x = Ref("a")  # Typ: Base.RefValue{String}
+x[]           # "a" (Dereferenzierung)
+#x[] = 2     ## Error Cannot `convert`
+x[] = "b"     # OK (Zuweisung gleichen Typs)
 \end{lstlisting}
 
 \subsection{Composite -- Struct}
 \label{ssec:composite}
 
-Ein zusammengesetzter Typ ist eine Sammlung von Variablen mit Nahmen und werden
-mit \lstinline|struct| erzeugt.
+Zusammengesetzte Typen (Composite Types) sind Sammlungen benannter Felder 
+und werden mit \code|struct| definiert. Standardmäßig sind sie unveränderlich (immutable).
 
 \begin{lstlisting}
 struct X
   a::Int
   b               # Typ Any
 end
-x = X(0.5, 1.5)   # InexactError
+x = X(0.5, 1.5)   # InexactError: Konvertierung schlägt fehl
 x = X(0, 1.5)     # OK
 x.a               # Zugriff auf Feld a
 x.a = 1           # Error: immutable struct
+
 mutable struct Y  # Veränderbare Struct
   a::Int
   b
-  const c         # nicht veränderbar
+  const c         # Einzelnes Feld nicht veränderbar
 end
 y = Y(0, 1, 2)    # OK
 y.a = 1           # OK
-y.a = 1.3         # InexactError
+y.a = 1.3         # InexactError: Konvertierung schlägt fehl
 y.b = 1.3         # OK
 y.c = 3           # Error: const field
 y.d = 5           # Error: no field d
+
 fieldnames(Y)     # (:a, :b, :c)
 fieldtypes(Y)     # (Int64, Any, Any)
 fieldtype(Y, 1)   # Int64; Über Position
 fieldtype(Y, :a)  # Int64; Über Name
 \end{lstlisting}
 
-Felder ohne Typangabe bekommen den Typ Any und können damit jeden beliebigen Typ
-speichern. \hyperref[ssec:tuple]{Named Tuples} sind anonyme unveränderbare
-Structs.
+Felder ohne Typangabe erhalten den Typ \code|Any|. 
+\hyperref[ssec:tuple]{Named Tuples} verhalten sich wie anonyme, 
+unveränderliche Structs.
+
+Unveränderliche Typen (\code|struct|) werden von 
+Julia meist direkt auf dem Stack oder inline in Arrays allokiert. Das 
+vermeidet Heap-Allokationen und entlastet den Garbage Collector. 
+Veränderliche Typen (\code|mutable struct|) erzwingen hingegen meist 
+Heap-Allokationen und Speicherzugriffe über Pointer, was in engen Schleifen 
+zu Performance-Einbußen führen kann.
 
 \subsection{Union}
 \label{ssec:union}
 
-Mit \lstinline|Union| können verschiedene Typen zu einem abstrakten Typ vereint
-werden.
+Eine \code|Union| fasst mehrere Typen zu einem gemeinsamen, abstrakten Typ 
+zusammen. Ein Wert entspricht dem Union-Typ, wenn er Instanz eines der 
+enthaltenen Typen ist.
 
 \begin{lstlisting}
-IntOrString = Union{Int,String}  # Int oder String
-1 :: IntOrString                 # OK
-"Hello!"::IntOrString            # OK
-1.0::IntOrString                 # TypeError
+IntOrStr = Union{Int,String}     # Int oder String
+1 :: IntOrStr                    # OK
+"Hello!" :: IntOrStr             # OK
+1.0 :: IntOrStr                  # TypeError
 \end{lstlisting}
 
 \subsection{Abstract Type}
 \label{ssec:AbstractType}
 
-Mit abstrakten Typen kann man die Typhierarchie, seiner selbst definierten
-Typen, zusammenfassen.
+Abstrakte Typen dienen als Strukturierungselemente, um eine gemeinsame 
+Typhierarchie für eigene Typen zu definieren. Sie können selbst keine 
+Instanzen (Objekte) erzeugen, sondern nur als Oberflächen für Subtypen fungieren.
 
 \begin{lstlisting}
 abstract type A end
 abstract type B <: A end  # B ist Subtyp von A
 struct X <: A a end       # X ist Subtyp von A
-struct Y <: B b end       # Y ist Subtyp von B
-subtypes(A)               # B und X
-subtypes(B)               # Y
+struct Y <: B; b; end     # Y ist Subtyp von B
+subtypes(A)               # Any[B, X]
+subtypes(B)               # Any[Y]
 supertype(Y)              # B
 Y <: A                    # true
 Y <: X                    # false
@@ -542,199 +513,198 @@ Y <: X                    # false
 \subsection{Dictionaries}
 \label{ssec:dictionary}
 
-Es besteht eine Schlüssel (Key) Wert Beziehung.
+Dictionaries (\code|Dict|) speichern Key-Value-Paare, bei denen eindeutige 
+Schlüssel auf bestimmte Werte abgebildet werden.
 
 \begin{lstlisting}
 D = Dict{Char, Int64}()         # Leeres Dict Char => Int
-D = Dict('a'=>2, 'b'=>3)        # Dicht mit 2 Einträgen
-D = Dict([('a', 2), ('b', 3)])  # Alternative
+D = Dict('a'=>2, 'b'=>3)        # Dict mit 2 Einträgen
+D = Dict([('a', 2), ('b', 3)])  # Alternative Erzeugung
 D['a']                          # 2
-D['c']                          # Error key not found
+#D['c']                        ## KeyError: key not found
 D['c'] = 3                      # Element einfügen
 haskey(D, 'b')                  # true
-keys(D)                         # Zeigt alle Keys
-values(D)                       # Zeigt alle Werte
-pairs(D)                 # Zeigt alle Keys mit Werten
-delete!(D, 'b')          # Löscht Eintrag b
-pop!(D, "a")             # Holt Wert von a und entfernt a
-get(D, 'd', "default")   # d wenn vorhanden sonst default
+keys(D)                         # Iterierbare Schlüssel
+values(D)                       # Iterierbare Werte
+pairs(D)                        # Iterierbare Paare
+delete!(D, 'b')                 # Löscht Eintrag b
+pop!(D, 'a')                    # Holt Wert von a, löscht a
+get(D, 'd', 0)                  # Wert von d, sonst 0
 \end{lstlisting}
 
 \subsection{Set}
 \label{ssec:set}
 
-Eine Sammlung einzigartiger (uniqe) Schlüssel.
+Ein \code|Set| ist eine ungeordnete Sammlung einzigartiger (unique) Werte. 
+Jedes Element kann nur einmal vorkommen.
 
 \begin{lstlisting}
-S = Set([1, 4, 7])  # Erzeugt Set
+S = Set([1, 4, 7])  # Erzeugt Set(1, 4, 7)
 push!(S, 2)         # Fügt 2 ein
-push!(S, 4)         # Ändert nichts da 4 schon vorhanden
-union(S, 2:3)       # Vereint beide
-intersect(S, 1:3)   # Schnittmenge beider
+push!(S, 4)         # Keine Änderung, da 4 existiert
+union(S, 2:3)       # Neues Set mit Werten aus S und 2:3
+intersect(S, 1:3)   # Neues Set mit Werten in S und 1:3
 \end{lstlisting}
 
 \section{String}
 \label{sec:string}
 
-Strings sind eine Sequenz von Zeichen (character) die in UTF-8 codiert sind. Die
-Zeichenkodierung erfolgt mit einer variablen Anzahl von 1 bis zu 4 Byte. Der
-Zugriff mittels Index erfolgt über den Byteindex womit unzulässige
-Zeichenkodierungen angesprungen werden können.
+Strings sind in UTF-8 codierte Sequenzen von Zeichen (\code|Char|). Die 
+Zeichenkodierung nutzt eine variable Länge von 1 bis 4 Byte. Der Indexzugriff 
+erfolgt per Byte-Index, weshalb ungültige Byte-Adressen Fehler auslösen.
 
 \begin{lstlisting}
-s = "Mehr \"Licht\"!"    # " in String escape mit \
-s = """Mehr "Licht"!"""  # Oder zwischen """
+s = "Mehr \"Licht\"!"    # " per \ escapen
+s = """Mehr "Licht"!"""  # Alternativ mit Dreifach-Anfuehrungsz.
 s = "Mehr \
-     \"Licht\"!"         # Keine neue Zeile
-s = "AÄ" * "oö"          # Zusammenhängen
-length(s)                # 4
-ncodeunits(s)            # 6
-collect("abü")    # String ist eine Collection von Char
-collect(eachindex(s))    # 1 2 4 5
-#s[3]                    ## StringIndexError
-for c in s print(c) end  # Schleife über jedes Zeichen
-#SubString(s, 1, 3)      ## StringIndexError
+     \"Licht\"!"         # Zeilenumbruch im Code wird ignoriert
+s = "AÄ" * "oö"          # Strings verketten
+length(s)                # 4 (Anzahl Zeichen)
+ncodeunits(s)            # 6 (Anzahl Bytes)
+collect("abü")           # Array von Char: ['a', 'b', 'ü']
+collect(eachindex(s))    # Byte-Indizes: [1, 2, 4, 5]
+#s[3]                  ## StringIndexError (Byte 3 ist ungültig)
+for c in s print(c) end  # Iteration ueber jedes Zeichen
+#SubString(s, 1, 3)     ## StringIndexError
 SubString(s, 1, nextind(s, 0, 3))  # "AÄo"
-nextind(s, 2)            # 4
-prevind(s, 4)            # 2
-repeat("Ja ", 3)         # 3 mal wiederholen
-"Ja " ^ 3                # 3 mal wiederholen
-string("x = ", 2.7)      # String mit print erzeugen
-repr(123.3)              # In String umwandeln
+nextind(s, 2)            # 4 (Naechster gueltiger Index nach 2)
+prevind(s, 4)            # 2 (Vorheriger gueltiger Index vor 4)
+repeat("Ja ", 3)         # "Ja Ja Ja "
+"Ja " ^ 3                # Alternativ per Potenz-Operator
+string("x = ", 2.7)      # String via print-Logik erzeugen
+repr(123.3)              # String-Repraesentation: "123.3"
 s = "xylophone"
-chop(s)                  # String ohne letztes Zeichen
-occursin("o", s)         # true, Ist enthalten
+chop(s)                  # Entfernt letztes Zeichen: "xylophon"
+occursin("o", s)         # true (Sub-String enthalten?)
 findfirst('o', s)        # 4
 findlast('o', s)         # 7
-findnext('o', "xylophone", 5)  # 7
-findprev('o', "xylophone", 5)  # 4
-s = "\n\t\$"             # Zeilenumbruch, Tab, $
+findnext('o', s, 5)      # 7
+findprev('o', s, 5)      # 4
+s = "\n\t\$"             # Umbruch, Tabulator, Dollarzeichen
 x = 123
-s = "$x + 3 = $(x+3)"    # Interpolation "123 + 3 = 126"
-print(raw"D:\path \\\"") # D:\path \"
+s = "$x + 3 = $(x+3)"    # Interpolation: "123 + 3 = 126"
+print(raw"D:\path \\\"") # Gibt Rohdaten aus: D:\path \"
 \end{lstlisting}
 
-\lstinline|SubString| macht keine Kopie des Strings, sondern zeigt in den
-bestehenden. \lstinline|String| und \lstinline|SubString| sind Subtypen von
-\lstinline|AbstractString|. \lstinline|AbstractString| sollte gewöhnlich, bei
-eigenen Funktionen, als Argumenttyp verwendet werden.
+\code|SubString| erzeugt keine Kopie, sondern referenziert einen Ausschnitt des 
+Originals. \code|String| und \code|SubString| sind Subtypen von \code|AbstractString|, welcher in eigenen 
+Funktionen als Argumenttyp genutzt werden sollte.
 
-Es können auch PCRE2 (Perl Compatible Regular Expressions) verwendet werden,
-indem ein \lstinline|r| den Anführungszeichen vorangestellt wird. Wenn ausgetauscht (substitute) wird, wird ein substitute String benötigt welcher ein \lstinline|s| den Anführungszeichen voranstellt.
+Für reguläre Ausdrücke nutzt Julia PCRE2 (Perl Compatible Regular Expressions) via \code|r"..."|. Für Ersetzungen 
+wird ein Substitutions-String via \code|s"..."| deklariert.
 
 \begin{lstlisting}
-re = r"[ÄÖÜ]."       # Ä, Ö oder Ü gefolgt von Beliebigem
+re = r"[ÄÖÜ]."       # Ä, Ö oder Ü gefolgt von beliebigem Zeichen
 occursin(re, "ABC")  # false
 s = "ÄÖÜX"
-m = match(re, s)     # ÄÖ, Erster Treffer
-m.offset             # 1
-m.match              # ÄÖ
+m = match(re, s)     # RegexMatch("ÄÖ") (Erster Treffer)
+m.offset             # 1 (Start-Byte)
+m.match              # "ÄÖ"
 length(m.match)      # 2
 ncodeunits(m.match)  # 4
-match(re, s, m.offset + 1)                    # ÖÜ
-match(re, s, m.offset + ncodeunits(m.match))  # ÜX
-collect(eachmatch(re, s))                     # ÄÖ ÜX
-collect(eachmatch(re, s, overlap=true))       # ÄÖ ÖÜ ÜX
-replace("ABCBA", r"([AC])" => s"\1X", count=2)# AXBCXBA
+match(re, s, m.offset + 1)                    # "ÖÜ"
+match(re, s, m.offset + ncodeunits(m.match))  # "ÜX"
+collect(eachmatch(re, s))                     # ["ÄÖ", "ÜX"]
+collect(eachmatch(re, s, overlap=true)) # ["ÄÖ", "ÖÜ", "ÜX"]
+replace("ABCBA", r"([AC])" => s"\1X", count=2)# "AXBCXBA"
 \end{lstlisting}
 
 \section{Programmierung}
 \label{sec:programmierung}
 
-Eine Wertzuweisung zu einer Variable erfolgt mit \lstinline|=| (value to variable \emph{assignment}).
+Wertzuweisungen an Variablen erfolgen mit dem Operator \code|=|.
 
 \begin{lstlisting}
-x = "A"  # x ist A
-x = 1    # x kann einen beliebigen neuen Wert bekommen
+x = "A"  # Zuweisung eines Strings
+x = 1    # Dynamische Typaenderung erlaubt
 \end{lstlisting}
 
-\emph{Compound Expressions} können mit \lstinline|begin end| oder \lstinline|;|
-erzeugt werden.
+Verbundene Ausdrücke (Compound Expressions) fassen mehrere Anweisungen 
+zusammen. Sie werden mit \code|begin ... end| oder per \code|;| blockiert.
 
 \begin{lstlisting}
 z = begin
-  x = 1   # ohne oder 
-  y = 2;  # mit ; macht hier keinen Unterschied
-  x + y
-end       # danach ist x=1; y=2 und z=3
-z = (x = 1; y = 2; x + y)          # Alternative
-z = begin x = 1; y = 2; x + y end  # Alternative
+  x = 1   
+  y = 2;  # Semikolon optional
+  x + y   # Letzter Wert wird zurueckgegeben
+end       # x = 1, y = 2, z = 3
+z = (x = 1; y = 2; x + y)          # Alternative in einer Zeile
+z = begin x = 1; y = 2; x + y end  # Alternative mit begin
 \end{lstlisting}
 
-Bedingte Ausführung (if, elseif, else):
+Bedingte Verzweigungen (\code|if|, \code|elseif|, \code|else|) erfordern 
+strikt Werte vom Typ \code|Bool|.
 
 \begin{lstlisting}
-if false    # if braucht Bool
+if false
   z = 1
 elseif 1 == 2
   z = 2
 else
   a = 3
-end         # danach ist a = 3 und z undefiniert
-1==2 ? "A" : "B"  # B, ternary operator
+end         # a = 3, z bleibt undefiniert
+1==2 ? "A" : "B"  # "B" (Ternaerer Operator)
 \end{lstlisting}
 
-Schleifen (while for):
+Schleifen (\code|while| und \code|for|):
 
 \begin{lstlisting}
 i = 1
 while true
-  global i += 1        # global bei REPL nicht nötig
-  if i > 10 break end  # Ausstieg bei Bedingung
+  global i += 1       # global bei REPL nicht nötig
+  if i > 10 break end # Vorzeitiger Abbruch
 end
-for x in 1:10    # x in 1:10 oder x = 1:10
-  if 3 < x < 6
-    continue     # Nächste Iteration
+for k in 1:10         # Alternativ: k = 1:10
+  if 3 < k < 6
+    continue          # Springt zur naechsten Iteration
   end
-  println(x)
+  println(k)
 end
-x  # UndefVarError, x nur in Schleife definiert
+# Schleifenvariablen sind lokal im Schleifen-Scope
 \end{lstlisting}
 
-Bei selbstdefinierten Funktionen wird der letzte Ausdruck zurückgegeben.
-Zusätzlich gibt es noch \lstinline|return|. Funktionen die mit \lstinline|!|
-Enden, verändern üblicherweise ihre Argumente in--place.
+Funktionen geben den Wert des letzten Ausdrucks oder ein explizites 
+\code|return| zurück. Funktionen, deren Name auf \code|!| endet, verändern 
+konventionsgemäß ihre Argumente im Speicher (in-place).
 
 \begin{lstlisting}
 f(x, y = 10) = x + y       # Funktion f mit Argumenten x
- # und y wobei y einen Defaultwert hat
-function f(x, y=10)        # Alternative
+   # und y wobei y einen Defaultwert hat
+function f(x, y = 10)      # Langform
   x + y
 end
 f(3, 2)                    # 5
-f(3)                       # 13
+f(3)                       # 13 (nutzt Default-Wert)
 (function (x) x^2 end)(3)  # Anonyme Funktion samt Aufruf
 (x -> x^2)(3)              # Alternative
-(() -> 0)()             # Anonyme Funktion ohne Argumente
-((x,y) -> x/y)(4,2)        # 2; Mit zwei Argumenten
-h(a, x...) = a + sum(x)/length(x)  # Vararg Funktion
- # wobei x ist Tuple ist
+(() -> 0)()                # Anonym ohne Argumente: 0
+((x, y) -> x/y)(4, 2)      # Anonym mit zwei Argumenten: 2.0
+h(a, x...) = a + sum(x)/length(x)  # Varargs (x ist Tuple)
 h(1, 2, 3)                 # 3.5
-x = (2, 3)                 # Ein Tuple
-#f(x)                      ## Error (2,3) + 10
-f(x...)                    # 5, OK - Tuple unpacking
-s(x; a = 1, b = 1) = x * a / b  # Mit Keyword Argumenten
-s(3, b = 2)                # Aufruf mit Keyword Argument
+x_tup = (2, 3)
+#f(x_tup)                 ## MethodError
+f(x_tup...)                # 5 (Tuple Unpacking)
+s(x; a=1, b=1) = x * a / b # Keyword-Argumente nach Semikolon
+s(3, b=2)                  # Aufruf mit Keyword-Argument: 1.5
 q(f::Function, x) = 2 * f(x)   # Funktion als Argument
-q(x -> 2x, 10)                 # 40; 2x oder 2*x
-q(10) do x          # 40; Anonyme Funktion mit do erzeugt
+q(x -> 2x, 10)                 # 40 (Implizite Multiplikation)
+q(10) do x                 # Alternative via do-Block
   2 * x
 end
 m = reshape(1:12, 3, 4)
-m.^2                        # 3x4 Matrix Elementweise ^2
-map(x -> x ^ 2, m)          # Alternative
-2 in [1 2 3]                   # true; Enthält 2
-in(2, [1 2 3])                 # Alternative
-filter(x -> x % 2 == 0, 6:9)   # 6 8; Elemente wo true
-findall(x -> x % 2 == 0, 6:9)  # 1 3; Indices wo true
-indexin(3:5, 2:4)           # 2 3 nothing; Trefferindex
-findall(==(1), (-2:2).^2)      # 2, 4; Indices wo Wert 1
+m.^2                        # Elementweise Quadrierung (.^)
+map(x -> x^2, m)            # Alternative via map
+2 in [1, 2, 3]              # true; Enthält 2
+filter(x -> x % 2 == 0, 6:9)   # [6, 8]; Elemente wo true
+findall(x -> x % 2 == 0, 6:9)  # [1, 3]; Indices wo true
+indexin(3:5, 2:4)              # [2, 3, nothing]; Trefferindex
+findall(==(1), (-2:2).^2)      # [2, 4]; Indices wo Wert 1
 ==(1)                          # Funktion Test == 1
 findfirst(==(1), (-2:2).^2)    # 2
 findlast(==(1), (-2:2).^2)     # 4
 \end{lstlisting}
 
-Funktionsargumente werden von links nach rechts evaluiert.
+Optionale Funktionsargumente werden von links nach rechts evaluiert.
 
 \begin{lstlisting}
 y = 10
@@ -746,26 +716,26 @@ f5(; x=y, y=1) = x; f5()  # 10
 f6(; y=1, x=y) = x; f6()  # 1
 \end{lstlisting}
 
-Eine Funktion kann, abhängig von ihren Argumenten, mehrere Methoden haben. Dies
-wird \emph{multiple dispatch} genannt und verwendet dazu ausschließlich
-positionsbezogene Argumente.
+Besitzt eine Funktion verschiedene Implementierungen basierend auf den 
+Argumenttypen, nennt man dies \emph{Multiple Dispatch}. Dafür werden 
+ausschließlich Positionsargumente ausgewertet.
 
 \begin{lstlisting}
-g(x, y) = 0              # Alle Typen
-g(x::Int, y::Int) = 1    # Wenn beide Int
-g(x::Int, y::Bool) = 2   # Wenn Int und Bool
+g(x, y) = 0              # Fallback fuer alle Typen
+g(x::Int, y::Int) = 1    # Spezifisch fuer zwei Ints
+g(x::Int, y::Bool) = 2   # Spezifisch fuer Int und Bool
 g(1.0, 1)                # 0
 g(1, 1)                  # 1
 g(1, true)               # 2
-g(x::Int, y::Int=1) = 3  # Erzeugt 2 Funktionen
-g(1)                     # 3; Eine als g(Int)
-g(1, 1)                  # 3; die andere Überschreibt 1
-methods(g)               # Zeigt alle Methoden von g
-t(; x::Int = 2) = 4      # Nur Keyword Argument
+g(x::Int, y::Int=1) = 3  # Definiert g(x::Int, y::Int) neu!
+g(1)                     # 3 (Nutzt den Default-Wert)
+g(1, 1)                  # 3 (Ueberschreibt die alte Methode)
+methods(g)               # Zeigt alle verfuegbaren Methoden
+t(; x::Int = 2) = 4      # Definition mit Keyword-Argument
 t(x=3)                   # 4
-t(; x::Bool = true) = 5  # Kein multiple dispatch für
- # Keyword arguments. Funktion wird überschrieben
-t(x=3)                   # TypeError
+t(; x::Bool = true) = 5  # Ueberschreibt vorherige Funktion!
+# (Kein Multiple Dispatch fuer Keyword-Argumente)
+#t(x=3)                 ## TypeError (Erwartet jetzt Bool)
 t()                      # 5
 t(x=false)               # 5
 \end{lstlisting}
@@ -773,287 +743,291 @@ t(x=false)               # 5
 \section{Gültigkeitsbereich (Scope) von Variablen}
 \label{sec:scopeVonVariable}
 
-Der Gültigkeitsbereich einer Variablen ist der Codebereich, in dem auf eine
-Variable zugegriffen werden kann. Variablen werden vom übergeordneten Scope, in dem sie definiert werden, geerbt (lexical scoping) und nicht von dem, von dem aus sie aufgerufen werden.
+Der Gültigkeitsbereich (Scope) bestimmt den Codebereich, in dem eine Variable 
+sichtbar ist. Julia nutzt \emph{lexical scoping}: Scopes erben Variablen aus 
+ihrem übergeordneten Definitionskontext, nicht aus dem Aufrufkontext.
 
-Folgende Befehle haben einen eigenen
-Gültigkeitsbereich ihrer Variablen:
-\lstinline|module|,
-\lstinline|struct|,
-\lstinline|for|,
-\lstinline|while|,
-\lstinline|try/catch|,
-\lstinline|macro|,
-\lstinline|function|,
-\lstinline|do| blocks,
-\lstinline|let| blocks,
-\lstinline|comprehensions| und
-\lstinline|generators|.
-Im Gegensatz dazu heben \lstinline|begin| Blocks und \lstinline|if| Blocks
-keinen eigenen Scope.
+Einen eigenen lokalen Scope besitzen: \code|module|, \code|struct|, \code|for|, 
+\code|while|, \code|try/catch|, \code|macro|, \code|function|, \code|do|-Blöcke, 
+\code|let|-Blöcke, \code|comprehensions| und \code|generators|. Kein eigener Scope 
+wird durch \code|begin|- und \code|if|-Blöcke geöffnet.
 
-Zusätzlich können Variablen definiert werden als:
+Variablen-Deklarationen:
 \begin{description}[style=multiline,leftmargin=1.3cm,nolistsep]
-  \item[global] Verwendet globale Variable im lokalen Scope.
-  \item[local] Definiert Variable im derzeitigen Scope.
-  \item[const] Nur für globale Variablen. Hinweis für Compiler, dass diese
-    variable nicht verändert wird.
+  \item[global] Deklariert oder nutzt eine Variable im globalen Scope.
+  \item[local] Erzwingt eine neue Variable im aktuellen lokalen Scope.
+  \item[const] Bindet globale Variablen fest an ihren Wert (Compiler-Optimierung).
 \end{description}
 
-Beispiele:
 \begin{lstlisting}
-f() = global t = 1  # Funktion setzt globale Variable
-t                   # ERROR: not defined
-f()                 # Danach ist t global definiert
+f() = global t = 1  # Definiert globale Variable t bei Aufruf
+#t                 ## Error: t noch nicht definiert
+f()                 # Initialisiert t global
 t                   # 1
+
 function f1(n)
   x = 0
   for i = 1:n
-    x = i           # Verwendet äussere lokale Variable
+    x = i           # Nutzt die äussere lokale Variable x
   end
   x
 end
 f1(10)              # 10
+
 function f2(n)
   x = 0
   for i = 1:n
-    local x         # Verwendet eine neue lokale Variable
+    local x         # Neue lokale Variable im Schleifen-Scope
     x = i
   end
   x
 end
 f2(10)              # 0
+
 function f3(n)
   for i = 1:n
     h = i
   end
-  h                 ## ERROR: not defined
+  h                 # Error: h ist ausserhalb nicht definiert
 end
-f3(10)
+#f3(10)
+
 function f4(n)
   local h
   for i = 1:n
-    h = i           # Verwendet äussere lokale Variable
+    h = i           # Nutzt deklariertes äusseres h
   end
   h
 end
 f4(10)              # 10
+
 const x = 2
-#x = 3              ## WARNING: redefinition of constant
-#x = 3.0            ## Error, falscher Typ
-y::Int = 1          # Typ wird spezifiziert
-#y = 2.5            ## Error y muss Int bleiben
+#x = 3             ## Error: Wert von Konstante geaendert
+#x = 2.0           ## Error: Ungueltige Typaenderung fuer const
+y::Int = 1          # Globale Variable mit Typisierung
+#y = 2.5           ## InexactError: Muss Int bleiben
 \end{lstlisting}
 
-Global const können die Geschwindigkeit erhöhen, da der Compiler ihren Typ
-kennt.
+Globale Konstanten (\code|const|) können die Performance verbessern, da 
+der Compiler ihren Typ statisch ableiten kann.
 
-Schleifen und Comprehensions erzeugen ihre Variablen bei jedem Iterationsschritt
-neu und können daher bei Zuweisungen verwendet werden.
+Schleifen und Comprehensions 
+erzeugen ihre Schleifenvariablen bei jedem Iterationsschritt neu (Closure-Sicherheit).
 
 \begin{lstlisting}
 Fs = Array{Any}(undef, 2)
 for i in 1:2
-  Fs[i] = () -> i  # Funktion zuweisen
+  Fs[i] = () -> i   # i wird für jede Instanz neu gebunden
 end
-Fs[1](), Fs[2]()   # (1, 2)
+Fs[1](), Fs[2]()    # (1, 2)
 \end{lstlisting}
 
-\lstinline|for|, \lstinline|while|, \lstinline|try|, und \lstinline|struct|
-haben einen \emph{soft} local scope. Wenn diese im top level (global) scope in
-der REPL (interaktiv) verwendet werden, überschreiben sie bestehende globale
-Variablen.
+Top-Level-Schleifen (\code|for|, \code|while|) sowie \code|try|, und \code|struct| besitzen einen \emph{soft local scope}. 
+In der REPL (interaktiv) überschreiben sie bestehende globale Variablen direkt.
 
 \begin{lstlisting}
 x = 5
 for i in 1:10
-  x = i
+  x = i             # Ueberschreibt globales x in der REPL
 end
-x              # 10
+x                   # 10
 \end{lstlisting}
 
-Werden sie hingegen nicht interaktiv, also als Skript, verwendet,
-überschreiben sie diese nicht und es wird eine Warnung ausgegeben.
+In Skripten (nicht-interaktiv) führt dies ohne explizites Keyword zu 
+Mehrdeutigkeiten, einer Warnung und dem standardmäßigen Anlegen einer lokalen Variable:
 
 \begin{lstlisting}
+# Ausführung als Skript:
 julia -e "x=5; for i in 1:10 x = i end; println(x)"
- Warning: Assignment to `x` in soft scope is ambiguous because a global
-variable by the same name exists: `x` will be treated as a new local.
-Disambiguate by using `local x` to suppress this warning or `global x` to
-assign to the existing global variable.
- @ none:1
-5
+# Warning: Assignment to `x` in soft scope is ambiguous...
+# Ausgabe: 5
 \end{lstlisting}
 
-Lösungsmöglichkeiten sind entweder \lstinline|local|, \lstinline|global| oder
-\lstinline|let| zu verwenden.
+Eindeutigkeit wird durch \code|local|, \code|global| oder \code|let|-Blöcke 
+erzwungen:
 
 \begin{lstlisting}
 x = 5
 for i in 1:10
   local x = i
 end
-x              # 5
+x                   # 5 (Globales x bleibt unberuehrt)
+
 x = 5
 for i in 1:10
   global x = i
 end
-x              # 10
+x                   # 10 (Globales x explizit ueberschrieben)
+
 let x = 5
   for i in 1:10
       x = i
   end
   x
-end            # 10
+end                 # 10 (Lokales x im let-Scope veraendert)
 \end{lstlisting}
 
 \section{Modul}
 \label{sec:modul}
 
-Module helfen Programmteile zu gruppieren und von anderen Teilen abzukapseln.
-Sie haben jeweils einen eigenen globalen Namensraum (Namespace). Der Modulname
-der REPL ist \lstinline|Main|.
+Module kapseln Programmteile in eigenen globalen Namensräumen (Namespaces) 
+ab. Der Standard-Namensraum der REPL lautet \code|Main|.
 
 \begin{lstlisting}
-module M      # Name des Moduls
-export x, y   # Was exportiert werden soll
+module M      # Definiert Modul M
+export x, y   # Deklariert oeffentliche Schnittstelle
 x = 1
 y = 2
-z = 3         # Interne Variable
+z = 3         # Internes Feld (nicht exportiert)
 end
-varinfo(M)    # Zeigt M, x und y
-#x            ## Error; nicht im Globalen Scope
-M.z           # Direkter Zugriff möglich
-using .M: x   # x aus M importieren
+varinfo(M)    # Zeigt exportierte Symbole (x, y) in M an
+#x           ## Error: Nicht im aktuellen Scope vorhanden
+M.z           # Qualifizierter Direktzugriff ist immer moeglich
+using .M: x   # Importiert ausschliesslich x aus M
 x             # 1
-#y            ## Error; nicht im Globalen Scope
-using .M      # Alle exportierten Variablen importieren
+#y           y# Error: y wurde noch nicht importiert
+using .M      # Importiert alle exportierten Variablen (x, y)
 y             # 2
-#z            ## Error; nicht im Globalen Scope
-import .M.z   # z aus M importieren
-using .M: z   # Alternative
-z             #3
-using Random  # Mit using werden auch Pakete geladen
+#z           ## Error: z ist nicht exportiert
+import .M.z   # Importiert das interne z explizit
+using .M: z   # Alternative für gezielten Import
+z             # 3
+using Random  # Lädt externe Standard- oder Drittanbieter-Pakete
 \end{lstlisting}
 
-
-Das erneute Zuweisen von Variablen (rebinding), die die schon in anderen Modulen
-definiert sind, ist nicht erlaubt.
+Das lokale Überschreiben (Rebinding) von automatisch aus 
+Base verfügbaren Namen ist erlaubt. Das Objekt verliert 
+dadurch jedoch seine ursprüngliche Funktion.
 
 \begin{lstlisting}
-sin(0)      # OK: 0.0
-#sin = 1    ## Error; da es schon Base.sin gibt
-cos = 2     # Geht da cos noch nicht von Base importiert
-cos         # 2
-#cos(0)     ## Error; da cos=1 und keine Funktion
-Base.cos(0) # Geht: 1.0
+sin(0)      # 0.0 (Automatisch aus Base verfuegbar)
+sin = 1     # Erlaubt: Ueberschreibt den Namen lokal
+sin         # 1
+#sin(0)    ## MethodError: Int64 ist nicht aufrufbar
+Base.sin(0) # 0.0 (Expliziter Base-Aufruf weiterhin möglich)
 \end{lstlisting}
 
-\section{Rechenzeichen -- Operators}
+\section{Rechenzeichen -- Operatoren}
 \label{sec:operatoren}
 
-Beispiele für Standardoperatoren.
+Anwendungsbeispiele für Standardoperatoren und Broadcasting.
 
 \begin{lstlisting}
-true || false   # Binärer Oder Operator, Evaluation endet
-false && true   # wenn Ergebnis bekannt (short-circuit)
-[true,false] .&& [true,false]  # 2-element BitVector
+true || false   # Short-circuiting: Auswertung stoppt,
+false && true   # sobald Ergebnis feststeht
+[true,false] .&& [true,false]  # Elementweiser BitVector
 1 | 2           # 3; Bitweises Oder
-1 < 2 < 3       # Verkettete Bedingung
-[1,2] .< [2,1]  # Vektorisiert mit .
-x = [1 2 3]       # 1x3 Matrix (horizontal)
-2x + 2(x .+ 1)    # Kein * nötig bei 2x oder 2(
+1 < 2 < 3       # Verketteter Vergleich
+[1,2] .< [2,1]  # Elementweiser Vergleich via .
+x = [1 2 3]     # 1x3 Matrix (Zeilenvektor)
+2x + 2(x .+ 1)  # Implizite Multiplikation vor Klammern
 2*x + 2*(x .+ 1)  # Das gleiche nur mit *
-y = [1, 2, 3]     # 3-element Vector (vertikal)
-#x + y            ## Error, DimensionMismatch
-x .+ y            # 3x3 Matrix, dimension broadcasting
-x + y'            # 1x3 Matrix
-x * y        # 14; Array Multiplikation, 1-element Vektor
-x .* y       # Elementweise Multiplikation, 3x3 Array
-x == [1 2 3]   # true; Objekte haben selben Inhalt
-x === [1 2 3]  # false; Objekte sind nicht identisch
+y = [1, 2, 3]   # 3-element Vector (Spaltenvektor)
+#x + y         ## DimensionMismatch
+x .+ y          # 3x3 Matrix via Broadcasting
+x + y'          # 1x3 Matrix (y' rotiert Spalte in Zeile)
+x * y           # [14]; Matrix-Multiplikation (1-element Vektor)
+x .* y          # Elementweise Multiplikation (3x3 Matrix)
+x == [1 2 3]    # true; Identischer Inhalt
+x === [1 2 3]   # false; Unterschiedliche Speicherobjekte
 z = reshape(1:9, 3, 3)
-#z + x  ## Error, DimensionMismatch
-z .+ x  # x broadcast vertikal
-z .+ y  # y broadcast horizontal
-[1 2] .+ [1; 2]              # 2x2 Matrix
+#z + x         ## DimensionMismatch
+z .+ x          # Zeilenvektor x broadcastet vertikal
+z .+ y          # Spaltenvektor y broadcastet horizontal
+[1 2] .+ [1; 2] # 2x2 Matrix
 broadcast(+, [1 2], [1; 2])  # Das Gleiche
-length(["a", "bc"])          # 2
-length.(["a", "bc"])         # 1, 2
+length(["a", "bc"])   # 2 (Anzahl der Elemente im Array)
+length.(["a", "bc"])  # [1, 2] (Elementweise String-Laengen)
 \end{lstlisting}
 
-Beispiele für Funktions broadcasting:
+Beispiele für Funktions-Broadcasting:
 \begin{lstlisting}
 t(x::Real, y::Real = 1.0) = x * y
-t(1.0, 2.0)                # 2
-#t([1.0 2.0])              ## Error
-t.([1.0 2.0])              # 1, 2
-#t([1.0 2.0], 2.0)         ## Error
-t.([1.0 2.0], 2.0)         # 2, 4
-t.(2.0, [1.0 2.0])         # 2, 4
-t.([1.0 2.0], [1.0 2.0])   # 1, 4
-t.([1.0, 2.0], [1.0 2.0])  # 1 2; 2 4
+t(1.0, 2.0)                # 2.0
+#t([1.0 2.0])             ## MethodError
+t.([1.0 2.0])              # [1.0 2.0]
+#t([1.0 2.0], 2.0)        ## MethodError
+t.([1.0 2.0], 2.0)         # [2.0 4.0]
+t.(2.0, [1.0 2.0])         # [2.0 4.0]
+t.([1.0 2.0], [1.0 2.0])   # [1.0 4.0]
+t.([1.0, 2.0], [1.0 2.0])  # 2x2 Matrix: [1.0 2.0; 2.0 4.0]
 \end{lstlisting}
 
 \section{Wichtige Funktionen}
-\label{sec:wichtigeFuntionen}
+\label{sec:wichtige_funktionen}
+
+Anwendungsbeispiele für essenzielle Julia-Funktionen.
 
 \begin{lstlisting}
-show(collect(1:3))  # [1, 2, 3], Text Repräsentation
-eps()  # Differenz zur nächstgrösseren Float64 Zahl von 1
-nextfloat(2.0)      # Nächstgrössere Float Zahl von 2.0
-prevfloat(2.0)      # Nächstkleinere Float Zahl von 2.0
+show(collect(1:3))  # [1, 2, 3] (Text-Repraesentation)
+eps()               # Abstand von 1.0 zur naechsten Float64
+nextfloat(2.0)      # Nächstgroessere Float-Zahl von 2.0
+prevfloat(2.0)      # Nächstkleinere Float-Zahl von 2.0
 isequal(NaN, NaN)   # true
 NaN == NaN          # false
 NaN === NaN         # true
 isequal(1, 1.0)     # true
 1 == 1.0            # true
-1 === 1.0           # false
+1 === 1.0           # false (Unterschiedliche Typen)
 0.0 == -0.0         # true
-0.0 === -0.0        # false
+0.0 === -0.0        # false (Unterschiedliche Bit-Muster)
 isfinite(Inf)       # false
 isinf(Inf)          # true
 isnan(Inf)          # false
-fld(-5, 3), mod(-5, 3) # (-2, 1), Division Richtung -Inf
-div(-5, 3), rem(-5, 3) # (-1, -2), Division Richtung 0
-x = [1 2]; identity(x) === x # true, identity Funktion
-@info "Info"      # Print Information
-@warn "Warning"   # Print Warnung
-@error "Error"    # Print Fehler
-ntuple(x->2x, 3)  # (2, 4, 6); Erzeugt Tuple 1:3
-@isdefined x      # Ist x definiert? true / false
-isassigned(x, 1)  # Nicht out of bounds oder #undef
-x = zip(1:3, 5:10)  # Führt mehrere Iteratoren zusammen
-collect(x)          # 3 Elemente; Länge des kürzesten
-x |> collect        # Alternative mit pipe |>
+fld(-5, 3), mod(-5, 3) # (-2, 1); Division Richtung -Inf
+div(-5, 3), rem(-5, 3) # (-1, -2); Division Richtung 0
+x = [1 2]; identity(x) === x # true; Identitaetsfunktion
+@info "Info"        # Gibt Info-Log aus
+@warn "Warning"     # Gibt Warnungs-Log aus
+@error "Error"      # Gibt Fehler-Log aus
+ntuple(x->2x, 3)    # (2, 4, 6); Erzeugt Tupel fuer 1:3
+@isdefined x        # true / false; Prueft ob Name existiert
+isassigned(x, 1)    # Prueft Index (not out of bounds/#undef)
+x = zip(1:3, 5:10)  # Kombiniert mehrere Iteratoren
+collect(x)          # 3-element Vector (Kuerzeste Laenge)
+x |> collect        # Alternative Schreibweise via Pipe
 x |> collect |> first  # (1, 5); Erstes Element
-enumerate("aöü")  # Tuple iterator (Index, Element)
-isempty("abc")    # false; Test ob Collection leer ist
-unique("aba")     # a b; Einzigartige Werte
+enumerate("aou")    # Tupel-Iterator: (Index, Element)
+isempty("abc")      # false; Prueft ob Collection leer ist
+unique("aba")       # ['a', 'b']; Einzigartige Werte
 issubset("ca", "abcd") # true; Jedes Element enthalten
-argmax("aäübc") # 4; Index des größten Elements
-findmax("aäübc") # ('ü', 4); Element und Index
-dump(1:2:5)       # Zeigt die Objektstruktur
-sort([3;4;1])    # 1 3 4
-sort!([3;4;1])   # In place
+argmax("aaeubc")    # 4; Index des groessten Elements
+findmax("aaeubc")   # ('u', 4); Element und Index
+dump(1:2:5)         # Zeigt die interne Objektstruktur
+sort([3;4;1])       # [1, 3, 4] (Erstellt neuen Vector)
+sort!([3;4;1])      # Sortiert in-place (mutiert Objekt)
 \end{lstlisting}
 
-\section{Schreiben und Lesen von Dateien}
+\section{Lesen und Schreiben von Dateien}
 \label{sec:fileIO}
 
-Mit dem Modul \lstinline|DelimitedFiles| des Standard Libraries kann man eine
-Matrix einlesen oder ausgeben. Trennzeichen am Ende werden nicht ignoriert, was
-insbesondere bei Leerzeichen beachtet werden muss. Es gibt weitere Pakete für
-diese Aufgabe.
+Das Öffnen von Dateien erfolgt über \code|open|. Die \code|do|-Block-Syntax
+garantiert das automatische Schließen. Für performantes Zeilenlesen wird
+\code|eachline| bevorzugt, da es die Datei streamt.
+
+\begin{lstlisting}
+f = tempname()                   # Temporärer Pfad
+open(f, "w") do io               # Öffnen zum Schreiben
+  write(io, "Zeile 1\nZeile 2\n")# Schreiben
+end                              # Schließen
+open(f, "r") do io               # Öffnen zum Lesen
+  for line in eachline(io)       # Zeilenweise streamen
+    println(line)                # Ausgeben
+  end
+end                              # Schließen
+lines = readlines(f)             # Alles als Array laden
+rm(f)                            # Datei löschen
+\end{lstlisting}
+
+Das Standardbibliotheksmodul \code|DelimitedFiles| importiert und exportiert
+Matrizen. Trennzeichen am Ende (besonders Leerzeichen) werden nicht ignoriert.
 
 \begin{lstlisting}
 using DelimitedFiles
 M = [1 3 5; 2 4 6]               # Matrix
-f = tempname()                   # Temporärer Dateinahme
-open(f, "w") do io               # Öffnen
-  writedlm(io, M)                # Schreiben
-end                              # Schliessen
-A = readdlm(f, '\t', Int, '\n')  # Einlesen
+f = tempname()                   # Temporärer Pfad
+writedlm(f, M)                   # Datei schreiben
+A = readdlm(f, '\t', Int, '\n')  # Datei einlesen
 A == M                           # true
 rm(f)                            # Datei löschen
 \end{lstlisting}
@@ -1061,89 +1035,136 @@ rm(f)                            # Datei löschen
 \section{Zufallszahlen}
 \label{sec:zufallszahlen}
 
-Grundlagen:
 \begin{lstlisting}
-using Random    # Für seed
-Random.seed!(1) # Setze Zufallszahlengenerator
-rand()          # Gleichverteilte Zufallszahl U[0,1)
-rand(3, 4)      # 3x4 Matrix
+using Random    # Fuer seed!
+Random.seed!(1) # Seed setzen fuer Reproduzierbarkeit
+rand()          # Gleichverteilt U[0,1)
+rand(3, 4)      # 3x4-Matrix ueber U[0,1)
 rand(2:5, 10)   # 10 Integer von 2 bis 5
-randn(10)       # 10 Standard normalverteilte
+randn(10)       # 10 standardnormalverteilte Zahlen
+
+rng = Xoshiro(1) # rng Algorithmus
+rand(rng)        # 0.07336635446929285
+rng = MersenneTwister(1)
+rand(rng)        # 0.09913970137863681
 \end{lstlisting}
 
-Beispiele für die Verwendung des \lstinline|Distributions.jl| Pakets.
+Verwendung externer Wahrscheinlichkeitsverteilungen:
 \begin{lstlisting}
 #]add Distributions  # Paket installieren
 using Distributions  # Paket laden
-sample(1:3, 5)       # 5 Zahlen von 1 bis 3
-b = Beta(0.4, 0.8)   # Betaverteilung
-mean(b)              # 0.333; Erwarteter Mittelwert bon b
-rand(b, 5)           # 5 unabhängige Zufallszahlen von b
+sample(1:3, 5)       # 5 Stichproben aus 1:3
+# Normalverteilung mit Mittelwert 10 und Std.-Abw. 2
+n = Normal(10, 2)
+rand(n, 5)           # 5 Zufallszahlen gemaess n
+mean(n)              # Erwartungswert (10.0)
+# Binomialverteilung mit n=20 Versuchen, p=0.5
+b = Binomial(20, 0.5)
+rand(b, 5)           # 5 Zufallszahlen gemaess b
 \end{lstlisting}
 
 \section{Statistik}
 \label{sec:statistik}
 
-Unter \href{https://juliastats.org/}{JuliaStats} bzw.\
-\href{https://github.com/JuliaStats/}{GitHub} sind Pakete für statistische
-Methode gesammelt. Ein wichtiger Typ sind \hyperref[sec:weitereTypen]{fehlende
-Werte} \lstinline|missing|.
+Das Ökosystem \href{https://juliastats.org/}{JuliaStats} bzw.\
+\href{https://github.com/JuliaStats/}{GitHub} bündelt statistische Pakete. Ein wichtiger Datentyp für unvollständige Daten ist \code|missing| (siehe Abschnitt~\ref{sec:weitereTypen}).
 
-Grundlegende Funkionen sind:
 \begin{lstlisting}
 #]add Statistics       # Paket installieren
 using Statistics       # Paket laden
-mean([1, 2, 3])        # 2; Mittelwert
-var([1, 2, 3])         # 1; Varianz
-std([1, 2, 3])         # 1; Stnadardabweichung
-quantile(0:100, 0.05)  # 5; Quantile
-median(0:100)          # 50; Median
-cov(1:5, 5:-1:1)       # -2.5; Kovarianz
-cor(1:5, 5:-1:1)       # -1.0; Korrelatio
+mean([1, 2, 3])        # Mittelwert (2.0)
+var([1, 2, 3])         # Varianz (1.0)
+std([1, 2, 3])         # Standardabweichung (1.0)
+quantile(0:100, 0.05)  # Quantil (5.0)
+median(0:100)          # Median (50.0)
+cov(1:5, 5:-1:1)       # Kovarianz (-2.5)
+cor(1:5, 5:-1:1)       # Korrelation (-1.0)
+
+data = [1, 2, missing]
+mean(data)             # Liefert 'missing'
+mean(skipmissing(data)) # Mittelwert ohne missing (1.5)
 \end{lstlisting}
 
-\section{Macros}
+\section{Makros}
 \label{sec:macros}
 
-Makros können selber definiert werden. Brauchbare Standardmakros sind:
+Makros verändern Code vor der Ausführung auf Syntax-Ebene.
+Eigene Definitionen nutzen das Schlüsselwort \code|macro|. 
+Der Doppelpunkt \code|:| zitiert Code (Expression), 
+\code|\$| interpoliert Werte hinein:
 
-Behauptungen (assertions):
+\begin{lstlisting}
+macro doppel(x)
+    return :($x * 2) # Gibt zitierten Code zurueck
+end
+
+@doppel(5)           # Ergibt 10
+\end{lstlisting}
+
+Nützliche Standardmakros für Prüfungen und Benchmarks:
 \begin{lstlisting}
 @assert 1 == 1 "ERROR"            # OK
-#@assert 1 == 2 "ERROR"           ## Error
-using Test                        # Paket laden
-#@test 1 == 2                     ## Ähnlich assert
-#sqrt(-1)                         ## DomainError
-@test_throws DomainError sqrt(-1) # ja DomainError
+#@assert 1 == 2 "ERROR"          ## AssertionError
+
+using Test                        # Für Unit-Tests
+#@test 1 == 2                    ## Fail (zeigt Details)
+@test_throws DomainError sqrt(-1) # Prüft auf Error
 \end{lstlisting}
 
-Benchmark:
 \begin{lstlisting}
+# [...] erzeugt echtes Array im Speicher (fuer Demo)
 f() = sum([x for x in 1:10^6])
-@time f();                   # Zeit und Speicher
-@timed f()                   #  und Garbage Collector
-@time Base.donotdelete(f())  # Ohne Code Eliminatio
-@elapsed f()                 # Zeit
-@allocated f()               # Speicherverbrauch
-\end{lstlisting}
-Das Paket \lstinline|BenchmarkTools.jl| bietet weitere Möglichkeiten.
 
-\section{Zeichnen -- Plot}
+@time f()                    # Zeit und Speicher
+@timed f()                   # Liefert Wert, Zeit, Bytes
+@elapsed f()                 # Liefert nur Zeit (Float64)
+@allocated f()               # Liefert nur Speicher (Bytes)
+# Schutz vor Compiler-Optimierung (Code Elimination)
+@time Base.donotdelete(f())  
+\end{lstlisting}
+
+Das Paket \code|BenchmarkTools.jl| bietet präzisere
+Messungen durch automatische Wiederholungen. Globale 
+Variablen müssen mit \code{\mbox{\$}} interpoliert werden, um 
+Overhead beim Zugriff zu vermeiden:
+\begin{lstlisting}
+#]add BenchmarkTools         # Paket installieren
+using BenchmarkTools
+
+v = rand(1000)
+@btime sum(v)      # Misst globalen Zugriff mit
+@btime sum($v)     # Wert wird interpoliert
+@benchmark sum($v) # Ausführliche Statistik
+\end{lstlisting}
+
+\section{Visualisierung -- Plot}
 \label{sec:plot}
 
-Neben dem Metapaket \lstinline|Plots.jl| gibt es weiter Pakete zum Zeichnen.
+Das Metapaket \code|Plots.jl| bietet eine einheitliche 
+Schnittstelle. Die eigentliche Grafik wird von austauschbaren 
+Backends generiert. Standard ist \code|gr()|.
+
 \begin{lstlisting}
 #]add Plots
-using Plots
-using Random
-Random.seed!(1)           # Reproduzierbare Zufallszahlen
+using Plots, Random
+Random.seed!(1)
 x, y = 1:100, randn(100)
+
 p1 = plot(x, y)           # Linien
 p2 = scatter(x, y)        # Punkte
 p3 = histogram(y)         # Histogramm
 p4 = bar(y)               # Balkendiagramm
-p0 = plot(p1,p2,p3,p4, layout=(2,2), legend=false)
-savefig(p0,"pic1.pdf")  # Zusammnefassen und Abspeichern
+
+# Kombinieren und speichern
+p0 = plot(p1, p2, p3, p4, layout=(2,2), legend=false)
+savefig(p0, "pic.pdf")
+
+#]add UnicodePlots
+using UnicodePlots
+unicodeplots()      # Rendert Plots als Text in der REPL
+plot(x, y)
+gr()                # Wechselt zu GR zurück
+plot(x, y)
 \end{lstlisting}
 
 \begin{figure}[h]
@@ -1151,16 +1172,15 @@ savefig(p0,"pic1.pdf")  # Zusammnefassen und Abspeichern
   \includegraphics[width=.95\columnwidth]{pic.pdf}
 \end{figure}
 
-Ein weiteres Beispiel unter Verwendung von \lstinline|StatsPlots.jl|:
+Erweiterte statistische Grafiken via \code|StatsPlots.jl|:
 \begin{lstlisting}
-#]add StatsPlots
-using StatsPlots
-using Distributions
-using Plots
-using Random
+#]add StatsPlots Distributions
+using Plots, StatsPlots, Distributions, Random
 Random.seed!(42)
+
 mu, sigma = 100, 15
 x = mu .+ sigma * randn(10000)
+
 histogram(x,
           title="Histogram of IQ: \\mu=100, \\sigma=15",
           label=nothing,
@@ -1168,6 +1188,8 @@ histogram(x,
           ylabel="Probability",
           color="green",
           normalize=true)
+
+# Verteilungskurve drüberlegen
 plot!(Normal(mu, sigma),
       color="red",
       label=nothing,
@@ -1176,64 +1198,109 @@ savefig("hist.pdf")
 \end{lstlisting}
 
 \begin{figure}[h]
-\centering
-\includegraphics[width=.95\columnwidth]{hist.pdf}
+  \centering
+  \includegraphics[width=.95\columnwidth]{hist.pdf}
 \end{figure}
 
 \section{Tabellen -- DataFrames}
 \label{sec:dataFrame}
 
-Neben \lstinline|DataFrames.jl| und \lstinline|CSV.jl| gibt es weitere Pakete
-für den Umgang mit Tabellen.
+\code|DataFrames.jl| hilft beim Verarbeiten tabellarischer Daten.
 
-Eine CSV--Datei einlesen.
 \begin{lstlisting}
 #]add DataFrames
-#]add CSV
 using DataFrames
+ # Erzeugt ein DataFrame, Skalar-Broadcasting
+DataFrame(a=1:10, b=rand(10), fixed=1)
+\end{lstlisting}
+
+\code|CSV.jl| hilft beim einlesen einer CSV--Datei.
+
+\begin{lstlisting}
+#]add CSV
 using CSV
 path = joinpath(dirname(pathof(DataFrames)),
         "../docs/src/assets/iris.csv")
-df = CSV.read(path, DataFrame);
+df = CSV.read(path, DataFrame)   # Lesen
+f = tempname()
+CSV.write(f, df)                 # Schreiben
+rm(f)
 last(df, 3)   # Letzten 3 Datenzeilen
 first(df, 3)  # Ersten 3 Datenzeilen
 \end{lstlisting}
 
 Ergibt die folgende Ausgabe:
 \begin{lstlisting}[basicstyle=\scriptsize]
-3x5 DataFrame
- Row | SepalLength  SepalWidth  PetalLength  PetalWidth  Species
-     | Float64      Float64     Float64      Float64     String
----------------------------------------------------------------------
-   1 |         5.1         3.5          1.4         0.2  Iris-setosa
-   2 |         4.9         3.0          1.4         0.2  Iris-setosa
-   3 |         4.7         3.2          1.3         0.2  Iris-setosa
+3×5 DataFrame
+ Row │ SepalLength  SepalWidth  PetalLength  PetalWidth  Species     
+     │ Float64      Float64     Float64      Float64     String15    
+─────┼───────────────────────────────────────────────────────────────
+   1 │         5.1         3.5          1.4         0.2  Iris-setosa
+   2 │         4.9         3.0          1.4         0.2  Iris-setosa
+   3 │         4.7         3.2          1.3         0.2  Iris-setosa
 \end{lstlisting}
 
-Wichtige Funktionen für das eben eingelesenen \lstinline|DataFrame| sind:
+Grundlegende Operationen:
 
 \begin{lstlisting}
-DataFrame(a=1:10, b=rand(10))  # Erzeugt ein DataFrame
-describe(df)                   # Information zu df
-df.Species                     # Spalte Species
-df[!, :Species]                #  Alternative
-df[:, :Species]                # Macht eine Kopie
+names(df)               # Spaltennamen
+nrow(df)                # Anzahl Zeilen
+ncol(df)                # Anzahl Spalten
+describe(df)            # Statistische Uebersicht
+
+df.Species                     # Als Vektor (Referenz)
+df[!, :Species]                # Referenz (In-place)
+df[:, :Species]                # Erzeugt eine Kopie
+df[:, Not(:Species)]           # Alle Spalten ausser...
+df[:, Between(:SepalLength, :PetalLength)] # Bereich
 df[1, 5]                       # Wert in Zeile 1 Spalte 5
 df[1:2, 3:4]                   # Zeilen 1:2, Spalten 3:4
-Matrix(df[:, 1:4])             # Umwandlung in Matrix
-names(df)                      # Spaltennahmen
-nrow(df); ncol(df)             # Anzahl Zeilen; Spalten
-sort(df, :SepalWidth)          # Sortiere nach SepalWidth
-sort!(df, :SepalWidth)         #  In palce
-filter(:SepalWidth => >(3), df)  # Neues df wo true
+Matrix(df[:, 1:4])             # Matrix-Konvertierung
+
+sort(df, :SepalWidth)              # Neues, sortiertes DF
+sort!(df, [:Species, :SepalWidth]) # Mehrspaltig In-place
+sort(df, :SepalWidth, rev=true)    # Absteigend sortieren
+
+#]add DataFramesMeta
+using DataFramesMeta
+filter(:SepalWidth => >(3), df)    # Neues df wo true
+subset(df, :SepalWidth => ByRow(>(3))) # das gleiche
+@subset(df, :SepalWidth .> 3)      # das gleiche
+subset!(df, :SepalWidth => ByRow(>(3))) # Filtert direkt
+select(df, :Species)               # Behält nur :Species
+
 push!(df, (1, 2, 3, 4, "Some species")) # Zeile anhängen
-df.key = axes(df, 1)           # Neue Spalte
- # Summe SepalLength je Species
-combine(groupby(df, :Species), :SepalLength => sum)
+df.key = axes(df, 1)               # Neue Spalte
+transform!(df, :SepalWidth => ByRow(x -> 2x) => :Doppel)
+select!(df, Not(:Doppel))      # Löscht die Spalte
+
+gd = groupby(df, :Species)  # Nach Species gruppieren
+combine(gd, :SepalLength => sum => :Summe) # sum ja gruppe
+  # Mehrere Aggregationen gleichzeitig
+combine(gd, nrow, :PetalLength => sum)
+
  # Spalten 1:4 untereinander: wide -> long
-df2 = stack(df, 1:4, [:key, :Species])
- # long -> wide
-unstack(df2, [:key, :Species], :variable, :value)
+dfLong = stack(df, 1:4, [:key, :Species])
+ # long -> wide (Zurueckdrehen in die Breite)
+unstack(dfLong, [:key, :Species], :variable, :value)
+
+# Konvertiert String-Spalte in speichereffiziente Faktoren
+#]add CategoricalArrays
+using CategoricalArrays
+df.Species = categorical(df.Species)
+levels(df.Species)             # Einzigartige Kategorien
+
+dfM = DataFrame(A=[1, missing, 3], B=1)
+dropmissing(dfM)            # Zeilen mit missing löschen
+#dfM.B[2] = missing        ## Error
+allowmissing!(dfM, :B)      # Spaltentyp erweitern
+dfM.B[2] = missing
+
+links  = DataFrame(Key=["A", "B"], Wert1=[10, 20])
+rechts = DataFrame(Key=["B", "C"], Wert2=[30, 40])
+innerjoin(links, rechts, on=:Key)  # Nur gemeinsame Keys
+leftjoin(links, rechts, on=:Key)   # Alle von links
+outerjoin(links, rechts, on=:Key)  # Alle von beiden
 \end{lstlisting}
 
 
