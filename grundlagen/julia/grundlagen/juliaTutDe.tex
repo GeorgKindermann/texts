@@ -43,9 +43,27 @@
 \sethlcolor{mygray}
 %\newcommand{\code}[1]{\hl{\small\ttfamily#1}}
 %\newcommand{\code}[1]{\hl{\ttfamily\spaceskip=0.45em #1}}
-\newcommand{\codeformat}[1]{\hl{\ttfamily\spaceskip=0.45em #1}}
+%\newcommand{\codeformat}[1]{\hl{\ttfamily\spaceskip=0.45em #1}}
+%\makeatletter
+%\newcommand{\code}{\begingroup\catcode`\|=12 \catcode`\?=12 \@ifnextchar\bgroup{\@codeBrace}{\@codeDelim}}
+%\newcommand{\@codeBrace}[1]{\codeformat{#1}\endgroup}
+%\def\@codeDelim#1{\def\@tempDelim##1#1{\codeformat{##1}\endgroup}\@tempDelim}
+%\makeatother
+%\newcommand{\codeformat}[1]{\hl{\ttfamily\spaceskip=0.2em \nobreakspace#1\nobreakspace}}
+\newcommand{\codeformat}[1]{\hl{\ttfamily\,#1\,}}
 \makeatletter
-\newcommand{\code}{\begingroup\catcode`\|=12 \catcode`\?=12 \@ifnextchar\bgroup{\@codeBrace}{\@codeDelim}}
+\newcommand{\code}{\begingroup%
+  \shorthandoff{"}%
+  \catcode`\|=12%
+  \catcode`\?=12%
+  \catcode`\'=\active% Aktiviert das einfache Hochkomma
+  \catcode`\"=\active% Aktiviert das doppelte Anführungszeichen (verhindert soul-Fehler)
+  \@makeactivequotes%
+  \@ifnextchar\bgroup{\@codeBrace}{\@codeDelim}}
+\newcommand{\@makeactivequotes}{%
+  \begingroup\lccode`\~=`\"\lowercase{\endgroup\def~}{\textquotedbl}%
+  \begingroup\lccode`\~=`\'\lowercase{\endgroup\def~}{\textquotesingle}%
+}
 \newcommand{\@codeBrace}[1]{\codeformat{#1}\endgroup}
 \def\@codeDelim#1{\def\@tempDelim##1#1{\codeformat{##1}\endgroup}\@tempDelim}
 \makeatother
@@ -107,7 +125,7 @@ Es gibt auch Erweiterungen für
 \href{https://plugins.jetbrains.com/plugin/29356-flexible-julia}{Flexible Julia Plugin}
 für JetBrains.
 
-Die gezeigten Codeabschnitte wurden mit der Julia-Version 1.13.0 (2026-09-09) getestet.
+Die gezeigten Codeabschnitte wurden mit der Julia-Version 1.13.1 (2026-09-25) getestet.
 
 \section{REPL}
 \label{sec:repl}
@@ -157,7 +175,7 @@ In Julia bestimmt die Systemarchitektur die Standard-Bitbreite von Integern: Auf
 Der Operator \code|::| dient zur Typannotation oder Typprüfung, jedoch nicht zur Typkonvertierung. Eine Typerzwingung wie \code|1::Int32| wirft auf einem 64-Bit-System einen \code|TypeError|.
 
 \begin{lstlisting}
-1             # Int (systemabhaengig)
+1             # Int (systemabhängig)
 1.0           # Float64
 true          # Bool
 'c'           # Char (1 Zeichen, Unicode)
@@ -193,9 +211,9 @@ Für mathematische Spezialanwendungen existieren weitere Typen:
 \begin{lstlisting}
 1 // 456      # Rational (Rationale Zahl)
 1 + 1im       # Complex{Int64} (Komplexe Zahl)
-big"1"        # BigInt (Beliebige Praezision)
+big"1"        # BigInt (Beliebige Präzision)
 BigInt(1)     # BigInt via Konstruktor
-big"1.5"      # BigFloat (Beliebige Praezision)
+big"1.5"      # BigFloat (Beliebige Präzision)
 BigFloat(10)  # BigFloat
 \end{lstlisting}
 
@@ -208,11 +226,11 @@ Julia führt bei arithmetischen Operationen eine automatische Typaufweitung (\te
 Typen und Hierarchien lassen sich wie folgt prüfen:
 \begin{lstlisting}
 typeof("abc")      # Gibt den Typ aus (String)
-isa(1.0, Float64)  # true (Typfuehrung)
+isa(1.0, Float64)  # true (Typführung)
 1.0 isa Number     # Alternative Infix-Syntax
 supertype(Int64)   # Liefert den direkten Supertyp
 subtypes(Real)     # Liefert direkte Subtypen
-Int <: Real        # Subtyp-Pruefung (true)
+Int <: Real        # Subtyp-Prüfung (true)
 \end{lstlisting}
 
 \section{Weitere Typen}
@@ -248,9 +266,11 @@ x[begin]        # Erstes Element
 x[end]          # Letztes Element
 lastindex(x)    # Letzter Index von x
 x[begin:2:end]  # Jedes zweite Element
-#x[4]           ## BoundsError
-#x[1] = 1       ## MethodError (Tuple ist immutable)
+#x[4]          ## BoundsError
+#x[1] = 1      ## MethodError (Tuple ist immutable)
 a, b = x        # Unpacking (a = 1, b = 2)
+max(x)         ## Error, braucht einzelne Argumente
+max(x...)     # 3; Übergibt die Elemente einzeln als 3 Argumente
 \end{lstlisting}
 
 \emph{NamedTuples} weisen den Elementen zusätzlich Namen zu. Sie verhalten sich funktional wie Instanzen anonymer Strukturen (\hyperref[ssec:composite]{\code|struct|}).
@@ -258,10 +278,21 @@ a, b = x        # Unpacking (a = 1, b = 2)
 \begin{lstlisting}
 NamedTuple()  # Leeres NamedTuple
 (x="a", y=1)  # NamedTuple mit zwei Elementen
+NamedTuple{(:x, :y)}(("a", 1)) # Alternative
+#(x=0, x=1)  ## Error, braucht eindeutige Namen
 x = (p=1, q=2, r=3)
 x.p           # 1 (Zugriff via Name)
+x[:p]         # 1 (Zugriff via Name)
+x[(:p, :r)]   # (p = 1, r = 3)
+propertynames(x) # (:p, :q, :r); Namen
+keys(x)       # (:p, :q, :r); Namen
+Tuple(x)      # nur Werte
+values(x)     # nur Werte
+(x...,)       # nur Werte
 a = 0; b = 1
 (; a, b)      # (a = 0, b = 1) (implizite Namenszuweisung)
+(x=1, a, b)   # (x = 1, a = 0, b = 1)
+(1, a, b)     # (1, 0, 1)
 \end{lstlisting}
 
 \subsection{Array}
@@ -316,12 +347,12 @@ range(0, 1, 11)      # Iterator 0 bis 1 (11 El.)
 collect(1:10)        # Wandelt Iterator in Vector
 collect((1, 2))      # unpacking Vektor aus Tuple
 reshape(1:12, 3, 4)  # 3x4-Matrix aus Range
-fill(7, 2, 3)        # 2x3 Matrix gefuellt mit 7
+fill(7, 2, 3)        # 2x3 Matrix gefüllt mit 7
 repeat([1 2], 2, 3)  # Kachelt (ergibt 2x6 Matrix)
 stack([[1, 2], [3, 4]]) # Baut Spaltenmatrix
 stack([[1,2], [3,4]], dims=1) # Horizontal
 x = [1, 2]           # 2-element Vector
-resize!(x, 5)        # In-place Groessenaenderung
+resize!(x, 5)        # In-place Grössenänderung
 tuple([1,2,3])       # 1-Element Tuple mit dem Vektor
 Tuple([1, 2, 3])     # Wandelt Vector in Tuple
 \end{lstlisting}
@@ -348,17 +379,17 @@ A = rand(2, 1, 3)    # 2x1x3 Matrix{Float64, 3}
 ndims(A)             # Anzahl Dimensionen (3)
 eltype(A)            # Elementtyp (Float64)
 length(A)            # Gesamte Elementanzahl (6)
-size(A)              # Dimensionslaengen ((2,1,3))
+size(A)              # Dimensionslängen ((2,1,3))
 axes(A)              # Tuple mit Ranges der Dimensionen
 eachindex(A)         # Linearer Index-Iterator (1:6)
 CartesianIndices(A)  # Lazy Mehrdim. Index-Iterator
 LinearIndices(A)     # Lazy linear Iterator von A
 vec(A)               # Abflachen (shared memory)
 dropdims(A, dims=2)  # Entfernt 2. Dim die 1 lang ist
-sum(A, dims=3)       # Summe laengs 3. Dimension
+sum(A, dims=3)       # Summe längs 3. Dimension
 sum(A, dims=(1,2))   # 1x1x3 Array{Float64, 3}
 sum(A, dims=[1,2])   # 1x1x3 Array{Float64, 3}
-count(>(0.5), A)     # Zaehlt Elemente > 0.5
+count(>(0.5), A)     # Zählt Elemente > 0.5
 any(>(0.5), A)       # true, wenn ein Element > 0.5
 all(>(0.5), A)       # Alle Werte > 0.5: true/false
 \end{lstlisting}
@@ -368,7 +399,7 @@ Der Zugriff auf Array-Elemente erfolgt primär wie bei \hyperref[ssec:tuple]{Tup
 \begin{lstlisting}
 A = reshape(collect(1:24), (2, 3, :)) # 2x3x4 Array
 A[[true, false], [3, 1], 1]   # Logischer Index
-A[1, :, 1:2]         # : waehlt ganze Dimension
+A[1, :, 1:2]         # : wählt ganze Dimension
 A[1:1, 1, :]         # 1x4 Matrix
 A[1, 1, :]           # 4-element Vector
 A[1, 1, :, [true]]   # 4x1 Matrix
@@ -390,7 +421,7 @@ A[2, 1] = 3          # In-place Einzelwert
 A[:, 2:3] .= 3       # In-place Broadcasting
 A[:, 2:3] .= [1 2]  # Automatisch wiederholt
 A[:, 2:3] = repeat([1 2], 3)  # das gleiche
-x = A[:, 2:3]        # Erstellt unabhaengige Kopie
+x = A[:, 2:3]        # Erstellt unabhängige Kopie
 y = view(A, :, 2:3)  # View auf Originaldaten
 y .= 5               # Modifiziert A implizit
 \end{lstlisting}
@@ -400,10 +431,10 @@ Arrays verhalten sich wie \emph{Referenzen}. Die Zuweisung \code|x = A| kopiert 
 \begin{lstlisting}
 A = [[2, 1], 1]  # Vektor mit Sub-Vektor
 x = A            # Referenz-Zuweisung
-y = copy(A)      # Kopiert nur aeussere Struktur
+y = copy(A)      # Kopiert nur äussere Struktur
 z = deepcopy(A)  # Kopiert alle Daten rekursiv
 A[1][1] = 0      # Modifiziert A, x und y
-A[2] = 3.0       # y und z bleiben unberuehrt
+A[2] = 3.0       # y und z bleiben unberührt
 x                # Identisch mit neuem A
 y                # Nur Veränderung von A[1][1]
 z                # Inhalt wie ursprüngliches A
@@ -417,7 +448,7 @@ x[]       # 10 (0-D Zugriff)
 x[1]      # 10
 x[1, 1]   # 10 (Folge-Indizes von 1 ignoriert)
 only(x)   # 10
-size(x)   # () (Leeres Tuple fuer Skalare)
+size(x)   # () (Leeres Tuple für Skalare)
 y = [10]  # 1-element Vector
 y[]       # 10 (Geht nur bei genau 1 Element)
 size(y)   # (1,)
@@ -443,7 +474,7 @@ struct X
   a::Int
   b               # Typ Any
 end
-x = X(0.5, 1.5)   # InexactError: Konvertierung schlägt fehl
+#x = X(0.5, 1.5) ## InexactError: Konvertierung schlägt fehl
 x = X(0, 1.5)     # OK
 x.a               # Zugriff auf Feld a
 x.a = 1           # Error: immutable struct
@@ -455,10 +486,10 @@ mutable struct Y  # Veränderbare Struct
 end
 y = Y(0, 1, 2)    # OK
 y.a = 1           # OK
-y.a = 1.3         # InexactError: Konvertierung schlägt fehl
+#y.a = 1.3       ## InexactError: Konvertierung schlägt fehl
 y.b = 1.3         # OK
-y.c = 3           # Error: const field
-y.d = 5           # Error: no field d
+#y.c = 3         ## Error: const field
+#y.d = 5         ## Error: no field d
 
 fieldnames(Y)     # (:a, :b, :c)
 fieldtypes(Y)     # (Int64, Any, Any)
@@ -488,7 +519,7 @@ enthaltenen Typen ist.
 IntOrStr = Union{Int,String}     # Int oder String
 1 :: IntOrStr                    # OK
 "Hello!" :: IntOrStr             # OK
-1.0 :: IntOrStr                  # TypeError
+#1.0 :: IntOrStr                ## TypeError
 \end{lstlisting}
 
 \subsection{Abstract Type}
@@ -508,6 +539,18 @@ subtypes(B)               # Any[Y]
 supertype(Y)              # B
 Y <: A                    # true
 Y <: X                    # false
+fa(x::A) = 'A'            # Funktion mit A als Argument
+fb(x::B) = 'B'            # Funktion mit B als Argument
+fa(X(1))                  # A
+fa(Y(1))                  # A
+#fb(X(1))                ## Error, Falscher Typ
+fb(Y(1))                  # B
+fx(x::X) = 'X'            # Funktion mit X als Argument
+fy(x::Y) = 'Y'            # Funktion mit Y als Argument
+fx(X(1))                  # X
+fx(Y(1))                 ## Error, Falscher Typ
+fy(X(1))                 ## Error, Falscher Typ
+fy(Y(1))                  # Y
 \end{lstlisting}
 
 \subsection{Dictionaries}
@@ -544,6 +587,7 @@ push!(S, 2)         # Fügt 2 ein
 push!(S, 4)         # Keine Änderung, da 4 existiert
 union(S, 2:3)       # Neues Set mit Werten aus S und 2:3
 intersect(S, 1:3)   # Neues Set mit Werten in S und 1:3
+setdiff(S, 1:3)     # Werten in S aber nicht in 1:3
 \end{lstlisting}
 
 \section{String}
@@ -555,7 +599,7 @@ erfolgt per Byte-Index, weshalb ungültige Byte-Adressen Fehler auslösen.
 
 \begin{lstlisting}
 s = "Mehr \"Licht\"!"    # " per \ escapen
-s = """Mehr "Licht"!"""  # Alternativ mit Dreifach-Anfuehrungsz.
+s = """Mehr "Licht"!"""  # Alternativ mit Dreifach-Anführungsz.
 s = "Mehr \
      \"Licht\"!"         # Zeilenumbruch im Code wird ignoriert
 s = "AÄ" * "oö"          # Strings verketten
@@ -564,15 +608,16 @@ ncodeunits(s)            # 6 (Anzahl Bytes)
 collect("abü")           # Array von Char: ['a', 'b', 'ü']
 collect(eachindex(s))    # Byte-Indizes: [1, 2, 4, 5]
 #s[3]                  ## StringIndexError (Byte 3 ist ungültig)
-for c in s print(c) end  # Iteration ueber jedes Zeichen
+for c in s print(c) end  # Iteration über jedes Zeichen
 #SubString(s, 1, 3)     ## StringIndexError
 SubString(s, 1, nextind(s, 0, 3))  # "AÄo"
-nextind(s, 2)            # 4 (Naechster gueltiger Index nach 2)
-prevind(s, 4)            # 2 (Vorheriger gueltiger Index vor 4)
+nextind(s, 0, 3)         # Index des 3. Zeichens
+nextind(s, 2)            # 4 (Nächster gültiger Index nach 2)
+prevind(s, 4)            # 2 (Vorheriger gültiger Index vor 4)
 repeat("Ja ", 3)         # "Ja Ja Ja "
 "Ja " ^ 3                # Alternativ per Potenz-Operator
 string("x = ", 2.7)      # String via print-Logik erzeugen
-repr(123.3)              # String-Repraesentation: "123.3"
+repr(123.3)              # String-Repräsentation: "123.3"
 s = "xylophone"
 chop(s)                  # Entfernt letztes Zeichen: "xylophon"
 occursin("o", s)         # true (Sub-String enthalten?)
@@ -594,14 +639,14 @@ Für reguläre Ausdrücke nutzt Julia PCRE2 (Perl Compatible Regular Expressions
 wird ein Substitutions-String via \code|s"..."| deklariert.
 
 \begin{lstlisting}
-re = r"[ÄÖÜ]."       # Ä, Ö oder Ü gefolgt von beliebigem Zeichen
-occursin(re, "ABC")  # false
+re = r"[ÄÖÜ]."      # Ä, Ö oder Ü gefolgt von beliebigem Zeichen
+occursin(re, "ABC") # false
 s = "ÄÖÜX"
-m = match(re, s)     # RegexMatch("ÄÖ") (Erster Treffer)
-m.offset             # 1 (Start-Byte)
-m.match              # "ÄÖ"
-length(m.match)      # 2
-ncodeunits(m.match)  # 4
+m = match(re, s)    # RegexMatch("ÄÖ") (Erster Treffer)
+m.offset            # 1 (Start-Byte)
+m.match             # "ÄÖ"
+length(m.match)     # 2
+ncodeunits(m.match) # 4
 match(re, s, m.offset + 1)                    # "ÖÜ"
 match(re, s, m.offset + ncodeunits(m.match))  # "ÜX"
 collect(eachmatch(re, s))                     # ["ÄÖ", "ÜX"]
@@ -616,7 +661,7 @@ Wertzuweisungen an Variablen erfolgen mit dem Operator \code|=|.
 
 \begin{lstlisting}
 x = "A"  # Zuweisung eines Strings
-x = 1    # Dynamische Typaenderung erlaubt
+x = 1    # Dynamische Typänderung erlaubt
 \end{lstlisting}
 
 Verbundene Ausdrücke (Compound Expressions) fassen mehrere Anweisungen 
@@ -626,7 +671,7 @@ zusammen. Sie werden mit \code|begin ... end| oder per \code|;| blockiert.
 z = begin
   x = 1   
   y = 2;  # Semikolon optional
-  x + y   # Letzter Wert wird zurueckgegeben
+  x + y   # Letzter Wert wird zurückgegeben
 end       # x = 1, y = 2, z = 3
 z = (x = 1; y = 2; x + y)          # Alternative in einer Zeile
 z = begin x = 1; y = 2; x + y end  # Alternative mit begin
@@ -643,7 +688,7 @@ elseif 1 == 2
 else
   a = 3
 end         # a = 3, z bleibt undefiniert
-1==2 ? "A" : "B"  # "B" (Ternaerer Operator)
+1==2 ? "A" : "B"  # "B" (Ternärer Operator)
 \end{lstlisting}
 
 Schleifen (\code|while| und \code|for|):
@@ -656,7 +701,7 @@ while true
 end
 for k in 1:10         # Alternativ: k = 1:10
   if 3 < k < 6
-    continue          # Springt zur naechsten Iteration
+    continue          # Springt zur nächsten Iteration
   end
   println(k)
 end
@@ -721,20 +766,20 @@ Argumenttypen, nennt man dies \emph{Multiple Dispatch}. Dafür werden
 ausschließlich Positionsargumente ausgewertet.
 
 \begin{lstlisting}
-g(x, y) = 0              # Fallback fuer alle Typen
-g(x::Int, y::Int) = 1    # Spezifisch fuer zwei Ints
-g(x::Int, y::Bool) = 2   # Spezifisch fuer Int und Bool
+g(x, y) = 0              # Fallback für alle Typen
+g(x::Int, y::Int) = 1    # Spezifisch für zwei Ints
+g(x::Int, y::Bool) = 2   # Spezifisch für Int und Bool
 g(1.0, 1)                # 0
 g(1, 1)                  # 1
 g(1, true)               # 2
 g(x::Int, y::Int=1) = 3  # Definiert g(x::Int, y::Int) neu!
 g(1)                     # 3 (Nutzt den Default-Wert)
-g(1, 1)                  # 3 (Ueberschreibt die alte Methode)
-methods(g)               # Zeigt alle verfuegbaren Methoden
+g(1, 1)                  # 3 (Überschreibt die alte Methode)
+methods(g)               # Zeigt alle verfügbaren Methoden
 t(; x::Int = 2) = 4      # Definition mit Keyword-Argument
 t(x=3)                   # 4
-t(; x::Bool = true) = 5  # Ueberschreibt vorherige Funktion!
-# (Kein Multiple Dispatch fuer Keyword-Argumente)
+t(; x::Bool = true) = 5  # Überschreibt vorherige Funktion!
+# (Kein Multiple Dispatch für Keyword-Argumente)
 #t(x=3)                 ## TypeError (Erwartet jetzt Bool)
 t()                      # 5
 t(x=false)               # 5
@@ -802,8 +847,8 @@ end
 f4(10)              # 10
 
 const x = 2
-#x = 3             ## Error: Wert von Konstante geaendert
-#x = 2.0           ## Error: Ungueltige Typaenderung fuer const
+#x = 3             ## Error: Wert von Konstante geändert
+#x = 2.0           ## Error: Ungültige Typänderung für const
 y::Int = 1          # Globale Variable mit Typisierung
 #y = 2.5           ## InexactError: Muss Int bleiben
 \end{lstlisting}
@@ -812,7 +857,7 @@ Globale Konstanten (\code|const|) können die Performance verbessern, da
 der Compiler ihren Typ statisch ableiten kann.
 
 Schleifen und Comprehensions 
-erzeugen ihre Schleifenvariablen bei jedem Iterationsschritt neu (Closure-Sicherheit).
+erzeugen ihre Schleifenvariablen bei jedem Iterationsschritt neu (Closure-Sicherheit). Jede anonyme Funktion (\code{() -> i}) erhält eine eigene, isolierte Kopie von \code{i}.
 
 \begin{lstlisting}
 Fs = Array{Any}(undef, 2)
@@ -822,13 +867,29 @@ end
 Fs[1](), Fs[2]()    # (1, 2)
 \end{lstlisting}
 
+Nutzt man einen äußeren \code{let}-Block, \emph{teilen} sich beide Schleifendurchläufe dieselbe Speicheradresse von \code{x}.
+
+\begin{lstlisting}
+Fs = Array{Any}(undef, 2)
+let x = 0
+  for i in 1:2
+    x = i
+    Fs[i] = () -> x
+  end
+end
+Fs[1](), Fs[2]()  # (2, 2)
+\end{lstlisting}
+
+In \code{() -> x} verweist das \code{x} auf die Variable aus dem \code{let}-Block. Da die Schleife dieses \code{x} im zweiten Durchlauf auf \code{2} überschreibt, greifen beim späteren Aufruf beide Funktionen auf denselben, nun modifizierten Wert zu.
+
+
 Top-Level-Schleifen (\code|for|, \code|while|) sowie \code|try|, und \code|struct| besitzen einen \emph{soft local scope}. 
 In der REPL (interaktiv) überschreiben sie bestehende globale Variablen direkt.
 
 \begin{lstlisting}
 x = 5
 for i in 1:10
-  x = i             # Ueberschreibt globales x in der REPL
+  x = i             # Überschreibt globales x in der REPL
 end
 x                   # 10
 \end{lstlisting}
@@ -851,20 +912,20 @@ x = 5
 for i in 1:10
   local x = i
 end
-x                   # 5 (Globales x bleibt unberuehrt)
+x                   # 5 (Globales x bleibt unberührt)
 
 x = 5
 for i in 1:10
   global x = i
 end
-x                   # 10 (Globales x explizit ueberschrieben)
+x                   # 10 (Globales x explizit überschrieben)
 
 let x = 5
   for i in 1:10
       x = i
   end
   x
-end                 # 10 (Lokales x im let-Scope veraendert)
+end                 # 10 (Lokales x im let-Scope verändert)
 \end{lstlisting}
 
 \section{Modul}
@@ -875,14 +936,15 @@ ab. Der Standard-Namensraum der REPL lautet \code|Main|.
 
 \begin{lstlisting}
 module M      # Definiert Modul M
-export x, y   # Deklariert oeffentliche Schnittstelle
+export x, y   # Deklariert öffentliche Schnittstelle
 x = 1
 y = 2
 z = 3         # Internes Feld (nicht exportiert)
 end
 varinfo(M)    # Zeigt exportierte Symbole (x, y) in M an
 #x           ## Error: Nicht im aktuellen Scope vorhanden
-M.z           # Qualifizierter Direktzugriff ist immer moeglich
+M.z           # Qualifizierter Direktzugriff ist immer möglich
+Main.M.z      # Noch expliziter
 using .M: x   # Importiert ausschliesslich x aus M
 x             # 1
 #y           y# Error: y wurde noch nicht importiert
@@ -900,8 +962,8 @@ Base verfügbaren Namen ist erlaubt. Das Objekt verliert
 dadurch jedoch seine ursprüngliche Funktion.
 
 \begin{lstlisting}
-sin(0)      # 0.0 (Automatisch aus Base verfuegbar)
-sin = 1     # Erlaubt: Ueberschreibt den Namen lokal
+sin(0)      # 0.0 (Automatisch aus Base verfügbar)
+sin = 1     # Erlaubt: Überschreibt den Namen lokal
 sin         # 1
 #sin(0)    ## MethodError: Int64 ist nicht aufrufbar
 Base.sin(0) # 0.0 (Expliziter Base-Aufruf weiterhin möglich)
@@ -937,7 +999,7 @@ z .+ y          # Spaltenvektor y broadcastet horizontal
 [1 2] .+ [1; 2] # 2x2 Matrix
 broadcast(+, [1 2], [1; 2])  # Das Gleiche
 length(["a", "bc"])   # 2 (Anzahl der Elemente im Array)
-length.(["a", "bc"])  # [1, 2] (Elementweise String-Laengen)
+length.(["a", "bc"])  # [1, 2] (Elementweise String-Längen)
 \end{lstlisting}
 
 Beispiele für Funktions-Broadcasting:
@@ -959,9 +1021,9 @@ t.([1.0, 2.0], [1.0 2.0])  # 2x2 Matrix: [1.0 2.0; 2.0 4.0]
 Anwendungsbeispiele für essenzielle Julia-Funktionen.
 
 \begin{lstlisting}
-show(collect(1:3))  # [1, 2, 3] (Text-Repraesentation)
-eps()               # Abstand von 1.0 zur naechsten Float64
-nextfloat(2.0)      # Nächstgroessere Float-Zahl von 2.0
+show(collect(1:3))  # [1, 2, 3] (Text-Repräsentation)
+eps()               # Abstand von 1.0 zur nächsten Float64
+nextfloat(2.0)      # Nächstgrössere Float-Zahl von 2.0
 prevfloat(2.0)      # Nächstkleinere Float-Zahl von 2.0
 isequal(NaN, NaN)   # true
 NaN == NaN          # false
@@ -976,26 +1038,27 @@ isinf(Inf)          # true
 isnan(Inf)          # false
 fld(-5, 3), mod(-5, 3) # (-2, 1); Division Richtung -Inf
 div(-5, 3), rem(-5, 3) # (-1, -2); Division Richtung 0
-x = [1 2]; identity(x) === x # true; Identitaetsfunktion
+x = [1 2]; identity(x) === x # true; Identitätsfunktion
 @info "Info"        # Gibt Info-Log aus
 @warn "Warning"     # Gibt Warnungs-Log aus
 @error "Error"      # Gibt Fehler-Log aus
-ntuple(x->2x, 3)    # (2, 4, 6); Erzeugt Tupel fuer 1:3
-@isdefined x        # true / false; Prueft ob Name existiert
-isassigned(x, 1)    # Prueft Index (not out of bounds/#undef)
+ntuple(x->2x, 3)    # (2, 4, 6); Erzeugt Tupel für 1:3
+@isdefined x        # true / false; Prüft ob Name existiert
+isassigned(x, 1)    # Prüft Index (not out of bounds/#undef)
 x = zip(1:3, 5:10)  # Kombiniert mehrere Iteratoren
-collect(x)          # 3-element Vector (Kuerzeste Laenge)
+collect(x)          # 3-element Vector (Kürzeste Länge)
 x |> collect        # Alternative Schreibweise via Pipe
 x |> collect |> first  # (1, 5); Erstes Element
 enumerate("aou")    # Tupel-Iterator: (Index, Element)
-isempty("abc")      # false; Prueft ob Collection leer ist
+isempty("abc")      # false; Prüft ob Collection leer ist
 unique("aba")       # ['a', 'b']; Einzigartige Werte
 issubset("ca", "abcd") # true; Jedes Element enthalten
-argmax("aaeubc")    # 4; Index des groessten Elements
+argmax("aaeubc")    # 4; Index des grössten Elements
 findmax("aaeubc")   # ('u', 4); Element und Index
 dump(1:2:5)         # Zeigt die interne Objektstruktur
 sort([3;4;1])       # [1, 3, 4] (Erstellt neuen Vector)
 sort!([3;4;1])      # Sortiert in-place (mutiert Objekt)
+sortperm([3;4;1])   # 3 1 2; (sortierter Index)
 \end{lstlisting}
 
 \section{Lesen und Schreiben von Dateien}
@@ -1029,6 +1092,7 @@ f = tempname()                   # Temporärer Pfad
 writedlm(f, M)                   # Datei schreiben
 A = readdlm(f, '\t', Int, '\n')  # Datei einlesen
 A == M                           # true
+readlines(f)                     # Zeigt wie Datei aussieht
 rm(f)                            # Datei löschen
 \end{lstlisting}
 
@@ -1036,10 +1100,10 @@ rm(f)                            # Datei löschen
 \label{sec:zufallszahlen}
 
 \begin{lstlisting}
-using Random    # Fuer seed!
-Random.seed!(1) # Seed setzen fuer Reproduzierbarkeit
+using Random    # Für seed! und Algorithmus
+Random.seed!(1) # Seed setzen für Reproduzierbarkeit
 rand()          # Gleichverteilt U[0,1)
-rand(3, 4)      # 3x4-Matrix ueber U[0,1)
+rand(3, 4)      # 3x4-Matrix über U[0,1)
 rand(2:5, 10)   # 10 Integer von 2 bis 5
 randn(10)       # 10 standardnormalverteilte Zahlen
 
@@ -1056,11 +1120,11 @@ using Distributions  # Paket laden
 sample(1:3, 5)       # 5 Stichproben aus 1:3
 # Normalverteilung mit Mittelwert 10 und Std.-Abw. 2
 n = Normal(10, 2)
-rand(n, 5)           # 5 Zufallszahlen gemaess n
+rand(n, 5)           # 5 Zufallszahlen gemäss n
 mean(n)              # Erwartungswert (10.0)
 # Binomialverteilung mit n=20 Versuchen, p=0.5
 b = Binomial(20, 0.5)
-rand(b, 5)           # 5 Zufallszahlen gemaess b
+rand(b, 5)           # 5 Zufallszahlen gemäss b
 \end{lstlisting}
 
 \section{Statistik}
@@ -1095,13 +1159,15 @@ Der Doppelpunkt \code|:| zitiert Code (Expression),
 
 \begin{lstlisting}
 macro doppel(x)
-    return :($x * 2) # Gibt zitierten Code zurueck
+    return :($x * 2) # Gibt zitierten Code zurück
 end
 
 @doppel(5)           # Ergibt 10
+@macroexpand @doppel(5) # :(5 * 2)
+eval(:(5 * 2))       # 10
 \end{lstlisting}
 
-Nützliche Standardmakros für Prüfungen und Benchmarks:
+Nützliche Standardmakros für Prüfungen:
 \begin{lstlisting}
 @assert 1 == 1 "ERROR"            # OK
 #@assert 1 == 2 "ERROR"          ## AssertionError
@@ -1111,8 +1177,9 @@ using Test                        # Für Unit-Tests
 @test_throws DomainError sqrt(-1) # Prüft auf Error
 \end{lstlisting}
 
+und Benchmarks:
+
 \begin{lstlisting}
-# [...] erzeugt echtes Array im Speicher (fuer Demo)
 f() = sum([x for x in 1:10^6])
 
 @time f()                    # Zeit und Speicher
@@ -1205,102 +1272,266 @@ savefig("hist.pdf")
 \section{Tabellen -- DataFrames}
 \label{sec:dataFrame}
 
-\code|DataFrames.jl| hilft beim Verarbeiten tabellarischer Daten.
+Das Paket \code|DataFrames.jl| kann in Julia zur Verarbeitung und Analyse von tabellarischer Daten verwendet werden.
 
 \begin{lstlisting}
 #]add DataFrames
 using DataFrames
- # Erzeugt ein DataFrame, Skalar-Broadcasting
+# Erzeugt ein DataFrame, Skalar-Broadcasting für "fixed"
 DataFrame(a=1:10, b=rand(10), fixed=1)
 \end{lstlisting}
 
-\code|CSV.jl| hilft beim einlesen einer CSV--Datei.
+Zum Einlesen externer Datenformate wie CSV-Dateien kann die Erweiterung \code|CSV.jl| genutzt werden.
 
 \begin{lstlisting}
-#]add CSV
-using CSV
-path = joinpath(dirname(pathof(DataFrames)),
-        "../docs/src/assets/iris.csv")
-df = CSV.read(path, DataFrame)   # Lesen
+#]add CSV RDatasets
+using CSV, DataFrames, RDatasets
+df = dataset("datasets", "iris")
 f = tempname()
-CSV.write(f, df)                 # Schreiben
-rm(f)
-last(df, 3)   # Letzten 3 Datenzeilen
-first(df, 3)  # Ersten 3 Datenzeilen
+CSV.write(f, df)                # Schreiben
+filesize(f)                     # 4604
+readlines(f)                    # Anzeigen
+df = CSV.read(f, DataFrame)     # Lesen
+CSV.write(f, df; compress=true) # als gzip
+filesize(f)              # 869
+CSV.read(f, DataFrame)   # gzip wird automatisch erkannt
+#]add CodecBzip2
+using CodecBzip2
+open(Bzip2CompressorStream, f, "w") do stream
+  CSV.write(stream, df)  # Als Bzip2 schreiben
+end
+filesize(f)              # 668
+open(Bzip2DecompressorStream, f, "r") do stream
+  CSV.read(stream, DataFrame)  # Bzip2 lesen
+end
+rm(f)            # Datei löschen
+last(df, 3)      # Letzten 3 Datenzeilen
+first(df, 3)     # Ersten 3 Datenzeilen
 \end{lstlisting}
 
 Ergibt die folgende Ausgabe:
 \begin{lstlisting}[basicstyle=\scriptsize]
 3×5 DataFrame
- Row │ SepalLength  SepalWidth  PetalLength  PetalWidth  Species     
-     │ Float64      Float64     Float64      Float64     String15    
-─────┼───────────────────────────────────────────────────────────────
-   1 │         5.1         3.5          1.4         0.2  Iris-setosa
-   2 │         4.9         3.0          1.4         0.2  Iris-setosa
-   3 │         4.7         3.2          1.3         0.2  Iris-setosa
+ Row │ SepalLength  SepalWidth  PetalLength  PetalWidth  Species  
+     │ Float64      Float64     Float64      Float64     String15 
+─────┼────────────────────────────────────────────────────────────
+   1 │         5.1         3.5          1.4         0.2  setosa
+   2 │         4.9         3.0          1.4         0.2  setosa
+   3 │         4.7         3.2          1.3         0.2  setosa
 \end{lstlisting}
 
-Grundlegende Operationen:
+\subsection{Grundlegende Operationen und Indizierung}
+
+Einige grundlegende Operationen und Möglichkeiten zur Indizierung sind:
 
 \begin{lstlisting}
-names(df)               # Spaltennamen
-nrow(df)                # Anzahl Zeilen
-ncol(df)                # Anzahl Spalten
-describe(df)            # Statistische Uebersicht
+names(df)    # Spaltennamen
+nrow(df)     # Anzahl Zeilen
+ncol(df)     # Anzahl Spalten
+describe(df) # Statistische Übersicht
 
-df.Species                     # Als Vektor (Referenz)
-df[!, :Species]                # Referenz (In-place)
-df[:, :Species]                # Erzeugt eine Kopie
-df[:, Not(:Species)]           # Alle Spalten ausser...
-df[:, Between(:SepalLength, :PetalLength)] # Bereich
-df[1, 5]                       # Wert in Zeile 1 Spalte 5
-df[1:2, 3:4]                   # Zeilen 1:2, Spalten 3:4
-Matrix(df[:, 1:4])             # Matrix-Konvertierung
+df.Species           # Zugriff auf die Spalte (Referenz)
+df[:, :Species]      # Kopie der Spalte
+df[!, :Species]      # Vorhandene Spalte, keine Kopie
+df[!, Not(:Species)] # Alle Spalten ausser...
+df[!, Between(:SepalLength, :PetalLength)] # Bereich von...bis
+df[1, 5]             # Wert in Zeile 1, Spalte 5
+df[1:2,:]            # Zeilen 1:2
+#df[1:2,!]          ## Geht nicht
+@view df[1:2,:]      # Referenz
+df[1:2, 3:4]         # Zeilen 1:2, Spalten 3:4
+Matrix(df[!, 1:4])   # Matrix-Konvertierung
 
-sort(df, :SepalWidth)              # Neues, sortiertes DF
-sort!(df, [:Species, :SepalWidth]) # Mehrspaltig In-place
-sort(df, :SepalWidth, rev=true)    # Absteigend sortieren
+sort(df, :SepalWidth)            # Neues, sortiertes DF
+sort!(df, [:Species, :SepalWidth]) # Mehrspaltig, In-place
+sort(df, :SepalWidth, rev=true)  # Absteigend sortieren
+\end{lstlisting}
 
+\subsection{Filtern und Transformieren}
+
+Zum Filtern von Zeilen können die Funktionen von \code|DataFrames.jl|
+oder, mit kompakterer Syntax, die Makros aus \code|DataFramesMeta.jl|
+verwendet werden.
+
+\begin{lstlisting}
 #]add DataFramesMeta
 using DataFramesMeta
-filter(:SepalWidth => >(3), df)    # Neues df wo true
-subset(df, :SepalWidth => ByRow(>(3))) # das gleiche
-@subset(df, :SepalWidth .> 3)      # das gleiche
+
+df[df.SepalWidth .>3, :]          # Zeilen mit SepalWidth > 3
+filter(:SepalWidth => >(3), df)   # Das gleiche
+filter(:SepalWidth => >(3), df, view = true) # Referenz
+subset(df, :SepalWidth => x -> x .> 3) # Das gleiche
+subset(df, :SepalWidth => ByRow(>(3))) # Das gleiche
+subset(df, :SepalWidth => ByRow(>(3)), view = true)
+@subset(df, :SepalWidth .> 3)     # Komfortable Macro-Syntax
+@rsubset(df, :SepalWidth > 3)
 subset!(df, :SepalWidth => ByRow(>(3))) # Filtert direkt
-select(df, :Species)               # Behält nur :Species
+
+select(df, :Species)              # Behält nur :Species
 
 push!(df, (1, 2, 3, 4, "Some species")) # Zeile anhängen
-df.key = axes(df, 1)               # Neue Spalte
+df.key = axes(df, 1)   # Neue Spalte mit Zeilen-Index
+
 transform!(df, :SepalWidth => ByRow(x -> 2x) => :Doppel)
-select!(df, Not(:Doppel))      # Löscht die Spalte
+select!(df, Not(:Doppel))   # Löscht die Spalte wieder
+\end{lstlisting}
 
-gd = groupby(df, :Species)  # Nach Species gruppieren
-combine(gd, :SepalLength => sum => :Summe) # sum ja gruppe
-  # Mehrere Aggregationen gleichzeitig
+\code|select| behält ausschließlich die explizit ausgewählten oder neu erzeugten Spalten. Im Gegensatz dazu bewahrt \code|transform| alle bestehenden Spalten und fügt die neuen Ergebnisse als zusätzliche Spalten hinzu.
+
+Viele Funktionen von \code|DataFrames.jl| verwenden den Operator
+\code|=>|, um eine Spalte mit einer Funktion und optional mit einem
+neuen Spaltennamen zu verbinden. Die allgemeine Form ist:
+
+\begin{center}
+\code|:Spalte => Funktion => :NeueSpalte|
+\end{center}
+
+Dabei bezeichnet \code|:Spalte| die Eingabespalte, \code|Funktion|
+die auszuführende Operation und \code|:NeueSpalte| optional den
+Namen des Ergebnisses.
+
+Beispielsweise:
+
+\begin{lstlisting}
+transform(df, :SepalWidth => ByRow(x -> 2x) => :Doppel)
+\end{lstlisting}
+
+bedeutet: Für jeden Wert der Spalte \code|sepalwidth| wird \code|2x|
+berechnet und das Ergebnis in der Spalte \code|Doppel| gespeichert.
+
+Der neue Spaltenname kann auch weggelassen werden:
+
+\begin{lstlisting}
+combine(df, :SepalLength => sum)
+\end{lstlisting}
+
+In diesem Fall wird der Name des Ergebnisses automatisch erzeugt.
+Eine reine Umbenennung ist ebenfalls möglich:
+
+\begin{lstlisting}
+select(df, :SepalLength => :Laenge)
+\end{lstlisting}
+
+Eine bestehende Spalte lässt sich direkt mit \code|rename!| umbenennen, ohne dass andere Spalten beeinflusst oder Daten kopiert werden:
+
+\begin{lstlisting}
+rename!(df, :key => :Key)  # Benennt die Spalte direkt um
+\end{lstlisting}
+
+Mit \code|ByRow| wird die Funktion zeilenweise auf die ausgewählten Werte angewendet. Ohne \code|ByRow| operiert sie standardmäßig auf den vollständigen Spaltenvektoren.
+
+\subsection{Gruppieren und Aggregieren}
+
+Mit \code|groupby| wird ein DataFrame in Gruppen aufgeteilt.
+\code|combine| führt anschließend eine Operation für jede Gruppe
+einzeln aus.
+
+\begin{lstlisting}
+gd = groupby(df, :Species) # Nach Species gruppieren
+ # Summe der SepalLength für jede Species
+combine(gd, :SepalLength => sum => :Summe)
+ # Mehrere Aggregationen gleichzeitig
 combine(gd, nrow, :PetalLength => sum)
+\end{lstlisting}
 
+Die Anweisung
+
+\begin{center}
+\code|:SepalLength => sum => :Summe|
+\end{center}
+
+ist dabei als „Spalte \code|sepallength| nehmen, \code|sum| darauf
+anwenden und das Ergebnis \code|Summe| nennen“ zu lesen.
+
+Der Operator \code|.=>| ist die Broadcast-Variante von \code|=>|. Er ermöglicht das gleichzeitige Erzeugen mehrerer Transformationen, indem er beispielsweise eine Liste von Spalten mit einer Funktion (oder umgekehrt) verknüpft:
+
+\begin{lstlisting}
+# Berechnet die Summe für mehrere Spalten gleichzeitig:
+combine(gd, [:SepalLength, :SepalWidth] .=> sum)
+combine(gd, [:SepalLength, :SepalWidth] .=> sum .=> [:SLS,:SWS])
+
+# Summe für alle Spalten ausser :Key und :class:
+combine(gd, Not([:Key, :Species]) .=> sum)
+combine(gd, Not([:Key, :Species]) .=> sum .=>(n -> "$(n)_SUM"))
+\end{lstlisting}
+
+Im vorletzten Fall werden die neuen Spaltennamen automatisch nach dem Schema
+\code|Spaltenname\_Funktion| (z.\,B. \code|sepallength\_sum|) generiert.
+
+\subsection{Formänderungen}
+
+Mit \code|stack| und \code|unstack| kann die Form eines DataFrames
+zwischen einer breiten (\textit{wide}) und einer langen
+(\textit{long}) Darstellung geändert werden.
+
+\begin{lstlisting}
  # Spalten 1:4 untereinander: wide -> long
-dfLong = stack(df, 1:4, [:key, :Species])
- # long -> wide (Zurueckdrehen in die Breite)
-unstack(dfLong, [:key, :Species], :variable, :value)
+dfLong = stack(df, 1:4, [:Key, :Species])
+ # long -> wide (zurück in die Breite)
+unstack(dfLong, [:Key, :Species], :variable, :value)
+\end{lstlisting}
 
-# Konvertiert String-Spalte in speichereffiziente Faktoren
+\subsection{Kategorische Daten}
+
+\code|CategoricalArrays.jl| ermöglicht die Darstellung von Kategorien
+als speichereffiziente kategoriale Daten.
+
+\begin{lstlisting}
 #]add CategoricalArrays
 using CategoricalArrays
+
 df.Species = categorical(df.Species)
-levels(df.Species)             # Einzigartige Kategorien
+levels(df.Species) # Einzigartige Kategorien
+\end{lstlisting}
 
+\subsection{Fehlende Werte}
+
+Fehlende Werte werden in Julia durch \code|missing| dargestellt.
+Mit \code|skipmissing| können fehlende Werte bei Berechnungen
+übersprungen werden:
+
+\begin{lstlisting}
 dfM = DataFrame(A=[1, missing, 3], B=1)
-dropmissing(dfM)            # Zeilen mit missing löschen
-#dfM.B[2] = missing        ## Error
-allowmissing!(dfM, :B)      # Spaltentyp erweitern
+dropmissing(dfM)       # Zeilen mit missing weglassen
+#dfM.B[2] = missing   ## Fehler: Int-Spalte erlaubt kein missing
+allowmissing!(dfM, :B) # Spaltentyp erweitert
 dfM.B[2] = missing
+sum(dfM.A)              # ergibt missing
+sum(skipmissing(dfM.A)) # Summe ohne missing
+\end{lstlisting}
 
+\subsection{Verbinden von DataFrames (Joins)}
+
+DataFrames können über eine oder mehrere gemeinsame Schlüsselspalten (\code|on|) miteinander verbunden werden. Sollten die Schlüsselspalten in den Tabellen unterschiedliche Namen haben, lässt sich dies über ein Pair (\code|:links => :rechts|) definieren. Je nach Anwendungsfall bestimmen verschiedene Join-Typen, welche Zeilen und Spalten im Ergebnis erhalten bleiben:
+
+\begin{description}[style=multiline,leftmargin=1.7cm,nolistsep]
+\item[\code|innerjoin|] Behält nur Zeilen mit übereinstimmenden Schlüsseln in beiden Tabellen.
+\item[\code|leftjoin|] Behält alle Zeilen der linken Tabelle (füllt fehlende rechte Werte mit \code|missing|).
+\item[\code|rightjoin|] Behält alle Zeilen der rechten Tabelle (füllt fehlende linke Werte mit \code|missing|).
+\item[\code|outerjoin|] Behält alle Zeilen aus beiden Tabellen (fügt bei Lücken \code|missing| ein).
+\item[\code|semijoin|] Filtert die linke Tabelle: Behält nur Zeilen, deren Schlüssel auch rechts existieren. Es werden keine Spalten der rechten Tabelle angehängt.
+\item[\code|antijoin|] Filtert die linke Tabelle: Behält nur Zeilen, deren Schlüssel rechts \textit{nicht} existieren.
+\end{description}
+
+\begin{lstlisting}
 links  = DataFrame(Key=["A", "B"], Wert1=[10, 20])
 rechts = DataFrame(Key=["B", "C"], Wert2=[30, 40])
-innerjoin(links, rechts, on=:Key)  # Nur gemeinsame Keys
-leftjoin(links, rechts, on=:Key)   # Alle von links
-outerjoin(links, rechts, on=:Key)  # Alle von beiden
+
+# Kombinierende Joins (Spalten von beiden DFs)
+innerjoin(links, rechts, on=:Key)  # Nur Key "B"
+leftjoin(links, rechts, on=:Key)   # Keys "A" und "B"
+rightjoin(links, rechts, on=:Key)  # Keys "B" und "C"
+outerjoin(links, rechts, on=:Key)  # Alle Keys "A", "B", "C"
+
+# Filternde Joins (nur Spalten von 'links')
+semijoin(links, rechts, on=:Key)   # Nur Zeile "B" aus 'links'
+antijoin(links, rechts, on=:Key)   # Nur Zeile "A" aus 'links'
+
+# Join bei unterschiedlichen Spaltennamen
+# Ergebnis behält den Namen der linken Spalte (:a)
+links_diff  = DataFrame(a=["A", "B"], Wert1=[10, 20])
+rechts_diff = DataFrame(b=["B", "C"], Wert2=[30, 40])
+innerjoin(links_diff, rechts_diff, on = :a => :b)
 \end{lstlisting}
 
 
