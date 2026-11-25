@@ -1,0 +1,2191 @@
+\documentclass[twocolumn, paper=a4, fontsize=10pt]{scrartcl}
+
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage[babel=true, german=guillemets]{csquotes}
+
+\usepackage{newpxtext} 
+\usepackage{newpxmath}
+\usepackage{microtype}
+
+\usepackage[margin=1mm, includefoot, footskip=12pt]{geometry}
+\setlength{\columnsep}{6mm}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{siunitx}
+\sisetup{locale = DE, per-mode = symbol, sticky-per = true}
+\DeclareSIUnit\Vfm{Vfm}
+\DeclareSIUnit\Efm{Efm}
+\DeclareSIUnit\ha{ha}
+\DeclareSIUnit\Jahr{Jahr}
+\DeclareSIUnit\tBM{tBM}
+\DeclareSIUnit\tC{tC}
+
+\usepackage{subcaption}
+\usepackage{caption}
+\captionsetup{margin=10pt,font=small,labelfont=bf,format=plain,indention=1.em}
+\usepackage[lang=english]{bicaption}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, calc, decorations.pathreplacing, patterns, shapes.arrows}
+
+\renewcommand{\topfraction}{0.85}       % Bis zu 85% der Spalte darf oben ein Bild sein
+\renewcommand{\bottomfraction}{0.85}    % Bis zu 85% darf unten ein Bild sein
+\renewcommand{\textfraction}{0.10}      % Schon ab 10% verbleibendem Platz wird Text gedruckt
+\renewcommand{\floatpagefraction}{0.80} % Erst ab 80% Höhe bekommt das Bild eine eigene Spalte
+
+\usepackage[symbol]{footmisc}
+
+%\usepackage[xindy]{imakeidx}
+%\makeindex[program=xindy, columns=3, title={Stichwortverzeichnis}, options={-L german-duden}, intoc]
+
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage[inline]{enumitem}
+
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{afterpage}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+
+\usepackage[hidelinks,pdflang=de-AT]{hyperref}
+\hypersetup{
+  pdftitle={Forstliche Hiebsatzweiser},
+  pdfauthor={Georg Kindermann},
+  pdfsubject={Hiebsatz, Waldwachstum, Baumwachstum},
+  pdfkeywords={Hiebsatz, Waldwachstum, Waldbau, Wald, Forst}
+}
+\usepackage[ngerman]{cleveref}
+
+\nonfrenchspacing
+\setlength{\emergencystretch}{3em}
+\raggedbottom
+
+\begin{document}
+
+\title{Forstliche Hiebsatzweiser}
+\author{Georg Kindermann}
+\date{\today}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+        {\centering\Large\abstractname\par}
+        \vspace{1ex}
+        \begin{abstract}
+          Der forstliche Hiebsatz bildet als Richtgröße für den nachhaltigen Holzeinschlag das zentrale Steuerungsinstrument der Forsteinrichtung. Dieser Beitrag fasst die theoretischen Grundlagen, Ziele und Berechnungsmethoden zur Herleitung dieser Nutzungsmenge zusammen. Ausgehend vom Nachhaltigkeitsprinzip, der Umtriebszeit sowie den Modellen des Normal- und Zielwaldes werden die klassischen Verfahren für den Altersklassenwald -- basierend auf Waldfläche, Vorrat und Zuwachs -- vorgestellt. Abschließend beleuchtet der Text die spezifischen Anforderungen an die Hiebsatzermittlung im ungleichaltrigen Wald und vergleicht die unterschiedlichen methodischen Ansätze hinsichtlich ihrer praktischen Anwendung.
+        \end{abstract}
+        \vspace{2ex}
+  \end{@twocolumnfalse}
+]
+
+\tableofcontents
+\vspace{2ex}
+
+\section{Einleitung}
+
+Wie viel Holz darf bzw.\ muss einem bewirtschafteten Wald entnommen werden, ohne seine Zukunft zu gefährden? Diese Kernfrage beschäftigt die Forstwirtschaft seit Jahrhunderten. Wer heute einen Baum erntet, greift in ein Ökosystem ein, dessen Produktionszeiträume oft mehrere menschliche Generationen umspannen. Im Ertragswald ist die Holzernte dabei nicht bloß eine wirtschaftliche Abschöpfung, sondern zugleich das wichtigste Werkzeug für Waldpflege, Stabilität und Verjüngung. Während eine zu hohe Nutzung die Substanz des Waldes aufzehrt, führt ein zu geringer Einschlag langfristig zu überalterten und instabilen Beständen.
+
+Um diese Balance zwischen wirtschaftlicher Nutzung und langfristiger Walderhaltung zu steuern, bedient sich die Forsteinrichtung eines zentralen Planungsinstruments: des \emph{Hiebsatzes}. Er definiert jene Holzmenge, die innerhalb einer Planungsperiode nachhaltig genutzt werden kann, und übersetzt damit das abstrakte Leitbild der Nachhaltigkeit in eine konkrete betriebliche Richtgröße.
+
+Doch wie lässt sich dieser Wert in der Praxis verlässlich bestimmen -- insbesondere dann, wenn reale Wälder von Idealvorstellungen abweichen oder durch den Klimawandel unter Anpassungsdruck geraten? Der vorliegende Beitrag beleuchtet die forstwissenschaftlichen Konzepte hinter dieser Berechnung und zeigt auf, wie verschiedene Herleitungsverfahren in unterschiedlichen Waldstrukturen zur Anwendung kommen. Die fachliche und strukturelle Aufbereitung orientiert sich dabei maßgeblich an den Lehrinhalten der Vorlesung \emph{Forsteinrichtung} von Walter Sekot an der Universität für Bodenkultur Wien.
+
+\section{Nachhaltigkeit}
+
+Die Nachhaltigkeit ist das zentrale Leitprinzip der forstlichen Planung (Forsteinrichtung) und bildet die Basis für eine langfristig ausgerichtete Waldbewirtschaftung. Da die Produktionszeiträume im Forstbetrieb sehr lang sind, muss die Planung sicherstellen, dass dessen Leistungsfähigkeit dauerhaft erhalten bleibt und Strukturverschlechterungen vermieden werden.
+
+Die Nachhaltigkeit im Forstbetrieb lässt sich anhand von drei Dimensionen überprüfen:
+\begin{description}
+\item[Inhalt:] Was soll nachhaltig erhalten bleiben? Bezugsgrößen sind beispielsweise der Holzvorrat, der Zuwachs oder der Geldertrag.
+\item[Quantität:] In welchem Umfang soll das jeweilige Ziel erreicht werden und welche Toleranzen sind zulässig?
+\item[Zeit:] Für welchen Zeitraum wird die Zielerreichung angestrebt?
+\end{description}
+
+Die Nachhaltigkeit kann statisch oder dynamisch betrachtet werden:
+\begin{description}
+\item[Statisch:] Hier steht die Erhaltung eines bestimmten Zustandes im Vordergrund, etwa der Waldfläche (Flächennachhaltigkeit), des Holzvorrates (Vorratsnachhaltigkeit), des Wertes (Wertnachhaltigkeit) oder des Betriebsvermögens.
+\item[Dynamisch:] Hier geht es um die dauerhafte Erbringung von Leistungen. Dazu zählen der Zuwachs, die Holzerträge (nach Masse und Qualität), die Gelderträge, die Rentabilität sowie Schutz-, Infrastruktur- und Erholungsleistungen (Mehrfachnutzung).
+\end{description}
+
+Nachhaltigkeit bedeutet jedoch nicht, einen bestehenden Zustand lediglich beizubehalten. Dies gilt insbesondere dann, wenn das Leistungspotenzial des Waldes nicht ausreichend genutzt wird -- etwa durch überalterte Bestände oder ungünstig gewählte Umtriebszeiten. Vielmehr geht es darum, eine langfristig leistungsfähige Waldstruktur herzustellen und dauerhaft zu sichern. Dazu kann ein gezielter Übergang vom aktuellen Ausgangszustand zu einer angestrebten Zielstruktur erforderlich sein. Liegt beispielsweise ein hoher Überhang an hiebsreifen oder überalterten Beständen vor, stellt deren planmäßiger Abbau keinen Verstoß gegen das Nachhaltigkeitsprinzip dar. Obwohl dabei der aktuelle Holzvorrat sinkt, ist diese Maßnahme im Sinne einer dynamischen Nachhaltigkeit notwendig, um die Verjüngung einzuleiten und langfristig ein ausgewogenes Altersklassenverhältnis herzustellen.
+
+Gleichzeitig müssen Veränderungen der natürlichen Rahmenbedingungen berücksichtigt werden. Insbesondere der Klimawandel und Stoffeinträge aus der Atmosphäre können die Standort- und Wuchsbedingungen der Waldbestände langfristig verändern. Droht eine bisherige Hauptbaumart ihre Standortstauglichkeit zu verlieren, ist ein rascher Waldumbau hin zu standortsangepassten Baumarten erforderlich. Auch wenn dieser Umbau kurz- bis mittelfristig mit einem deutlichen Vorratsabbau und vorzeitigen Nutzungen verbunden ist, dient er der langfristigen Sicherung der Waldfunktionen und ist daher als nachhaltig zu bewerten. Eine nachhaltige Forsteinrichtung erfordert somit eine vorausschauende Planung, die regelmäßig überprüft und bei Bedarf an neue Entwicklungen angepasst wird.
+
+Das zentrale operative Instrument zur Umsetzung dieser Nachhaltigkeitsziele ist der \emph{forstliche Hiebsatz}. Er legt die geplante Nutzungsmenge (meist in Erntefestmetern pro Jahr oder für eine zehnjährige Einrichtungsperiode) fest und bildet die Richtschnur für den nachhaltigen Holzeinschlag. Während der Hiebsatz bei ausgeglichenen Bestandesstrukturen in etwa dem laufenden Zuwachs entspricht, kann er in den oben genannten Umbau- und Anpassungsphasen bewusst über dem Zuwachs angesetzt werden. Der Hiebsatz fungiert somit als dynamische Steuerungsgröße, die sowohl den Schutz vor Übernutzung gewährleistet als auch notwendige Strukturverbesserungen aktiv vorantreibt.
+
+\section{Umtriebszeit}
+
+Die Umtriebszeit ($u$) ist eine zentrale \emph{Plangröße} der Forsteinrichtung. Sie gibt in Jahren an, wie lange ein Waldbestand innerhalb einer Betriebsklasse im Durchschnitt von der Bestandesbegründung bis zur vollständigen Endnutzung heranwachsen soll.
+
+Wichtig ist dabei die Abgrenzung zur waldbaulichen Praxis: Die Umtriebszeit ist ein strategischer Modellwert für die gesamte Betriebsklasse und nicht das tatsächliche Erntealter eines einzelnen Bestandes ($x$). Wann ein konkreter Bestand $x$ tatsächlich geerntet wird -- sein reales \emph{Abtriebsalter} ($t_{\text{EN},x}$, das im Idealmodell mit $u$ zusammenfällt) --, hängt von den Gegebenheiten vor Ort ab. Fallen einzelne Bestände etwa durch Windwurf oder Borkenkäferbefall vorzeitig ($t_{\text{EN},x} < u$) aus, werden diese Zwangsnutzungen im Rahmen der Nutzungsplanung oft dadurch ausgeglichen, dass andere, gesunde Bestände länger als bis zum Planalter $u$ stehen bleiben ($t_{\text{EN},x} > u$). Steigt das Schadensrisiko z.\,B.\ unter dem Einfluss des Klimawandels jedoch dauerhaft an, kann eine zu hoch angesetzte Umtriebszeit im Betriebsmittel gar nicht mehr erreicht werden. Das zu erwartende Ausfallsrisiko muss daher bereits bei der Wahl der Umtriebszeit berücksichtigt und diese gegebenenfalls bei der nächsten Forsteinrichtungsrevision angepasst werden.
+
+Als rechnerische Steuerungsgröße erfüllt die Umtriebszeit im Betriebsmodell eine unverzichtbare Aufgabe: Über sie legt der Betrieb fest, wie viel Holzvorrat langfristig im Wald aufgebaut wird, wie viel Kapital darin gebunden ist und welche Fläche jährlich zur Verjüngung ansteht. Welche Umtriebszeit dabei als ideal gilt, hängt -- neben den standörtlichen Grenzen und dem Produktionsrisiko -- vor allem von den wirtschaftlichen Zielen des Betriebes ab. Je nach Zielsetzung lassen sich folgende Optimalitätskriterien unterscheiden:
+\begin{description}
+\item[Maximale Volumenleistung (Massenleistung):] Ziel ist es, \emph{langfristig} das größte Holzvolumen zu erzeugen. Die beste Umtriebszeit ($u_{\text{DGZ}_{\max}}$) ist erreicht, wenn der durchschnittliche Gesamtzuwachs ($\text{DGZ}_u$) -- also das gesamte bisherige Holzvolumen inklusive aller Vornutzungen geteilt durch das Alter -- seinen Höchstwert ($\text{DGZ}_{\max}$) erreicht. Die Formelzeichen $M$ und $m$ leiten sich historisch vom forstlichen Begriff der \emph{Holzmasse} ab, bezeichnen hier aber im Einklang mit der modernen Forstwirtschaft stets das \emph{Holzvolumen} (in $\text{m}^3$) und nicht die physikalische Masse. Da Zuwachswerte standardmäßig je Hektar angegeben werden, wird das Gesamtvolumen der Betriebsklasse mit ihrer Fläche $F$ entsprechend auf einen Hektar bezogen:
+  \begin{equation}
+    \text{DGZ}_u = \frac{\text{GWL}_u}{u} = \frac{M_u + \sum_{t < u} M_{\text{VN},t}}{F \cdot u}
+  \end{equation}
+  Dabei stehen $M_u$ für das gesamte Endnutzungsvolumen der Betriebsklasse in der Altersstufe $u$ und $\sum_{t < u} M_{\text{VN},t}$ für die Summe aller bis dahin in den Altersstufen $t < u$ entnommenen Vornutzungsvolumina auf der Gesamtfläche $F$. Dieser Höchstwert liegt genau dort, wo der laufende Zuwachs ($\text{LFZ}$) den durchschnittlichen Gesamtzuwachs schneidet (vgl.\ Abb.~\ref{fig:umtriebszeit_prinzip}).
+
+\item[Maximale Endnutzung:] Zählt nur jenes Holzvolumen, das beim Abtrieb am Ende der Umtriebszeit anfällt, sucht man den Höchstwert des Haubarkeits-Durchschnittszuwachses ($\text{HDZ}_u$, ebenfalls je Hektar):
+  \begin{equation}
+    \text{HDZ}_u = \frac{M_u}{F \cdot u}
+  \end{equation}
+  Wann das Verhältnis aus stehendem Vorrat und Umtriebszeit ($M_u / (F \cdot u)$) seinen Höchstwert ($u_{\text{HDZ}_{\max}}$) erreicht, hängt wesentlich von der Durchforstungsstärke ab: Bei schwacher Durchforstung oder im undurchforsteten Bestand fehlen die Vornutzungen im Zähler, wodurch der Quotient flacher verläuft und meist später kulminiert als der $\text{DGZ}_u$. Bei starker Durchforstung hingegen wird ein großer Teil des Zuwachses laufend abgeschöpft, sodass der stehende Vorrat $M_u$ im Verhältnis zur Umtriebszeit früher abflacht und $u_{\text{HDZ}_{\max}}$ sogar vor der maximalen Volumenleistung liegen kann (vgl.\ Abb.~\ref{fig:umtriebszeit_kriterien}).
+
+\item[Maximale Sortimentsleistung:] Statt des reinen Gesamtvolumens zählt hier nur die jährliche Menge bestimmter Zielsortimente -- etwa Sägerundholz, Wertholz oder Industrieholz in bestimmten Durchmesserbereichen:
+  \begin{equation}
+    \text{DGZ}_{S,u} = \frac{M_{S,u} + \sum_{t < u} M_{\text{VN},S,t}}{F \cdot u}
+  \end{equation}
+  Dabei stehen $M_{S,u}$ und $\sum_{t < u} M_{\text{VN},S,t}$ für die jeweiligen Sortimentsanteile an der gesamten End- und Vornutzung der Betriebsklasse. Je nach gesuchtem Sortiment verschiebt sich die beste Umtriebszeit ($u_{\text{DGZ}_{S,\max}}$): Für starke Säge- oder Wertholzsortimente liegt sie deutlich später als bei der maximalen Volumenleistung, für schwächere Industrie- oder Energieholzsortimente hingegen entsprechend früher.
+
+\item[Maximaler Waldreinertrag bzw.\ Waldrente:] Hier sucht man jene Umtriebszeit ($u_{\text{WR}_{\max}}$), bei der die Betriebsklasse im Jahresdurchschnitt den höchsten reinen Geldüberschuss (in Geldeinheiten, $\text{GE}$) erzielt -- also alle Holzerlöse minus sämtlichen Kosten, geteilt durch die Umtriebszeit, ohne dabei Zinsansprüche für das gebundene Kapital einzurechnen:
+  \begin{equation}
+    \text{Waldrente} = \frac{A_u + \sum_{t < u} D_t - (K_c + u \cdot v)}{u}
+  \end{equation}
+  Dabei beziehen sich sämtliche monetären Größen (in $\text{GE}$) auf die jeweilige Altersstufenfläche der Betriebsklasse: $A_u$ steht für den erntekostenfreien Abtriebsertrag in der Altersstufe $u$, $\sum_{t < u} D_t$ für die Summe der erntekostenfreien Durchforstungserträge (Deckungsbeiträge) über alle Altersstufen $t < u$, $K_c$ für die Kulturkosten und $v$ für die jährlichen Verwaltungskosten der Betriebsklasse.
+
+  Wirtschaftlich gesehen entspricht diese jährliche Rente einer Verzinsung des gesamten im Wald gebundenen Kapitals -- also der Summe aus den Bodenwerten ($\sum_{x} B_x$) und den Bestandeswerten ($\sum_{x} H_x$) aller Einzelbestände $x$ der Betriebsklasse (in $\text{GE}$), was im Normalwaldmodell genau der Summe über alle $u$ Altersstufen ($\sum_{t=1}^{u} B_t + \sum_{t=1}^{u} H_t$) entspricht. Daraus ergibt sich der forstliche Zinsfuß ($p_i$) in Prozent:
+  \begin{equation}
+    p_i = \frac{\text{Waldrente}}{\sum_{x} B_x + \sum_{x} H_x} \cdot 100 = \frac{\text{Waldrente}}{\sum_{t=1}^{u} B_t + \sum_{t=1}^{u} H_t} \cdot 100
+  \end{equation}
+
+\item[Maximale Bodenrente:] Anders als beim Waldreinertrag wird der stehende Holzvorrat hier wie anderweitig angelegtes Kapital behandelt, das einen vorgegebenen Kalkulationszins ($p_k$) abwerfen muss. Vom jährlichen Waldreinertrag der Betriebsklasse zieht man daher die Zinsansprüche für das im gesamten Holzvorrat über alle Altersstufen ($\sum_{t=1}^{u} H_t$) gebundene Kapital ab:
+  \begin{equation}
+    \text{Bodenrente} = \text{Waldrente} - \frac{p_k}{100} \cdot \sum_{t=1}^{u} H_t
+  \end{equation}
+  Weil der Wert des Holzvorrats mit steigendem Alter stark zunimmt, wächst auch die Zinslast rasch an. Dieses Ziel führt daher meist zu den kürzesten Umtriebszeiten ($u_{\text{BR}_{\max}}$, vgl.\ Abb.~\ref{fig:umtriebszeit_kriterien}).
+
+\item[Höchste Rentabilität:] Hier zählt nicht der absolute Geldbetrag pro Jahr, sondern die höchste prozentuale Verzinsung ($p_{i,\max}$). Gesucht wird jene Umtriebszeit ($u_{p_{i,\max}}$), bei der das Verhältnis zwischen jährlicher Waldrente und dem gesamten im Wald gebundenen Kapital -- also der Summe aus allen Bodenwerten ($\sum_{t=1}^{u} B_t$) und Bestandeswerten ($\sum_{t=1}^{u} H_t$) -- maximal wird:
+  \begin{equation}
+    p_{i,\max} = \max \left( \frac{\text{Waldrente}}{\sum_{t=1}^{u} B_t + \sum_{t=1}^{u} H_t} \cdot 100 \right)
+  \end{equation}
+\end{description}
+
+\begin{figure}[!htbp]
+  \centering
+  % --- Obere Teilabbildung: Schnittpunktprinzip LFZ = DGZ ---
+  \begin{subfigure}[b]{0.98\columnwidth}
+    \centering
+    \begin{tikzpicture}[scale=1.05, font=\small]
+      % Identische Bounding Box für exakte Ausrichtung von (0,0)
+      \path (-1.3, -0.7) rectangle (7.3, 4.6);
+      % Achsen
+      \draw[->, thick] (0,0) -- (6.8,0) node[below, yshift=-2pt] {Alter ($t$)};
+      \draw[->, thick] (0,0) -- (0,4.2) node[above] {Zuwachs};
+      % 1. Laufender Zuwachs LFZ
+      \draw[blue!75!black, thick]
+      (0,0) .. controls (0.45, 0) and (0.70, 1.15) .. (1.00, 2.25)
+      .. controls (1.25, 3.15) and (1.50, 3.57) .. (1.74, 3.57)
+      .. controls (2.25, 3.57) and (3.30, 1.55) .. (5.80, 0.45);
+      % 2. Durchschnittlicher Gesamtzuwachs DGZ
+      \draw[green!50!black, very thick]
+      (0,0) .. controls (0.70, 0) and (1.15, 0.85) .. (1.65, 1.65)
+      .. controls (2.10, 2.35) and (2.55, 2.497) .. (2.970, 2.497)
+      .. controls (3.55, 2.497) and (4.45, 2.15) .. (5.80, 1.75);
+      % Exakter Schnittpunkt (LFZ = DGZ_max)
+      \fill[red!80!black] (2.970, 2.497) circle (2.4pt);
+      \draw[dashed, red!80!black] (2.970, 0) node[below, black] {$u_{\text{opt}}$} -- (2.970, 2.497);
+      % Zeigerpfeile mit vollständiger Bezeichnung
+      \draw[<-, >=stealth, blue!75!black] (2.10, 3.32) -- (2.60, 3.78)
+      node[right, font=\footnotesize, align=left] {Laufender\\Zuwachs (LFZ)};
+      \draw[<-, >=stealth, green!50!black] (4.15, 2.26) -- (4.55, 2.75)
+      node[right, font=\footnotesize, align=left] {Durchschnittlicher\\Gesamtzuwachs\\(DGZ)};
+      \node[red!80!black, font=\scriptsize, above right] at (2.99, 2.51) {$\text{Max.}$};
+    \end{tikzpicture}
+    \caption{Allgemeines Schnittpunktprinzip}
+    \label{fig:umtriebszeit_prinzip}
+  \end{subfigure}
+
+  \vspace{0.5cm}
+
+  % --- Untere Teilabbildung: Reihung der Kriterien ---
+  \begin{subfigure}[b]{0.98\columnwidth}
+    \centering
+    \begin{tikzpicture}[scale=1.05, font=\small,
+        declare function={
+          gauss(\x,\mu,\k) = 2.85 * exp(-\k*(\x - \mu)^2);
+      }]
+      % Identische Bounding Box wie oben
+      \path (-1.3, -0.7) rectangle (7.3, 4.6);
+      % Achsen
+      \draw[->, thick] (0,0) -- (6.8,0) node[below, yshift=-2pt] {Alter ($t$)};
+      \draw[->, thick] (0,0) -- (0,4.2) node[above] {Zielerreichung};
+      % 1. Bodenrente (frühes Maximum bei x = 1.6)
+      \draw[orange!85!black, thick, smooth, domain=0.2:4.2, samples=22]
+      plot (\x, {gauss(\x, 1.6, 0.42)});
+      \draw[dashed, orange!85!black] (1.6, 0) node[below, font=\scriptsize] {$u_{\text{BR}_{\max}}$} -- (1.6, 2.85);
+      % 2. Massenleistung DGZ (Maximum bei x = 2.8)
+      \draw[green!50!black, thick, smooth, domain=0.2:5.6, samples=22]
+      plot (\x, {gauss(\x, 2.8, 0.22)});
+      \draw[dashed, green!50!black] (2.8, 0) node[below, font=\scriptsize] {$u_{\text{DGZ}_{\max}}$} -- (2.8, 2.85);
+      % 3. Endnutzung HDZ (Maximum bei x = 4.0)
+      \draw[teal!80!black, thick, dashed, smooth, domain=0.6:6.1, samples=22]
+      plot (\x, {gauss(\x, 4.0, 0.20)});
+      \draw[dashed, teal!80!black] (4.0, 0) node[below, font=\scriptsize] {$u_{\text{HDZ}_{\max}}$} -- (4.0, 2.85);
+      % 4. Waldreinertrag (spätes Maximum bei x = 5.2)
+      \draw[purple!80!black, thick, smooth, domain=1.2:6.3, samples=22]
+      plot (\x, {gauss(\x, 5.2, 0.22)});
+      \draw[dashed, purple!80!black] (5.2, 0) node[below, font=\scriptsize] {$u_{\text{WR}_{\max}}$} -- (5.2, 2.85);
+      % Kompakte Legende oben
+      \begin{scope}[shift={(0.25, 3.95)}, font=\footnotesize]
+        \draw[orange!85!black, thick] (0,0) -- (0.4,0) node[right, black] {Bodenrente};
+        \draw[green!50!black, thick] (3.55,0) -- (3.95,0) node[right, black] {Volumen ($\text{DGZ}$)};
+        \draw[teal!80!black, thick, dashed] (0,-0.42) -- (0.4,-0.42) node[right, black] {Endnutzung ($\text{HDZ}$)};
+        \draw[purple!80!black, thick] (3.55,-0.42) -- (3.95,-0.42) node[right, black] {Waldreinertrag};
+      \end{scope}
+    \end{tikzpicture}
+    \caption{Reihung der Optimalitätskriterien}
+    \label{fig:umtriebszeit_kriterien}
+  \end{subfigure}
+  \caption{Bestimmung der optimalen Umtriebszeit: (a) Mathematisch erreicht eine Durchschnittsgröße ihr Maximum genau im Schnittpunkt mit dem laufenden Zuwachs bzw.\ Wertzuwachs. (b) Schematischer Vergleich der normierten Zielkurven mit der charakteristischen zeitlichen Abfolge von maximaler Bodenrente ($u_{\text{BR}_{\max}}$), Volumenleistung ($u_{\text{DGZ}_{\max}}$), Endnutzung ($u_{\text{HDZ}_{\max}}$) und Waldreinertrag ($u_{\text{WR}_{\max}}$).}
+  \label{fig:umtriebszeit}
+\end{figure}
+
+Unabhängig davon, welches dieser Kriterien ein Betrieb verfolgt, gilt für alle Zielsetzungen gleichermaßen: Die gewählte Umtriebszeit beschreibt ein langfristiges Optimum. Befindet sich ein Forstbetrieb noch in einer Umstellungs- oder Aufbauphase, können die notwendigen waldbaulichen Maßnahmen kurz- bis mittelfristig zu sinkenden Zuwächsen oder geringeren Erträgen führen -- also scheinbar in die falsche Richtung weisen --, sind aber unverzichtbar, um das angestrebte Zielniveau dauerhaft zu erreichen.
+
+In der forstlichen Praxis wird die Umtriebszeit so gut wie nie rein rechnerisch nach einem einzigen Modellkriterium festgelegt, sondern im Rahmen einer Gesamtabwägung -- unter Berücksichtigung der aktuellen Vorratsstruktur, des Produktionsrisikos sowie der Liquiditäts- und Marktziele des Betriebes -- gutachtlich bestimmt.
+
+\section{Normalwald- und Zielwaldmodell}
+
+Um die mit der Umtriebszeit festgelegte strategische Zielsetzung in einen konkreten Hiebsatz zu übersetzen, benötigt die Forsteinrichtung Referenzmodelle. Sie dienen als Vergleichsmaßstab, um den aktuellen Ist-Zustand eines realen Waldes (Vorrats- und Altersstruktur) einem langfristig nachhaltigen Soll-Zustand gegenüberzustellen. Je nachdem, ob man von idealisierten oder risikobehafteten Produktionsbedingungen ausgeht, kommen dabei das klassische Normalwaldmodell oder das realitätsnähere Zielwaldmodell zum Einsatz.
+
+\subsection{Der Normalwald (Normale Betriebsklasse)}
+\label{ssec:normalwald}
+
+Die \emph{Normalwaldtheorie} beschreibt ein idealisiertes Modell des Waldaufbaus, das auf unbegrenzte Zeit einen vollkommen gleichmäßigen jährlichen Nachhaltsbetrieb (gleiche Nutzung, Vorrat, Zuwachs, Ertrag und Aufwand) ermöglicht.
+
+Das Modell setzt folgende Bedingungen voraus:
+
+\begin{itemize}
+\item eine einheitliche Bestockung (Reinbestand oder konstante Baumartenmischung) und Bonität,
+\item eine gleichartige waldbauliche Behandlung,
+\item das völlige Fehlen von Produktionsrisiken,
+\item die sofortige Wiederbestockung genutzter Flächen (keine Blößen oder Schlagruhe; Bestandesbegründung im Alter $0$ ohne Altersvorsprung durch ältere Pflanzensortimente) sowie
+\item eine flächengleiche Verteilung aller $u$ Altersstufen ($t = 1, \dots, u$) über die gesamte Umtriebszeit von $0$ bis $u$.\footnote{Jede einjährige Altersstufe deckt ein volles Lebensjahr ab (von $[0,1)$ bis $[u-1,u]$), sodass insgesamt genau $u$ Altersstufen bestehen. Das Umtriebsalter $u$ bildet die Obergrenze der ältesten Stufe und wird im Modell nie überschritten, da der Bestand bei Erreichen dieses Alters ($t_{\text{EN}} = u$) genutzt und sofort wieder begründet wird. Eine feinere Unterteilung unterhalb eines Jahres wäre in unseren Breiten biologisch nicht sinnvoll, da heimische Baumarten nicht kontinuierlich, sondern im jährlichen Rhythmus der Vegetationsperiode keimen.}
+\end{itemize}
+
+Betrachtet man zunächst nur den verbleibenden Hauptbestand beziehungsweise die Endnutzung, gelten für die Gesamtfläche ($F$) und das Endnutzungsvolumen je Hektar ($m_u$) im Alter $u$ folgende Zusammenhänge:
+
+\begin{equation}
+  \begin{aligned}
+    f &= f_{\text{EN}} = f_{\text{Verj}} = \frac{F}{u} \\
+    H_{\text{EN}} &= f_{\text{EN}} \cdot m_u = F \cdot \text{HDZ}_u
+  \end{aligned}
+\end{equation}
+
+Dabei bezeichnen $f$ die Fläche je Altersstufe, $f_{\text{EN}}$ die jährliche Endnutzungsfläche, $f_{\text{Verj}}$ die jährliche Verjüngungsfläche, $H_{\text{EN}}$ den jährlichen Endnutzungshiebsatz der Betriebsklasse und $\text{HDZ}_u = m_u / u$ den Haubarkeits-Durchschnittszuwachs je Hektar.
+
+Für den Normalvorrat je Hektar ($v_{\text{N}}$) ergibt sich daraus nur unter der vereinfachenden theoretischen Annahme eines streng linearen Vorratsanstiegs die Dreiecksbeziehung (vgl.\ Abb.~\ref{fig:normalwald_linear}):
+
+\begin{equation}
+  v_{\text{N}} = \frac{m_u}{2}
+\end{equation}
+
+Da reale Bestände jedoch nicht linear wachsen, liefert diese Faustformel in der Praxis nur einen groben Richtwert. Für belastbare Vorratskalkulationen wird der Normalvorrat je Hektar daher über den \emph{Flury-Faktor} ($c$, meist zwischen $0{,}4$ und $0{,}6$) an den tatsächlichen, sigmoidalen Wachstumsverlauf angepasst (vgl.\ Abb.~\ref{fig:normalwald_real}):
+
+\begin{equation}
+  \label{eq:flury_vn}
+  v_{\text{N}} = m_u \cdot c
+\end{equation}
+
+Auf die gesamte Betriebsklasse bezogen ergibt sich daraus der Normalvorrat $V_{\text{N}} = F \cdot v_{\text{N}}$.
+
+\begin{figure}[htbp]
+  \centering
+  % --- Obere Teilabbildung: Linearer Verlauf ---
+  \begin{subfigure}[b]{0.98\columnwidth}
+    \centering
+    \begin{tikzpicture}[scale=1.0, font=\small]
+      \path (-1.8, 0); % Fixiert den linken Rand fuer exakte Ausrichtung
+      \def\ymax{3.6}
+      % Achsen
+      \draw[->, thick] (0,0) -- (6.9,0) node[below, yshift=-3pt] {Alter ($t$)};
+      \draw[->, thick] (0,0) -- (0,4.3) node[above] {Vorrat ($v$)};
+      % 1. Gesamte grüne Treppenfläche + Außenkontur in einem einzigen PDF-Pfad
+      \filldraw[fill=green!15, draw=green!50!black, very thin]
+      (0,0)
+      \foreach \i in {1,...,59} { -- ({0.1*(\i-1)}, {0.06*\i}) -- ({0.1*\i}, {0.06*\i}) }
+      -- (5.9,0) -- cycle;
+      % 2. Nur die 58 inneren Trennlinien (spart 118 Rechteck-Objekte)
+      \foreach \i in {1,...,58} {
+        \draw[green!50!black, very thin] ({0.1*\i}, 0) -- ({0.1*\i}, {0.06*\i});
+      }
+      % 3. 60. Altersstufe (Endnutzung) in einem Befehl
+      \filldraw[fill=orange!35, draw=orange!80!black, thin] (5.9,0) rectangle (6.0,\ymax);
+      % Ticks X-Achse
+      \foreach \x/\lbl in {1.0/10, 2.0/20, 3.0/30, 4.0/40, 5.0/50} {
+        \draw (\x,0.08) -- (\x,-0.08) node[below] {\lbl};
+      }
+      \draw (6.0,0.08) -- (6.0,-0.08) node[below] {$u$};
+      % f_EN Hinweis
+      \draw[<-, >=stealth, orange!80!black] (5.95, 3.65) -- (5.95, 4.05) node[above, black] {$f_{\text{EN}}$};
+      % Hilfslinien m_u und v_N
+      \draw[dashed, gray] (0,\ymax) node[left, black] {$m_u$} -- (5.9,\ymax);
+      \draw[dashed, green!40!black] (0,1.8) node[left, green!40!black] {$v_{\text{N}} = \frac{m_u}{2}$} -- (6.0,1.8);
+      \node[green!40!black, fill=green!15, inner sep=2pt, align=center] at (3.4, 0.9) {Normalvorrat $v_{\text{N}}$};
+    \end{tikzpicture}
+    \caption{Linearer Vorratsverlauf ($c = 0{,}5$)}
+    \label{fig:normalwald_linear}
+  \end{subfigure}
+  \vspace{0.8em}
+  % --- Untere Teilabbildung: Sigmoidaler Verlauf (c = 0,60) ---
+  \begin{subfigure}[b]{0.98\columnwidth}
+    \centering
+    \begin{tikzpicture}[scale=1.0, font=\small,
+        declare function={
+          sig(\i) = 3.913 * (1 - exp(-0.055*\i))^2.2;
+      }]
+      \path (-1.8, 0); % Identischer linker Rand wie oben
+      \def\ymax{3.6}
+      % Achsen
+      \draw[->, thick] (0,0) -- (6.9,0) node[below, yshift=-3pt] {Alter ($t$)};
+      \draw[->, thick] (0,0) -- (0,4.3) node[above] {Vorrat ($v$)};
+      % 1. Gesamte grüne Treppenfläche + Außenkontur in einem einzigen PDF-Pfad
+      \filldraw[fill=green!15, draw=green!50!black, very thin]
+      (0,0)
+      \foreach \i in {1,...,59} { -- ({0.1*(\i-1)}, {sig(\i)}) -- ({0.1*\i}, {sig(\i)}) }
+      -- (5.9,0) -- cycle;
+      % 2. Nur die 58 inneren Trennlinien
+      \foreach \i in {1,...,58} {
+        \draw[green!50!black, very thin] ({0.1*\i}, 0) -- ({0.1*\i}, {sig(\i)});
+      }
+      % 3. 60. Altersstufe (Endnutzung) in einem Befehl
+      \filldraw[fill=orange!35, draw=orange!80!black, thin] (5.9,0) rectangle (6.0,\ymax);
+      % Ticks X-Achse
+      \foreach \x/\lbl in {1.0/10, 2.0/20, 3.0/30, 4.0/40, 5.0/50} {
+        \draw (\x,0.08) -- (\x,-0.08) node[below] {\lbl};
+      }
+      \draw (6.0,0.08) -- (6.0,-0.08) node[below] {$u$};
+      % f_EN Hinweis
+      \draw[<-, >=stealth, orange!80!black] (5.95, 3.65) -- (5.95, 4.05) node[above, black] {$f_{\text{EN}}$};
+      % Hilfslinien m_u und v_N (exakt auf 0.60 * 3.6 = 2.16)
+      \draw[dashed, gray] (0,\ymax) node[left, black] {$m_u$} -- (5.9,\ymax);
+      \draw[dashed, green!40!black] (0,2.16) node[left, green!40!black] {$v_{\text{N}} = c \cdot m_u$} -- (6.0,2.16);
+      \node[green!40!black, fill=green!15, inner sep=2pt, align=center] at (3.7, 1.00) {Normalvorrat $v_{\text{N}}$};
+    \end{tikzpicture}
+    \caption{Realer (sigmoidaler) Vorratsverlauf ($c = 0{,}60$)}
+    \label{fig:normalwald_real}
+  \end{subfigure}
+  \caption{Schematische Darstellung des Normalwaldmodells (exemplarisch für $u = 60$\,Jahre) mit jährlicher Endnutzungsfläche ($f_{\text{EN}}$) und Endnutzungsvolumen je Hektar ($m_u$): (a) idealisierter linearer Vorratsaufbau und (b) realitätsnaher Wachstumsverlauf mit über den Flury-Faktor ($c$) angepasstem Normalvorrat je Hektar ($v_{\text{N}}$).}
+  \label{fig:normalwald}
+\end{figure}
+
+Um diesen Normalvorrat je Hektar konkret aus einer Ertragstafel (mit dem Tabellenintervall $n$, z.\,B.\ $5$ oder $10$ Jahre) zu bestimmen, dient die \emph{Pressler'sche Näherungsformel}. Sie summiert die Tafelvorräte ($m_t$) der jeweiligen Altersstufen $t$ nach dem Prinzip der Trapezregel auf:
+
+\begin{equation}
+  \label{eq:pressler_vn}
+  v_{\text{N}} = \frac{n}{u} \cdot \left( m_n + m_{2n} + \dots + m_{u-n} + \frac{m_u}{2} \right)
+\end{equation}
+
+Über das Verhältnis $c = v_{\text{N}} / m_u$ lässt sich daraus wiederum der bestandes- und baumartenspezifische Flury-Faktor ableiten.
+
+Werden zusätzlich Vornutzungen berücksichtigt, erhöht sich der jährliche Gesamthiebsatz ($H_{\text{G}}$) um die auf der jeweiligen Altersstufenfläche ($f$) anfallenden Vornutzungsvolumina je Hektar ($m_{\text{VN},t}$, ausscheidender Bestand der Ertragstafel im Alter $t$). Da klassische Ertragstafeln jeweils nur den verbleibenden Bestand \emph{nach einem Eingriff} ausweisen, fehlt in dem daraus abgeleiteten Normalvorrat ($v_{\text{N}}$ bzw.\ $V_{\text{N}}$) jener Holzvorrat, der zwischen zwei Durchforstungen (im Durchforstungsturnus von $\Delta t_{\text{DF}}$ Jahren) bis zum nächsten Eingriff sägezahnförmig heranwächst (vgl.\ Abb.~\ref{fig:normalwald_vornutzung}). Im letzten Intervall vor der Endnutzung im Alter $u$ findet keine gesonderte Durchforstung mehr vor dem Abtrieb statt. Ein in Ertragstafeln für das Alter $u$ ausgewiesener ausscheidender Bestand wird stattdessen dem Endnutzungsvolumen $m_u$ zugeschlagen, sodass $\sum_{t < u} m_{\text{VN},t}$ ausschließlich die vorausgehenden Eingriffe ($t < u$) umfasst.
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small,
+      declare function={
+        gwl(\x) = 4.088 * (1 - exp(-0.7*\x))^2.1;
+    }]
+    \def\ymax{3.0} % Endnutzungsvolumen m_u
+    % Achsen
+    \draw[->, thick] (0,0) -- (7.0,0) node[below, yshift=-3pt] {Alter ($t$)};
+    \draw[->, thick] (0,0) -- (0,4.8) node[above] {Holzvorrat je ha};
+    % 1. Verbleibender Bestand v_N (mit glatter Kurve zwischen t=10 und t=50)
+    \fill[green!15] (0,0)
+    -- plot[domain=0:1.0, samples=10] (\x, {gwl(\x)})
+    -- plot[smooth, tension=0.6] coordinates {
+      (1.0, {gwl(1.0) - 0.00})
+      (2.0, {gwl(2.0) - 0.22})
+      (3.0, {gwl(3.0) - 0.50})
+      (4.0, {gwl(4.0) - 0.76})
+      (5.0, {gwl(5.0) - 0.96})
+    }
+    -- plot[domain=5.0:6.0, samples=8] (\x, {gwl(\x) - 0.96})
+    -- (6.0,0) -- cycle;
+    % Außenlinien vor der ersten und nach der letzten Durchforstung (einheitlich in Blau)
+    \draw[blue!70!black, thin] plot[domain=0:1.0, samples=10] (\x, {gwl(\x)});
+    \draw[blue!70!black, thin] plot[domain=5.0:6.0, samples=8] (\x, {gwl(\x) - 0.96});
+    % 2. Sägezähne für Vornutzungsvorrat v_VN
+    \fill[blue!25]
+    (1.0, {gwl(1.0)})
+    -- plot[domain=1.0:2.0, samples=6] (\x, {gwl(\x) - 0.00}) -- (2.0, {gwl(2.0) - 0.22})
+    -- plot[domain=2.0:3.0, samples=6] (\x, {gwl(\x) - 0.22}) -- (3.0, {gwl(3.0) - 0.50})
+    -- plot[domain=3.0:4.0, samples=6] (\x, {gwl(\x) - 0.50}) -- (4.0, {gwl(4.0) - 0.76})
+    -- plot[domain=4.0:5.0, samples=6] (\x, {gwl(\x) - 0.76}) -- (5.0, {gwl(5.0) - 0.96})
+    -- plot[smooth, tension=0.6] coordinates {
+      (5.0, {gwl(5.0) - 0.96})
+      (4.0, {gwl(4.0) - 0.76})
+      (3.0, {gwl(3.0) - 0.50})
+      (2.0, {gwl(2.0) - 0.22})
+      (1.0, {gwl(1.0) - 0.00})
+    } -- cycle;
+    % Obere Zuwachskurven und vertikale Abstürze der Sägezähne zeichnen
+    \foreach \xstart/\xend/\cprev/\cnext in {
+      1.0/2.0/0.00/0.22,
+      2.0/3.0/0.22/0.50,
+      3.0/4.0/0.50/0.76,
+      4.0/5.0/0.76/0.96
+    } {
+      \draw[blue!70!black, thin]
+      (\xstart,{gwl(\xstart)-\cprev})
+      -- plot[domain=\xstart:\xend, samples=6] (\x, {gwl(\x)-\cprev})
+      -- (\xend,{gwl(\xend)-\cnext});
+    }
+    % 3. Gesamtwuchsleistung GWL
+    \draw[red!75!black, very thick, dashed, smooth, domain=0:6.0, samples=24]
+    plot (\x, {gwl(\x)});
+    % 4. Endnutzung im Alter u inklusive Beschriftung f_EN
+    \filldraw[fill=orange!35, draw=orange!80!black, thin] (5.9,0) rectangle (6.0,\ymax);
+    \draw[<-, >=stealth, orange!80!black] (6.02, 1.5) -- (6.35, 1.5) node[right, black, font=\footnotesize] {$f_{\text{EN}}$};
+    % Ticks X-Achse
+    \foreach \x/\lbl in {1.0/10, 2.0/20, 3.0/30, 4.0/40, 5.0/50} {
+      \draw (\x,0.08) -- (\x,-0.08) node[below] {\lbl};
+    }
+    \draw (6.0,0.08) -- (6.0,-0.08) node[below] {$u$};
+    % Hilfslinien und Beschriftungen Y-Achse
+    \draw[dashed, gray] (0,\ymax) node[left, black] {$m_u$} -- (5.9,\ymax);
+    \draw[dashed, red!75!black] (0,\ymax+0.96) node[left, red!75!black] {$\text{GWL}_u$} -- (6.0,\ymax+0.96);
+    % Klammer für Summe m_VN,t rechts außerhalb
+    \draw[<->, >=stealth, red!75!black] (6.15,\ymax) -- (6.15,\ymax+0.96) node[midway, right, font=\footnotesize] {$\sum_{t < u} m_{\text{VN},t}$};
+    % Beschriftung im freien grünen Bereich unten rechts
+    \node[green!40!black, align=center] at (4.4, 0.85) {Verbleibender\\Normalvorrat $v_{\text{N}}$};
+    % Legende komplett oberhalb der GWL_u-Linie
+    \begin{scope}[shift={(0.2, 4.55)}, font=\footnotesize]
+      \draw[red!75!black, very thick, dashed] (0,0) -- (0.5,0) node[right, black] {$\text{GWL}_t = v_t + \sum_{k \le t} m_{\text{VN},k}$};
+      \filldraw[fill=blue!25, draw=blue!70!black, thin] (0,-0.45) rectangle (0.5,-0.27);
+      \node[right, black] at (0.5,-0.36) {Vornutzungsvorrat $v_{\text{VN}}$ (Turnus $\Delta t_{\text{DF}}$)};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Erweiterung des Normalwaldmodells um Vornutzungen (Darstellung je Hektar): Der gesamte Normalvorrat je Hektar ($v_{\text{N}}'$) setzt sich aus dem verbleibenden Bestand ($v_{\text{N}}$) und dem sägezahnförmig im Durchforstungsturnus $\Delta t_{\text{DF}}$ aufbauenden Vornutzungsvorrat des ausscheidenden Bestandes ($v_{\text{VN}}$) zusammen. Die Gesamtwuchsleistung ($\text{GWL}_u$) umfasst neben dem Endnutzungsvolumen ($m_u$ auf der Endnutzungsfläche $f_{\text{EN}}$) die Summe aller Vornutzungen ($\sum_{t < u} m_{\text{VN},t}$).}
+  \label{fig:normalwald_vornutzung}
+\end{figure}
+
+Um den Vornutzungsvorrat ($v_{\text{VN}}$ je Hektar bzw.\ $V_{\text{VN}} = F \cdot v_{\text{VN}}$ für die Betriebsklasse, gelegentlich auch \emph{Nebenbestandsvorrat} genannt) rechnerisch zu erfassen, wird ein linearer Vorratsaufbau zwischen den Durchforstungszeitpunkten unterstellt. Zusammen mit der Gesamtwuchsleistung und dem durchschnittlichen Gesamtzuwachs ergeben sich der Gesamthiebsatz sowie der erweiterte Normalvorrat der Betriebsklasse wie folgt:
+
+\begin{equation}
+  \begin{aligned}
+    \text{GWL}_t &= v_t + \sum_{k \le t} m_{\text{VN},k} \\
+    \text{DGZ}_t &= \frac{\text{GWL}_t}{t} \\
+    H_{\text{G}} &= F \cdot \text{DGZ}_u = \frac{F}{u} \cdot \left(m_u + \sum_{t < u} m_{\text{VN},t}\right) \\
+    V_{\text{VN}} &= F \cdot v_{\text{VN}} = F \cdot \frac{\Delta t_{\text{DF}} - 1}{2 \cdot u} \cdot \sum_{t < u} m_{\text{VN},t} \\
+    V_{\text{N}}' &= V_{\text{N}} + V_{\text{VN}} = F \cdot (v_{\text{N}} + v_{\text{VN}})
+  \end{aligned}
+\end{equation}
+{\footnotesize\noindent
+  $\text{GWL}_t$ = Gesamtwuchsleistung je ha im Alter $t$; $v_t$ = Vorrat des verbleibenden Bestandes je ha im Alter $t$ (mit $v_u = m_u$); $m_{\text{VN},k}$ bzw.\ $m_{\text{VN},t}$ = Vornutzungsvolumen je ha beim Eingriff im Alter $k$ bzw.\ $t$; $\text{DGZ}_t$ = durchschnittlicher Gesamtzuwachs je ha; $H_{\text{G}}$ = jährlicher Gesamthiebsatz der Betriebsklasse; $F$ = Gesamtfläche der Betriebsklasse; $u$ = geplante Umtriebszeit; $\Delta t_{\text{DF}}$ = Durchforstungsturnus in Jahren; $v_{\text{VN}}$ bzw.\ $V_{\text{VN}}$ = Vornutzungsvorrat je ha bzw.\ der Betriebsklasse\footnote{Die Formel für $V_{\text{VN}}$ unterstellt einen linearen Vorratsaufbau zwischen den Durchforstungszeitpunkten und beruht auf einer diskreten Stichtagsbetrachtung jeweils zum Jahresende nach erfolgter Nutzung. Durch diesen Stichtagsbezug wird der Vornutzungsvorrat im Eingriffsjahr selbst mit null angesetzt (Faktor $\Delta t_{\text{DF}}-1$). Bei einer kontinuierlichen Betrachtung unter Berücksichtigung des Zuwachses in der Vegetationsperiode läge der tatsächliche mittlere Vorrat -- insbesondere bei Winterfällung -- selbst bei jährlicher Durchforstung ($\Delta t_{\text{DF}}=1$) noch um den halben Jahreszuwachs des ausscheidenden Bestandes ($\frac{F}{2u}\sum_{t < u} m_{\text{VN},t}$) höher, was einem Faktor von $\Delta t_{\text{DF}}$ statt $\Delta t_{\text{DF}}-1$ entspräche (vgl.\ Abb.~\ref{fig:vornutzung_stichtag}).}; $v_{\text{N}}$ bzw.\ $V_{\text{N}}$ = Normalvorrat des verbleibenden Bestandes je ha bzw.\ der Betriebsklasse; $V_{\text{N}}'$ = gesamter Normalvorrat der Betriebsklasse.\par}
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.1, font=\small]
+    % Achsen
+    \draw[->, thick] (0,0) -- (6.3,0);
+    \draw[->, thick] (0,0) -- (0,3.75) node[above] {Vornutzungsvorrat je ha};
+    % 1. Rhythmischer Vorratsaufbau: Fläche + Kontur in einem einzigen PDF-Pfad
+    \filldraw[fill=blue!10, draw=blue!75!black, thick] (0,0)
+    \foreach \k in {0,1,2,3,4} {
+      -- ({\k + 0.25}, {\k*0.5})
+      .. controls ({\k + 0.45}, {\k*0.5}) and ({\k + 0.60}, {\k*0.5 + 0.5}) .. ({\k + 0.80}, {\k*0.5 + 0.5})
+      -- ({\k + 1.0}, {\k*0.5 + 0.5})
+    }
+    -- (5,0) -- cycle;
+    % 2. Diskrete Stichtage zum Jahresende (Winterruhe) inkl. t=0
+    \fill[orange!85!black] (0,0) circle (2.2pt);
+    \foreach \x in {1,2,3,4} {
+      \draw[orange!85!black, very thick] (\x,0) -- (\x,{0.5*\x});
+      \fill[orange!85!black] (\x,{0.5*\x}) circle (2.2pt);
+    }
+    % Stichtag t=5 nach Nutzung = 0
+    \fill[orange!85!black] (5,0) circle (2.2pt);
+    \draw[orange!85!black, dashed] (5,2.5) -- (5,0);
+    % Ticks und Beschriftungen X-Achse (inkl. 0) + "Jahre" direkt rechts neben 5
+    \foreach \x in {0,1,2,3,4,5} {
+      \draw (\x,0.08) -- (\x,-0.08) node[below] {\x};
+    }
+    \node[below] at (5.75,-0.08) {Jahre};
+    % Hilfslinie m_VN,t
+    \draw[dashed, gray] (0,2.5) node[left, black] {$m_{\text{VN},t}$} -- (5,2.5);
+    % Hinweis klar rechts abgesetzt von der Entnahmelinie (x = 5.0)
+    \node[orange!80!black, font=\footnotesize, align=left, right] at (5.15, 1.35) {Entnahme $m_{\text{VN},t}$\\nach $\Delta t_{\text{DF}}$};
+    % Annotation Winterruhe (im 1. Jahr) & Vegetationsperiode (im 3. Jahr)
+    \draw[<-, >=stealth, blue!75!black] (0.9, 0.5) -- (0.9, 0.95)
+    node[above, font=\scriptsize, fill=white, inner sep=1pt] {Winterruhe};
+    \draw[<-, >=stealth, blue!75!black] (2.55, 1.25) -- (2.15, 1.85)
+    node[above, font=\scriptsize, align=center, fill=white, inner sep=1pt] {Vegetationsperiode\\(Zuwachs)};
+    % Kompakte Legende oberhalb von m_VN,t
+    \begin{scope}[shift={(0.2, 3.38)}, font=\footnotesize]
+      \draw[blue!75!black, thick] (0,0) -- (0.45,0) node[right, black] {Rhythmischer Vorratsaufbau};
+      \fill[orange!85!black] (0.22,-0.38) circle (2.2pt);
+      \draw[orange!85!black, very thick] (0.22,-0.52) -- (0.22,-0.38);
+      \node[right, black] at (0.45,-0.42) {Stichtagswerte Jahresende};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Vergleich von kontinuierlich-rhythmischer und diskreter Betrachtung des Vornutzungsvorrats des ausscheidenden Bestandes am Beispiel eines $5$-jährigen Durchforstungsturnus ($\Delta t_{\text{DF}}=5$): In der Realität erfolgt der Zuwachs schubweise in den Vegetationsperioden, unterbrochen von Winterruhen (Mittelwert $\propto \Delta t_{\text{DF}}$). Die Ertragstafel-Logik erfasst hingegen nur die Stichtagswerte zum Jahresende nach erfolgter Entnahme, sodass im Eingriffsjahr (wie bereits zu Periodenbeginn im Jahr $0$) null angesetzt wird (Mittelwert $\propto \Delta t_{\text{DF}}-1$).}
+  \label{fig:vornutzung_stichtag}
+\end{figure}
+
+Trotz seiner teilweise realitätsfernen Modellannahmen liefert der Normalwald nach wie vor wertvolle Referenzwerte für überschlägige Kalkulationen und Betriebsklassenvergleiche. Da er jedoch als theoretisches Ideal und nicht als starre Norm zu verstehen ist, strebt die forstliche Praxis keine Gleichverteilung aller einjährigen Altersstufen an, sondern begnügt sich mit einer \emph{Altersklassen-Normalität} -- also flächengleichen mehrjährigen Altersklassen (z.\,B.\ in $20$-jährigen Intervallen), innerhalb derer ungleichmäßige Verteilungen zulässig sind.
+
+\subsection{Das Zielwaldmodell}
+
+Während das Normalwaldmodell rein deterministisch davon ausgeht, dass jede Altersstufe zu $100\,\%$ unbeschadet in die nächste hineinwächst, bildet das \emph{Zielwaldmodell} das reale Produktionsrisiko über altersspezifische \emph{Übergangswahrscheinlichkeiten} ($p_t \le 1$) ab.
+
+In der forstlichen Praxis weicht der reale Altersaufbau meist deutlich vom flächengleichen Ideal des Normalwaldes ab:
+
+\begin{description}
+\item[Einfluss von Schadereignissen:] Durch biotische und abiotische Risiken (z.\,B.\ Windwurf, Schnee- und Eisbruch, Borkenkäfer) treten bereits vor Erreichen der geplanten Umtriebszeit Zwangsnutzungen auf. Da mit zunehmendem Alter immer mehr Bestände vorzeitig ausfallen und wieder im Alter $0$ neu begründet werden, nimmt die Fläche pro Altersstufe nach oben hin kontinuierlich ab -- es entsteht eine zu den älteren Beständen hin abfallende Altersflächenverteilung (vgl.\ Abb.~\ref{fig:zielwald_flaechen}). Soll trotz dieser Flächenverluste im Durchschnitt der Betriebsklasse noch ein bestimmtes Vorrats- oder Starkholzniveau gehalten werden, müssen die verbliebenen, gesunden Bestände länger stehen bleiben ($u_{\text{Ziel}} > u_{\text{NW}}$, wobei $u_{\text{NW}}$ die Umtriebszeit des ungestörten Normalwaldes bezeichnet).
+
+  Auch bei reiner Volumenmaximierung verschiebt sich die optimale Umtriebszeit nach hinten: Grundsätzlich wird das Maximum des nachhaltigen Massenertrags immer dann erreicht, wenn die Bestände genau in dem Alter geerntet werden, in dem ihr laufender Zuwachs auf das maximal realisierbare Niveau des durchschnittlichen Gesamtzuwachses abgesunken ist ($\text{LFZ} = \text{DGZ}_{\max}$). Da im Zielwaldmodell jedoch viele Bestände vorzeitig ausfallen ($t_{\text{EN},x} < u_{\text{NW}}$) und somit nur einen geringeren durchschnittlichen Gesamtzuwachs leisten, sinkt das über die gesamte Betriebsklasse maximal erzielbare Niveau unter den Idealwert des ungestörten Normalwaldes ($\text{DGZ}_{\max,\text{Betrieb}} < \text{DGZ}_{\max,\text{NW}}$). Wendet man die allgemeingültige Ernteregel ($\text{LFZ}_{x} = \text{DGZ}_{\max,\text{Betrieb}}$) auf die verbliebenen, gesunden Bestände an, müssen diese folglich erst in einem etwas höheren Alter genutzt werden, da ihr laufender Zuwachs erst später auf das abgesenkte Betriebsniveau abfällt ($u_{\text{Ziel}} > u_{\text{NW}}$).
+
+  Gleichzeitig sinkt durch das geringere Betriebsniveau im nachhaltigen Gleichgewicht auch der erzielbare Gesamthiebsatz ($F \cdot \text{DGZ}_{\max,\text{Betrieb}}$), obwohl jährlich eine größere Fläche verjüngt und genutzt wird (vgl.\ Abb.~\ref{fig:zielwald_flaechen}, unten). Ökonomisch entsteht dadurch ein ungünstiger Doppeleffekt: Einem geringeren Holzertrag (oft zusätzlich geschmälert durch schwächere Dimensionen und entwertetes Schadholz) stehen höhere jährliche Kultur- und Pflegekosten für die größere Verjüngungsfläche ($f_0 > F/u_{\text{NW}}$) gegenüber.
+
+\item[Streuung des Endnutzungsalters:] Während im Normalwald exakt im Alter $t_{\text{EN}} = u$ geerntet wird, verteilt sich die Endnutzung im Zielwald über mehrere Jahrzehnte. Bei den in der Praxis üblichen ungleichmäßigen Altersklassenstrukturen erlaubt diese zeitliche Flexibilität, Altersüberhänge und -lücken auszugleichen und so die jährlichen Erntemengen sowie Deckungsbeiträge zu glätten. Gleichzeitig reduziert sie die räumliche Bindung der Nutzung und ermöglicht eine waldbaulich sowie ökonomisch sinnvolle Reihung der Bestände (etwa nach Stabilität oder Bringungslage).
+\end{description}
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    % =========================================================================
+    % 1. OBERER TEIL: Altersflächenverteilung f(t) (exakt gleiche Gesamtfläche F)
+    % =========================================================================
+    \begin{scope}[yshift=7.05cm]
+      \draw[->, thick] (0,0) -- (7.8,0) node[below, yshift=-2pt] {Alter ($t$)};
+      \draw[->, thick] (0,0) -- (0,3.55);
+      \node[anchor=south west, inner sep=0pt] at (-0.85, 3.62) {Bestandesfläche ($f$)};
+      
+      % 1. Normalwald (grün)
+      \draw[green!50!black, very thick] (0,2.5) -- (5.0,2.5) -- (5.0,0);
+      
+      % 2. Gestreute Endnutzung (blau gestrichelt)
+      \draw[blue!70!black, thick, dashed]
+        (0,2.5) -- (3.5,2.5)
+        plot[smooth, domain=3.5:7.1, samples=16] (\x, {2.5 / (1 + exp(4.0*(\x - 5.0)))});
+      
+      % 3. Zielwald mit alterskonstantem Risiko p_konst < 1 (grau gepunktet)
+      \draw[gray!80!black, very thick, densely dotted, smooth] plot coordinates {
+        (0.00,3.112) (0.20,3.027) (0.40,2.944) (0.60,2.863) (0.80,2.784) (1.00,2.708)
+        (1.20,2.633) (1.40,2.561) (1.60,2.491) (1.80,2.422) (2.00,2.356) (2.20,2.291)
+        (2.40,2.228) (2.60,2.167) (2.80,2.107) (3.00,2.049) (3.20,1.993) (3.40,1.938)
+        (3.60,1.885) (3.80,1.833) (4.00,1.782) (4.20,1.731) (4.40,1.681) (4.60,1.628)
+        (4.80,1.571) (5.00,1.502) (5.20,1.410) (5.40,1.276) (5.60,1.081) (5.80,0.824)
+        (6.00,0.548) (6.20,0.318) (6.40,0.166) (6.60,0.081) (6.80,0.038) (7.00,0.018)
+        (7.20,0.008) (7.40,0.004)
+      };
+      
+      % 4. Zielwald mit altersabhängigem Risiko p_t (orange)
+      \draw[orange!85!black, very thick, smooth] plot coordinates {
+        (0.00,2.832) (0.20,2.662) (0.40,2.554) (0.60,2.482) (0.80,2.431) (1.00,2.394)
+        (1.20,2.364) (1.40,2.340) (1.60,2.317) (1.80,2.296) (2.00,2.274) (2.20,2.253)
+        (2.40,2.230) (2.60,2.205) (2.80,2.180) (3.00,2.152) (3.20,2.123) (3.40,2.091)
+        (3.60,2.058) (3.80,2.022) (4.00,1.984) (4.20,1.943) (4.40,1.898) (4.60,1.847)
+        (4.80,1.787) (5.00,1.711) (5.20,1.605) (5.40,1.449) (5.60,1.222) (5.80,0.926)
+        (6.00,0.611) (6.20,0.351) (6.40,0.181) (6.60,0.087) (6.80,0.040) (7.00,0.018)
+        (7.20,0.008) (7.40,0.004)
+      };
+      
+      % Markierungen u_NW und u_Ziel
+      \draw[dashed, gray] (5.0,0) node[below, black] {$u_{\text{NW}}$} -- (5.0,2.5);
+      \draw[dashed, orange!80!black] (5.9,0) node[below, orange!80!black] {$u_{\text{Ziel}}$} -- (5.9,0.77);
+      \node[left, green!50!black] at (0,2.5) {$\frac{F}{u_{\text{NW}}}$};
+      
+      % Gemeinsame Legende für alle 3 Teilgrafiken
+      \begin{scope}[shift={(0.25, 1.48)}, font=\footnotesize]
+        \draw[green!50!black, very thick] (0,0) -- (0.50,0) node[right, black] {Normalwald ($p_t = 1$)};
+        \draw[blue!70!black, thick, dashed] (0,-0.38) -- (0.50,-0.38) node[right, black] {Gestreute Endnutzung};
+        \draw[gray!80!black, very thick, densely dotted] (0,-0.76) -- (0.50,-0.76) node[right, black] {Zielwald ($p_t = p_{\text{konst}} < 1$)};
+        \draw[orange!85!black, very thick] (0,-1.14) -- (0.50,-1.14) node[right, black] {Zielwald ($p_t$ altersabhängig)};
+      \end{scope}
+    \end{scope}
+
+    % =========================================================================
+    % 2. MITTLERER TEIL: Übergangswahrscheinlichkeit p_t über dem Alter t
+    % =========================================================================
+    \begin{scope}[yshift=3.65cm]
+      \draw[->, thick] (0,0) -- (7.8,0) node[below, yshift=-2pt] {Alter ($t$)};
+      \draw[->, thick] (0,0) -- (0,2.30);
+      \node[anchor=south west, inner sep=0pt] at (-0.85, 2.37) {Übergangswahrsch. ($p_t$)};
+      
+      % 1. Normalwald (grün)
+      \draw[green!50!black, very thick] (0,1.85) -- (5.0,1.85) -- (5.0,0);
+      \node[left, green!50!black] at (0,1.85) {$1{,}0$};
+      
+      % 2. Gestreute Endnutzung (blau gestrichelt)
+      \draw[blue!70!black, thick, dashed]
+        (0,1.85) -- (3.5,1.85)
+        plot[smooth, domain=3.5:7.1, samples=16] (\x, {1.85 / (1 + exp(4.0*(\x - 5.0)))});
+      
+      % 3. Alterskonstantes Risiko p_konst < 1 (grau gepunktet)
+      \draw[gray!80!black, very thick, densely dotted, smooth] plot coordinates {
+        (0.00,1.610) (0.20,1.610) (0.40,1.610) (0.60,1.610) (0.80,1.610) (1.00,1.610)
+        (1.20,1.610) (1.40,1.610) (1.60,1.610) (1.80,1.610) (2.00,1.610) (2.20,1.610)
+        (2.40,1.610) (2.60,1.610) (2.80,1.610) (3.00,1.610) (3.20,1.610) (3.40,1.610)
+        (3.60,1.610) (3.80,1.609) (4.00,1.609) (4.20,1.607) (4.40,1.604) (4.60,1.598)
+        (4.80,1.585) (5.00,1.559) (5.20,1.504) (5.40,1.400) (5.60,1.219) (5.80,0.956)
+        (6.00,0.653) (6.20,0.391) (6.40,0.209) (6.60,0.105) (6.80,0.051) (7.00,0.024)
+        (7.20,0.012) (7.40,0.006)
+      };
+      %\node[left, gray!80!black, font=\footnotesize] at (0,1.610) {$p_{\text{konst}}$};
+      
+      % 4. Altersabhängiges Risiko p_t (orange)
+      \draw[orange!85!black, very thick, smooth] plot coordinates {
+        (0.00,1.272) (0.20,1.440) (0.40,1.560) (0.60,1.641) (0.80,1.694) (1.00,1.728)
+        (1.20,1.749) (1.40,1.760) (1.60,1.765) (1.80,1.766) (2.00,1.764) (2.20,1.760)
+        (2.40,1.755) (2.60,1.748) (2.80,1.741) (3.00,1.732) (3.20,1.722) (3.40,1.713)
+        (3.60,1.702) (3.80,1.690) (4.00,1.678) (4.20,1.664) (4.40,1.648) (4.60,1.629)
+        (4.80,1.602) (5.00,1.561) (5.20,1.494) (5.40,1.377) (5.60,1.187) (5.80,0.921)
+        (6.00,0.623) (6.20,0.368) (6.40,0.196) (6.60,0.097) (6.80,0.047) (7.00,0.021)
+        (7.20,0.010) (7.40,0.005)
+      };
+        
+      % Hilfslinien Umtriebszeiten
+      \draw[dashed, gray] (5.0,0) node[below, black] {$u_{\text{NW}}$} -- (5.0,1.85);
+      \draw[dashed, orange!80!black] (5.9,0) node[below, orange!80!black] {$u_{\text{Ziel}}$} -- (5.9,0.77);
+    \end{scope}
+
+    % =========================================================================
+    % 3. UNTERER TEIL: Abgangsfläche (Ausfälle & Endnutzung) mit Achsenbruch
+    % =========================================================================
+    \begin{scope}[yshift=0cm]
+      \draw[->, thick] (0,0) -- (7.8,0) node[below, yshift=-3pt] {Alter ($t$)};
+      
+      % Ordinate mit sauberem Unterbrechungssymbol bei y = 1.65..1.80
+      \draw[thick] (0,0) -- (0,1.65);
+      \draw[thick] (-0.09,1.59) -- (0.09,1.71);
+      \draw[thick] (-0.09,1.74) -- (0.09,1.86);
+      \draw[->, thick] (0,1.80) -- (0,2.50);
+      \node[anchor=south west, inner sep=0pt] at (-0.85, 2.57) {Abgangsfläche (Ausfall + EN)};
+      
+      % 1. Normalwald: 0 bis u_NW, dann ein einziger Peak (mit Unterbrechung bei u_NW)
+      \draw[green!50!black, very thick] (0,0) -- (5.0,0) -- (5.0,1.65);
+      \draw[green!50!black, very thick] (4.91,1.59) -- (5.09,1.71);
+      \draw[green!50!black, very thick] (4.91,1.74) -- (5.09,1.86);
+      \draw[green!50!black, very thick] (5.0,1.80) -- (5.0,2.25);
+      \node[left, green!50!black] at (0,2.25) {$\frac{F}{u_{\text{NW}}}$};
+      \draw[dotted, green!50!black] (0,2.25) -- (5.0,2.25);
+      
+      % 2. Gestreute Endnutzung: 0 bis Beginn EN, dann glockenförmige Nutzung um u_NW (blau)
+      \draw[blue!70!black, thick, dashed] (0,0) -- (3.5,0)
+        plot[smooth, domain=3.5:7.1, samples=30] 
+        (\x, {5.5 * (1 / (1 + exp(-4.0*(\x - 5.0)))) * (1 / (1 + exp(4.0*(\x - 5.0))))});
+      
+      % 3. Zielwald mit alterskonstantem Risiko p_konst < 1 (grau gepunktet)
+      \draw[gray!80!black, very thick, densely dotted, smooth] plot coordinates {
+        (0.00,0.435) (0.20,0.423) (0.40,0.411) (0.60,0.400) (0.80,0.389) (1.00,0.378)
+        (1.20,0.368) (1.40,0.358) (1.60,0.348) (1.80,0.338) (2.00,0.329) (2.20,0.320)
+        (2.40,0.311) (2.60,0.303) (2.80,0.294) (3.00,0.286) (3.20,0.278) (3.40,0.271)
+        (3.60,0.264) (3.80,0.258) (4.00,0.252) (4.20,0.249) (4.40,0.250) (4.60,0.261)
+        (4.80,0.292) (5.00,0.359) (5.20,0.483) (5.40,0.669) (5.60,0.880) (5.80,1.015)
+        (5.90,1.028) (6.00,0.990) (6.20,0.799) (6.40,0.531) (6.60,0.305) (6.80,0.160)
+        (7.00,0.080) (7.20,0.039) (7.40,0.019)
+      };
+      
+      % 4. Zielwald mit altersabhängigem Risiko p_t (orange)
+      \draw[orange!85!black, very thick, smooth] plot coordinates {
+        (0.00,0.883) (0.20,0.608) (0.40,0.421) (0.60,0.301) (0.80,0.226) (1.00,0.181)
+        (1.20,0.155) (1.40,0.141) (1.60,0.134) (1.80,0.132) (2.00,0.133) (2.20,0.136)
+        (2.40,0.141) (2.60,0.147) (2.80,0.154) (3.00,0.162) (3.20,0.171) (3.40,0.180)
+        (3.60,0.190) (3.80,0.201) (4.00,0.214) (4.20,0.229) (4.40,0.249) (4.60,0.278)
+        (4.80,0.324) (5.00,0.402) (5.20,0.530) (5.40,0.713) (5.60,0.916) (5.80,1.045)
+        (5.90,1.055) (6.00,1.014) (6.20,0.818) (6.40,0.545) (6.60,0.314) (6.80,0.165)
+        (7.00,0.083) (7.20,0.040) (7.40,0.019)
+      };
+      
+      % Hilfslinien Umtriebszeiten (exakt fluchtend mit oben und Mitte)
+      \draw[dashed, orange!80!black] (5.9,0) node[below, orange!80!black] {$u_{\text{Ziel}}$} -- (5.9,1.055);
+      \node[below, black] at (5.0,0) {$u_{\text{NW}}$};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Zusammenhang zwischen Altersflächenverteilung (\textbf{oben}, flächengleich zur Gesamtfläche $F$), altersspezifischer Übergangswahrscheinlichkeit $p_t$ (\textbf{Mitte}) und resultierender Abgangsfläche durch Schadensausfälle und planmäßige Endnutzung (\textbf{unten}).}
+  \label{fig:zielwald_flaechen}
+\end{figure}
+
+Anstelle einer statischen Idealverteilung definiert das Zielwaldmodell daher eine unter den gegebenen Standorts- und Risikobedingungen dauerhaft aufrechterhaltbare \emph{Zielstruktur}. Durch dynamische Fortschreibung der aktuellen Altersklassen über mehrere Planungsperioden lässt sich so ein realistischer Hiebsatz herleiten, der sowohl unvermeidbare Schadnutzungen einkalkuliert als auch den schrittweisen Umbau hin zum gewünschten Zielzustand steuert.
+
+Unter der Annahme zeitlich konstanter Übergangswahrscheinlichkeiten konvergiert jede Betriebsklasse -- unabhängig von ihrer ursprünglichen Altersstruktur -- langfristig gegen einen stabilen, \emph{stationären Gleichgewichtszustand}. Der Begriff \emph{Zielwald} kann dabei doppeldeutig verwendet werden: einerseits für diesen sich unter Risikoeinfluss rein rechnerisch einstellenden Gleichgewichtszustand, andererseits für das vom Betrieb normativ angestrebte Soll-Modell. Um diese Unschärfe zu vermeiden, bezeichnet der \emph{Zielwald} im Folgenden ausschließlich jene angestrebte Zielstruktur, auf die hin die Bewirtschaftung (etwa über Baumartenwahl und Umtriebszeit) aktiv gesteuert wird und die im Idealfall mit dem stationären Gleichgewicht zur Deckung gebracht werden soll.
+
+Nimmt man vereinfachend eine über das Alter hinweg konstante Überlebensrate an ($p_t = p_{\text{konst}} < 1$), ergibt sich rechnerisch eine exponentiell abfallende Altersflächenkurve -- da von der mit dem Alter schrumpfenden Restfläche jeweils derselbe prozentuale Anteil ausfällt, flacht der absolute Flächenrückgang nach oben hin zunehmend ab. In der waldbaulichen Realität verläuft $p_t$ jedoch deutlich differenzierter und bildet das Zusammenspiel aus natürlichen Risiken und planmäßiger Nutzung ab (vgl.\ Abb.~\ref{fig:zielwald_flaechen}, Mitte): 
+
+In der Kultur- und Jungwuchsphase besteht zunächst ein erhöhtes Ausfallrisiko durch Trockenheit, Frost, Konkurrenzvegetation oder Wildverbiss. Sobald die Bestände gesichert sind, folgt im Stangenholz und mittleren Baumholz eine Phase hoher Stabilität ($p_t \approx 1$), da die Bäume dem Äser entwachsen sind, aber noch keine kritische Höhe für Sturmschäden erreicht haben. Erst im höheren Bestandesalter nimmt die Schadensdisposition wieder spürbar zu. Überlagert wird dieses natürliche Risiko schließlich von der planmäßigen Endnutzung rund um $u_{\text{Ziel}}$, durch die sämtliche verbliebenen Altbestände geerntet werden und $p_t$ auf null absinkt.
+
+Die drei Teilgrafiken in Abb.~\ref{fig:zielwald_flaechen} verdeutlichen zugleich die geschlossene Flächenbilanz im stationären Gleichgewicht: Während die gesamte Betriebsklassenfläche $F$ (das Integral unter den Kurven im oberen Teilbild) in allen vier Varianten identisch bleibt, unterscheidet sich die Summe der jährlichen Abgangsflächen aus Schadensausfällen und Endnutzung (unteres Teilbild) deutlich. Da jede abgehende Fläche unmittelbar wieder in Kultur gebracht wird, entspricht diese Gesamtabgangsfläche exakt der Fläche der jüngsten Altersstufe ($f_0$) und damit der erforderlichen jährlichen Verjüngungsfläche. Während beim Normalwald und bei rein gestreuter Endnutzung jährlich konstant die Fläche $F/u_{\text{NW}}$ verjüngt wird, führt das vorzeitige Ausscheiden von Beständen im Zielwald zu einer spürbar höheren jährlichen Kultur- und Verjüngungsfläche ($f_0 > F/u_{\text{NW}}$) sowie zu einer Verschiebung von der konzentrierten Endnutzung hin zu laufenden Schad- und Vornutzungen über alle Altersstufen hinweg.
+
+Zusätzlich zu dieser Variation über das Bestandesalter unterliegt das Modell der Einschränkung zeitlich unveränderlicher Übergangswahrscheinlichkeiten über die Planungsperioden hinweg: Waldökosysteme befinden sich seit jeher in einem stetigen Wandel (\emph{panta rhei}) -- eine grundlegende Dynamik, die uns der aktuelle Klimawandel lediglich besonders deutlich vor Augen führt.
+
+Ein rein statisches Gleichgewicht bleibt daher zwar auch im Zielwaldmodell eine Idealannahme. Gerade als Gedankenmodell schärft es jedoch den Blick dafür, wie sich heutige waldbauliche und nutzungsplanerische Entscheidungen über Jahrzehnte auswirken -- und ermöglicht es, drohende Ungleichgewichte in der Alters- und Vorratsstruktur frühzeitig zu erkennen und gezielt gegenzusteuern.
+
+Zudem lässt sich die Grundlogik des Modells erweitern, indem neben zeitlich variablen Übergangswahrscheinlichkeiten auch Veränderungen von Bonität, Baumartenzusammensetzung oder Zuwachsverläufen dynamisch simuliert werden -- ähnlich wie bereits der Zielwald das starre Normalwaldmodell um das Produktionsrisiko erweitert hat. Dabei stellt sich zwar kein statisches Gleichgewicht mehr ein, was der forstlichen Realität jedoch ohnehin deutlich näherkommt. Da solche dynamischen Fortschreibungen auf zahlreichen Zukunftsannahmen beruhen, liefern sie weniger eine exakte Prognose als vielmehr einen wertvollen Möglichkeitsraum, um verschiedene Entwicklungsszenarien und Handlungsstrategien gegeneinander abzuwägen.
+
+\section{Grundlagen und Zweck des Hiebsatzes}
+
+Während Modelle wie der Normal- oder Zielwald den langfristigen Soll-Zustand beschreiben, übersetzt der \emph{Hiebsatz} ($H$) diese Zielvorstellungen in eine konkrete, operative Handlungsanweisung für den Forstbetrieb. Er gibt als naturale Führungsgröße -- meist in Erntefestmetern ohne Rinde (\si{\Efm} o.\,R.) für die gesamte Betriebsklasse -- vor, wie viel Holzvolumen innerhalb einer Planungsperiode ($n$ Jahre) bzw.\ im jährlichen Durchschnitt genutzt werden soll, und bildet damit die Basis für die Planung von Holzernte, Absatz und Folgearbeiten.
+
+Da ein Forstbetrieb häufig unterschiedliche Wald- und Bewirtschaftungsformen umfasst (z.\,B.\ Wirtschaftswald-Hochwald, Schutzwald im Ertrag oder Niederwald), wird der Hiebsatz zunächst getrennt für jede \emph{Betriebsklasse} hergeleitet und erst anschließend zum Gesamthiebsatz des Betriebs aufsummiert. Um eine nachhaltige, waldbaulich und ökonomisch steuerbare Nutzung zu gewährleisten, wird dieser Gesamtwert in mehrere Teilgrößen untergliedert:
+
+\begin{description}
+\item[Vor- und Endnutzung:] Der Hiebsatz wird in \emph{Vornutzung} (VN) und \emph{Endnutzung} (EN) getrennt. Die Vornutzung umfasst alle waldbaulich motivierten Pflege- und Durchforstungseingriffe in jüngeren und mittelalten Beständen vor Erreichen der Hiebsreife. Sie dient der Zuwachslenkung auf Zukunftsstämme sowie der Stabilitäts- und Qualitätssteigerung. Die Endnutzung bezeichnet hingegen die planmäßige Ernte hiebsreifer Altbestände am Ende der Produktionszeit inklusive der Einleitung oder Räumung der Verjüngung. Beide Teilhiebsätze sind nicht beliebig gegeneinander aufrechenbar: Insbesondere dürfen unterlassene Pflegedurchforstungen nicht durch zusätzliche Endnutzungen kompensiert werden, da dies zu einer schleichenden Aufzehrung der Altholzvorräte führen würde.
+
+\item[Baumartengruppen und Mischbestände:] Da sich Laub- und Nadelbaumarten hinsichtlich Umtriebszeit, Zuwachsverlauf und Holzerlös deutlich unterscheiden, wird der Hiebsatz zumindest nach Laub- und Nadelholz -- in größeren Betrieben meist noch feiner nach Hauptbaumartengruppen (z.\,B.\ Fichte/Tanne, Kiefer/Lärche, Buche, Eiche) -- ausgewiesen. Bei Mischbeständen erfolgt die Zuordnung rechnerisch über \emph{ideelle Teilflächen}: Die Bestandesfläche und der Vorrat werden entsprechend den Mischungsanteilen (meist ermittelt über die Grundflächen- oder Überschirmungsanteile der einzelnen Baumarten) auf die jeweiligen Baumartengruppen aufgeteilt.
+
+\item[Bringungslagen und Standortsgüte:] Während die Standortsgüte (Bonität bzw.\ Ertragsklasse) bereits in die Zuwachsschätzung und damit in die Höhe des Hiebsatzes einfließt, wird der operative Hiebsatz in der Praxis häufig nach \emph{Bringungsklassen} (z.\,B.\ Schlepper- gegenüber Seilkrangelände) gegliedert. Diese Differenzierung ist für die jährliche Budgetierung und das Controlling entscheidend, da dieselbe Einschlagsmenge je nach Geländeschwierigkeit stark unterschiedliche Holzerntekosten und Deckungsbeiträge verursacht.
+\end{description}
+
+Eine besondere Rolle im operativen Vollzug spielen \emph{Zufallsnutzungen} (Schadholz infolge von Sturm, Schneebruch oder Borkenkäferbefall). Im Sinne des Zielwaldmodells werden laufende, erfahrungsgemäß unvermeidbare Klein-Ausfälle bereits bei der Hiebsatzherleitung durch realistische Übergangswahrscheinlichkeiten bzw.\ Risikoabschläge einkalkuliert. Im laufenden Betrieb gilt jedoch das strenge Anrechnungsprinzip: Jede tatsächlich anfallende Zufallsnutzung wird vollständig auf den Hiebsatz angerechnet und reduziert im entsprechenden Umfang die regulär geplante Nutzung (insbesondere die Endnutzung, sofern hiebsreife oder mittelalte Bestände betroffen sind). Dadurch wird verhindert, dass Schadereignisse zu einer ungeplanten Übernutzung des Gesamtvorrats führen. Erst bei außergewöhnlichen Großkalamitäten, die die Alters- und Vorratsstruktur der Betriebsklasse grundlegend verändern, wird der Hiebsatz im Rahmen einer außerordentlichen Revision neu festgesetzt.
+
+\subsection{Spezifische Hiebsatz-Begriffe}
+
+In der Forsteinrichtung wird der Hiebsatz aus unterschiedlichen Blickwinkeln betrachtet. Je nachdem, ob waldbauliche Notwendigkeiten, langfristige Modellrechnungen oder betriebswirtschaftliche Ziele im Vordergrund stehen, unterscheidet man vier Begriffe:
+
+\begin{description}
+\item[Waldbaulicher Hiebsatz:] Diese Größe ergibt sich aus der Summe aller für den Planungszeitraum $n$ vorgesehenen Einzelmaßnahmen vor Ort ($M_{\text{Plan}}$), umgerechnet auf ein Jahr ($H_{\text{Plan}} = M_{\text{Plan}} / n$) -- also daraus, wie viel Holzvolumen bei der Bestandespflege (Durchforstung) und Verjüngung der einzelnen Bestände aus rein waldbaulicher Sicht im Jahresdurchschnitt entnommen werden sollte.
+\item[Nachhalts-Hiebsatz:] Hierbei handelt es sich um jene Nutzungsmenge, die über rechnerische Weiser und Formelansätze auf Betriebsklassenebene hergeleitet wird, um den Wald langfristig in eine nachhaltige und ausgewogene Struktur (etwa im Sinne des Zielwaldmodells) überzuführen.
+\item[Betriebswirtschaftlicher Hiebsatz:] Das ist die endgültige, gutachtlich festgelegte Planungsgröße des Betriebes ($H$). Sie wägt waldbauliche und rechnerische Vorgaben gegen wirtschaftliche Rahmenbedingungen wie Liquiditätsbedarf, Einkommensziele, Arbeitskapazitäten oder anstehende Investitionen ab.
+\item[Bilanzierter Hiebsatz:] Dieser Wert dient sowohl der laufenden Kontrolle als auch der jährlichen Steuerung während der Planungsperiode, indem er das jeweils aktualisierte Nutzungssoll für das Folgejahr vorgibt. Er berechnet sich, indem vom periodischen Gesamthiebsatz ($n \cdot H$) die bisher eingeschlagenen Holzmengen ($E_{\text{bisher}}$, inklusive angerechneter Zufallsnutzungen) abgezogen und durch die verbleibenden Jahre der Periode geteilt werden: $H_{\text{Bil}} = (n \cdot H - E_{\text{bisher}}) / n_{\text{Rest}}$. Da sich kumulierte Über- oder Unternutzungen auf immer weniger Restjahre verteilen, wird der betriebliche Ausgleichsspielraum gegen Ende der Periode zunehmend enger, bis im letzten Jahr ($n_{\text{Rest}} = 1$) exakt die verbleibende Restmenge dem Soll entspricht. In der Praxis darf $H_{\text{Bil}}$ daher nicht als starres Dogma verfolgt werden: Ein erzwungener, rein rechnerischer Ausgleich am Periodenende wäre weder ökonomisch (z.\,B.\ Einschlag in Tiefpreisphasen) noch waldbaulich (z.\,B.\ vollständiges Aussetzen notwendiger Endnutzungen nach Schadereignissen) sinnvoll. Stattdessen dient der bilanzierte Hiebsatz als Frühwarnindikator, wobei kleinere Abweichungen in die Folgeperiode übertragen werden und bei gravierenden Störungen eine außerordentliche Zwischenrevision des Operats erfolgt.
+\end{description}
+
+\section{Weiser zur Herleitung des Hiebsatzes}
+
+Da der Hiebsatz in der forstlichen Praxis nie allein aus der Umtriebszeit oder einem theoretischen Waldmodell abgeleitet, sondern im Rahmen einer gutachtlichen Gesamtabwägung unter Einbeziehung waldbaulicher und betriebswirtschaftlicher Aspekte bestimmt wird, zieht die Forsteinrichtung verschiedene \emph{Hiebsatzweiser} heran. Darunter versteht man rechnerische Orientierungs- und Kontrollgrößen, die aus den Waldinventurdaten der Betriebsklasse berechnet werden und die Nachhaltigkeit der Nutzung jeweils aus einem spezifischen Blickwinkel beleuchten -- etwa über die reale Altersklassenverteilung (die Flächenausstattung der einzelnen Altersstufen im Vergleich zum Soll-Zustand), den stehenden Holzvorrat oder den laufenden Zuwachs. Da kein einzelner Weiser alle betrieblichen Gegebenheiten abbildet, ermöglicht erst ihre Zusammenschau dem Forsteinrichter, den nachhaltig möglichen Hiebsatz im Spannungsfeld zwischen langfristiger Walderhaltung und aktuellen Betriebszielen fundiert einzuschätzen.
+
+\subsection{Altersklassenweiser}
+
+Altersklassenweiser beurteilen die Nachhaltigkeit anhand der aktuellen Flächenverteilung in den verschiedenen Altersklassen und gleichen diese mit den modellhaften Soll-Vorstellungen des Betriebes ab. Im Vergleich zur idealen Normalwald-Ausstattung oder einer risikoadjustierten Zielwaldstruktur zeigt er unmittelbar auf, ob Bestände im hiebsreifen oder überalterten Bereich überwiegen (Altersüberhang) oder ob in bestimmten Altersstufen Flächen fehlen (Alterslücken). Da es in der Praxis weder darauf ankommt, dass jedes einzelne Lebensjahr exakt flächengleich vertreten ist, noch das genaue Bestandesalter ohne Weiteres exakt bestimmt werden kann, fasst man die Bestände meist in $10$- oder $20$-jährigen Altersklassen zusammen. Dabei unterscheidet die Forsteinrichtung zudem zwischen dem \emph{physischen Alter} (den tatsächlichen Lebensjahren seit der Begründung) und dem \emph{wirtschaftlichen Alter}, das sich an der aktuellen Bestandesdimension und Entwicklungsstufe orientiert. Bäume, die in der Jugend lange unter Schirm gestanden haben und erst verzögert freigestellt wurden, weisen trotz hohen physischen Alters oft noch die Dimensionen und das Zuwachspotenzial eines deutlich jüngeren Bestandes auf und werden entsprechend niedriger eingestuft. Aus der so bereinigten Altersklassenverteilung lässt sich direkt die nachhaltig mögliche jährliche Endnutzungsfläche ableiten -- im einfachsten Fall als normale Abtriebsfläche ($f_{\text{EN}} = F/u$) oder unter Berücksichtigung der tatsächlichen Flächenausstattung in den ältesten Altersklassen.
+
+Eine kompakte Kennzahl zur Verdichtung dieser Altersstruktur ist das \emph{Flächendurchschnittsalter} ($a'$). Auf Ebene der Altersklassen berechnet es sich als mit den jeweiligen Teilflächen ($f_i$) gewichtetes Mittel der mittleren Bestandesalter ($a_i$) aller Altersklassen ($i$):
+
+\begin{equation}
+  a' = \frac{\sum_{i} f_i \cdot a_i}{\sum_{i} f_i}
+\end{equation}
+
+Liegen detaillierte Inventurdaten auf Einzelbestandsebene vor, lässt sich dieser Ansatz analog auf alle Einzelbestände ($x$) der Betriebsklasse übertragen. Dabei wird das jeweilige Bestandesalter ($t_x$) mit der konkreten Bestandesfläche ($f_x$) gewichtet:
+
+\begin{equation}
+  a' = \frac{\sum_{x} f_x \cdot t_x}{\sum_{x} f_x}
+\end{equation}
+
+Im idealen Normalwald mit gleichmäßiger Flächenverteilung aller Altersstufen liegt das Flächendurchschnittsalter genau bei der halben Umtriebszeit ($a' = u/2$). Daraus lässt sich als weitere Kontrollgröße die sogenannte \emph{latente Umtriebszeit} ($u'$) ableiten, welche die rechnerische Umtriebszeit des aktuellen Waldzustands angibt:
+
+\begin{equation}
+    u' = 2a'
+\end{equation}
+
+Im Normalwald entspricht $u'$ exakt der geplanten Umtriebszeit ($u$). Liegt die latente Umtriebszeit deutlich über dem Soll ($u' > u$ bzw.\ $a' > u/2$), besteht ein Altbestandsüberhang mit entsprechend hohen möglichen Endnutzungen, liegt sie darunter ($u' < u$), befindet sich der Betrieb eher in einer Vorratsaufbauphase.
+
+Da sich Überhänge in jungen und alten Beständen im reinen Durchschnittswert $a'$ jedoch gegenseitig ausgleichen können, wird ergänzend der \emph{Abnormitätsgrad} ($\text{AG}$) herangezogen. Er quantifiziert die strukturelle Verzerrung der Altersklassenverteilung, indem er alle Flächenabweichungen vom Idealzustand auf die Gesamtfläche ($F$) bezieht:
+
+\begin{equation}
+    \text{AG} = \frac{\sum_{i} |f_{i,\text{Ist}} - f_{i,\text{Soll}}|}{F} \cdot 100\,\%
+\end{equation}
+
+Anschaulich gibt der Abnormitätsgrad an, welcher Prozentanteil der gesamten Betriebsfläche derzeit in den \glqq falschen\grqq\ Altersklassen stockt (vgl.\ Abb.~\ref{fig:altersklassenweiser}). Ein Wert von $0\,\%$ entspricht dem idealen Normalwald, während hohe Prozentwerte auf ein starkes Ungleichgewicht im Altersaufbau hinweisen.
+
+Bei gleich breiten Altersklassen (Klassenbreite $w$, z.\,B.\ $20\text{ Jahre}$) entspricht die Soll-Fläche jeder Klasse schlicht einem konstanten Anteil an der Gesamtfläche ($f_{i,\text{Soll}} = F \cdot \frac{w}{u}$). Weist die Gliederung jedoch unterschiedlich breite Altersklassen auf (etwa eine feinere Unterteilung der Jungbestände mit $w_1 = 10\text{ Jahren}$ gegenüber $w_2 = 20\text{ Jahren}$), muss die Soll-Fläche klassenspezifisch über die jeweilige Klassenbreite ($w_i$) gewichtet werden:
+
+\begin{equation}
+    f_{i,\text{Soll}} = F \cdot \frac{w_i}{u} = f \cdot w_i
+\end{equation}
+
+Ein weiterer Sonderfall ergibt sich bei Beständen, deren Alter über der geplanten Umtriebszeit liegt (überalterte Bestände bzw.\ nach oben offene Altersklassen $> u$). Da im strengen Normalwaldmodell alle Bestände spätestens mit Erreichen von $u$ genutzt werden, beträgt die normale Soll-Fläche für diese überalterten Klassen $f_{i,\text{Soll}} = 0$, sodass die dort stockende Ist-Fläche voll als Abweichung in den Abnormitätsgrad eingeht. Für die Berechnung des Flächendurchschnittsalters ($a'$) lässt sich für eine nach oben offene Altersklasse zudem keine rein arithmetische Klassenmitte bestimmen. Hier muss das mittlere Alter ($a_i$) entweder aus den konkreten Einzelbestandsaltern ($t_x$) flächengewichtet gemittelt oder durch einen plausiblen Schätzwert (z.\,B.\ $u + w/2$) angenähert werden.
+
+Allerdings stößt der rein flächenbezogene Altersklassenweiser in ungleichaltrigen oder mehrschichtigen Beständen (z.\,B.\ im Dauer- oder Plenterwald) sowie bei stark unterschiedlichen Bestockungsgraden an seine Grenzen. Weil eine Hektarfläche mit lückigem Altbestand deutlich weniger Holzvorrat trägt als ein vollbestockter Bestand gleichen Alters, lässt die reine Fläche noch keinen sicheren Rückschluss auf die tatsächliche Holzmenge zu. Für belastbare Nutzungsentscheidungen muss der Altersklassenweiser daher stets durch vorrats- und zuwachsbezogene Weiser ergänzt werden.
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    \path (-1.8, 0); % Fixiert den linken Rand exakt wie in den anderen Abbildungen
+    \def\fsoll{2.1}  % Normale Flächenausstattung pro 20j. Altersklasse (F/5)
+    
+    % Achsen (x-Achse bis 7.4, y-Achse bis 4.0 für saubere Legenden-Trennung)
+    \draw[->, thick] (0,0) -- (7.4,0) node[below, yshift=-3pt] {Alter ($t$)};
+    \draw[->, thick] (0,0) -- (0,4.0) node[above] {Fläche ($f_i$)};
+    
+    % Ist-Flächenausstattung in 20-jährigen Altersklassen (I bis VI)
+    \filldraw[fill=blue!15, draw=blue!70!black, thick] (0.0,0) rectangle (1.0,2.0);
+    \filldraw[fill=blue!15, draw=blue!70!black, thick] (1.0,0) rectangle (2.0,1.3);
+    \filldraw[fill=blue!15, draw=blue!70!black, thick] (2.0,0) rectangle (3.0,1.2);
+    \filldraw[fill=blue!15, draw=blue!70!black, thick] (3.0,0) rectangle (4.0,2.6);
+    \filldraw[fill=orange!30, draw=orange!80!black, thick] (4.0,0) rectangle (5.0,2.5);
+    \filldraw[fill=orange!45, draw=orange!80!black, thick] (5.0,0) rectangle (6.0,0.9);
+    
+    % Dezente Schraffur der Flächenabweichungen |f_{i,Ist} - f_{i,Soll}| (für AG)
+    % Unterschreitungen (I bis III)
+    \fill[pattern=north east lines, pattern color=black!35] (0.0,2.0) rectangle (1.0,\fsoll);
+    \fill[pattern=north east lines, pattern color=black!35] (1.0,1.3) rectangle (2.0,\fsoll);
+    \fill[pattern=north east lines, pattern color=black!35] (2.0,1.2) rectangle (3.0,\fsoll);
+    % Überschreitungen (IV bis VI, wobei f_{VI,Soll} = 0)
+    \fill[pattern=north east lines, pattern color=black!35] (3.0,\fsoll) rectangle (4.0,2.6);
+    \fill[pattern=north east lines, pattern color=black!35] (4.0,\fsoll) rectangle (5.0,2.5);
+    \fill[pattern=north east lines, pattern color=black!35] (5.0,0.0) rectangle (6.0,0.9);
+    
+    % Beschriftung der Altersklassen (römische Ziffern) in den Balken
+    \node[blue!80!black, font=\footnotesize] at (0.5, 0.35) {I};
+    \node[blue!80!black, font=\footnotesize] at (1.5, 0.35) {II};
+    \node[blue!80!black, font=\footnotesize] at (2.5, 0.35) {III};
+    \node[blue!80!black, font=\footnotesize] at (3.5, 0.35) {IV};
+    \node[orange!85!black, font=\footnotesize] at (4.5, 0.35) {V};
+    \node[orange!85!black, font=\footnotesize] at (5.5, 0.35) {VI};
+    
+    % Normale Flächenausstattung (Soll-Linie des Normalwaldes bis u = 100)
+    \draw[green!50!black, very thick, dashed] (0,\fsoll) -- (5.0,\fsoll) -- (5.0,0);
+    \node[left, green!50!black] at (0,\fsoll) {$f_{i,\text{Soll}}$};
+    
+    % Ticks X-Achse (komplett sauber)
+    \foreach \x/\lbl in {1.0/20, 2.0/40, 3.0/60, 4.0/80} {
+      \draw (\x,0.08) -- (\x,-0.08) node[below] {\lbl};
+    }
+    \draw (5.0,0.08) -- (5.0,-0.08) node[below] {$u$};
+    \draw (6.0,0.08) -- (6.0,-0.08) node[below] {120};
+
+    % Markierung u/2 vs. a' (2.98) beide schräg von links oben, diagonal gestaffelt
+    \draw[dotted, green!50!black, thick] (2.5,0) -- (2.5,2.25);
+    \draw[<-, >=stealth, green!50!black] (2.48,2.22) -- (1.85,2.40) node[left, green!50!black, font=\footnotesize, inner sep=1.5pt] {$\frac{u}{2}$};
+    
+    \draw[dotted, red!70!black, thick] (2.98,0) -- (2.98,2.45);
+    \draw[<-, >=stealth, red!70!black] (2.96,2.42) -- (2.40,2.60) node[left, red!70!black, font=\footnotesize, inner sep=1.5pt] {$a'$};
+
+    % Latente Umtriebszeit u' = 2a' (5.95)
+    \draw[dashed, red!70!black, thick] (5.95,0) -- (5.95,1.55) node[above, red!70!black, font=\footnotesize] {$u' = 2a'$};
+
+    % Annotationen für Lücke & Überhang (tiefer gesetzt -> keine Kollision mit Legende)
+    \node[blue!75!black, font=\footnotesize, align=center, fill=white, inner sep=1pt, rounded corners=1pt] at (2.0, 1.65) {Alters-\\lücke};
+    \draw[<-, >=stealth, orange!80!black] (4.85, 2.32) -- (5.30, 2.65) node[right, black, font=\footnotesize, align=left] {Altersüberhang\\(hiebsreif / überaltert)};
+    
+    % Kompakte Legende oben links
+    \begin{scope}[shift={(0.2, 3.72)}, font=\footnotesize]
+      \draw[green!50!black, very thick, dashed] (0,0) -- (0.45,0) node[right, black] {Soll-Ausstattung ($f_{i,\text{Soll}}$)};
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (0,-0.40) rectangle (0.20,-0.20);
+      \filldraw[fill=orange!35, draw=orange!80!black, thick] (0.25,-0.40) rectangle (0.45,-0.20);
+      \node[right, black] at (0.45,-0.30) {Ist-Fläche ($f_i$, hiebsunreif / hiebsreif)};
+      \filldraw[pattern=north east lines, pattern color=black!45, draw=black!40] (0,-0.80) rectangle (0.45,-0.60);
+      \node[right, black] at (0.45,-0.70) {Abweichung $|f_{i,\text{Ist}} - f_{i,\text{Soll}}|$};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Schematisches Altersklassendiagramm am Beispiel $20$-jähriger Altersklassen (I--VI) bei einer Umtriebszeit von $u = 100$ Jahren als Grundlage des Altersklassenweisers: Die reale Flächenausstattung ($f_i$) zeigt eine Alterslücke in den mittleren Klassen (II--III) sowie einen Altersüberhang im hiebsreifen und überalterten Bereich (V--VI, orange). Die schraffierten Differenzflächen ($|f_{i,\text{Ist}} - f_{i,\text{Soll}}|$) veranschaulichen die Abweichungen vom Normalwald, aus deren Summe sich der Abnormitätsgrad ($\text{AG}$) ergibt; zudem verschieben sich das flächendurchschnittliche Alter ($a'$) und die latente Umtriebszeit ($u' = 2a'$) gegenüber den Sollwerten ($u/2$ bzw.\ $u$) nach rechts.}
+  \label{fig:altersklassenweiser}
+\end{figure}
+
+\subsection{Vorrats- und Zuwachsweiser}
+
+Während der Altersklassenweiser allein die Flächenverteilung betrachtet, rücken Vorrats- und Zuwachsweiser den stehenden Holzvorrat und seine laufende Veränderung in den Mittelpunkt. Im Gegensatz zum eher statischen Vergleich mit einem starren Normalwaldmodell liegt ihr Schwerpunkt auf der dynamischen Entwicklung des Holzvorrats. Dabei wird der wirkliche Vorrat ($V_{\text{W}}$) der Betriebsklasse dem angestrebten Soll- bzw.\ Normalvorrat ($V_{\text{N}} = F \cdot v_{\text{N}}$) gegenübergestellt.
+
+Besteht eine Differenz zwischen Wirklichem und Normalvorrat, lässt sich diese über einen festzulegenden \emph{Ausgleichszeitraum} ($\Delta t_{\text{Ausgl}}$) schrittweise in die Hiebsatzherleitung einbeziehen:
+
+\begin{equation}
+    \label{eq:vorratsausgleich}
+    H = \frac{Z}{n} + \frac{V_{\text{W}} - V_{\text{N}}}{\Delta t_{\text{Ausgl}}}
+\end{equation}
+
+Liegt $V_{\text{W}}$ über $V_{\text{N}}$, besteht ein Vorratsüberhang, der über $\Delta t_{\text{Ausgl}}$ zusätzlich zum durchschnittlichen jährlichen Zuwachs ($Z/n$) abgebaut werden kann, liegt der wirkliche Vorrat darunter, führt der negative Ausgleichsterm zu einer gezielten Nutzungseinschränkung für den Vorratsaufbau. Die Wahl von $\Delta t_{\text{Ausgl}}$ steuert dabei maßgeblich die Nutzungsdynamik (vgl.\ \cref{fig:ausgleichszeitraum}): Ein kurzer Ausgleichszeitraum führt zu einem raschen Vorratsabbau mit entsprechend hohem Hiebsatz, zieht nach Erreichen von $V_{\text{N}}$ jedoch einen spürbaren Nutzungsrückgang auf das Zuwachsniveau nach sich. Ein längerer Ausgleichszeitraum streckt hingegen den Abbau und verstetigt die Nutzungen im Sinne der Nachhaltigkeit. Da der Hiebsatz in der Praxis nach jeder Inventurperiode ($n$) auf Basis des neu erhobenen Vorrats aktualisiert wird, nähert sich $V_{\text{W}}$ dem Zielwert $V_{\text{N}}$ zudem meist nicht streng linear, sondern schrittweise asymptotisch an.
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    \path (-1.8, 0); % Fixiert den linken Rand exakt wie in den anderen Abbildungen
+    
+    % =========================================================================
+    % OBERES TEILDIAGRAMM: Vorratsentwicklung V(t)
+    % =========================================================================
+    \begin{scope}[shift={(0, 2.75)}]
+      % Achsen
+      \draw[->, thick] (0,0) -- (6.8,0) node[right, font=\footnotesize] {Zeit ($t$)};
+      \draw[->, thick] (0,0) -- (0,2.75) node[above] {Vorrat ($V$)};
+      
+      % Normalvorrat V_N (grüne Soll-Linie)
+      \draw[green!50!black, very thick, dashed] (0,1.2) -- (6.3,1.2);
+      \node[left, green!50!black, font=\footnotesize] at (0,1.2) {$V_{\text{N}}$};
+      
+      % Anfangsvorrat V_W (Überhang)
+      \fill[blue!80!black] (0,2.2) circle (1.8pt);
+      \node[left, blue!80!black, font=\footnotesize] at (0,2.2) {$V_{\text{W}}$};
+      
+      % Markierung Vorratsüberhang Delta V
+      \draw[<->, >=stealth, gray!70!black] (0.2,1.22) -- (0.2,2.18) node[midway, right, font=\scriptsize] {$V_{\text{W}} - V_{\text{N}}$};
+      
+      % 1. Kurzer Ausgleichszeitraum einmalig (blau, durchgezogen -> erreicht V_N bei x = 2.6)
+      \draw[blue!75!black, very thick] (0,2.2) -- (2.6,1.2) -- (6.2,1.2);
+      
+      % 2. Langer Ausgleichszeitraum einmalig (orange, strichpunktiert -> erreicht V_N bei x = 5.2)
+      \draw[orange!85!black, very thick, dash dot] (0,2.2) -- (5.2,1.2) -- (6.2,1.2);
+      
+      % 3. Periodische Neuberechnung mit Delta t_1 (violett, dicht gestrichelt -> asymptotisch)
+      \draw[violet!80!black, very thick, densely dashed]
+        (0,2.2) -- (1.3,1.70) -- (2.6,1.45) -- (3.9,1.325) -- (5.2,1.2625) -- (6.2,1.23);
+      
+      % Ticks auf x-Achse für Ausgleichszeiträume
+      \draw[dotted, blue!75!black] (2.6,1.2) -- (2.6,-0.08) node[below, font=\scriptsize] {$\Delta t_{\text{Ausgl,1}}$};
+      \draw[dotted, orange!85!black] (5.2,1.2) -- (5.2,-0.08) node[below, font=\scriptsize] {$\Delta t_{\text{Ausgl,2}}$};
+      
+      % Kompakte Legende oben rechts
+      \begin{scope}[shift={(2.65, 2.55)}, font=\scriptsize]
+        \draw[blue!75!black, very thick] (0,0) -- (0.45,0) node[right, black] {kurzer Ausgleich ($\Delta t_{\text{Ausgl,1}}$, einmalig)};
+        \draw[orange!85!black, very thick, dash dot] (0,-0.32) -- (0.45,-0.32) node[right, black] {langer Ausgleich ($\Delta t_{\text{Ausgl,2}}$, einmalig)};
+        \draw[violet!80!black, very thick, densely dashed] (0,-0.64) -- (0.45,-0.64) node[right, black] {periodische Neuberechnung ($\Delta t_{\text{Ausgl,1}}$)};
+      \end{scope}
+    \end{scope}
+
+    % =========================================================================
+    % UNTERES TEILDIAGRAMM: Resultierender Hiebsatz H(t)
+    % =========================================================================
+    \begin{scope}[shift={(0, 0)}]
+      % Achsen
+      \draw[->, thick] (0,0) -- (6.8,0) node[right, font=\footnotesize] {Zeit ($t$)};
+      \draw[->, thick] (0,0) -- (0,2.1) node[above] {Hiebsatz ($H$)};
+      
+      % Nachhaltiger Zuwachs Z/n (grüne Basislinie)
+      \draw[green!50!black, very thick, dashed] (0,0.75) -- (6.3,0.75);
+      \node[left, green!50!black, font=\footnotesize] at (0,0.75) {$\frac{Z}{n}$};
+      
+      % Hiebsatz bei kurzem Ausgleichszeitraum einmalig (hoch bis 2.6, dann Sprung auf Z/n)
+      \draw[blue!75!black, very thick] (0,1.65) -- (2.6,1.65) -- (2.6,0.75) -- (6.2,0.75);
+      \node[above right, blue!75!black, font=\scriptsize] at (0.05, 1.63) {$H_1 = \frac{Z}{n} + \frac{V_{\text{W}}-V_{\text{N}}}{\Delta t_{\text{Ausgl,1}}}$};
+      
+      % Hiebsatz bei langem Ausgleichszeitraum einmalig (moderat bis 5.2, dann Sprung auf Z/n)
+      \draw[orange!85!black, very thick, dash dot] (0,1.20) -- (5.2,1.20) -- (5.2,0.75) -- (6.2,0.75);
+      \node[above right, orange!85!black, font=\scriptsize] at (2.75, 1.18) {$H_2 = \frac{Z}{n} + \frac{V_{\text{W}}-V_{\text{N}}}{\Delta t_{\text{Ausgl,2}}}$};
+      
+      % Hiebsatz bei periodischer Neuberechnung (Treppenstufen ab x = 1.3)
+      \draw[violet!80!black, very thick, densely dashed]
+        (0,1.65) -- (1.3,1.65) -- (1.3,1.20) -- (2.6,1.20) -- (2.6,0.975) -- (3.9,0.975) -- (3.9,0.8625) -- (5.2,0.8625) -- (5.2,0.806) -- (6.2,0.806);
+      
+      % Ticks auf x-Achse
+      \draw[dotted, blue!75!black] (2.6,0.75) -- (2.6,-0.08) node[below, font=\scriptsize] {$\Delta t_{\text{Ausgl,1}}$};
+      \draw[dotted, orange!85!black] (5.2,0.75) -- (5.2,-0.08) node[below, font=\scriptsize] {$\Delta t_{\text{Ausgl,2}}$};
+    \end{scope}
+    
+  \end{tikzpicture}
+  \caption{Wirkung des gewählten Ausgleichszeitraums ($\Delta t_{\text{Ausgl}}$) beim Abbau eines Vorratsüberhangs ($V_{\text{W}} > V_{\text{N}}$): Bei einmaliger Festlegung führt ein kurzer Ausgleichszeitraum ($\Delta t_{\text{Ausgl,1}}$, blau) zu einem raschen linearen Vorratsabbau und einem hohen anfänglichen Hiebsatz ($H_1$), erfordert nach Erreichen von $V_{\text{N}}$ jedoch einen abrupten Rückgang auf das Zuwachsniveau ($Z/n$). Ein längerer Ausgleichszeitraum ($\Delta t_{\text{Ausgl,2}}$, orange) streckt den Abbau. Wird der Hiebsatz hingegen nach jeder Inventurperiode ($n$) neu berechnet (violett, gestrichelt), sinkt der Hiebsatz stufenweise und der Vorrat nähert sich $V_{\text{N}}$ asymptotisch an.}
+  \label{fig:ausgleichszeitraum}
+\end{figure}
+
+Eine zentrale Kennzahl zur Beurteilung der Vorratsdynamik liefert die klassische \emph{Kontrollmethode} (vgl.\ Abb.~\ref{fig:kontrollmethode}). Sie vergleicht den Vorrat am Anfang einer Inventurperiode ($V_1$) mit dem Vorrat am Ende der Periode ($V_2$) unter Einbeziehung der zwischenzeitlich entnommenen Nutzung ($N$):
+
+\begin{equation}
+    \label{eq:kontrollmethode}
+    Z = V_2 - V_1 + N
+\end{equation}
+
+Auf diese Weise lässt sich der periodische Zuwachs ($Z$) unmittelbar aus den Waldinventurdaten herleiten und mit der tatsächlichen Nutzung vergleichen. Für die Hiebsatzbemessung stehen damit unterschiedliche Zuwachsgrößen zur Verfügung, die je nach Planungsziel kombiniert werden: Während der laufende periodische Zuwachs (\text{LFZ}) die aktuelle Vorratsdynamik abbildet, dienen der durchschnittliche Gesamtzuwachs (\text{DGZ}) sowie der Haubarkeitsdurchschnittszuwachs (\text{HDZ}) als langfristige, altersunabhängige Leistungsmaßstäbe, um bei vorübergehend hohen Zuwächsen mittelalter Bestände eine spätere Übernutzung zu vermeiden. Liegen Daten über mehrere Inventurperioden vor, lässt sich zudem der \emph{ertragsgeschichtliche Zuwachs} als mehrperiodisches Mittel der hergeleiteten Zuwächse ($Z$) bestimmen. Anhand solcher Zeitreihen lassen sich langfristige Entwicklungstrends im Zuwachsverhalten erkennen und fundiert für die Hiebsatzbemessung der kommenden Planungsperiode fortschreiben.
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    \path (-1.8, 0); % Fixiert den linken Rand exakt wie in den anderen Abbildungen
+    
+    % Achsen
+    \draw[->, thick] (0,0) -- (6.7,0);
+    \draw[->, thick] (0,0) -- (0,4.0) node[above] {Holzvorrat ($V$)};
+    
+    % 1. Anfangsvorrat V_1 (links, blau) -> Höhe 2.4
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (0.5,0) rectangle (1.5,2.4);
+    \node[blue!80!black, font=\footnotesize] at (1.0, 1.2) {$V_1$};
+    \node[below, yshift=-2pt, font=\footnotesize] at (1.0, 0) {Beginn};
+    
+    % 2. Periodischer Zuwachs Z (grün, gestapelt von 2.4 auf 3.6) mit Blockpfeil nach oben
+    \filldraw[fill=green!14, draw=green!50!black, thick] (2.0,2.4) rectangle (3.0,3.6);
+    \node[single arrow, rotate=90, fill=green!35, minimum height=1.06cm, minimum width=0.88cm, single arrow head extend=0.14cm, inner sep=0pt] at (2.5, 3.0) {};
+    \node[green!40!black, font=\footnotesize] at (2.5, 2.95) {$+Z$};
+    \node[below, yshift=-2pt, font=\footnotesize] at (2.5, 0) {Zuwachs};
+    \draw[dotted, gray] (1.5,2.4) -- (2.0,2.4);
+    
+    % Gesamthöhe vor Nutzung (Hilfslinie bei 3.6)
+    \draw[dashed, gray] (3.0,3.6) -- (5.0,3.6);
+    
+    % 3. Entnommene Nutzung N (orange, abgezogen von 3.6 hinunter auf 2.75) mit Blockpfeil nach unten
+    \filldraw[fill=orange!20, draw=orange!80!black, thick] (3.5,2.75) rectangle (4.5,3.6);
+    \node[single arrow, rotate=-90, fill=orange!45, minimum height=0.74cm, minimum width=0.88cm, single arrow head extend=0.12cm, inner sep=0pt] at (4.0, 3.175) {};
+    \node[orange!70!black, font=\footnotesize] at (4.0, 3.22) {$-N$};
+    \node[below, yshift=-2pt, font=\footnotesize] at (4.0, 0) {Nutzung};
+    
+    % 4. Endvorrat V_2 (rechts, blau) -> Höhe 2.75
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (5.0,0) rectangle (6.0,2.75);
+    \node[blue!80!black, font=\footnotesize] at (5.5, 1.375) {$V_2$};
+    \node[below, yshift=-2pt, font=\footnotesize] at (5.5, 0) {Ende};
+    \draw[dotted, gray] (4.5,2.75) -- (5.0,2.75);
+    
+    % Vergleichslinie V_1 nach rechts für Vorratsänderung (Delta V = V_2 - V_1)
+    \draw[dashed, blue!60!black] (1.5,2.4) -- (6.35,2.4);
+    \draw[<->, >=stealth, blue!70!black] (6.18,2.4) -- (6.18,2.75) node[midway, right, font=\footnotesize] {$\Delta V$};
+    
+    % Bilanzgleichung im freien Raum zwischen V_1 und V_2 mit Pfeil auf V_2
+    \node[draw=gray!50, fill=gray!5, rounded corners=2pt, inner sep=3pt, font=\footnotesize] (eq) at (3.15, 1.2) {$V_1 + Z - N = V_2$};
+    \draw[->, >=stealth, blue!70!black] (eq.east) -- (4.95, 1.2);
+  \end{tikzpicture}
+  \caption{Schematische Vorratsbilanz der Kontrollmethode über eine Inventurperiode (rechnerische Zerlegung): Ausgehend vom Anfangsvorrat ($V_1$ zu Periodenbeginn) werden der während der gesamten Periode parallel auflaufende Zuwachs ($+Z$) und die entnommene Nutzung ($-N$) bilanziell gegenübergestellt, woraus am Periodenende der neue Vorrat ($V_2$) resultiert.}
+  \label{fig:kontrollmethode}
+\end{figure}
+
+Auch zur Abschätzung des Soll-Vorrats kommen bei der Vorratsbewertung häufig praxisnahe Näherungen zum Einsatz. So lässt sich der Normalvorrat je Hektar ($v_{\text{N}}$) bei vorliegenden Ertragstafelwerten über die bereits in \cref{eq:pressler_vn} eingeführte \emph{Pressler'sche Näherungsformel} ermitteln. Alternativ erfolgt die Herleitung über den Flury-Faktor gemäß \cref{eq:flury_vn}.
+
+In der praktischen Forsteinrichtung zeigt sich jedoch, dass isolierte Vorrats- oder Zuwachsbetrachtungen allein nicht ausreichen. Gerade ungleichmäßige Altersklassenstrukturen erfordern ein Zusammenspiel aus Altersklassen-, Vorrats- und Zuwachsweiser, da identische Gesamtvorräte je nach Altersverteilung völlig unterschiedliche waldbauliche Eingriffe und Verjüngungserfordernisse nach sich ziehen können.
+
+\subsection{Flächenweiser}
+
+Flächenweiser leiten den nachhaltigen Nutzungsumfang unmittelbar aus der Flächenausstattung des Betriebes und der geplanten Umtriebszeit ($u$) ab. Er gibt an, welche Waldfläche innerhalb einer Planungsperiode ($n$ Jahre) regulär zur Verjüngung bzw.\ Durchforstung ansteht. Da die Fläche im Gegensatz zum Holzvorrat eine zeitlich stabile, leicht messbare Bezugsgröße darstellt, bildet der Flächenweiser traditionell das Fundament für eine räumlich und zeitlich geordnete Hiebsplanung.
+
+\subsubsection{Endnutzungsflächenweiser}
+
+Unter der Annahme eines ausgeglichenen Altersaufbaus (Normalwaldmodell) entspricht die periodische Endnutzungsfläche ($F_{\text{EN}}$) für eine Planungsperiode von $n$ Jahren dem $n$-fachen der jährlichen Endnutzungsfläche ($f_{\text{EN}} = F / u$):
+\begin{equation}
+    \label{eq:fen_normal}
+    F_{\text{EN}} = f_{\text{EN}} \cdot n = \frac{F}{u} \cdot n
+\end{equation}
+In realen Forstbetrieben weicht die Altersverteilung jedoch fast immer vom Idealmodell ab. Um Altersüberhänge im hiebsreifen Bereich zügig abzubauen oder Alterslücken durch Streckung der Altholzvorräte zu überbrücken, genügt die starre Normalfläche daher meist nicht. Hier greift das sogenannte \emph{abgekürzte Fachwerk} (Flächenfachwerk), das die Endnutzungsfläche über die Ausstattung der ältesten Altersklassen steuert.
+
+Liegen die Flächen der ältesten Altersklassen ($F_{\text{alt},1}, F_{\text{alt},2}, \dots$ mit den jeweiligen Klassenbreiten $a_{\text{alt},1}, a_{\text{alt},2}, \dots$ in Jahren) vor, lässt sich die periodische Endnutzungsfläche entweder allein aus der ältesten Altersklasse (z.\,B.\ über $20$~Jahre) ableiten:
+\begin{equation}
+    \label{eq:fen_fachwerk1}
+    F_{\text{EN}} = F_{\text{alt},1} \cdot \frac{n}{a_{\text{alt},1}}
+\end{equation}
+Oder man fasst mehrere ältere Altersklassen ($m$ Klassen, z.\,B.\ die ältesten $40$~Jahre) zusammen, um Schwankungen zwischen benachbarten Altersklassen auszugleichen:
+\begin{equation}
+    \label{eq:fen_fachwerk2}
+    F_{\text{EN}} = \frac{\sum_{i=1}^{m} F_{\text{alt},i}}{\sum_{i=1}^{m} a_{\text{alt},i}} \cdot n
+\end{equation}
+Dieses Vorgehen bewirkt eine automatische Anpassung an die reale Bestandesstruktur (vgl.\ \cref{fig:flaechenweiser}). Bei Altbestandüberhängen steigt die errechnete Nutzungsfläche über die Normalfläche an, bei Altholzmangel sinkt sie entsprechend darunter.
+
+Als weitere Modifikation erlaubt das Verfahren der \emph{reduzierten Fläche} eine Gewichtung der Bestände nach ihrer tatsächlichen Bestockungsdichte (Bestockungsgrad $B^\circ$). Da ein aufgelichteter Altbestand mit $B^\circ = 0{,}6$ deutlich weniger Vorrat trägt als ein vollbestockter Bestand, wird die reale Fläche ($F_{\text{real}}$) auf eine vollbestockte ideelle Fläche ($F_{\text{red}}$) umgerechnet:
+\begin{equation}
+    \label{eq:fred}
+    F_{\text{red}} = F_{\text{real}} \cdot B^\circ
+\end{equation}
+Auf diese Weise werden verzerrte Flächenansätze bei ungleichmäßig bestockten Altbeständen vermieden, bevor der Abgleich mit dem Soll-Flächenweiser erfolgt.
+
+\subsubsection{Vornutzungsflächenweiser}
+
+Auch für die Planung der Durchforstungen liefert der Flächenweiser einen verlässlichen Orientierungsrahmen (vgl.\ \cref{fig:flaechenweiser}, links). Die periodische Durchforstungsfläche ($F_{\text{DF}}$) ergibt sich aus der gesamten durchforstungsbedürftigen Fläche der Betriebsklasse ($F_{\text{DF,ges}}$, also der Gesamtfläche abzüglich der Jungwuchs- und bereits in Endnutzung stehenden Flächen) dividiert durch den angestrebten Durchforstungsturnus ($\Delta t_{\text{DF}}$ in Jahren), multipliziert mit der Periodenlänge ($n$):
+\begin{equation}
+    \label{eq:fdf_gesamt}
+    F_{\text{DF}} = \frac{F_{\text{DF,ges}}}{\Delta t_{\text{DF}}} \cdot n
+\end{equation}
+Alternativ lässt sich die Durchforstungsfläche nach Altersklassen oder Bestandestypen differenzieren, indem die Teilflächen ($F_k$) der jeweiligen Altersbereiche mit ihren spezifischen Durchforstungsintervallen ($\Delta t_{\text{DF},k}$) gewichtet werden:
+\begin{equation}
+    \label{eq:fdf_typen}
+    F_{\text{DF}} = \sum_{k} \left( F_k \cdot \frac{n}{\Delta t_{\text{DF},k}} \right)
+\end{equation}
+Dadurch wird berücksichtigt, dass junge Bestände in der Regel häufigere Pflegeeingriffe (kürzere Eingriffsintervalle $\Delta t_{\text{DF},k}$) benötigen als ältere, bereits weitgehend stabilisierte Bestände.
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    \path (-1.8, 0); % Fixiert den linken Rand exakt wie in den anderen Abbildungen
+    
+    % Achsen (Ordinate gekürzt auf 3.45)
+    \draw[->, thick] (0,0) -- (7.2,0) node[below, yshift=-3pt] {Alter ($t$)};
+    \draw[->, thick] (0,0) -- (0,3.0) node[above] {Fläche ($F$)};
+    
+    % 1. Jungwuchsphase (nicht durchforstungsbedürftig, 0-20 J.)
+    \filldraw[fill=gray!12, draw=gray!60!black, thick] (0.0,0) rectangle (1.0,2.0);
+    \node[gray!70!black, font=\footnotesize, align=center] at (0.5, 0.95) {Jung-\\wuchs};
+    
+    % 2. Durchforstungsbereich F_DF,ges (20-80 J., blau)
+    \filldraw[fill=blue!14, draw=blue!70!black, thick] (1.0,0) rectangle (4.0,2.1);
+    % Anteilige periodische Durchforstungsfläche F_DF = F_DF,ges * (n / Delta t_DF)
+    \filldraw[fill=blue!32, draw=blue!70!black, thick] (1.0,0) rectangle (1.9,2.1);
+    \node[blue!85!black, font=\footnotesize, align=center] at (1.45, 1.05) {$F_{\text{DF}}$};
+    \node[blue!75!black, font=\footnotesize, align=center] at (2.95, 1.05) {Durchforstungs-\\fläche ($F_{\text{DF,ges}}$)};
+    \draw[decorate, decoration={brace, amplitude=4pt}, blue!70!black, thick] (1.0,2.2) -- (4.0,2.2) 
+      node[midway, above, yshift=4pt, font=\footnotesize] {Durchforstungsphase};
+    
+    % 3. Älteste Altersklassen (abgekürztes Fachwerk, 80-120 J., orange)
+    % Reale Fläche F_real (gestrichelt oben) vs. reduzierte Fläche F_red = F_real * B° (gefüllt)
+    \filldraw[fill=orange!10, draw=orange!70!black, dashed, thick] (4.0,0) rectangle (6.0,2.8);
+    \filldraw[fill=orange!28, draw=orange!80!black, thick] (4.0,0) rectangle (6.0,2.25);
+    
+    % Periodische Endnutzungsfläche F_EN (rechts herausgehoben für Periode n)
+    \filldraw[fill=orange!50, draw=orange!85!black, thick] (5.35,0) rectangle (6.0,2.25);
+    \node[orange!90!black, font=\footnotesize] at (5.675, 1.1) {$F_{\text{EN}}$};
+    
+    % Beschriftung F_real (Bezugspfeil von links oben) vs. F_red
+    \draw[<-, >=stealth, orange!80!black] (4.02,2.80) -- (3.60,2.98) node[left, orange!80!black, font=\footnotesize, inner sep=1.5pt] {$F_{\text{real}}$};
+    \node[orange!90!black, font=\footnotesize, align=center] at (4.68, 1.1) {$F_{\text{red}}$\\($B^\circ$)};
+    \draw[decorate, decoration={brace, amplitude=4pt}, orange!80!black, thick] (4.0,2.9) -- (6.0,2.9) 
+      node[midway, above, yshift=4pt, font=\footnotesize] {Altholzklassen ($\sum a_{\text{alt},i}$)};
+      
+    % Ticks X-Achse
+    \foreach \x/\lbl in {1.0/20, 4.0/80, 5.0/u, 6.0/120} {
+      \draw (\x,0.08) -- (\x,-0.08) node[below] {\lbl};
+    }
+  \end{tikzpicture}
+  \caption{Schematische Verortung von Vornutzungs- und Endnutzungsflächenweiser über dem Bestandesalter: Während sich die periodische Durchforstungsfläche ($F_{\text{DF}}$) als Anteil ($n/\Delta t_{\text{DF}}$) aus der gesamten Pflegefläche ($F_{\text{DF,ges}}$) ableitet, bestimmt das abgekürzte Fachwerk die periodische Endnutzungsfläche ($F_{\text{EN}}$) aus den -- gegebenenfalls über den Bestockungsgrad ($B^\circ$) reduzierten -- Flächen der ältesten Altersklassen.}
+  \label{fig:flaechenweiser}
+\end{figure}
+
+\subsection{Massenweiser (Volumenweiser)}
+
+Während der Flächenweiser lediglich angibt, auf welcher Fläche genutzt werden soll, übersetzt der \emph{Massenweiser} (heute fachlich präziser: Volumenweiser) diese Flächenplanung in konkrete Holzmengen (in $\text{m}^3$ bzw.\ nach Abzug von Ernte- und Rindenverlusten in \si{\Efm} o.\,R.). Er beantwortet die Frage, welches Holzvolumen in einer Planungsperiode bei Einhaltung der waldbaulichen Vorgaben nachhaltig geerntet werden kann, und berücksichtigt dabei explizit die jeweilige Bonität und Bestockungsdichte der konkreten Bestände (vgl.\ \cref{fig:massenweiser}).
+
+\subsubsection{Endnutzungsvolumen}
+
+Für die Endnutzung wird die über den Flächenweiser ermittelte periodische Endnutzungsfläche ($F_{\text{EN}}$) mit dem durchschnittlichen Hektarvorrat der zur Nutzung heranstehenden Altbestände ($v_{\text{Alt}}$) multipliziert. Um den Zuwachs einzubeziehen, den diese Bestände im Durchschnitt noch bis zum tatsächlichen Einschlagszeitpunkt (im Mittel nach der halben Planungsperiode $n/2$) leisten, wird der laufende jährliche Zuwachs je Hektar ($\text{LGZ}_{\text{Alt}}$) anteilig hinzugerechnet:
+
+\begin{equation}
+    \label{eq:men_flaeche}
+    M_{\text{EN}} = F_{\text{EN}} \cdot \left( v_{\text{Alt}} + \frac{n}{2} \cdot \text{LGZ}_{\text{Alt}} \right)
+\end{equation}
+
+Alternativ kann das periodische Endnutzungsvolumen ($M_{\text{EN}}$) im Sinne einer \emph{summarischen Endnutzungsplanung} über einen abgekürzten Vorratsansatz hergeleitet werden. Dabei wird der Gesamtvorrat der $m$ ältesten Altersklassen ($V_{\text{alt},1}, V_{\text{alt},2}, \dots$) zuzüglich des während der halben Abbaudauer ($\Delta t_{\text{Ausgl}}/2$) noch zuwachsenden Holzes ($\sum_{i=1}^{m} F_{\text{alt},i} \cdot \text{LGZ}_{\text{Alt}}$) auf einen gewählten Abbauzeitraum ($\Delta t_{\text{Ausgl}}$ in Jahren) verteilt:
+\begin{equation}
+    \label{eq:men_vorrat}
+    M_{\text{EN}} = \left( \frac{\sum_{i=1}^{m} V_{\text{alt},i}}{\Delta t_{\text{Ausgl}}} + \frac{1}{2} \sum_{i=1}^{m} F_{\text{alt},i} \cdot \text{LGZ}_{\text{Alt}} \right) \cdot n
+\end{equation}
+Zu beachten ist, dass dieser rein vorratsorientierte Ansatz keinen unmittelbaren Bezug zu einem nachhaltigen Zielvorrat ($V_{\text{N}}$) oder einer ausgeglichenen Altersstruktur aufweist. Die Nachhaltigkeit wird hier lediglich indirekt über die gutachtliche Bemessung von $\Delta t_{\text{Ausgl}}$ gesteuert, indem der Abbau so gestreckt wird, bis jüngere Bestände in die Hiebsreife nachgewachsen sind.
+
+\subsubsection{Vornutzungsvolumen}
+
+Das periodische Vornutzungsvolumen ($M_{\text{VN}}$) ergibt sich analog aus der geplanten periodischen Durchforstungsfläche ($F_{\text{DF}}$) multipliziert mit dem durchschnittlichen Entnahmevolumen je Hektar ($m_{\text{VN}}$), das sich aus Ertragstafelwerten für den ausscheidenden Bestand oder aus betrieblichen Erfahrungswerten ableitet. Bei differenzierter Betrachtung verschiedener Bestandestypen oder Altersklassen ($k$) summiert sich das gesamte Vornutzungsvolumen der Betriebsklasse aus den jeweiligen periodischen Teilflächen ($F_{\text{DF},k}$) und deren spezifischen Entnahmesätzen je Hektar ($m_{\text{VN},k}$):
+\begin{equation}
+    \label{eq:mvn_typen}
+    M_{\text{VN}} = \sum_{k} \left( F_{\text{DF},k} \cdot m_{\text{VN},k} \right)
+\end{equation}
+Die Summe aus Endnutzungs- und Vornutzungsvolumen bildet schließlich den gesamten periodischen Massenweiser, der nach Division durch die Periodenlänge ($n$) als konkreter jährlicher Vergleichswert in die Hiebsatzherleitung einfließt:
+\begin{equation}
+    \label{eq:mg_hg}
+    M_{\text{G}} = M_{\text{EN}} + M_{\text{VN}} \qquad \text{bzw.} \qquad H_{\text{G}} = \frac{M_{\text{G}}}{n}
+\end{equation}
+
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    \path (-1.8, 0); % Fixiert den linken Rand exakt wie in den anderen Abbildungen
+    
+    % Achsen
+    \draw[->, thick] (0,0) -- (7.4,0) node[below, yshift=-3pt] {Alter ($t$)};
+    \draw[->, thick] (0,0) -- (0,3.75) node[above] {Volumen je ha ($m_t$)};
+    
+    % 1. Vornutzungsbereich (Durchforstung, 20-80 J., blau)
+    % Verbleibender Bestand UNTERHALB von v_t (von x = 1.0 bis x = 4.0)
+    \fill[gray!10] (1.0,0) -- (1.0,0.34) .. controls (2.0,0.72) and (3.0,1.62) .. (4.0,2.28) -- (4.0,0) -- cycle;
+    \node[gray!65!black, font=\scriptsize, align=center] at (2.65, 0.55) {verbleibender\\Bestand};
+    
+    % Abgeschöpftes Durchforstungsvolumen m_VN DIREKT OBERHALB von v_t!
+    \fill[blue!26] (1.0,0.34) .. controls (2.0,0.72) and (3.0,1.62) .. (4.0,2.28)
+      -- (4.0,2.75) .. controls (3.0,2.05) and (2.0,1.05) .. (1.0,0.56) -- cycle;
+    \draw[blue!70!black, thick] (1.0,0.56) .. controls (2.0,1.05) and (3.0,2.05) .. (4.0,2.75);
+    \draw[blue!70!black, thick] (1.0,0.34) -- (1.0,0.56);
+    \draw[blue!70!black, thick] (4.0,2.28) -- (4.0,2.75);
+    
+    % Label für m_VN mit Bezugspfeil von links oben
+    \draw[<-, >=stealth, blue!75!black] (2.55,1.72) -- (1.95,2.45) 
+      node[above, blue!80!black, font=\footnotesize, align=center, inner sep=1.5pt] {abgeschöpfte Vornutzung\\($m_{\text{VN}}$)};
+      
+    % 2. Endnutzungsbereich (Altbestände um u, 84-116 J., orange)
+    % Stehender Ausgangsvorrat v_Alt: endet exakt bei y = 2.40 (Eintrittspunkt von v_t!)
+    \filldraw[fill=orange!28, draw=orange!80!black, thick] (4.2,0) rectangle (5.8,2.40);
+    \node[orange!90!black, font=\footnotesize, align=center] at (5.0, 1.20) {Vorrat\\$v_{\text{Alt}}$};
+    
+    % Zuwachs bis zum Einschlagszeitpunkt (n/2): startet bei y = 2.40 und endet exakt bei (5.8, 2.85) auf v_t!
+    \filldraw[fill=orange!50, draw=orange!80!black, thick] (4.2,2.40) rectangle (5.8,2.85);
+    \draw[<-, >=stealth, orange!85!black] (5.82,2.625) -- (6.20,2.625) 
+      node[right, black, font=\footnotesize] {$+ \frac{n}{2} \cdot \text{LGZ}_{\text{Alt}}$};
+      
+    % Klammer für Endnutzungsvolumen
+    \draw[decorate, decoration={brace, amplitude=4pt}, orange!80!black, thick] (4.2,2.95) -- (5.8,2.95) 
+      node[midway, above, yshift=4pt, font=\footnotesize] {Endnutzung ($M_{\text{EN}}$)};
+      
+    % Sigmoide Vorratskurve v_t (läuft exakt durch (4.2, 2.40) UND oben rechts durch (5.8, 2.85))
+    \draw[gray!80!black, very thick, dashed] (0.15,0.06) .. controls (0.5,0.16) and (0.75,0.24) .. (1.0,0.34)
+      .. controls (2.0,0.72) and (3.0,1.62) .. (4.0,2.28)
+      .. controls (4.1,2.34) and (4.15,2.37) .. (4.2,2.40)
+      .. controls (4.8,2.65) and (5.3,2.78) .. (5.8,2.85)
+      .. controls (5.95,2.87) and (6.1,2.88) .. (6.25,2.89)
+      node[right, font=\footnotesize, black] {$v_t$};
+     
+    % Ticks X-Achse
+    \foreach \x/\lbl in {1.0/20, 4.0/80, 5.0/u} {
+      \draw (\x,0.08) -- (\x,-0.08) node[below] {\lbl};
+    }
+  \end{tikzpicture}
+  \caption{Schematische Darstellung des Massenweisers über dem Bestandesalter: Während in der Vornutzungsphase lediglich ein schmaler Anteil ($m_{\text{VN}}$) oberhalb des verbleibenden Bestandes ($v_t$) abgeschöpft wird (blau), umfasst die Endnutzung im Altbestand den gesamten stehenden Ausgangsvorrat ($v_{\text{Alt}}$) zuzüglich des bis zum mittleren Einschlagszeitpunkt ($n/2$) auflaufenden Zuwachses (orange).}
+  \label{fig:massenweiser}
+\end{figure}
+
+\section{Herleitung des Hiebsatzes}
+
+Auf Basis der zuvor ermittelten Weiser wird im nächsten Schritt der nachhaltige jährliche Hiebsatz ($H$) hergeleitet. In der Forsteinrichtung haben sich dafür im Wesentlichen drei methodische Zugänge entwickelt, die auf unterschiedlichem Weg versuchen, Nutzung und Nachhaltigkeit in Einklang zu bringen: die historischen Fachwerkverfahren, die rechnerischen Formelmethoden sowie die bestandesweise Planung über Verfahren mit konkreten Flächen. 
+
+Während Formelmethoden den Hiebsatz über mathematische Beziehungen auf Ebene der gesamten Betriebsklasse berechnen, gehen Verfahren mit konkreten Flächen direkt vom Zustand der einzelnen Bestände aus. Da jedoch kein einzelnes Rechenverfahren alle waldbaulichen und betriebswirtschaftlichen Rahmenbedingungen vollständig abbilden kann, bildet die gutachtliche Gesamtabwägung den unverzichtbaren Abschluss der Hiebsatzfestsetzung.
+
+\subsection{Historische Grundlagen: Fachwerkverfahren}
+
+Die \emph{Fachwerkverfahren} übertragen das Prinzip der einfachen Schlageinteilung aus dem Niederwald -- bei der die Waldfläche räumlich in $u$ flächengleiche Jahresschläge unterteilt wird (vgl.\ Abbildung~\ref{fig:schlageinteilung}) -- auf den schlagweisen Hochwald. Da eine solche Aufteilung in starre Jahresschläge im Hochwald wegen der langen Produktionszeiträume im Gelände nicht praktikabel ist, übertrug man das Ordnungsprinzip auf eine zeitliche Gliederung: Die Umtriebszeit ($u$) wurde in mehrere Nutzungsperioden (meist $20$-jährige „Fächer“) unterteilt und die Bestände vorab in einer Planungstabelle diesen Perioden zugewiesen (vgl.\ Abbildung~\ref{fig:fachwerk}):
+
+\begin{description}
+\item[Flächenfachwerk:] Verteilt die gesamte Betriebsfläche ($F$) möglichst gleichmäßig auf die einzelnen Periodenfächer (Soll-Fläche $f_{i,\text{Soll}} = F/u \cdot n$, wobei $n$ die Periodenlänge angibt), um langfristig einen ausgeglichenen Altersklassenaufbau zu erreichen (vgl.\ Abbildungen~\ref{fig:fachwerk} und~\ref{fig:fachwerk_entwicklung}). Da genutzte Flächen nicht sofort wieder bestockt sind, sondern eine durchschnittliche Verjüngungszeit (Schlagruhe) $v$ durchlaufen, verkürzt sich die effektive Wachstumszeit gegenüber der rechnerischen Umtriebszeit $u$ auf $u - v$. Soll dennoch das volle Zielalter $u$ erreicht werden, muss die Blößendauer rechnerisch über einen verlängerten Produktionszeitraum ($u_{\text{prod}} = u + v$) berücksichtigt werden; andernfalls erzwingt die konstante Flächenvorgabe $f_{i,\text{Soll}}$ im stationären Zielzustand eine vorzeitige Nutzung am oberen Rand der vorletzten Altersklasse. Zudem erfolgt die Verjüngung in der Praxis nicht schlagartig in einem Jahr, sondern kontinuierlich über den Verjüngungszeitraum (hier $2\,\text{ha}$ verteilt über $2\,\text{Jahre}$). Der genaue Zeitpunkt des Einwachsens einer Ausgangsblöße hängt dabei vom Verjüngungsverfahren ab: Bei Naturverjüngung oder Saat erreicht sie nach einer $20$-jährigen Periode maximal das Alter $20$ (I.~Altersklasse) und gelangt bis zur 5.~Periode nur in die IV.~Altersklasse, während sie bei Pflanzung mehrjähriger Verschulpflanzen (z.\,B.\ $4$-jährig) die Klassengrenze überspringt und bis zur 5.~Periode planmäßig die V.~Altersklasse $(80, 100]$ erreicht. Da das Verfahren bei all diesen Flächenzuteilungen jedoch rein flächenbezogen arbeitet und weder Bonitäts- noch Bestockungsunterschiede berücksichtigt, kann es bei inhomogenen Beständen zu erheblichen Ertragsschwankungen zwischen den Perioden kommen.
+\item[Massenfachwerk:] Stellt statt der Fläche die Nachhaltigkeit der Holzerträge in den Mittelpunkt. Die Bestände werden samt ihrem laufenden Zuwachs so auf die Perioden verteilt, dass jede Periode annähernd dasselbe Nutzungsvolumen liefert. Dies erfordert allerdings unsichere Zuwachsprognosen über weite Zeiträume hinweg und führt häufig zu ungleichen Flächenverteilungen.
+\item[Kombiniertes Fachwerk:] Verbindet beide Ansätze, indem primär eine gleichmäßige Flächenausstattung der Perioden angestrebt wird, gleichzeitig aber Massenberechnungen für die ersten Perioden die Ertragsstetigkeit absichern. Da sich starre Planungen über eine gesamte Umtriebszeit durch Schadereignisse und Marktänderungen als unpraktikabel erwiesen, beschränkte man sich später auf die ersten ein bis zwei Perioden (\emph{abgekürztes Fachwerk}).
+\item[Wertfachwerk (Geldfachwerk):] Überträgt die Logik des Massenfachwerks auf monetäre Größen, indem nicht gleiche Holzvolumina, sondern nachhaltig gleichbleibende Reinerträge bzw.\ Deckungsbeiträge angestrebt werden. Aufgrund langfristig nicht vorhersehbarer Holzpreis- und Kostenentwicklungen behielt dieses Verfahren jedoch rein theoretische Bedeutung.
+\end{description}
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\columnwidth}{!}{%
+  \begin{tikzpicture}[
+    font=\sffamily\small
+  ]
+
+  % Grundmaße für das innere Raster (6 Spalten x 5 Reihen = 30 Schläge)
+  \def\cols{6}
+  \def\rows{5}
+  \def\w{1.78}   % Breite eines Schlages
+  \def\h{1.15}   % Höhe eines Schlages
+  \def\gap{0.11} % Breite der Wirtschaftsstreifen / Schneisen
+
+  % 1. Asymmetrische, natürliche Reviergrenze (im Stil von Wagner, mit Grenzsteinen)
+  \coordinate (B1)  at (0.15,   0.18);
+  \coordinate (B2)  at (1.55,   0.48);
+  \coordinate (B3)  at (3.90,   0.62);
+  \coordinate (B4)  at (6.20,   0.35);
+  \coordinate (B5)  at (8.65,   0.50);
+  \coordinate (B6)  at (10.55,  0.10);
+  \coordinate (B7)  at (11.15, -1.10);
+  \coordinate (B8)  at (10.72, -2.35);
+  \coordinate (B9)  at (11.25, -3.70);
+  \coordinate (B10) at (10.95, -5.15);
+  \coordinate (B11) at (10.75, -6.25);
+  \coordinate (B12) at (8.90,  -6.60);
+  \coordinate (B13) at (6.80,  -6.38);
+  \coordinate (B14) at (4.60,  -6.72);
+  \coordinate (B15) at (2.35,  -6.42);
+  \coordinate (B16) at (0.35,  -6.55);
+  \coordinate (B17) at (-0.42, -5.65);
+  \coordinate (B18) at (-0.22, -4.15);
+  \coordinate (B19) at (-0.58, -2.80);
+  \coordinate (B20) at (-0.28, -1.45);
+  \coordinate (B21) at (-0.40, -0.45);
+
+  % Clip-Bereich auf die Reviergrenze setzen
+  \begin{scope}
+    \clip (B1) -- (B2) -- (B3) -- (B4) -- (B5) -- (B6) -- (B7) -- (B8) -- (B9) -- (B10) -- 
+          (B11) -- (B12) -- (B13) -- (B14) -- (B15) -- (B16) -- (B17) -- (B18) -- (B19) -- (B20) -- (B21) -- cycle;
+
+    % Hintergrund dezent getönt
+    \fill[black!2] (-1, 1) rectangle (12, -7);
+
+    % 2. Horizontale Wirtschaftsstreifen / Schneisen (durchgehende Doppellinien)
+    \foreach \r in {1,...,4} {
+      \pgfmathsetmacro{\y}{-\r*(\h + \gap) + 0.5*\gap}
+      \draw[black!85, thick] (-1, {\y + 0.5*\gap}) -- (12, {\y + 0.5*\gap});
+      \draw[black!85, thick] (-1, {\y - 0.5*\gap}) -- (12, {\y - 0.5*\gap});
+    }
+
+    % 3. Vertikale Bestandesgrenzen (strichliert, nur innerhalb der Reihen)
+    \foreach \r in {0,...,4} {
+      \pgfmathsetmacro{\ytop}{-\r*(\h + \gap)}
+      \pgfmathsetmacro{\ybot}{-\r*(\h + \gap) - \h}
+      \ifnum\r=0 \pgfmathsetmacro{\ytop}{1.0} \fi
+      \ifnum\r=4 \pgfmathsetmacro{\ybot}{-7.0} \fi
+
+      \foreach \c in {1,...,5} {
+        \pgfmathsetmacro{\x}{\c*\w}
+        \draw[black!75, thick, dashed] (\x, \ytop) -- (\x, \ybot);
+      }
+    }
+
+    % 4. Inhalte (Text weiter oben, Bäume weiter unten)
+    \foreach \r in {0,...,4} {
+      \foreach \c in {0,...,5} {
+        \pgfmathtruncatemacro{\schlag}{\r*\cols + \c + 1}
+        \pgfmathtruncatemacro{\alter}{\schlag - 1}
+
+        \pgfmathsetmacro{\xleft}{\c*\w}
+        \pgfmathsetmacro{\ymid}{-\r*(\h + \gap) - 0.5*\h}
+
+        % Text etwas weiter oben links in der Parzelle (\ymid + 0.14)
+        \node[anchor=west, align=left, font=\sffamily\scriptsize, text=black]
+          at ({\xleft + 0.08}, {\ymid + 0.14}) {
+          \textbf{Schlag \schlag}\\
+          {\scriptsize (\alter-j.)}
+        };
+
+        % Bodenlinie & Laubbaum etwas weiter unten rechts in der Parzelle (\ymid - 0.46)
+        \pgfmathsetmacro{\bx}{\xleft + 1.42}
+        \pgfmathsetmacro{\by}{\ymid - 0.46}
+
+        \ifnum\alter=0
+          % Alter 0: Frisch auf den Stock gesetzt
+          \draw[black!45, thin] ({\bx - 0.22}, \by) -- ({\bx + 0.24}, \by);
+          \fill[black!85] ({\bx - 0.05}, \by) -- ({\bx + 0.05}, \by) -- ({\bx + 0.035}, {\by + 0.08}) -- ({\bx - 0.035}, {\by + 0.08}) -- cycle;
+        \else\ifnum\alter<29
+          % Alter 1 bis 28: Stehender Laubbaum
+          \draw[black!45, thin] ({\bx - 0.22}, \by) -- ({\bx + 0.24}, \by);
+          \pgfmathsetmacro{\sc}{0.18 + 0.0155*\alter}
+          \begin{scope}[shift={(\bx, \by)}, scale=\sc]
+            \fill[black!85] (-0.04, 0) rectangle (0.04, 0.36);
+            \fill[black!60] (-0.16, 0.52) circle (0.18);
+            \fill[black!60] (0.16, 0.52) circle (0.18);
+            \fill[black!70] (0, 0.68) circle (0.24);
+          \end{scope}
+        \else
+          % Alter 29 (Schlag 30): Gefällter / liegender Laubbaum in voller Größe (scale=0.62)
+          \draw[black!45, thin] ({\bx - 0.30}, \by) -- ({\bx + 0.30}, \by);
+          \fill[black!85] ({\bx - 0.28}, \by) -- ({\bx - 0.18}, \by) -- ({\bx - 0.195}, {\by + 0.08}) -- ({\bx - 0.265}, {\by + 0.08}) -- cycle;
+          \begin{scope}[shift={({\bx - 0.13}, {\by + 0.16})}, rotate=-90, scale=0.62]
+            \fill[black!85] (-0.04, 0) rectangle (0.04, 0.36);
+            \fill[black!60] (-0.16, 0.52) circle (0.18);
+            \fill[black!60] (0.16, 0.52) circle (0.18);
+            \fill[black!70] (0, 0.68) circle (0.24);
+          \end{scope}
+        \fi\fi
+      }
+    }
+  \end{scope}
+
+  % 5. Kräftige äußere Waldgrenze mit Grenzpunkten (wie bei Wagner)
+  \draw[black, very thick]
+    (B1) -- (B2) -- (B3) -- (B4) -- (B5) -- (B6) -- (B7) -- (B8) -- (B9) -- (B10) -- 
+    (B11) -- (B12) -- (B13) -- (B14) -- (B15) -- (B16) -- (B17) -- (B18) -- (B19) -- (B20) -- (B21) -- cycle;
+
+  \foreach \p in {B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B13,B14,B15,B16,B17,B18,B19,B20,B21} {
+    \fill[white] (\p) circle (1.6pt);
+    \draw[black, thick] (\p) circle (1.6pt);
+  }
+
+  % Pfeil und Erklärung zur Nutzungsrichtung oben
+  \draw[->, >=stealth, very thick, black!80] (0.0, 0.88) -- (10.7, 0.88)
+    node[midway, above, font=\sffamily\scriptsize\bfseries, text=black] {Jährliche Nutzungsfolge (Schlag 1 bis 30)};
+
+  % Kompakte Legende unten
+  \node[below=6pt, anchor=north west, font=\sffamily\scriptsize, align=left] at (-0.35, -6.80) {
+    $\bullet$ \textbf{Schlag 1 (0-j.):} Frisch genutzter Schlag (auf den Stock gesetzt) \quad
+    \tikz[baseline=-0.5ex]{\draw[black!85, thick] (0,0.04)--(0.45,0.04); \draw[black!85, thick] (0,-0.04)--(0.45,-0.04);} \textbf{Wirtschaftsstreifen / Schneise}\\
+    $\bullet$ \textbf{Schlag 30 (29-j.):} Hiebsreifer Niederwald (Nutzung am Ende des Umtriebs)
+  };
+
+  \end{tikzpicture}%
+  }
+  \caption{Prinzip der flächenweisen Jahresschlageinteilung im Niederwald ($u = 30\,\text{Jahre}$): Die Betriebsfläche gliedert sich in $30$ in etwa gleich große Jahresschläge vom frisch auf den Stock gesetzten Schlag~1 bis zum hiebsreifen Schlag~30, sodass jährlich genau eine Fläche im Alter von $30$~Jahren genutzt werden kann.}
+  \label{fig:schlageinteilung}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\columnwidth}{!}{%
+  \begin{tikzpicture}[
+    font=\sffamily\small,
+    box/.style={
+      draw=black!80, thick,
+      minimum height=0.82cm,
+      align=center,
+      inner sep=2pt,
+      outer sep=0pt
+    },
+    header/.style={box, fill=gray!20, font=\sffamily\bfseries\small, minimum height=1.0cm},
+    col0/.style={text width=2.85cm},
+    col1/.style={text width=1.15cm},
+    colp/.style={text width=1.5cm},
+    fach/.style={box, colp, fill=orange!22},
+    empty/.style={box, colp, fill=gray!5}
+  ]
+
+  % Klassische Altersklassen-Farben
+  \colorlet{akl0}{white}
+  \colorlet{akl1}{yellow!80!white}
+  \colorlet{akl2}{red!65!white}
+  \colorlet{akl3}{green!60!black!65!white}
+  \colorlet{akl4}{blue!70!black!70!white}
+  \colorlet{akl5}{brown!75!black!85!white}
+  \colorlet{akl6}{gray!75!black!85!white}
+
+  % Überschriften (Spalten)
+  \node[header, col0] (h0) at (0,0) {Altersklasse\\{\scriptsize (Stand $t=0$)}};
+  \node[header, col1, right=0pt of h0] (h1) {Fläche\\{\scriptsize [ha]}};
+  \node[header, colp, right=0pt of h1] (h2) {1. Per.\\{\scriptsize $(0, 20]$}};
+  \node[header, colp, right=0pt of h2] (h3) {2. Per.\\{\scriptsize $(20, 40]$}};
+  \node[header, colp, right=0pt of h3] (h4) {3. Per.\\{\scriptsize $(40, 60]$}};
+  \node[header, colp, right=0pt of h4] (h5) {4. Per.\\{\scriptsize $(60, 80]$}};
+  \node[header, colp, right=0pt of h5] (h6) {5. Per.\\{\scriptsize $(80, 100]$}};
+
+  % Klammer über die 5 Perioden
+  \draw[decorate, decoration={brace, amplitude=5pt, raise=3pt}, thick]
+  (h2.north west) -- (h6.north east)
+  node[midway, above=8pt, align=center, font=\sffamily\bfseries\small] {Umtriebszeit $u = 100$ Jahre ($u_{\text{prod}} = u + v = 102$ Jahre)\\$5$ Fächer à $20$ Jahre};
+  %node[midway, above=8pt, font=\sffamily\bfseries\small] {Umtriebszeit $u = 100$ Jahre ($u_{\text{prod}} = u + v = 102$ Jahre; $5$ Fächer à $20$ Jahre)};
+
+  % Zeile 1: VI. AKL (100, \infty) -> 9 ha (Grau)
+  \node[box, col0, fill=akl6, text=white, below=0pt of h0] (r1c0) {\textbf{VI. AKL} $(100, \infty)$};
+  \node[box, col1, right=0pt of r1c0] (r1c1) {9};
+  \node[fach, right=0pt of r1c1] (r1c2) {\textbf{9}};
+  \node[empty, right=0pt of r1c2] (r1c3) {--};
+  \node[empty, right=0pt of r1c3] (r1c4) {--};
+  \node[empty, right=0pt of r1c4] (r1c5) {--};
+  \node[empty, right=0pt of r1c5] (r1c6) {--};
+
+  % Zeile 2: V. AKL (80, 100] -> 24 ha (Braun)
+  \node[box, col0, fill=akl5, text=white, below=0pt of r1c0] (r2c0) {\textbf{V. AKL} $(80, 100]$};
+  \node[box, col1, right=0pt of r2c0] (r2c1) {24};
+  \node[fach, right=0pt of r2c1] (r2c2) {\textbf{11}};
+  \node[fach, right=0pt of r2c2] (r2c3) {\textbf{13}};
+  \node[empty, right=0pt of r2c3] (r2c4) {--};
+  \node[empty, right=0pt of r2c4] (r2c5) {--};
+  \node[empty, right=0pt of r2c5] (r2c6) {--};
+
+  % Zeile 3: IV. AKL (60, 80] -> 25 ha (Blau)
+  \node[box, col0, fill=akl4, text=white, below=0pt of r2c0] (r3c0) {\textbf{IV. AKL} $(60, 80]$};
+  \node[box, col1, right=0pt of r3c0] (r3c1) {25};
+  \node[empty, right=0pt of r3c1] (r3c2) {--};
+  \node[fach, right=0pt of r3c2] (r3c3) {\textbf{7}};
+  \node[fach, right=0pt of r3c3] (r3c4) {\textbf{18}};
+  \node[empty, right=0pt of r3c4] (r3c5) {--};
+  \node[empty, right=0pt of r3c5] (r3c6) {--};
+
+  % Zeile 4: III. AKL (40, 60] -> 12 ha (Grün)
+  \node[box, col0, fill=akl3, text=black, below=0pt of r3c0] (r4c0) {\textbf{III. AKL} $(40, 60]$};
+  \node[box, col1, right=0pt of r4c0] (r4c1) {12};
+  \node[empty, right=0pt of r4c1] (r4c2) {--};
+  \node[empty, right=0pt of r4c2] (r4c3) {--};
+  \node[fach, right=0pt of r4c3] (r4c4) {\textbf{2}};
+  \node[fach, right=0pt of r4c4] (r4c5) {\textbf{10}};
+  \node[empty, right=0pt of r4c5] (r4c6) {--};
+
+  % Zeile 5: II. AKL (20, 40] -> 12 ha (Rot)
+  \node[box, col0, fill=akl2, text=black, below=0pt of r4c0] (r5c0) {\textbf{II. AKL} $(20, 40]$};
+  \node[box, col1, right=0pt of r5c0] (r5c1) {12};
+  \node[empty, right=0pt of r5c1] (r5c2) {--};
+  \node[empty, right=0pt of r5c2] (r5c3) {--};
+  \node[empty, right=0pt of r5c3] (r5c4) {--};
+  \node[fach, right=0pt of r5c4] (r5c5) {\textbf{10}};
+  \node[fach, right=0pt of r5c5] (r5c6) {\textbf{2}};
+
+  % Zeile 6: I. AKL (0, 20] -> 15 ha (Gelb)
+  \node[box, col0, fill=akl1, text=black, below=0pt of r5c0] (r6c0) {\textbf{I. AKL} $(0, 20]$};
+  \node[box, col1, right=0pt of r6c0] (r6c1) {15};
+  \node[empty, right=0pt of r6c1] (r6c2) {--};
+  \node[empty, right=0pt of r6c2] (r6c3) {--};
+  \node[empty, right=0pt of r6c3] (r6c4) {--};
+  \node[empty, right=0pt of r6c4] (r6c5) {--};
+  \node[fach, right=0pt of r6c5] (r6c6) {\textbf{15}};
+
+  % Zeile 7: Blöße (0) -> 5 ha (Weiß)
+  \node[box, col0, fill=akl0, text=black, below=0pt of r6c0] (r7c0) {\textbf{Blöße} $(0)$};
+  \node[box, col1, right=0pt of r7c0] (r7c1) {5};
+  \node[empty, right=0pt of r7c1] (r7c2) {--};
+  \node[empty, right=0pt of r7c2] (r7c3) {--};
+  \node[empty, right=0pt of r7c3] (r7c4) {--};
+  \node[empty, right=0pt of r7c4] (r7c5) {--};
+  \node[fach, right=0pt of r7c5] (r7c6) {\textbf{5}};
+
+  % Summenzeile unten (exakt f_Soll = 20 ha pro Periode, + 2 ha laufende Blöße = 102 ha!)
+  \node[header, col0, minimum height=0.85cm, below=0pt of r7c0] (s0) {Soll-Fläche $f_{i,\text{Soll}}$};
+  \node[header, col1, minimum height=0.85cm, right=0pt of s0] (s1) {102};
+  \node[header, colp, minimum height=0.85cm, fill=green!20, right=0pt of s1] (s2) {20};
+  \node[header, colp, minimum height=0.85cm, fill=green!20, right=0pt of s2] (s3) {20};
+  \node[header, colp, minimum height=0.85cm, fill=green!20, right=0pt of s3] (s4) {20};
+  \node[header, colp, minimum height=0.85cm, fill=green!20, right=0pt of s4] (s5) {20};
+  \node[header, colp, minimum height=0.85cm, fill=green!20, right=0pt of s5] (s6) {20};
+
+  \end{tikzpicture}%
+  }
+  \caption{Planungstabelle des Flächenfachwerks ($F = 102\,\text{ha}$, Umtriebszeit $u = 100\,\text{Jahre}$, Verjüngungszeit $v = 2\,\text{Jahre} \Rightarrow u_{\text{prod}} = 102\,\text{Jahre}$) für den Ausgangszustand ($t = 0$) aus Abb.~\ref{fig:fachwerk_entwicklung}: Die vorhandenen Bestände einschließlich der Ausgangsblöße werden den fünf $20$-jährigen Periodenfächern so zugewiesen, dass in jedem Fach exakt die konstante Soll-Fläche $f_{i,\text{Soll}} = 20\,\text{ha}$ genutzt wird (orange hinterlegt; die verbleibenden $2\,\text{ha}$ entsprechen der laufenden Verjüngungsblöße).}
+  \label{fig:fachwerk}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\columnwidth}{!}{%
+  \begin{tikzpicture}[font=\footnotesize]
+    \def\fsoll{2.0}    % Periodische Soll-Nutzungsfläche (20 ha)
+    \def\bloesse{0.2}  % Konstante Blöße bei v = 2 J. Schlagruhe (2 ha)
+
+    % --- REIHE 1 (OBEN): t = 0 und t = 20 ---
+    % ZUSTAND 1: t = 0 (Summe = 102 ha)
+    \begin{scope}[shift={(0, 5.2)}, scale=0.46]
+      \node[above, font=\scriptsize\bfseries] at (3.6, 3.0) {Ausgangszustand ($t = 0$)};
+      \filldraw[fill=white, draw=blue!70!black, thick] (0,0) rectangle (1,0.5);         % Blöße (5 ha)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (1,0) rectangle (2,1.5);       % I. AKL (15 ha)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (2,0) rectangle (3,1.2);       % II. AKL (12 ha)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (3,0) rectangle (4,1.2);       % III. AKL (12 ha)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (4,0) rectangle (5,2.5);       % IV. AKL (25 ha)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (5,0) rectangle (6,1.3);       % V. AKL Rest (13 ha)
+      \filldraw[fill=orange!35, draw=orange!80!black, thick] (5,1.3) rectangle (6,2.4); % V. AKL Nutzung (11 ha)
+      \filldraw[fill=orange!45, draw=orange!80!black, thick] (6,0) rectangle (7,0.9);   % VI. AKL Nutzung (9 ha)
+      \draw[green!50!black, thick, dashed] (0,\bloesse) -- (1,\bloesse) -- (1,\fsoll) -- (6,\fsoll) -- (6,0);
+      \draw[->, thick] (0,0) -- (7.5,0) node[right, font=\tiny] {$t$};
+      \draw[->, thick] (0,0) -- (0,3.0) node[left, font=\tiny] {$f_i$};
+      \foreach \x/\l in {1/0,2/I,3/II,4/III,5/IV,6/V,7/VI} {\node[below, font=\tiny] at (\x-0.5,0) {\l};}
+    \end{scope}
+
+    % ZUSTAND 2: t = 20 (Summe = 102 ha)
+    \begin{scope}[shift={(4.1, 5.2)}, scale=0.46]
+      \node[above, font=\scriptsize\bfseries] at (3.6, 3.0) {Nach 20 Jahren ($t = 20$)};
+      \filldraw[fill=white, draw=blue!70!black, thick] (0,0) rectangle (1,\bloesse);    % 2 ha laufende Blöße
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (1,0) rectangle (2,2.3);       % 23 ha (18 ha neu + 5 ha ehem. Blöße)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (2,0) rectangle (3,1.5);       % 15 ha
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (3,0) rectangle (4,1.2);       % 12 ha
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (4,0) rectangle (5,1.2);       % 12 ha
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (5,0) rectangle (6,1.8);       % 18 ha Rest
+      \filldraw[fill=orange!35, draw=orange!80!black, thick] (5,1.8) rectangle (6,2.5); % 7 ha Nutzung
+      \filldraw[fill=orange!45, draw=orange!80!black, thick] (6,0) rectangle (7,1.3);   % 13 ha Nutzung
+      \draw[green!50!black, thick, dashed] (0,\bloesse) -- (1,\bloesse) -- (1,\fsoll) -- (6,\fsoll) -- (6,0);
+      \draw[->, thick] (0,0) -- (7.5,0) node[right, font=\tiny] {$t$};
+      \draw[->, thick] (0,0) -- (0,3.0);
+      \foreach \x/\l in {1/0,2/I,3/II,4/III,5/IV,6/V,7/VI} {\node[below, font=\tiny] at (\x-0.5,0) {\l};}
+    \end{scope}
+
+    % --- REIHE 2 (MITTE): t = 40 und t = 60 ---
+    % ZUSTAND 3: t = 40 (Summe = 102 ha)
+    \begin{scope}[shift={(0, 2.7)}, scale=0.46]
+      \node[above, font=\scriptsize\bfseries] at (3.6, 3.0) {Nach 40 Jahren ($t = 40$)};
+      \filldraw[fill=white, draw=blue!70!black, thick] (0,0) rectangle (1,\bloesse);    % 2 ha
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (1,0) rectangle (2,\fsoll);      % 20 ha (18 ha neu + 2 ha aus Kl. 0)
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (2,0) rectangle (3,2.3);       % 23 ha
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (3,0) rectangle (4,1.5);       % 15 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (4,0) rectangle (5,1.2); % 12 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (5,0) rectangle (6,1.0); % 10 ha Rest
+\filldraw[fill=orange!35, draw=orange!80!black, thick] (5,1.0) rectangle (6,1.2); % 2 ha Nutzung
+\filldraw[fill=orange!45, draw=orange!80!black, thick] (6,0) rectangle (7,1.8); % 18 ha Nutzung
+\draw[green!50!black, thick, dashed] (0,\bloesse) -- (1,\bloesse) -- (1,\fsoll) -- (6,\fsoll) -- (6,0);
+\draw[->, thick] (0,0) -- (7.5,0) node[right, font=\tiny] {$t$};
+\draw[->, thick] (0,0) -- (0,3.0) node[left, font=\tiny] {$f_i$};
+\foreach \x/\l in {1/0,2/I,3/II,4/III,5/IV,6/V,7/VI} {\node[below, font=\tiny] at (\x-0.5,0) {\l};}
+\end{scope}
+% ZUSTAND 4: t = 60 (Summe = 102 ha)
+\begin{scope}[shift={(4.1, 2.7)}, scale=0.46]
+\node[above, font=\scriptsize\bfseries] at (3.6, 3.0) {Nach 60 Jahren ($t = 60$)};
+\filldraw[fill=white, draw=blue!70!black, thick] (0,0) rectangle (1,\bloesse); % 2 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (1,0) rectangle (2,\fsoll); % 20 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (2,0) rectangle (3,\fsoll); % 20 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (3,0) rectangle (4,2.3); % 23 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (4,0) rectangle (5,1.5); % 15 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (5,0) rectangle (6,0.2); % 2 ha Rest
+\filldraw[fill=orange!35, draw=orange!80!black, thick] (5,0.2) rectangle (6,1.2); % 10 ha Nutzung
+\filldraw[fill=orange!45, draw=orange!80!black, thick] (6,0) rectangle (7,1.0); % 10 ha Nutzung
+\draw[green!50!black, thick, dashed] (0,\bloesse) -- (1,\bloesse) -- (1,\fsoll) -- (6,\fsoll) -- (6,0);
+\draw[->, thick] (0,0) -- (7.5,0) node[right, font=\tiny] {$t$};
+\draw[->, thick] (0,0) -- (0,3.0);
+\foreach \x/\l in {1/0,2/I,3/II,4/III,5/IV,6/V,7/VI} {\node[below, font=\tiny] at (\x-0.5,0) {\l};}
+\end{scope}
+% --- REIHE 3 (UNTEN): t = 80 und t = 100 ---
+% ZUSTAND 5: t = 80 (Summe = 102 ha)
+\begin{scope}[shift={(0, 0.2)}, scale=0.46]
+\node[above, font=\scriptsize\bfseries] at (3.6, 3.0) {Nach 80 Jahren ($t = 80$)};
+\filldraw[fill=white, draw=blue!70!black, thick] (0,0) rectangle (1,\bloesse); % 2 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (1,0) rectangle (2,\fsoll); % 20 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (2,0) rectangle (3,\fsoll); % 20 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (3,0) rectangle (4,\fsoll); % 20 ha
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (4,0) rectangle (5,2.0); % 20 ha Rest (IV. AKL)
+\filldraw[fill=orange!35, draw=orange!80!black, thick] (4,2.0) rectangle (5,2.3); % 3 ha Überhang (ehem. Blöße!)
+\filldraw[fill=orange!35, draw=orange!80!black, thick] (5,0) rectangle (6,1.5); % 15 ha Nutzung (ehem. Kl. I)
+\filldraw[fill=orange!45, draw=orange!80!black, thick] (6,0) rectangle (7,0.2); % 2 ha Nutzung (ehem. Kl. II)
+\draw[green!50!black, thick, dashed] (0,\bloesse) -- (1,\bloesse) -- (1,\fsoll) -- (6,\fsoll) -- (6,0);
+\draw[->, thick] (0,0) -- (7.5,0) node[right, font=\tiny] {$t$};
+\draw[->, thick] (0,0) -- (0,3.0) node[left, font=\tiny] {$f_i$};
+\foreach \x/\l in {1/0,2/I,3/II,4/III,5/IV,6/V,7/VI} {\node[below, font=\tiny] at (\x-0.5,0) {\l};}
+\end{scope}
+% ZUSTAND 6: t = 100 (Stationärer Normalwald mit u_prod = 102 J. -> exakt 102 ha)
+\begin{scope}[shift={(4.1, 0.2)}, scale=0.46]
+\node[above, font=\scriptsize\bfseries] at (3.6, 3.0) {Nach 100 Jahren ($t = u$)};
+\filldraw[fill=white, draw=blue!70!black, thick] (0,0) rectangle (1,\bloesse); % 2 ha laufende Blöße
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (1,0) rectangle (2,\fsoll); % 20 ha I. AKL
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (2,0) rectangle (3,\fsoll); % 20 ha II. AKL
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (3,0) rectangle (4,\fsoll); % 20 ha III. AKL
+\filldraw[fill=blue!15, draw=blue!70!black, thick] (4,0) rectangle (5,\fsoll); % 20 ha IV. AKL
+\filldraw[fill=orange!45, draw=orange!80!black, thick] (5,0) rectangle (6,\fsoll); % 20 ha V. AKL Nutzung
+\draw[green!50!black, thick, dashed] (0,\bloesse) -- (1,\bloesse) -- (1,\fsoll) -- (6,\fsoll) -- (6,0);
+\draw[->, thick] (0,0) -- (7.5,0) node[right, font=\tiny] {$t$};
+\draw[->, thick] (0,0) -- (0,3.0);
+\foreach \x/\l in {1/0,2/I,3/II,4/III,5/IV,6/V,7/VI} {\node[below, font=\tiny] at (\x-0.5,0) {\l};}
+\end{scope}
+% --- KOMPAKTE ZWEIZEILIGE LEGENDE FÜR EINSPALTIGES LAYOUT ---
+    \begin{scope}[shift={(0.1, -0.55)}, font=\scriptsize]
+      % Links oben & unten
+      \draw[green!50!black, very thick, dashed] (0,0.12) -- (0.45,0.12) node[right, black] {Soll-Fläche ($20\,\text{ha}$/AKL + $2\,\text{ha}$ Blöße)};
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (0,-0.28) rectangle (0.45,-0.08);
+      \node[right, black] at (0.5, -0.18) {Verbleibender Bestand};
+
+      % Rechts unten (Referenzpunkt für den rechten Rand)
+      \filldraw[fill=orange!35, draw=orange!80!black, thick] (3.8,-0.28) rectangle (4.25,-0.08);
+      \node[right, black, inner sep=0pt] (leg_unten) at (4.38, -0.18) {Periodennutzung ($= f_{i,\text{Soll}}$)};
+
+      % Rechts oben: exakt rechtsbündig an leg_unten ausgerichtet
+      \node[left, black, inner sep=0pt] (leg_oben) at (leg_unten.east |- 0, 0.12) {Blöße (Kl.~0)};
+      \filldraw[fill=white, draw=blue!70!black, thick] ([xshift=-0.58cm]leg_oben.west |- 0, 0.02) rectangle ([xshift=-0.13cm]leg_oben.west |- 0, 0.22);
+    \end{scope}
+\end{tikzpicture}}
+\caption{Entwicklung des Altersklassenaufbaus im Flächenfachwerk ($F = 102,\text{ha}$, Umtriebszeit $u = 100,\text{Jahre}$, $20$-jährige Perioden) bei kontinuierlicher Verjüngung über eine Schlagruhe von $v = 2,\text{Jahren}$ ($u_{\text{prod}} = u + v = 102,\text{Jahre}$; laufende Blöße konstant $2,\text{ha}$ in Klasse~0, weiß): Die anfängliche Blöße ($5,\text{ha}$ bei $t = 0$) wächst bei Naturverjüngung/Saat nach $20,\text{Jahren}$ in die I.~Altersklasse $(0, 20]$ ein und wandert als Flächenüberhang von $3,\text{ha}$ durch die Altersklassen, bis er in der 5.~Periode genutzt wird. Durch den um $v$ verlängerten Produktionszeitraum und die konstante Soll-Nutzung ($f_{i,\text{Soll}} = 20,\text{ha}$, orange) wird bei $t = 100$ der exakte Normalwaldaufbau erreicht ($2,\text{ha}$ Blöße sowie je $20,\text{ha}$ in den Klassen~I--V), sodass alle Bestände planmäßig im Zielalter $u = 100$ aus der V.~Altersklasse genutzt werden.}
+\label{fig:fachwerk_entwicklung}
+\end{figure}
+
+\subsection{Rechnerische Herleitung: Formelmethoden}
+
+Formelmethoden berechnen den nachhaltigen jährlichen Hiebsatz aus wenigen aggregierten Kennzahlen der gesamten Betriebsklasse -- insbesondere aus dem wirklichen Vorrat ($V_{\text{W}}$), dem Normalvorrat ($V_{\text{N}} = F \cdot v_{\text{N}}$), dem Zuwachs und der Umtriebszeit ($u$). Die meisten dieser Verfahren stammen aus dem 18.~und 19.~Jahrhundert und unterstellen das Leitbild des Normalwaldes als langfristigen Zielzustand. Heute dienen sie in der Forsteinrichtung vor allem als objektive Vergleichs- und Kontrollgrößen (Plausibilitätsprüfung) für die bestandesweise Einzelplanung.
+
+Die Zuwachsgrößen ($\text{HDZ}_u$, $\text{DGZ}_u$, $\text{LGZ}$) beziehen sich stets auf einen Hektar ($\text{m}^3/(\text{ha}\cdot\text{Jahr})$) und werden durch Multiplikation mit der Betriebsklassenfläche ($F$) auf die Gesamtbetriebsklasse skaliert. Nach ihrer rechnerischen Logik lassen sich vier Gruppen unterscheiden (vgl.\ Abbildung~\ref{fig:formelmethoden_schema}):
+
+\subsubsection{Normalvorratsverfahren}
+
+Diese Gruppe leitet den Hiebsatz aus einer Zuwachsgröße und der Differenz zwischen wirklichem und normalem Vorrat ab. Vorratsüberhänge werden abgebaut, Vorratsdefizite schrittweise aufgefüllt:
+
+\begin{description}
+\item[Österreichische Kameraltaxe (1788):] Die Kameraltaxe geht vom Haubarkeits-Durchschnittszuwachs der Betriebsklasse ($F \cdot \text{HDZ}_u$) aus und korrigiert diesen um die Vorratsdifferenz, verteilt auf einen Ausgleichszeitraum $\Delta t_{\text{Ausgl}}$ (klassisch die Umtriebszeit $u$, in der Praxis meist eine kürzere Periode):
+\begin{equation}
+H_{\text{EN}} = F \cdot \text{HDZ}_u + \frac{V_{\text{W}} - V_{\text{N}}}{\Delta t_{\text{Ausgl}}}
+\end{equation}
+Da als Zuwachsgröße der $\text{HDZ}_u$ eingesetzt wird, ergibt sich ein reiner Endnutzungshiebsatz ($H_{\text{EN}}$). Für Vergleiche mit Gesamtnutzungssätzen kann die Vornutzung laut Ertragstafel ($F \cdot (\text{DGZ}_u - \text{HDZ}_u)$) zugeschlagen werden.
+
+\item[Heyer'sche Formel (1841):] Carl Heyer ersetzt den $\text{HDZ}_u$ durch den laufenden Gesamtzuwachs ($\text{LGZ}$) und erhält damit unmittelbar einen Gesamtnutzungshiebsatz ($H_{\text{G}}$):
+\begin{equation}
+H_{\text{G}} = F \cdot \text{LGZ} + \frac{V_{\text{W}} - V_{\text{N}}}{\Delta t_{\text{Ausgl}}}
+\end{equation}
+Durch den Rückgriff auf den laufenden Zuwachs reagiert das Ergebnis deutlich empfindlicher auf die aktuelle Altersklassenverteilung der Betriebsklasse.
+
+\item[Gerhardt'sche Formel (1923):] Um den Einfluss der aktuellen Altersstruktur abzumildern, verwendet Gerhardt das arithmetische Mittel aus $\text{DGZ}_u$ und $\text{LGZ}$ als Zuwachsgröße für den Gesamtnutzungshiebsatz:
+\begin{equation}
+H_{\text{G}} = F \cdot \frac{\text{DGZ}_u + \text{LGZ}}{2} + \frac{V_{\text{W}} - V_{\text{N}}}{\Delta t_{\text{Ausgl}}}
+\end{equation}
+\end{description}
+
+\subsubsection{Massenteilungsverfahren}
+
+Diese Verfahren teilen den vorhandenen Vorrat -- teils unter Einbeziehung des laufenden Zuwachses -- direkt auf die Jahre eines festgelegten Zeitraums auf:
+
+\begin{description}
+\item[Mantel'sche Formel (1852):] Im Normalwaldmodell mit linearem Vorratsanstieg entspricht der Normalvorrat dem halben Endnutzungsvorrat ($v_{\text{N}} = m_u / 2$). Teilt man dementsprechend den wirklichen Gesamtvorrat ($V_{\text{W}}$) auf die halbe Umtriebszeit ($u/2$) auf, ergibt sich der Endnutzungshiebsatz direkt als:
+\begin{equation}
+H_{\text{EN}} = \frac{V_{\text{W}}}{u / 2} = \frac{2 \cdot V_{\text{W}}}{u}
+\end{equation}
+Wegen der groben Unterstellung eines linearen Vorratsverlaufs eignet sich die Formel nur für schnelle Überschlagsrechnungen. Durch Einführung des \emph{Flury-Faktors} $c$ im Nenner ($H_{\text{EN}} = V_{\text{W}} / (u \cdot c)$) lässt sich der Ansatz an reale Ertragstafelverläufe anpassen.
+
+\item[Verfahren nach Hufnagl (1893):] Hufnagl beschränkt die Massenteilung auf die ältere Hälfte der Betriebsklasse (Bestände über $u/2$). Es wird unterstellt, dass diese Bestände im Mittel noch die halbe Planungszeit -- also $u/4$ -- zuwachsen, bevor sie über den Zeitraum $u/2$ genutzt werden:
+\begin{equation}
+H_{\text{G,Alt}} = \frac{V_{\text{Alt}} + \left(F_{\text{Alt}} \cdot \text{LGZ}_{\text{Alt}} \cdot \frac{u}{4}\right)}{u / 2}
+\end{equation}
+Dabei bezeichnen $V_{\text{Alt}}$, $F_{\text{Alt}}$ und $\text{LGZ}_{\text{Alt}}$ den Gesamtvorrat, die Teilfläche und den laufenden Gesamtzuwachs der über $u/2$ alten Bestände. Da auch die Vornutzungen in diesem Bereich miterfasst sind, stellt $H_{\text{G,Alt}}$ den Gesamthiebsatz der älteren Betriebsklassenhälfte dar; die Vornutzung der jüngeren Bestände (unter $u/2$) muss gesondert ermittelt werden.
+
+\item[Erweiterung nach Flury (1914):] Da Hufnagls Ansatz Vorratsüberhänge oder -defizite in der jüngeren Betriebsklassenhälfte (unter $u/2$) unberücksichtigt lässt, ergänzt Flury im Zähler zusätzlich den Vorratsausgleich $(V_{\text{W}} - V_{\text{N}})$ über die \emph{gesamte Betriebsklasse} und verbindet so Massenteilung und Normalvorratsgedanken:
+\begin{equation}
+H_{\text{G,Alt}} = \frac{V_{\text{Alt}} + (V_{\text{W}} - V_{\text{N}}) + \left(F_{\text{Alt}} \cdot \text{LGZ}_{\text{Alt}} \cdot \frac{u}{4}\right)}{u / 2}
+\end{equation}
+Durch den gemeinsamen Nenner $u/2$ ist der Ausgleichszeitraum für die Vorratsdifferenz implizit auf die halbe Umtriebszeit ($\Delta t_{\text{Ausgl}} = u/2$) festgelegt.
+\end{description}
+
+\subsubsection{Nutzungsverhältnisverfahren}
+
+Diese Verfahren leiten den Hiebsatz aus dem normalen Zuwachs der Betriebsklasse ($F \cdot \text{HDZ}_u$ bzw.\ $F \cdot \text{DGZ}_u$) ab, indem sie diesen mit dem Verhältnis zwischen einer realen und der entsprechenden normalen Bestandeskennzahl (Vorrat oder Durchschnittsalter) gewichten:
+
+\begin{description}
+\item[Hundeshagen'sches Nutzungsprozent (1826):] Hundeshagen unterstellt, dass sich der nachhaltige Endnutzungshiebsatz zum wirklichen Vorrat ebenso verhält wie der normale Zuwachs zum Normalvorrat:
+\begin{equation}
+H_{\text{EN}} = F \cdot \text{HDZ}_u \cdot \frac{V_{\text{W}}}{V_{\text{N}}}
+\end{equation}
+Der Quotient $(F \cdot \text{HDZ}_u) / V_{\text{N}}$ (bzw.\ $\text{HDZ}_u / v_{\text{N}}$) entspricht dem normalen Nutzungsprozent. Ersetzt man $\text{HDZ}_u$ durch $\text{DGZ}_u$, liefert die Formel analog den Gesamtnutzungshiebsatz ($H_{\text{G}}$).
+
+\item[Breymann'sche Formel (1854):] Breymann ersetzt das Vorratsverhältnis durch das Verhältnis aus wirklichem Flächendurchschnittsalter ($a'$) und normalem Durchschnittsalter ($u/2$):
+\begin{equation}
+H_{\text{EN}} = F \cdot \text{HDZ}_u \cdot \frac{2 \cdot a'}{u}
+\end{equation}
+Damit reagiert das Verfahren direkt auf Verschiebungen im Altersklassenaufbau, ohne dass eine Gesamtvorratserhebung notwendig ist.
+\end{description}
+
+\subsubsection{Flächenbezogene Verfahren (Altersklassenverfahren)}
+
+Während die bisherigen Formelgruppen an Vorrats- und Zuwachswerten ansetzen, leiten flächenbezogene Verfahren den nachhaltigen Hiebsatz aus der realen Altersklassenverteilung ab. Sie bestimmen zunächst eine nachhaltige jährliche Endnutzungsfläche ($f_{\text{EN}}$) und multiplizieren diese mit dem durchschnittlichen Hektarvorrat der zur Nutzung heranstehenden Altbestände ($v_{\text{Alt}}$, inklusive anteiligem Zuwachs bis zum Eingriff). Die Methodik hat sich dabei in drei Schritten weiterentwickelt:
+
+\begin{description}
+\item[Einfaches Altersklassenverfahren (mit konkreten Flächen):] Dieses Grundverfahren geht von der normalen jährlichen Endnutzungsfläche ($f_{\text{EN}} = F/u$ bzw.\ periodisch $F_{\text{EN}} = F/u \cdot n$) aus und deckt diesen Flächenbedarf im Gelände einfach durch Auswahl der jeweils ältesten konkreten Bestände ab. 
+\begin{equation}
+H_{\text{EN}} = \frac{F}{u} \cdot \left( v_{\text{Alt}} + \text{LGZ}_{\text{Alt}} \cdot \frac{n}{2} \right)
+\end{equation}
+\emph{Einschränkung:} Das Verfahren ignoriert die tatsächliche Altersklassenstruktur der übrigen Betriebsklasse. Bei starken Altholzüberhängen bleiben überalterte Bestände zu lange stehen; bei einem Mangel an Altbeständen hingegen zwingt das starre Flächensoll zum vorzeitigen Abtrieb noch hiebsunreifer Bestände.
+
+\item[Graner'scher Altersklassenfaktor (1900):] Um die starre Normalfläche an Überhänge oder Defizite anzupassen, ohne aufwändig Vorräte erheben zu müssen, korrigiert Friedrich Graner den Ansatz $F/u$ über einen \emph{Altersklassenfaktor}. Dieser setzt die Abweichung des wirklichen Flächendurchschnittsalters ($a'$) vom normalen Durchschnittsalter ($u/2$) ins Verhältnis zu einem wählbaren Ausgleichszeitraum ($\Delta t_{\text{Ausgl}}$):
+\begin{equation}
+f_{\text{EN}} = \frac{F}{u} \cdot \left( 1 + \frac{a' - u/2}{\Delta t_{\text{Ausgl}}} \right)
+\end{equation}
+Liegt das Durchschnittsalter über $u/2$, steigt die nachhaltige Endnutzungsfläche über das Normalmaß $F/u$, bei einem jüngeren Altersaufbau wird sie entsprechend gedrosselt. \\
+\emph{Einschränkung:} Da $a'$ lediglich ein Gesamtmittelwert über alle Altersklassen ist, bleiben ungleichmäßige Verteilungen innerhalb der Betriebsklasse verborgen. So weisen etwa ein ausgeglichener Normalwald und ein reiner Stangenholzbetrieb mit durchgehend $50$-jährigen Beständen (bei $u = 100$) dasselbe Durchschnittsalter ($a' = u/2$) auf -- Graners Formel würde in beiden Fällen die volle Endnutzungsfläche $F/u$ ausweisen, obwohl im zweiten Fall keine hiebsreifen Bestände vorhanden sind.
+
+\item[Gleichflächenverfahren nach Güde (1955):] Neben einer ungleichmäßigen Altersverteilung kranken reine Flächenverfahren daran, dass reale Hektarflächen bei stark wechselnden Bonitäten sehr unterschiedliche Holzerträge liefern. Hellmuth Güde löst dieses Problem in zwei Schritten: Zunächst wird auf \emph{Bestandesebene} die reale Fläche ($f_x$) jedes Einzelbestandes ($x$) über seinen Haubarkeits-Durchschnittszuwachs ($\text{HDZ}_{u,x}$) auf eine normative Bezugsleistung von $10\,\text{m}^3/(\text{ha}\cdot\text{Jahr})$ umgerechnet (vgl.\ Abbildung~\ref{fig:guede_gleichflaeche}). Optional kann dabei zusätzlich der aktuelle Bestockungsgrad ($B^\circ_x$) als Korrekturfaktor einbezogen werden, um neben der Standortsbonität auch Bestockungsmängel abzubilden. Durch Aufsummierung über alle $N$ Bestände erhält man die gesamte \emph{Gleichfläche} ($F_{\text{gleich}}$) der Betriebsklasse:
+  
+\begin{align}
+f_{\text{gleich},x} &= f_x \cdot \frac{\text{HDZ}_{u,x}}{10} \quad \left(\text{bzw.: } f_x \cdot B^\circ_x \cdot \frac{\text{HDZ}_{u,x}}{10}\right) \\
+F_{\text{gleich}} &= \sum_x f_{\text{gleich},x}
+\end{align}
+
+Jeder Hektar Gleichfläche repräsentiert damit exakt $10\,\text{m}^3/\text{Jahr}$ an Endnutzungsleistung. Im zweiten Schritt wird auf \emph{Betriebsklassenebene} die nachhaltige jährliche Endnutzungs-Gleichfläche ($f_{\text{EN,gleich}}$) bestimmt -- im einfachsten Fall als $F_{\text{gleich}} / u$, in der Praxis meist kombiniert mit dem Graner'schen Altersklassenfaktor (berechnet über das flächendurchschnittliche Alter der Gleichflächen) oder einem anderen Altersklassenausgleich. Daraus ergibt sich unmittelbar der jährliche Endnutzungshiebsatz:
+
+\begin{equation}
+H_{\text{EN}} = f_{\text{EN,gleich}} \cdot 10
+\end{equation}
+
+Verwendet man anstelle des $\text{HDZ}_{u,x}$ den durchschnittlichen Gesamtzuwachs ($\text{DGZ}_{u,x}$), schließt die Bezugsleistung auch die Vornutzungen ein und die Berechnung liefert analog den jährlichen Gesamthiebsatz ($H_{\text{G}}$).\\
+\end{description}
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\columnwidth}{!}{%
+  \begin{tikzpicture}[
+      font=\footnotesize,
+      box/.style={thick, align=center},
+      ist/.style={box, fill=blue!15, draw=blue!70!black},
+      norm/.style={box, fill=green!15, draw=green!50!black}
+  ]
+
+    % --- OBERER BEREICH: REALE BESTÄNDE (Basislinie bei y = 3.20) ---
+    \node[anchor=west, font=\footnotesize\bfseries] at (0, 6.50) {1. Reale Bestände (unterschiedliche Fläche und Bonität)};
+
+    % Bestand A (links): f_1 = 0.67 ha, HDZ = 15
+    \draw[->, thick] (0.55, 3.20) -- (0.55, 5.95) node[above, font=\scriptsize] {$\text{HDZ}_u$};
+    \draw[green!50!black, thick] (0.47, 4.70) -- (0.55, 4.70) node[left, font=\tiny\bfseries] {$10$};
+    \draw (0.47, 5.45) -- (0.55, 5.45) node[left, font=\tiny] {$15$};
+    
+    \draw[->, thick] (0.55, 3.20) -- (2.45, 3.20) node[below, yshift=-1pt, font=\tiny] {$f$};
+    \filldraw[ist] (0.55, 3.20) rectangle (1.89, 5.45);
+    \node[above, font=\scriptsize\bfseries] at (1.22, 5.48) {Bestand A};
+    \node[font=\tiny, align=center] at (1.22, 3.85) {$10\,\text{m}^3/\text{J.}$};
+    \draw (1.89, 3.20) -- (1.89, 3.12) node[below, font=\tiny] {$0{,}67\,\text{ha}$};
+
+    % Bestand B (rechts): f_2 = 1.33 ha, HDZ = 7.5
+    \draw[->, thick] (3.45, 3.20) -- (3.45, 5.35) node[above, font=\scriptsize] {$\text{HDZ}_u$};
+    \draw (3.37, 4.325) -- (3.45, 4.325) node[left, font=\tiny] {$7{,}5$};
+
+    \draw[->, thick] (3.45, 3.20) -- (6.65, 3.20) node[below, yshift=-1pt, font=\tiny] {$f$};
+    \filldraw[ist] (3.45, 3.20) rectangle (6.11, 4.325);
+    \node[above, font=\scriptsize\bfseries] at (4.78, 4.35) {Bestand B};
+    \node[font=\tiny, align=center] at (4.78, 3.75) {$10\,\text{m}^3/\text{J.}$};
+    \draw (6.11, 3.20) -- (6.11, 3.12) node[below, font=\tiny] {$1{,}33\,\text{ha}$};
+
+    % Durchgehende Normlinie HDZ = 10 (y = 4.70)
+    \draw[green!50!black, thick, dashed] (0.55, 4.70) -- (6.85, 4.70);
+    \node[above right, green!50!black, font=\tiny\bfseries] at (3.65, 4.72) {Normleistung: $10\,\text{m}^3/(\text{ha}\cdot\text{J.})$};
+
+
+    % --- PFEILE DER UMRECHNUNG ---
+    \draw[->, >=stealth, very thick, black!75] (1.45, 2.65) -- (1.45, 2.00) 
+      node[midway, right, font=\tiny] {$\times \frac{15}{10}$};
+    \draw[->, >=stealth, very thick, black!75] (4.55, 2.65) -- (4.55, 2.00) 
+      node[midway, right, font=\tiny] {$\times \frac{7{,}5}{10}$};
+
+
+    % --- UNTERER BEREICH: NORMIERTE GLEICHFLÄCHEN (Basislinie bei y = -0.25) ---
+    \node[anchor=west, font=\footnotesize\bfseries] at (0, 1.70) {2. Normierte Gleichflächen (gleiche nachhaltige Leistung)};
+
+    % Gleichfläche 1: f_gleich = 1.0 ha
+    \draw[->, thick] (0.55, -0.25) -- (0.55, 1.48);
+    \draw[green!50!black, thick] (0.47, 1.25) -- (0.55, 1.25) node[left, font=\tiny\bfseries] {$10$};
+    \draw[->, thick] (0.55, -0.25) -- (2.95, -0.25);
+    \node[below, font=\tiny] at (1.55, -0.33) {$f_{\text{gleich}}$};
+    \filldraw[norm] (0.55, -0.25) rectangle (2.55, 1.25);
+    \node[font=\scriptsize, align=center] at (1.55, 0.50) {$f_{\text{gleich},1} = \mathbf{1{,}0\,\text{ha}}$ \\ \tiny ($10\,\text{m}^3/\text{Jahr}$)};
+    \draw (2.55, -0.25) -- (2.55, -0.33) node[below, font=\tiny] {$1{,}0\,\text{ha}$};
+
+    % Gleichzeichen
+    \node[font=\normalsize\bfseries] at (3.35, 0.50) {$=$};
+
+    % Gleichfläche 2: f_gleich = 1.0 ha
+    \draw[->, thick] (3.95, -0.25) -- (3.95, 1.48);
+    \draw[green!50!black, thick] (3.87, 1.25) -- (3.95, 1.25) node[left, font=\tiny\bfseries] {$10$};
+    \draw[->, thick] (3.95, -0.25) -- (6.35, -0.25);
+    \node[below, font=\tiny] at (4.95, -0.33) {$f_{\text{gleich}}$};
+    \filldraw[norm] (3.95, -0.25) rectangle (5.95, 1.25);
+    \node[font=\scriptsize, align=center] at (4.95, 0.50) {$f_{\text{gleich},2} = \mathbf{1{,}0\,\text{ha}}$ \\ \tiny ($10\,\text{m}^3/\text{Jahr}$)};
+    \draw (5.95, -0.25) -- (5.95, -0.33) node[below, font=\tiny] {$1{,}0\,\text{ha}$};
+
+  \end{tikzpicture}%
+  }
+  \caption{Prinzip des Gleichflächenverfahrens nach Güde: Zwei reale Bestände (blau) mit unterschiedlicher Fläche ($f$) und Standortsbonität ($\text{HDZ}_u$) erbringen denselben nachhaltigen Endnutzungsertrag ($10\,\text{m}^3/\text{Jahr}$). Weil ihre Ertragsleistung übereinstimmt, entsprechen sie nach der Umrechnung über den Quotienten $\text{HDZ}_u / 10$ derselben Gleichfläche ($f_{\text{gleich}} = 1{,}0\,\text{ha}$, grün).}
+  \label{fig:guede_gleichflaeche}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\columnwidth}{!}{%
+  \begin{tikzpicture}[
+      font=\footnotesize,
+      box/.style={draw=black!75, thick, rounded corners=2pt, minimum height=0.68cm, align=center, inner sep=3pt},
+      ist/.style={box, fill=blue!15, draw=blue!70!black},
+      soll/.style={box, fill=green!15, draw=green!50!black},
+      komb/.style={box, fill=violet!12, draw=violet!70!black},
+      erg/.style={box, fill=orange!40, draw=orange!80!black, font=\footnotesize\bfseries},
+      op/.style={font=\normalsize\bfseries}
+  ]
+
+    % --- 1. NORMALVORRATSVERFAHREN ---
+    \node[anchor=west, font=\footnotesize\bfseries] at (0, 9.0) {1. Normalvorratsverfahren (Kameraltaxe, Heyer, Gerhardt)};
+    \node[komb, anchor=west, minimum width=2.55cm] (z1) at (0, 8.25) {Zuwachs \\ \scriptsize ($F \cdot \text{HDZ}_u$ bzw.\ $\text{LGZ}$)};
+    \node[op] at (2.82, 8.25) {$+$};
+    \node[komb, anchor=west, minimum width=2.55cm] (d1) at (3.1, 8.25) {Vorratsausgleich \\ \scriptsize $(V_{\text{W}} - V_{\text{N}}) / \Delta t_{\text{Ausgl}}$};
+    \node[op] at (5.92, 8.25) {$=$};
+    \node[erg, anchor=west, minimum width=1.25cm] (h1) at (6.2, 8.25) {$H$};
+    \node[anchor=west, font=\scriptsize\itshape, text=black!75] at (0, 7.62) 
+      {$\rightarrow$ Additiver Ausgleich von Über- oder Untervorräten über $\Delta t_{\text{Ausgl}}$.};
+
+    \draw[black!25, thin] (0, 7.32) -- (7.45, 7.32);
+
+    % --- 2. MASSENTEILUNGSVERFAHREN ---
+    \node[anchor=west, font=\footnotesize\bfseries] at (0, 6.92) {2. Massenteilungsverfahren (Mantel, Hufnagl, Flury)};
+    \node[ist, anchor=west, minimum width=2.85cm] (m2) at (0, 6.17) {Vorrat (+ Zuwachs) \\ \scriptsize $V_{\text{W}}$ bzw.\ $V_{\text{Alt}} + Z_{\text{Alt}}$};
+    \node[op] at (3.22, 6.17) {$\div$};
+    \node[soll, anchor=west, minimum width=2.05cm] (t2) at (3.6, 6.17) {Planzeitraum \\ \scriptsize ($u/2$ bzw.\ $u \cdot c$)};
+    \node[op] at (5.92, 6.17) {$=$};
+    \node[erg, anchor=west, minimum width=1.25cm] (h2) at (6.2, 6.17) {$H$};
+    \node[anchor=west, font=\scriptsize\itshape, text=black!75] at (0, 5.54) 
+      {$\rightarrow$ Direkte Aufteilung des vorhandenen Vorrats auf die Planungsjahre.};
+
+    \draw[black!25, thin] (0, 5.24) -- (7.45, 5.24);
+
+    % --- 3. NUTZUNGSVERHÄLTNISVERFAHREN ---
+    \node[anchor=west, font=\footnotesize\bfseries] at (0, 4.84) {3. Nutzungsverhältnisverfahren (Hundeshagen, Breymann)};
+    \node[soll, anchor=west, minimum width=2.35cm] (z3) at (0, 4.09) {Normalzuwachs \\ \scriptsize ($F \cdot \text{HDZ}_u / \text{DGZ}_u$)};
+    \node[op] at (2.62, 4.09) {$\times$};
+    \node[komb, anchor=west, minimum width=2.75cm] (q3) at (2.9, 4.09) {Ist / Soll-Verhältnis \\ \scriptsize $V_{\text{W}}/V_{\text{N}}$ bzw.\ $a'/(u/2)$};
+    \node[op] at (5.92, 4.09) {$=$};
+    \node[erg, anchor=west, minimum width=1.25cm] (h3) at (6.2, 4.09) {$H$};
+    \node[anchor=west, font=\scriptsize\itshape, text=black!75] at (0, 3.46) 
+      {$\rightarrow$ Multiplikative Anpassung an den realen Vorrats- oder Alterszustand.};
+
+    \draw[black!25, thin] (0, 3.16) -- (7.45, 3.16);
+
+    % --- 4. FLÄCHENBEZOGENE VERFAHREN ---
+    \node[anchor=west, font=\footnotesize\bfseries] at (0, 2.76) {4. Flächenbezogene Verfahren (Altersklassen, Graner, Güde)};
+    \node[komb, anchor=west, minimum width=2.70cm] (f4) at (0, 2.01) {Endnutzungsfläche \\ \scriptsize ($f_{\text{EN}}$ bzw.\ $f_{\text{EN,gleich}}$)};
+    \node[op] at (3.00, 2.01) {$\times$};
+    \node[komb, anchor=west, minimum width=2.35cm] (v4) at (3.30, 2.01) {Flächenleistung \\ \scriptsize ($v_{\text{Alt}} + Z$ bzw.\ $10$)};
+    \node[op] at (5.92, 2.01) {$=$};
+    \node[erg, anchor=west, minimum width=1.25cm] (h4) at (6.2, 2.01) {$H$};
+    \node[anchor=west, font=\scriptsize\itshape, text=black!75] at (0, 1.38) 
+      {$\rightarrow$ Ableitung über nachhaltige Abnutzungs- bzw.\ Gleichflächen.};
+
+    % --- KOMPAKTE ZWEIZEILIGE FARBLEGENDE UNTEN ---
+    \draw[black!25, thin] (0, 1.02) -- (7.45, 1.02);
+    \begin{scope}[shift={(0.1, 0.58)}, font=\scriptsize]
+      \filldraw[fill=blue!15, draw=blue!70!black, thick] (0,0) rectangle (0.32,0.22);
+      \node[right] at (0.38, 0.11) {Ist-Größe (realer Wald)};
+      
+      \filldraw[fill=green!15, draw=green!50!black, thick] (3.75,0) rectangle (4.07,0.22);
+      \node[right] at (4.13, 0.11) {Soll- / Plangröße};
+    \end{scope}
+    \begin{scope}[shift={(0.1, 0.20)}, font=\scriptsize]
+      \filldraw[fill=violet!12, draw=violet!70!black, thick] (0,0) rectangle (0.32,0.22);
+      \node[right] at (0.38, 0.11) {Ist/Soll-Kombination};
+      
+      \filldraw[fill=orange!40, draw=orange!80!black, thick] (3.75,0) rectangle (4.07,0.22);
+      \node[right] at (4.13, 0.11) {Resultierender Hiebsatz ($H$)};
+    \end{scope}
+
+  \end{tikzpicture}%
+  }
+  \caption{Schematischer Vergleich der vier methodischen Grundprinzipien der Formelmethoden: Normalvorratsverfahren korrigieren den Zuwachs additiv um einen Vorratsausgleich (1), Massenteilungsverfahren teilen den vorhandenen Vorrat direkt auf einen Planzeitraum auf (2), Nutzungsverhältnisverfahren skalieren den Normalzuwachs multiplikativ über das Ist/Soll-Verhältnis (3) und flächenbezogene Verfahren leiten den Hiebsatz aus einer nachhaltigen Endnutzungs- bzw.\ Gleichfläche ab (4).}
+  \label{fig:formelmethoden_schema}
+\end{figure}
+
+\subsection{Ertragsregelung im ungleichaltrigen Wald}
+
+Die klassischen Flächen- und Formelweiser setzen das Modell des Altersklassenwaldes voraus. In stark ungleichaltrigen Beständen (z.\,B. Plenter- oder Dauerwald) greift diese Logik nicht, weil Bäume unterschiedlicher Dimensionen und Alter kleinräumig gemischt stehen und sich kein einheitliches Bestandesalter angeben lässt. Die Nutzungsplanung orientiert sich daher nicht am Alter, sondern an der Durchmesserverteilung und dem Entwicklungsstadium der Einzelbäume. In der Praxis haben sich dafür zwei grundlegend verschiedene Ansätze etabliert:
+
+\subsubsection{Stärkeklassenverfahren (deduktiver Ansatz)}
+
+Das \emph{Stärkeklassenverfahren} arbeitet -- ähnlich wie die Normalvorratsverfahren im Altersklassenwald -- mit einem Soll-Ist-Vergleich, überträgt diesen aber auf die Durchmesserstufen (Brusthöhendurchmesser). Dabei wird der tatsächlich vorhandene Holzvorrat je Durchmesserstufe (\textsc{Ist}) einer angestrebten Zielvorratsstruktur (\textsc{Soll}) gegenübergestellt. Da es für ungleichaltrige Wälder kein allgemeingültiges Idealmodell gibt, muss die Soll-Kurve je Stärkeklasse individuell aus den waldbaulichen und wirtschaftlichen Zielen des Betriebes abgeleitet werden. Als theoretische Orientierungshilfe dient häufig die Gleichgewichtsverteilung nach \emph{de Liocourt} bzw.\ deren waldbauliche Weiterentwicklung nach \emph{Schütz}, die eine halblogarithmisch leicht S-förmig abnehmende Stammzahlverteilung über die Durchmesserstufen beschreibt und im Soll-Ist-Vergleich sowohl Nutzungsüberhänge als auch Strukturdefizite sichtbar macht (siehe Abb.~\ref{fig:plentergleichgewicht}).
+
+\begin{figure}[!htbp]
+  \centering
+  \begin{tikzpicture}[scale=1.0, font=\small]
+    \path (-1.8, 0); % Fixiert den linken Rand exakt wie in den anderen Abbildungen
+    
+    % Achsen
+    \draw[->, thick] (0,0) -- (6.7,0) node[right, font=\footnotesize] {BHD};
+    \draw[->, thick] (0,0) -- (0,4.0) node[above, align=center] {Stammzahl $N$\\(log. Skala)};
+    
+    % Logarithmische Skalenstriche auf der y-Achse (schematisch)
+    \foreach \y/\lbl in {0.8/10, 2.0/100, 3.2/1000} {
+        \draw[thick] (-0.08,\y) -- (0.08,\y);
+        \node[left, font=\scriptsize, gray!80!black] at (-0.08,\y) {\lbl};
+        \draw[dotted, gray!40] (0,\y) -- (6.3,\y);
+    }
+
+    % Soll-Kurve (leicht S-förmig geschwungen nach Schütz)
+    % Definiert als kubische Bezier-Kurve von (0.4, 3.45) nach (6.0, 0.70)
+    % Höhen der Kurve in den Balkenmitten (x = 0.85, 1.75, 2.65, 3.55, 4.45, 5.35):
+    % ca. y_soll = 3.35, 3.05, 2.55, 1.95, 1.40, 0.95
+
+    % Balken 1 (Schwachholz, BHD 15): Ist (2.80) < Soll (3.35) -> Defizit (grün gestrichelt)
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (0.5,0) rectangle (1.2,2.80);
+    \filldraw[fill=green!14, draw=green!50!black, dashed, thick] (0.5,2.80) rectangle (1.2,3.35);
+    \node[below, yshift=-2pt, font=\scriptsize] at (0.85, 0) {15};
+    
+    % Balken 2 (BHD 25): Ist (3.00) ≈ Soll (3.05) -> Gleichgewicht
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (1.4,0) rectangle (2.1,3.00);
+    \node[below, yshift=-2pt, font=\scriptsize] at (1.75, 0) {25};
+    
+    % Balken 3 (Mittelholz, BHD 35): Ist (2.95) > Soll (2.55) -> Überhang (orange)
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (2.3,0) rectangle (3.0,2.55);
+    \filldraw[fill=orange!20, draw=orange!80!black, thick] (2.3,2.55) rectangle (3.0,2.95);
+    \node[below, yshift=-2pt, font=\scriptsize] at (2.65, 0) {35};
+    
+    % Balken 4 (BHD 45): Ist (1.60) < Soll (1.95) -> Defizit / Lücke (grün gestrichelt)
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (3.2,0) rectangle (3.9,1.60);
+    \filldraw[fill=green!14, draw=green!50!black, dashed, thick] (3.2,1.60) rectangle (3.9,1.95);
+    \node[below, yshift=-2pt, font=\scriptsize] at (3.55, 0) {45};
+    
+    % Balken 5 (Starkholz, BHD 55): Ist (1.85) > Soll (1.40) -> Überhang (orange)
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (4.1,0) rectangle (4.8,1.40);
+    \filldraw[fill=orange!20, draw=orange!80!black, thick] (4.1,1.40) rectangle (4.8,1.85);
+    \node[below, yshift=-2pt, font=\scriptsize] at (4.45, 0) {55};
+    
+    % Balken 6 (Zielstärke, BHD 65+): Ist (1.25) > Soll (0.95) -> Überhang (orange)
+    \filldraw[fill=blue!18, draw=blue!70!black, thick] (5.0,0) rectangle (5.7,0.95);
+    \filldraw[fill=orange!20, draw=orange!80!black, thick] (5.0,0.95) rectangle (5.7,1.25);
+    \node[below, yshift=-2pt, font=\scriptsize] at (5.35, 0) {65+};
+
+    % Soll-Kurve (leicht S-förmig geschwungen)
+    \draw[very thick, red!75!black] (0.4,3.45) .. controls (2.2,3.15) and (3.6,1.35) .. (6.0,0.75);
+    
+    % Kleine Legende oben rechts im freien Bereich
+    \draw[very thick, red!75!black] (3.7,3.70) -- (4.15,3.70) node[right, black, font=\scriptsize] {Soll-Kurve};
+    \filldraw[fill=orange!20, draw=orange!80!black] (3.75,3.25) rectangle (4.1,3.48);
+    \node[right, font=\scriptsize] at (4.15, 3.365) {Überhang (Nutzung)};
+    \filldraw[fill=green!14, draw=green!50!black, dashed] (3.75,2.85) rectangle (4.1,3.08);
+    \node[right, font=\scriptsize] at (4.15, 2.965) {Defizit (Aufbau)};
+  \end{tikzpicture}
+  \caption{Soll-Ist-Vergleich der Stammzahlverteilung im ungleichaltrigen Wald (halblogarithmische Darstellung in Anlehnung an \emph{de Liocourt} und \emph{Schütz}): Die angestrebte Gleichgewichtskurve (rot) verläuft aufgrund unterschiedlicher Standraumansprüche leicht S-förmig. Stammzahlüberhänge über der Soll-Kurve (orange) zeigen unmittelbare Nutzungsansätze an, während Lücken unterhalb der Kurve (grün gestrichelt) auf Einwuchs- oder Nachrückdefizite hinweisen.}
+  \label{fig:plentergleichgewicht}
+\end{figure}
+
+\subsubsection{Kontrollmethode (induktiver Ansatz)}
+
+Die \emph{Kontrollmethode nach Biolley} verzichtet hingegen vollständig auf ein vorgegebenes Soll-Modell und entwickelt den Hiebsatz schrittweise aus der laufenden Beobachtung des Waldes. Dazu wird der periodische Zuwachs ($Z$) über wiederholte Vollkluppungen oder permanente Stichproben retrospektiv aus Anfangsvorrat ($V_1$), Endvorrat ($V_2$) und den entnommenen Nutzungen ($N$) gemäß \cref{eq:kontrollmethode} hergeleitet. Dabei wird der \emph{Einwuchs} ($E$) -- also das Volumen jener Bäume, die während der Periode erstmals die Kluppschwelle überschritten haben -- bei detaillierten Auswertungen häufig gesondert ausgewiesen, um die Verjüngungsdynamik gezielt beurteilen zu können. Für eine verlässliche Zuwachsberechnung müssen auch die Nutzungen ($N$) stehend und nach derselben Methodik wie der Vorrat erfasst werden, da eine Rückrechnung vom Erntefestmeter auf den Vorratsfestmeter zu fehleranfällig wäre.
+
+Indem der Betrieb die Entwicklung von Vorrat und Zuwachs über mehrere Inventurperioden hinweg verfolgt, tastet er sich ohne starre Zielvorgabe an ein nachhaltiges Gleichgewicht heran. Ein wesentlicher Nachteil dieses rein induktiven Ansatzes besteht jedoch darin, dass ein stabiles Gleichgewicht ($N \approx Z$) auf sehr unterschiedlichen Vorratsniveaus erreicht werden kann -- vergleichbar mit einem Altersklassenwald, der bei einer Umtriebszeit von 200~Jahren ebenso im Gleichgewicht steht wie bei der zuwachsoptimalen Umtriebszeit von 100~Jahren, dabei aber deutlich unter seinem möglichen Leistungspotenzial oder den betrieblichen Zielvorgaben bleibt.
+
+\subsection{Bestandesweise Planung}
+
+Im Gegensatz zu den Formelmethoden, die den Forstbetrieb als aggregierte Recheneinheit behandeln, setzen die \emph{Verfahren mit konkreten Flächen} direkt am Einzelbestand an. Dabei werden alle Bestände im Gelände begangen, waldbaulich beurteilt und mit konkreten Maßnahmen für die kommende Planungsperiode ($n$ Jahre) beplant. Diese Vorgehensweise bildet heute das Standardverfahren in der mitteleuropäischen Forsteinrichtung, weil sie den tatsächlichen Zustand vor Ort -- etwa Bestandesstabilität, Verjüngungsfortschritt, Bringungslage und räumliche Ordnung -- unmittelbar berücksichtigt.
+
+Die Herleitung erfolgt in drei Schritten:
+\begin{description}
+\item[Bestandesweise Einzelplanung:] Für jeden Einzelbestand ($x$) wird nach waldbaulicher Dringlichkeit und Hiebsreife festgelegt, ob und auf welcher Teilfläche in der kommenden Periode eine Endnutzung ($f_{\text{EN},x}$) oder eine Durchforstung ($f_{\text{DF},x}$) stattfinden soll. Das erwartete Nutzungsvolumen ergibt sich aus dem angesetzten Nutzungsvolumen je Hektar ($m_{\text{EN},x}$ bzw.\ $m_{\text{VN},x}$, jeweils inklusive des anteiligen Zuwachses bis zum Eingriffszeitpunkt) multipliziert mit der geplanten Maßnahmefläche.
+
+\item[Aufsummierung zur Gesamtplanung:] Die Ansätze aller $N$ Einzelbestände werden getrennt nach End- und Vornutzung über die gesamte Betriebsklasse aufsummiert:
+\begin{equation}
+M_{\text{Plan}} = \sum_x \left( f_{\text{EN},x} \cdot m_{\text{EN},x} \right) + \sum_x \left( f_{\text{DF},x} \cdot m_{\text{VN},x} \right)
+\end{equation}
+Dividiert man diesen Wert durch die Periodenlänge ($n$), ergibt sich daraus der vorläufige jährliche Hiebsatz der Einzelplanung ($H_{\text{Plan}} = M_{\text{Plan}} / n$).
+
+\item[Abgleich mit den Weisern:] Anschließend werden die aufsummierten Flächen- und Massenergebnisse ($F_{\text{EN}}$, $F_{\text{DF}}$ und $H_{\text{Plan}}$) mit den zuvor ermittelten Weisern sowie den Formelmethoden verglichen. Weicht die Einzelplanung stark von den nachhaltigen Referenzwerten ab, erfolgt eine gezielte Anpassung nach waldbaulicher Dringlichkeit: Bei der \emph{Endnutzung} werden -- je nach Vorzeichen der Abweichung -- weniger dringliche Verjüngungshiebe in die nächste Periode verschoben oder umgekehrt noch zuwachskräftige Altholzbestände vorgezogen. Bei der \emph{Durchforstung} orientiert sich der Umfang hingegen primär an der waldbaulichen Notwendigkeit. Eine Einschränkung über Dringlichkeitsstufen erfolgt hier in der Regel nur, wenn betriebliche Kapazitäts- oder Absatzgrenzen überschritten würden.
+\end{description}
+
+\section{Sonderfälle und Abweichungen vom Idealmodell}
+
+In der betrieblichen Realität weichen Waldaufbau und Rahmenbedingungen häufig so stark von den Annahmen klassischer Normal- oder Zielwaldmodelle ab, dass modifizierte Betrachtungsweisen erforderlich werden.
+
+\subsection{Pflegerückstände}
+
+Wurden Bestände über längere Zeit gar nicht oder zu schwach durchforstet, sammelt sich im verbleibenden Bestand ein erhöhter Vorrat an -- es entstehen sogenannte \emph{Pflege-} oder \emph{Durchforstungsrückstände}. Im Vorratsweiser erscheint der wirkliche Vorrat ($V_{\text{W}}$) dadurch überhöht, was bei schematischer Anwendung von Formelmethoden einen hohen Endnutzungshiebsatz vortäuschen kann.
+
+Tatsächlich handelt es sich hierbei nicht um hiebsreife Endnutzungsvorräte, sondern um Pflegerückstände, die im Rahmen des Vornutzungshiebsatzes schrittweise abgebaut werden sollten. Zu beachten ist dabei die waldbauliche Belastbarkeit. Wurde die rechtzeitige Durchforstung versäumt, haben viele Bestandesglieder ihre Reaktionsfähigkeit verloren, und zu starke, abrupte Eingriffe würden das Risiko für Windwurf und Schneebruch massiv erhöhen. Der Abbau von Pflegerückständen muss daher behutsam über mehrere Durchforstungsturnusse gestreckt werden.
+
+\subsection{Unausgeglichener Altersaufbau (Altersüberhänge und -lücken)}
+
+Extreme Ungleichgewichte in der Altersstruktur -- etwa nach großen Kalamitäten (Windwurf, Borkenkäfer) oder nach umfangreichen Neuaufforstungen -- führen zu ausgeprägten Alterslücken oder Altersüberhängen:
+
+\begin{description}
+\item[Überalterte Betriebsklassen:] Überwiegen alte, schadensanfällige Bestände, würde ein strenges Festhalten am nachhaltigen Gleichgewicht zu erheblichen Entwertungs- und Zwangsnutzungsverlusten führen. Hier muss der Hiebsatz vorübergehend deutlich über dem nachhaltigen Niveau angesetzt werden, um die Altholzvorräte geordnet zu ernten und die Bestände rechtzeitig zu verjüngen.
+\item[Junge Aufbaubetriebe:] Dominiert hingegen die Jungwuchs- und Stangenholzphase, stehen kaum hiebsreife Endnutzungsbestände zur Verfügung. Der Hiebsatz beschränkt sich über Jahrzehnte fast ausschließlich auf waldbaulich notwendige Pflege- und Durchforstungseingriffe, um den Vorrat systematisch aufzubauen.
+\end{description}
+
+\section{Differenzierungen: Vornutzungshiebsatz und Durchforstungsreserven}
+
+Um den Hiebsatz in der Praxis steuern zu können, reicht eine einzige Gesamtzahl für den Betrieb nicht aus. Als Mindestgliederung wird er daher in \emph{End- und Vornutzung} -- jeweils getrennt nach Laub- und Nadelholz -- aufgeteilt. Dabei erfüllen die beiden Teilgrößen gegenläufige Schutzfunktionen: Während der Endnutzungshiebsatz einen Vorratsabbau begrenzt, bildet der Vornutzungshiebsatz aus Gründen der Bestandespflege, Stabilität und Wertentwicklung oft eine Mindestvorgabe nach unten. In besonderen Fällen kehrt sich diese Logik um: Im Schutzwald etwa erfordert die Aufrechterhaltung der Funktionstauglichkeit oft ein Mindestmaß an Verjüngung und damit an Endnutzung, während in manchen Laubholz-Betriebsklassen eine begrenzte lokale Brennholznachfrage die Vornutzung nach oben limitiert.
+
+Eine schematische Herleitung des Vornutzungshiebsatzes (z.\,B.\ über ein mittleres Nutzungsprozent) reicht zur Steuerung nicht aus, da der Vornutzungsanfall stark schwankt und einzelne Bestände mehrfach, andere gar nicht behandelt werden. Auch Schätzungen aus Ertragstafeln gelten nur für das abstrahierte Modell und dürfen nicht ungeprüft auf reale Bestände übertragen werden. Wirksam steuern lässt sich die Vornutzung erst, wenn ein waldbaulicher Hiebsatz nach \emph{Bestandestypen, Entwicklungsphasen, Eingriffsarten und Dringlichkeiten} gegliedert wird.
+
+Für die genaue Steuerung der Pflegenutzungen trennt die Forsteinrichtung scharf zwischen zwei Begriffen:
+
+\begin{description}
+\item[Durchforstungsrückstand:] Er entsteht, wenn waldbaulich notwendige Pflegemaßnahmen in der Vergangenheit unterblieben sind oder zu schwach ausgeführt wurden. Um diesen negativen Rückstand gezielt und ohne Stabilitätsverlust abzubauen, wird er getrennt nach Maßnahme, Bestandestyp, Entwicklungsphase, Fläche, Holzmasse und Dringlichkeit erfasst.
+\item[Durchforstungsreserve:] Darunter versteht man hingegen gezielt zurückgehaltene, aber planmäßig bewirtschaftete Nutzungspotenziale, die für einen künftigen Bedarf vorgehalten werden -- etwa zur Bedienung des lokalen Brennholzmarktes, für Deputate und Servitute oder bei günstiger Marktlage. Auf Bestandesebene entsteht eine solche Reserve durch bewusste Zurückhaltung bei der Eingriffsstärke (z.\,B.\ Belassen von Füllholz bzw.\ indifferenten Bestandesgliedern, die weder Zukunftsstämme sind noch diese bedrängen) sowie durch Maßnahmen geringerer Dringlichkeit. Dabei ist zu beachten, dass das Aufschieben von Eingriffen später zu höheren Aufarbeitungskosten führen kann.
+\end{description}
+
+\section{Auswirkung von Inventurfehlern auf die Genauigkeit des Hiebsatzes}
+
+Da die Herleitung des Hiebsatzes maßgeblich auf Vorrats- und Zuwachsdaten aus Stichprobeninventuren beruht, wirken sich deren Stichprobenfehler direkt auf die Planungssicherheit aus -- insbesondere bei der \emph{retrospektiven Zuwachsermittlung} über zwei aufeinanderfolgende Inventuren. Weil der periodische Zuwachs im Vergleich zum stehenden Gesamtvorrat eine relativ kleine Differenzgröße darstellt, addieren sich die absoluten Schätzfehler von Anfangs- und Endvorrat quadratisch ($\sqrt{s_{V_1}^2 + s_{V_2}^2}$) und führen, bezogen auf den Zuwachs, zu einem hohen relativen Fehler. Formelmethoden, die stark auf Vorratsdifferenzen ($V_{\text{W}} - V_{\text{N}}$) über kurze Ausgleichszeiträume oder auf kurzfristig hergeleiteten Inventurzuwächsen aufbauen, lassen diese statistischen Unsicherheiten besonders stark auf den Hiebsatz durchschlagen und sollten daher nie unkritisch übernommen werden. Ist der Fehlerrahmen der Inventurgrößen bekannt, lässt sich jedoch mittels Fehlerfortpflanzung für die einzelnen Hiebsatzweiser ein konkreter Streurahmen berechnen, was die Belastbarkeit der jeweiligen Kennzahlen transparent macht.
+
+\section{Gesamtplanung: Synthese zum betrieblichen Hiebsatz}
+
+Da kein einzelner Weiser und keine geschlossene Formel die komplexe Realität eines Forstbetriebes vollständig abbilden kann, erfolgt die endgültige Festsetzung des Hiebsatzes im Rahmen einer \emph{gutachtlichen Gesamtabwägung} (siehe Abb.~\ref{fig:hiebsatz_abwaegung}). Dabei führt der Forsteinrichter die Ergebnisse aus der bestandesweisen Einzelplanung, den Nachhaltigkeitsweisern sowie den Formelmethoden zusammen und gleicht sie mit den betriebswirtschaftlichen Rahmenbedingungen und Eigentümerzielen (etwa Liquiditätsbedarf, Arbeitskapazität oder Risikoabbau) ab.
+
+\begin{figure}[!htbp]
+\centering
+\begin{tikzpicture}[
+    font=\small,
+    box/.style={
+        rectangle, rounded corners=3pt, draw=blue!70!black, fill=blue!8,
+        text width=2.8cm, align=center, minimum height=0.85cm, inner sep=4pt
+    },
+    ziel/.style={
+        rectangle, rounded corners=3pt, draw=orange!80!black, fill=orange!12,
+        text width=2.8cm, align=center, minimum height=0.85cm, inner sep=4pt
+    },
+    centerbox/.style={
+        rectangle, rounded corners=4pt, draw=green!50!black, fill=green!15,
+        thick, text width=4.8cm, align=center, minimum height=1.1cm, inner sep=5pt
+    },
+    result/.style={
+        rectangle, rounded corners=4pt, draw=red!75!black, fill=red!10,
+        very thick, text width=4.4cm, align=center, minimum height=0.95cm, inner sep=5pt
+    },
+    arr/.style={->, >=stealth, thick, gray!80!black}
+]
+    % 1. Ebene: Fachliche Grundlagen
+    \node[box] (einzel) {Bestandesweise\\Einzelplanung};
+    \node[box, right=0.5cm of einzel] (weiser) {Weiser \&\\Formelmethoden};
+
+    % 2. Ebene: Betriebliche & externe Rahmenbedingungen
+    \node[ziel, below=0.5cm of einzel] (ziele) {Betriebsziele\\(Liquidität, Vorrat)};
+    \node[ziel, below=0.5cm of weiser] (risiko) {Risiko \& Markt\\(Schäden, Kapazität)};
+
+    % 3. Ebene: Gutachtliche Gesamtabwägung
+    \node[centerbox, below=0.75cm of $(ziele.south)!0.5!(risiko.south)$] (abwaegung) {
+        \textbf{Gutachtliche Gesamtabwägung}\\
+        \footnotesize Abgleich von Nachhaltigkeit, Struktur \& Machbarkeit
+    };
+
+    % 4. Ebene: Festgesetzter Hiebsatz
+    \node[result, below=0.75cm of abwaegung] (hiebsatz) {
+        \textbf{Festgesetzter Hiebsatz ($H$)}\\
+        \footnotesize Leitgröße für $n$ Jahre
+    };
+
+    % Pfeile (alle fließen sauber von oben nach unten!)
+    % Äußere Pfeile von den blauen Boxen außen herum in die Abwägung
+    \draw[arr] (einzel.west) -- ++(-0.35,0) |- ([yshift=0.15cm]abwaegung.west);
+    \draw[arr] (weiser.east) -- ++(0.35,0) |- ([yshift=0.15cm]abwaegung.east);
+    
+    % Innere Pfeile von den orangen Boxen direkt nach unten in die Abwägung
+    \draw[arr] (ziele.south) -- ++(0,-0.35) -| ([xshift=-0.9cm]abwaegung.north);
+    \draw[arr] (risiko.south) -- ++(0,-0.35) -| ([xshift=0.9cm]abwaegung.north);
+    
+    % Hauptpfeil zum Ergebnis
+    \draw[->, >=stealth, very thick, green!50!black] (abwaegung.south) -- (hiebsatz.north);
+\end{tikzpicture}
+\caption{Schematischer Ablauf der Hiebsatzfestsetzung: Bestandesweise Einzelplanung und rechnerische Weiser bilden die fachliche Grundlage, die unter Einbeziehung der Betriebsziele sowie der Risiko- und Marktsituation in einer gutachtlichen Gesamtabwägung zum verbindlichen Hiebsatz ($H$) zusammengeführt wird.}
+\label{fig:hiebsatz_abwaegung}
+\end{figure}
+
+Gerade wenn einzelne Kennzahlen widersprüchliche Signale senden -- etwa wenn ein hoher stehender Vorrat rechnerisch eine hohe Nutzung zulässt, eine ungünstige Altersstruktur oder angespannte Bringungsverhältnisse jedoch zur Zurückhaltung raten --, zeigt sich der Wert dieses mehrstufigen Abgleichs.Die endgültige Hiebsatzfestsetzung kann in drei aufeinander aufbauende Planungsstufen gegliedert werden:
+
+\begin{description}
+\item[Einzelplanung (Waldbaulicher Hiebsatz):] Aufsummierung aller im Gelände hergeleiteten Pflege- und Verjüngungshiebe über alle Bestände der Betriebsklasse.
+\item[Gesamtplanung (Naturaler Hiebsatz):] Abgleich des waldbaulichen Hiebsatzes mit den rechnerischen Nachhaltigkeitsweisern. Liegt die Summe der Einzelplanungen außerhalb der vertretbaren Toleranz, erfolgt eine erste waldbauliche Korrektur (z.\,B.\ durch Vorziehen oder Zurückstellen einzelner Verjüngungshiebe).
+\item[Betriebsplanung (Betrieblicher Hiebsatz):] Prüfung, ob die natural geplante Nutzungsmenge unter den wirtschaftlichen Rahmenbedingungen des Betriebes -- wie Arbeitskapazität, Liquiditätsbedarf und Marktlage -- realistisch umsetzbar ist. Falls nötig, führt eine zweite Korrektur zum endgültigen, vollzugsreifen Gesamthiebsatz für die Planungsperiode.
+\end{description}
+
+\subsection*{Hinweis zu Hilfsmitteln und Dank}
+
+Diese Arbeit wurde vollständig mit frei zugänglicher Software unter Linux erstellt. Für den Schriftsatz und die Erstellung der Grafiken kamen \LaTeX{} und TikZ zum Einsatz; bei der sprachlichen Überarbeitung, der Strukturierung einzelner Abschnitte sowie der technischen Umsetzung in \LaTeX{} wurde unterstützend das KI-Sprachmodell Google Gemini herangezogen. Mein Dank gilt den Entwicklerinnen und Entwicklern dieser offenen Werkzeuge und Dienste, die diese Arbeit kostenfrei ermöglicht haben.
+
+\onecolumn
+\section*{Symbolverzeichnis}
+\addcontentsline{toc}{section}{Symbolverzeichnis}
+
+\noindent\textbf{Systematik der Notation:} Großbuchstaben bezeichnen in der Regel Größen der \emph{gesamten Betriebsklasse} bzw.\ über eine gesamte Planungsperiode ($n$), Kleinbuchstaben entsprechende \emph{Hektarwerte} bzw.\ jährliche Größen (sowie die Teilfläche $f$). Indizes kennzeichnen den Bezug auf einen Einzelbestand ($x$), das Alter bzw.\ die Altersstufe ($t$), eine Altersklasse bzw.\ ein Stratum ($i$), einen Bestandestyp ($k$) oder die geplante Umtriebszeit ($u$).
+
+\begin{longtable}{@{}p{2.9cm}p{8.9cm}p{2.4cm}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Bedeutung} & \textbf{Einheit} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Symbol} & \textbf{Bedeutung} & \textbf{Einheit} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+\multicolumn{3}{@{}l}{\textit{\textbf{1. Zeit- und Altersgrößen}}} \\
+\midrule
+$t$ & Bestandesalter bzw.\ einjährige Altersstufe ($t = 1, \dots, u$) & Jahre \\
+$t_x$ & Alter des konkreten Einzelbestandes $x$ & Jahre \\
+$k$ & Hilfs-Laufindex für Eingriffszeitpunkte ($k \le t$) bzw.\ Bestandestypen & -- \\
+$i$ & Index für Altersklassen bzw.\ Inventurstraten & -- \\
+$u$ & Geplante Umtriebszeit der Betriebsklasse (Plangröße) & Jahre \\
+$u'$ & Latente Umtriebszeit ($u' = 2a'$) & Jahre \\
+$u_{\text{NW}},\, u_{\text{Ziel}}$ & Umtriebszeit im ungestörten Normalwald bzw.\ angepasste Umtriebszeit im Zielwald & Jahre \\
+$u_{\text{DGZ}_{\max}},\, u_{\text{HDZ}_{\max}}$ & Umtriebszeit maximaler Volumen- bzw.\ Endnutzungsleistung & Jahre \\
+$u_{\text{WR}_{\max}},\, u_{\text{BR}_{\max}}$ & Umtriebszeit maximaler Wald- bzw.\ Bodenrente & Jahre \\
+$t_{\text{EN}},\, t_{\text{EN},x}$ & Reales Abtriebsalter (Endnutzungszeitpunkt) allgemein bzw.\ des Einzelbestandes $x$ & Jahre \\
+$a_i,\, a'$ & Mittleres Alter der Altersklasse $i$ bzw.\ flächendurchschnittliches Alter der Betriebsklasse & Jahre \\
+$w_i$ & Klassenbreite (Altersspanne) der Altersklasse $i$ & Jahre \\
+$a_{\text{alt},i}$ & Klassenbreite der $i$-ältesten Altersklasse (Flächenfachwerk bzw.\ Verfahren nach Güde) & Jahre \\
+$\Delta t_{\text{DF}},\, \Delta t_{\text{DF},k}$ & Durchforstungsturnus allgemein bzw.\ des Bestandestyps $k$ & Jahre \\
+$\Delta t_{\text{Ausgl}}$ & Ausgleichszeitraum für Vorratsdifferenzen ($V_{\text{W}} - V_{\text{N}}$) & Jahre \\
+$n$ & Länge der Planungs- bzw.\ Inventurperiode (oder Altersintervall der Ertragstafel) & Jahre \\
+$N$ & Gesamtanzahl der Einzelbestände in der Betriebsklasse & -- \\
+
+\addlinespace[0.6em]
+\multicolumn{3}{@{}l}{\textit{\textbf{2. Flächen- und Bestandesbezug}}} \\
+\midrule
+$x$ & Index für einen konkreten Einzelbestand & -- \\
+$F$ & Gesamtfläche der Betriebsklasse & $\text{ha}$ \\
+$f,\, f_{\text{EN}},\, f_{\text{Verj}}$ & Fläche einer Altersstufe ($F/u$), jährliche Endnutzungs- bzw.\ Verjüngungsfläche & $\text{ha}$ bzw.\ $\text{ha}/\text{Jahr}$ \\
+$f_i,\, f_x,\, F_i,\, F_k$ & Teilfläche der Altersklasse $i$, des Einzelbestandes $x$ bzw.\ des Bestandestyps $k$ & $\text{ha}$ \\
+$f_{i,\text{Ist}},\, f_{i,\text{Soll}}$ & Wirkliche Ist-Fläche bzw.\ normale Soll-Fläche der Altersklasse $i$ & $\text{ha}$ \\
+$F_{\text{EN}},\, F_{\text{DF}}$ & Periodische Endnutzungs- bzw.\ Durchforstungsfläche (über $n$ Jahre) & $\text{ha}$ \\
+$F_{\text{DF,ges}}$ & Gesamte durchforstungsbedürftige Fläche der Betriebsklasse & $\text{ha}$ \\
+$F_{\text{DF},k}$ & Periodische Durchforstungsfläche des Bestandestyps $k$ & $\text{ha}$ \\
+$F_{\text{real}},\, F_{\text{red}}$ & Reale Bestandesfläche bzw.\ auf Vollbestockung reduzierte Fläche ($F_{\text{real}} \cdot B^\circ$) & $\text{ha}$ \\
+$F_{\text{alt},i}$ & Fläche der $i$-ältesten Altersklasse (Flächenfachwerk bzw.\ Verfahren nach Güde) & $\text{ha}$ \\
+$F_{\text{Alt}}$ & Teilfläche der Altbestände (Bestände über $u/2$ im Massenteilungsverfahren) & $\text{ha}$ \\
+$B^\circ$ & Bestockungsgrad (Verhältnis von wirklicher zu voller Bestockung) & -- \\
+$\text{AG}$ & Abnormitätsgrad der Altersklassenverteilung & $\%$ \\
+
+\addlinespace[0.6em]
+\multicolumn{3}{@{}l}{\textit{\textbf{3. Holzvolumina und Vorräte (Großbuchstaben: Betriebsklasse; Kleinbuchstaben: je ha)}}} \\
+\midrule
+$M_u,\, m_u$ & Endnutzungsvolumen im Alter $u$ (Betriebsklasse bzw.\ je ha) & $\text{m}^3$ bzw.\ $\text{m}^3/\text{ha}$ \\
+$M_{\text{VN},t},\, m_{\text{VN},t}$ & Vornutzungsvolumen (ausscheidender Bestand) im Alter $t$ & $\text{m}^3$ bzw.\ $\text{m}^3/\text{ha}$ \\
+$M_{S,u},\, M_{\text{VN},S,t}$ & Volumen eines Zielsortiments $S$ in der End- bzw.\ Vornutzung (Betriebsklasse) & $\text{m}^3$ \\
+$M_{\text{EN}},\, M_{\text{VN}},\, M_{\text{G}}$ & Periodisches Endnutzungs-, Vornutzungs- bzw.\ Gesamtnutzungsvolumen ($n$ Jahre) & $\text{m}^3$ \\
+$M_{\text{Plan}}$ & Periodisches Gesamtnutzungsvolumen aus der bestandesweisen Einzelplanung & $\text{m}^3$ \\
+$m_{\text{EN}},\, m_{\text{VN}},\, m_{\text{VN},k}$ & Geplantes Endnutzungs- bzw.\ Durchforstungsvolumen je ha (allgemein bzw.\ des Bestandestyps $k$) & $\text{m}^3/\text{ha}$ \\
+$v_t,\, m_t$ & Vorrat des verbleibenden Bestandes im Alter $t$ (allgemein bzw.\ Tafelvorrat) & $\text{m}^3/\text{ha}$ \\
+$v_{\text{Alt}},\, V_i$ & Mittlerer Hektarvorrat der Altbestände bzw.\ Gesamtvorrat des Stratums $i$ & $\text{m}^3/\text{ha}$ bzw.\ $\text{m}^3$ \\
+$V_{\text{alt},i}$ & Gesamtvorrat der $i$-ältesten Altersklasse & $\text{m}^3$ \\
+$V_{\text{Alt}}$ & Gesamtvorrat der Altbestände (Bestände über $u/2$ im Massenteilungsverfahren) & $\text{m}^3$ \\
+$V_{\text{W}},\, V_1,\, V_2$ & Wirklicher Gesamtvorrat der Betriebsklasse (allgemein bzw.\ zu Periodenbeginn/-ende) & $\text{m}^3$ \\
+$V_{\text{N}},\, v_{\text{N}}$ & Normalvorrat des verbleibenden Bestandes (Betriebsklasse bzw.\ je ha) & $\text{m}^3$ bzw.\ $\text{m}^3/\text{ha}$ \\
+$V_{\text{VN}},\, v_{\text{VN}}$ & Vornutzungsvorrat / Nebenbestandsvorrat (Betriebsklasse bzw.\ je ha) & $\text{m}^3$ bzw.\ $\text{m}^3/\text{ha}$ \\
+$V_{\text{N}}',\, v_{\text{N}}'$ & Gesamter Normalvorrat inkl.\ Vornutzungsvorrat ($V_{\text{N}} + V_{\text{VN}}$) & $\text{m}^3$ bzw.\ $\text{m}^3/\text{ha}$ \\
+$\text{GWL}_t$ & Gesamtwuchsleistung je ha bis zum Alter $t$ & $\text{m}^3/\text{ha}$ \\
+$N,\, E$ & Periodisch entnommene Nutzung bzw.\ Einwuchs über die Kluppschwelle ($n$ Jahre) & $\text{m}^3$ \\
+
+\addlinespace[0.6em]
+\multicolumn{3}{@{}l}{\textit{\textbf{4. Zuwachs, Hiebsatz und statistische Größen}}} \\
+\midrule
+$\text{LFZ},\, \text{LFZ}_x$ & Laufender jährlicher Zuwachs (allgemein bzw.\ des Einzelbestandes $x$) & $\text{m}^3/(\text{ha}\cdot\text{Jahr})$ \\
+$\text{LGZ},\, \text{LGZ}_{\text{Alt}}$ & Laufender Gesamtzuwachs je ha (allgemein bzw.\ der Altbestände) & $\text{m}^3/(\text{ha}\cdot\text{Jahr})$ \\
+$Z$ & Periodischer Gesamtzuwachs der Betriebsklasse nach Kontrollmethode ($n$ Jahre) & $\text{m}^3$ \\
+$\text{DGZ}_t,\, \text{DGZ}_u$ & Durchschnittlicher Gesamtzuwachs je ha im Alter $t$ bzw.\ $u$ & $\text{m}^3/(\text{ha}\cdot\text{Jahr})$ \\
+$\text{DGZ}_{S,u}$ & Durchschnittlicher Gesamtzuwachs eines Zielsortiments $S$ im Alter $u$ & $\text{m}^3/(\text{ha}\cdot\text{Jahr})$ \\
+$\text{DGZ}_{\text{Betrieb}}$ & Durchschnittlicher Gesamtzuwachs der Betriebsklasse unter Risiko & $\text{m}^3/(\text{ha}\cdot\text{Jahr})$ \\
+$\text{HDZ}_u$ & Haubarkeits-Durchschnittszuwachs je ha (bezogen auf die Endnutzung) & $\text{m}^3/(\text{ha}\cdot\text{Jahr})$ \\
+$H,\, H_{\text{EN}},\, H_{\text{G}}$ & Jährlicher Hiebsatz allgemein, Endnutzungs- bzw.\ Gesamthiebsatz der Betriebsklasse & $\text{m}^3/\text{Jahr}$ \\
+$H_{\text{G,Alt}}$ & Jährlicher Gesamthiebsatz der älteren Betriebsklassenhälfte (über $u/2$) & $\text{m}^3/\text{Jahr}$ \\
+$H_{\text{Plan}}$ & Vorläufiger jährlicher Hiebsatz aus der bestandesweisen Einzelplanung & $\text{m}^3/\text{Jahr}$ \\
+$c$ & Flury-Faktor zur Anpassung an den realen Vorratsverlauf & -- \\
+$p_t$ & Altersspezifische Übergangswahrscheinlichkeit ($p_t \le 1$) im Zielwaldmodell & -- \\
+$f_F\,\%,\, f_v\,\%,\, f_V\,\%$ & Relativer Standardfehler von Fläche, Hektarvorrat bzw.\ Gesamtvorrat & $\%$ \\
+$f_{V,i}\,\%,\, f_{\text{ges}}\,\%$ & Relativer Vorratsfehler im Stratum $i$ bzw.\ Gesamtfehler über alle Straten & $\%$ \\
+$s_Z,\, s_{V_1},\, s_{V_2},\, s_N,\, s_E$ & Absoluter Standardfehler des periodischen Zuwachses bzw.\ seiner Komponenten & $\text{m}^3$ \\
+
+\addlinespace[0.6em]
+\multicolumn{3}{@{}l}{\textit{\textbf{5. Monetäre Größen und Kennzahlen (in Geldeinheiten, GE)}}} \\
+\midrule
+$A_u$ & Erntekostenfreier Abtriebsertrag der Altersstufe $u$ & $\text{GE}$ \\
+$D_t$ & Erntekostenfreier Durchforstungsertrag (Deckungsbeitrag) der Altersstufe $t$ & $\text{GE}$ \\
+$K_c$ & Kulturkosten (Bestandesbegründung) der Altersstufe & $\text{GE}$ \\
+$v$ & Jährliche Verwaltungskosten der gesamten Betriebsklasse & $\text{GE}/\text{Jahr}$ \\
+$B_t,\, H_t$; $B_x,\, H_x$ & Bodenwert bzw.\ Bestandeswert der Altersstufe $t$ oder des Einzelbestandes $x$ & $\text{GE}$ \\
+$p_i,\, p_{i,\max}$ & Forstlicher Zinsfuß bzw.\ maximale prozentuale Verzinsung & $\%$ \\
+$p_k$ & Vorgegebener Kalkulationszinsfuß & $\%$ \\
+\end{longtable}
+\twocolumn
+
+\end{document}

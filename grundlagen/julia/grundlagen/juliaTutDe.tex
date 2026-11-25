@@ -72,6 +72,7 @@
 
 \usepackage{adjustbox}
 \usepackage[a4paper, margin=1mm, includefoot, footskip=15pt]{geometry}
+\setlength{\columnsep}{5mm}
 
 \usepackage[pdftitle={Grundlagen der Programmiersprache Julia}
 , pdfauthor={Georg Kindermann}
@@ -1360,6 +1361,7 @@ using DataFramesMeta
 df[df.SepalWidth .>3, :]          # Zeilen mit SepalWidth > 3
 filter(:SepalWidth => >(3), df)   # Das gleiche
 filter(:SepalWidth => >(3), df, view = true) # Referenz
+view(df, df.SepalWidth .>3, :)               # Referenz
 subset(df, :SepalWidth => x -> x .> 3) # Das gleiche
 subset(df, :SepalWidth => ByRow(>(3))) # Das gleiche
 subset(df, :SepalWidth => ByRow(>(3)), view = true)
